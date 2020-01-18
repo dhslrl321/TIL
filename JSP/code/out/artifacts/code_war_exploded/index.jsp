@@ -13,16 +13,9 @@
   </head>
   <body>
   <%
-    Date date = new Date();
-
-    SimpleDateFormat simpleDate = new SimpleDateFormat("yyyy-mm-dd");
-    String dateString = simpleDate.format(date);
+    String name = "Onigiri";
   %>
 
-  기상청 홈페이지에 오신 것을 환영합니다.
-
-  오늘의 날짜는 <%=dateString%> 입니다.
-
-  오늘의 날씨는 맑습니다.
+  저의 이름은 <%=name%> 입니다.
   </body>
 </html>
