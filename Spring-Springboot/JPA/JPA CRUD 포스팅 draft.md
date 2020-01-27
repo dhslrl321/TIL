@@ -27,3 +27,13 @@
 ## MVC의 Model과 Entity
 
 JPA를 사용하여 Data를 이용하려면, Model과 Entity에 대해서 알아야 한다.
+
+***
+해당 포스트는 여러 편으로 나누어져 하나의 개념을 이루고 있습니다. 보다 자세한 학습과 이해를 위해 다른 포스트도 참고해주세요 :)
+
+- 1. [Jpa의 Entity 설정 및 Repository 설정](https://wonit.tistory.com/127)
+- 2. [create메서드로 회원가입 서비스 만들기-꼭 확인하셔야해요!!](https://wonit.tistory.com/128)
+- 3. [read 메서드로 회원 검색 서비스 만들기](https://wonit.tistory.com/129)
+- 4. [update 메서드로 개인정보 수정 서비스 만들기](https://wonit.tistory.com/130)
+- 5. [delete 메서드로 회원 탈퇴 서비스 만들기](https://wonit.tistory.com/131)
+***
