@@ -22,4 +22,9 @@ public class UserRepositoryTests extends JpatestApplicationTests {
         User newUser = userRepository.save(user);
     }
 
+    @Test
+    public void read(){
+        
+    }
+
 }
