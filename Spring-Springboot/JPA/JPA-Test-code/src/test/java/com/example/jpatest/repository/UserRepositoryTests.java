@@ -6,6 +6,8 @@ import com.example.jpatest.model.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
 public class UserRepositoryTests extends JpatestApplicationTests {
 
     @Autowired
@@ -24,7 +26,12 @@ public class UserRepositoryTests extends JpatestApplicationTests {
 
     @Test
     public void read(){
-        
+        Optional<User> user =  userRepository.findById(1L);
+
+        user.ifPresent(selectUser ->{
+            System.out.println(selectUser.getName());
+            System.out.println(selectUser.getAccount());
+        });
     }
 
 }
