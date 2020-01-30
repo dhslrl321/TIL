@@ -34,4 +34,17 @@ public class UserRepositoryTests extends JpatestApplicationTests {
         });
     }
 
+    @Test
+    public void update(){
+        Optional<User> user = userRepository.findById(1L);
+
+        user.ifPresent(selectUser->{
+            selectUser.setName("김민수");
+            selectUser.setAccount("kimMin123");
+            userRepository.save(selectUser);
+        });
+
+    }
+
+
 }
