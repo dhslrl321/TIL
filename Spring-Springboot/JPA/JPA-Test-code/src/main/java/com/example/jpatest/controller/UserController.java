@@ -28,8 +28,22 @@ public class UserController {
         Optional<User> user = userRepository.findById(id);
 
         return user.get();
+    }
 
+    @PutMapping("/user")
+    public Optional<User> changeInfo(@RequestParam Long id, @RequestBody User user){
 
+        Optional<User> updateUser = userRepository.findById(id);
+
+        updateUser.ifPresent(selectUser->{
+            selectUser.setName(user.getName());
+            selectUser.setAccount(user.getAccount());
+            selectUser.setPassword(user.getPassword());
+
+            userRepository.save(selectUser);
+        });
+
+        return updateUser;
     }
 
 }
