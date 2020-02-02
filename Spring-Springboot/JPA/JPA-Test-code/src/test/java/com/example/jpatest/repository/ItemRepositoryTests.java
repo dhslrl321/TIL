@@ -16,9 +16,9 @@ public class ItemRepositoryTests extends JpatestApplicationTests {
     public void create(){
         Item item = new Item();
 
-        item.setName("노트북");
-        item.setPrice(100000);
-        item.setContent("삼성 노트북");
+        item.setName("Macbook pro 16");
+        item.setPrice(3200000);
+        item.setContent("Apple");
 
         Item newItem = itemRepository.save(item);
         Assert.assertNotNull(newItem);
@@ -26,10 +26,11 @@ public class ItemRepositoryTests extends JpatestApplicationTests {
 
     @Test
     public void read(){
-        Optional<Item> item = itemRepository.findById(1L);
+        Optional<Item> item = itemRepository.findById(3L);
 
-        item.ifPresent(selectItem -> {
-            System.out.println(selectItem.getName());
+        Assert.assertNotNull(item);
+        item.ifPresent(item1 -> {
+            System.out.println(item1.getName());
         });
     }
 }

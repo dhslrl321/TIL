@@ -33,7 +33,7 @@ public class UserRepositoryTests extends JpatestApplicationTests {
 
         user.ifPresent(selectUser ->{
             selectUser.getOrderDetailList().stream().forEach(orderDetail -> {
-                Item item = new Item();
+                Item item = orderDetail.getItem();
                 System.out.println(item);
             });
         });

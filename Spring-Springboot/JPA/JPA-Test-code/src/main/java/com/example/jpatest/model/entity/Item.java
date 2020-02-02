@@ -1,6 +1,8 @@
 package com.example.jpatest.model.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.graalvm.compiler.nodes.graphbuilderconf.GeneratedInvocationPlugin;
 
 import javax.persistence.*;
@@ -8,6 +10,8 @@ import java.util.List;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Item {
 
     @Id
