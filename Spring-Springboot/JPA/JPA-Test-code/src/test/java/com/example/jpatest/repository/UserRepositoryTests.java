@@ -2,8 +2,8 @@ package com.example.jpatest.repository;
 
 
 import com.example.jpatest.JpatestApplicationTests;
+import com.example.jpatest.model.entity.Item;
 import com.example.jpatest.model.entity.User;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,12 +27,15 @@ public class UserRepositoryTests extends JpatestApplicationTests {
     }
 
     @Test
+    @Transactional
     public void read(){
-        Optional<User> user =  userRepository.findById(1L);
+        Optional<User> user =  userRepository.findById(5L);
 
         user.ifPresent(selectUser ->{
-            System.out.println(selectUser.getName());
-            System.out.println(selectUser.getAccount());
+            selectUser.getOrderDetailList().stream().forEach(orderDetail -> {
+                Item item = new Item();
+                System.out.println(item);
+            });
         });
     }
 
