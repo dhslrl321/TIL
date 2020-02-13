@@ -2,7 +2,7 @@ package chapter01_Search.search02_binarySearch;
 
 import java.util.Scanner;
 
-public class Test {
+public class Search02_BinarySearchForRoop{
     public static void main(String[] args) {
         int[] arr = {1, 3, 5, 7, 9, 10, 11, 12, 13};
         int key = 11;
