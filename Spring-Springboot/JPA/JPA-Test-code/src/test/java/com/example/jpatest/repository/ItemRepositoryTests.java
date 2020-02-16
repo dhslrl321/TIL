@@ -16,9 +16,9 @@ public class ItemRepositoryTests extends JpatestApplicationTests {
     public void create(){
         Item item = new Item();
 
-        item.setName("Macbook pro 16");
-        item.setPrice(3200000);
-        item.setContent("Apple");
+        item.setName("LG Gram 9");
+        item.setPrice(1128000);
+        item.setContent("LG");
 
         Item newItem = itemRepository.save(item);
         Assert.assertNotNull(newItem);

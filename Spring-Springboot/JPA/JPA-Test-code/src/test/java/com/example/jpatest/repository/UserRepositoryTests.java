@@ -19,14 +19,14 @@ public class UserRepositoryTests extends JpatestApplicationTests {
     public void create(){
         User user = new User();
 
-        user.setAccount("KaKao123");
+        user.setAccount("park9691");
         user.setPassword("testPw123");
-        user.setName("Onigi");
+        user.setName("Sunny");
 
         User newUser = userRepository.save(user);
     }
 
-    @Test
+    /*@Test
     @Transactional
     public void read(){
         Optional<User> user =  userRepository.findById(5L);
@@ -37,7 +37,7 @@ public class UserRepositoryTests extends JpatestApplicationTests {
                 System.out.println(item);
             });
         });
-    }
+    }*/
 
     @Test
     public void update(){

@@ -1,6 +1,7 @@
 package com.example.jpatest.controller;
 
 
+import com.example.jpatest.model.entity.OrderDetail;
 import com.example.jpatest.model.entity.User;
 import com.example.jpatest.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +46,6 @@ public class UserController {
 
         return updateUser;
     }
+
 
 }

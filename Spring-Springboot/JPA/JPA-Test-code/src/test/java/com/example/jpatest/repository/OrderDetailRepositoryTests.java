@@ -18,8 +18,9 @@ public class OrderDetailRepositoryTests extends JpatestApplicationTests {
     public void create(){
         OrderDetail orderDetail = new OrderDetail();
 
-        orderDetail.setOrderAt(LocalDateTime.now());
-
+        /*orderDetail.setOrderAt(LocalDateTime.now());
+        orderDetail.setUserId(1L);
+        orderDetail.setItemId();*/
         // 1L 이라는 사람이
         //orderDetail.setUserId(5L);
         // 1L 이라는 item을 주문하였다.
@@ -31,10 +32,15 @@ public class OrderDetailRepositoryTests extends JpatestApplicationTests {
     @Test
     @Transactional
     public void read(){
-        Optional<OrderDetail> orderDetail = orderDetailRepository.findById(1L);
+        Optional<OrderDetail> orderDetail = orderDetailRepository.findById(4L);
 
         orderDetail.ifPresent(orderDetail1 -> {
+            System.out.println();
+            System.out.println();
             System.out.println(orderDetail1.getUser());
+            System.out.println(orderDetail1.getItem());
+            System.out.println();
+            System.out.println();
         });
     }
 }
