@@ -26,18 +26,21 @@ public class UserRepositoryTests extends JpatestApplicationTests {
         User newUser = userRepository.save(user);
     }
 
-    /*@Test
+    // User에서 getOrderDeatilList로 주문 상세 내역을 볼 수 있음, 이 말은 User가 Item을 참조할 ㅅ ㅜ있따는 소리
+    @Test
     @Transactional
     public void read(){
-        Optional<User> user =  userRepository.findById(5L);
+        Optional<User> user =  userRepository.findByName("Sunny");
 
         user.ifPresent(selectUser ->{
-            selectUser.getOrderDetailList().stream().forEach(orderDetail -> {
-                Item item = orderDetail.getItem();
-                System.out.println(item);
-            });
+            System.out.println();
+            System.out.println();
+            System.out.println(selectUser.getAccount());
+            System.out.println(selectUser.getPassword());
+            System.out.println();
+            System.out.println();
         });
-    }*/
+    }
 
     @Test
     public void update(){
