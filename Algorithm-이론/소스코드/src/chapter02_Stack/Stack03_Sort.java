@@ -11,7 +11,7 @@ public class Stack03_Sort {
     void sort(Stack<Integer> s1){
         Stack<Integer> s2 = new Stack<>();
         while(s1.empty()){
-
+            s2.pop();
         }
     }
 }
