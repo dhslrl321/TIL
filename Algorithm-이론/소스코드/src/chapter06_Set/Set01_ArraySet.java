@@ -44,6 +44,6 @@ class MyArraySet {
 
     boolean remove(int n) {
         int idx = num;
-
+        return true;
     }
 }
