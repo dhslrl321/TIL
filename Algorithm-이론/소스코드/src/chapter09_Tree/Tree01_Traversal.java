@@ -16,11 +16,11 @@ public class Tree01_Traversal {
     public static void main(String[] args) {
         Tree tree = new Tree();
 
-        Node n4 = tree.makeNode(null, 4, null);
-        Node n5 = tree.makeNode(null, 5, null);
-        Node n3 = tree.makeNode(null, 3, null);
-        Node n2 = tree.makeNode(n4, 2, n5);
-        Node n1 = tree.makeNode(n2, 1, n3);
+        MyNode n4 = tree.makeNode(null, 4, null);
+        MyNode n5 = tree.makeNode(null, 5, null);
+        MyNode n3 = tree.makeNode(null, 3, null);
+        MyNode n2 = tree.makeNode(n4, 2, n5);
+        MyNode n1 = tree.makeNode(n2, 1, n3);
 
         tree.setRoot(n1);
 
@@ -28,52 +28,52 @@ public class Tree01_Traversal {
     }
 }
 
-class Node{
+class MyNode {
     int data;
-    Node left;
-    Node right;
+    MyNode left;
+    MyNode right;
 }
 
 class Tree{
-    public Node root;
+    public MyNode root;
 
-    public void setRoot(Node node){
-        this.root = node;
+    public void setRoot(MyNode myNode){
+        this.root = myNode;
     }
 
-    public Node getNode(){
+    public MyNode getNode(){
         return root;
     }
 
-    public Node makeNode(Node left, int data, Node right){
-        Node node = new Node();
-        node.data = data;
-        node.left = left;
-        node.right = right;
-        return node;
+    public MyNode makeNode(MyNode left, int data, MyNode right){
+        MyNode myNode = new MyNode();
+        myNode.data = data;
+        myNode.left = left;
+        myNode.right = right;
+        return myNode;
     }
 
-    public void inOrder(Node node){
-        if(node != null){
-            inOrder(node.left);
-            System.out.println(node.data);
-            inOrder(node.right);
+    public void inOrder(MyNode myNode){
+        if(myNode != null){
+            inOrder(myNode.left);
+            System.out.println(myNode.data);
+            inOrder(myNode.right);
         }
     }
 
-    public void preOrder(Node node){
-        if(node != null){
-            System.out.println(node.data);
-            preOrder(node.left);
-            preOrder(node.right);
+    public void preOrder(MyNode myNode){
+        if(myNode != null){
+            System.out.println(myNode.data);
+            preOrder(myNode.left);
+            preOrder(myNode.right);
         }
     }
 
-    public void postOrder(Node node){
-        if(node != null){
-            postOrder(node.left);
-            postOrder(node.right);
-            System.out.println(node.data);
+    public void postOrder(MyNode myNode){
+        if(myNode != null){
+            postOrder(myNode.left);
+            postOrder(myNode.right);
+            System.out.println(myNode.data);
         }
     }
 }
