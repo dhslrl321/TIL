@@ -1,25 +1,18 @@
 package com.example.jpatest.controller;
 
-import com.example.jpatest.model.entity.Item;
-import com.example.jpatest.model.entity.OrderDetail;
-import com.example.jpatest.model.entity.User;
-import com.example.jpatest.repository.ItemRepository;
-import com.example.jpatest.repository.OrderDetailRepository;
-import com.example.jpatest.repository.UserRepository;
-import org.hibernate.criterion.Order;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-@RestController
+@Controller
 @RequestMapping("/item")
 public class ItemController {
+
+    @GetMapping
+    public String item(){
+
+        return "login";
+    }
 
     /*@Autowired
     UserRepository userRepository;
