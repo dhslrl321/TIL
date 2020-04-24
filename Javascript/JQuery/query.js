@@ -44,4 +44,5 @@ jquersy_function = () => {
 
 /*
 	제이쿼리 메서드 : https://turfrain.tistory.com/entry/1-jQuery-%EB%A9%94%EC%86%8C%EB%93%9C-%EC%A0%95%EB%A6%AC
+	제이쿼리 메서드 2 : https://www.biew.co.kr/37?category=314311
 */
