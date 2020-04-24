@@ -40,3 +40,8 @@ jquersy_function = () => {
 /*
     체크박스 제어하기 : https://fruitdev.tistory.com/143 
 */
+
+
+/*
+	제이쿼리 메서드 : https://turfrain.tistory.com/entry/1-jQuery-%EB%A9%94%EC%86%8C%EB%93%9C-%EC%A0%95%EB%A6%AC
+*/
