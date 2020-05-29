@@ -1,2 +1,59 @@
+```
+```
+
 # AsyncTask
+AsyncTask는 UI 스레드를 쉽고 적절하게 사용할 수 있게 해준다.
+그러나 대부분의 흔한 사용 방법은 UI를 통합하는데 쓰이지만 그렇게 할 경우 Context Leaks가 발생할 수 있고, callback이 사라질 수 있거나 설정 변경이 충돌이 일어날 수 있다.
+이것은 또한 플랫폼의 버전에 따라서 동작할 수 있고 동작하지 않을 수도 있다.
+
+AsyncTask는 helper 스레드와 Handler의 주변에서 클래스로 디자인 되었고, 제너릭 스레딩 프레임워크를 구성하지 않는다. AsyncTask는 몇 초가 걸리는 짧은 작업에 적합하다. 만약 너가 오랜 시간동안 스레딩을 유지하고 싶다면 AsyncTask 대신 다른 API를 사용하는 것을 추천한다.
+
+비동기적 작업은 background 스레드의 연산과 어떤 결과가 UI에 게시된 경우로 정의된다. 비동기 작업은 3 가지의 제너릭 타입에 의해 정의된다. 
+- **Params** 
+- **Progress**
+- **Result**
+그리고 4가지 과정에 의해 수행된다.
+- **onPreExcute**
+- **doInBackGround**
+- **onProgressUpdate**
+- **onPostExecute**
+
+## Usage
+AsyncTask 는 내부 class로 사용되어야 한다. 내부 클래스는 최소한 `doInBackground()`메서드를 재정의 해야하고 대부분 두 번째로 `onPostExecute(result)`를 재정의 한다.
+
+내부 클래스에 대한 예제 
+```
+```
+
+그리고 생성이 된다면 해당 작업은 아래와 같이 쉽게 사용된다.
+```
+```
+
+## AsyncTask's generic types
+다음의 3가지 제너릭 타입은 비동기 작업을 수행할 때 사용된다.
+1. **Params** : 작업 수행으로 전송되는 매개변수의 유형
+2. **Progress** : background 연산동안 보여질 grogress의 타입
+3. **Result** : background 연산의 결과로 반환될 객체의 타입.
+
+비동기 작업에 모든 것이 객체화로 존재해야 하는 것은 아니다. 타입이 필요 없을 경우 다음과 같이 `Void` 타입으로 지정해도 무방하다.
+```
+```
+
+## The 4 Steps
+
+비동기 작업이 실행되었을 때, 작업은 4단계를 거쳐서 수행된다.
+
+#### 1 **onPreExcute()**
+UI 스레드에서 작업이 수행되기 전에 호출된다. 이 단계는 일반적으로 progress bar를 user interface로 보여주면서 인스턴스를 set up한다.
+
+#### 2 **doInBackGround()**
+`onPreExcute` 이후아 바로 호출되며 이 단계는 오랜 시간이 걸릴 수 있는 Background 연산을 수행한다. 비동기 작업의 매개변수는 이 단계에서 전달되며, 이 단계는 또한 `publishProgress()`를 통해서 하나 또는 그 이상의 progress 유닛을 출시한다. `onProgressUpdate()` 단계에서 이 값을은 UI 스레드에 의해서 다듬어진다.
+
+#### 3 **onProgressUpdate()**
+`publicProgress`이후에 호출되며 실행 단계는 정해지지 않았다. 이 메서드는 진행 상태의 형태를 보여주기 위함이고, ProgressBar의 텍스트 값을 바꾸는 등에 쓰인다.
+
+#### 4 **onPostExecute(result)**
+연산이 끝나면 호출이되며 이 결과는 UI 스레드에 execute()결과로 전달된다.
+
+
 
