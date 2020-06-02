@@ -137,5 +137,5 @@ controller는 `MockMvc`와 `@WebMvcTest` 어노테이션의 조합으로 생성�
 1. controller 테스트 클래스생성
 2. controller test class 에서 mvc로 http method 지정
 3. controller 에서 ReqeustMapping annotation 생성
-4. controller test class 에서 andExpect(status(), isOk)로 정상 작동하는지 테스트
+4. controller test class 에서 andExpect(status().isOk)로 정상 작동하는지 테스트
 5. 나머지 작성
