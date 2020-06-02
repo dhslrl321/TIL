@@ -1,0 +1,96 @@
+# DAO
+- 실제로 db에 접근하는 객체
+- service와 db를 연결하는 고리
+- sql을 사용하여 db에 접근한 후 적절한 crud api 제공
+```
+public interface UserRepository extends JpaRepository<User, Long>{ 
+    ... code
+}
+```
+
+# DTO
+
+#### DB 데이터 교환 객체(Java Beans)
+- DB에서 데이터를 얻어 Service, Controller에 보낼 때 사용하는 객체
+- 로직을 갖지 않으며 getter/setter만 갖는다.
+- 하지만 db에서 꺼낸 값을 변경할 필요가 없기 떄문에 setter가 없다.
+
+#### Request와 Response용 DTOsms View를 위한 클래스
+- `toEntity()` 메서드를 통해서 DTO에 필요한 부분을 이용하여 Entity로 만듦.
+- Controller Layer에서 ResponseDto 형태로 전달.
+
+#### VO는 DTO와 동일한 개념인데, Read Only의 개념만 갖는다.
+```
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDto {
+  @NotBlank
+  @Pattern(regexp = "^([\\w-]+(?:\\.[\\w-]+)*)@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})\\.([a-z]{2,6}(?:\\.[a-z]{2})?)$")
+  private String email;
+
+  @JsonIgnore
+  @NotBlank
+  @Size(min = 4, max = 15)
+  private String password;
+
+  @NotBlank
+  @Size(min = 6, max = 10)
+  private String name;
+
+  public User toEntity() {
+      return new User(email, password, name);
+  }
+
+  public User toEntityWithPasswordEncode(PasswordEncoder bCryptPasswordEncoder) {
+      return new User(email, bCryptPasswordEncoder.encode(password), name);
+  }
+}
+```
+
+
+# Entity
+
+#### 실제 DB 테이블과 매칭될 클래스
+- 테이블과 링크될 클래스
+- `@Entity`, `@Column`, `@Id` 어노테이션 사용
+
+#### 최대한 외부에서 Entity클래스ㅢ getter를 사용하지 않도록 내부에서 로직 method 구현
+- Domain Logic만 갖되 Presentation Logic을 가져선 안됨.
+
+
+# 전체 구조
+
+```
+client <-----> controller <-----> service <-----> repository <-----> DB
+        DTO                 DTO             DTO          Domain(Entity)
+```
+
+## Controller
+- 해당 요청 url에 따라 적잘한 view와 mapping 처리
+- `@Autowired @Service`를 통해서 service의 method를 사용
+- 적절한 responseEntity(DTO)를 Body에 담아 Client에 반환.
+
+```
+@Controller
+@RequestMapping("/")
+public class HomeController {
+    @Autowired
+    HomeService homeService;
+
+    @GetMapping("home")
+    public String home(){
+        if(homeService.checkSession == 1){
+            return "login";
+        }
+        return "index";
+    }
+}
+```
+## Service
+- `@Autowired Repository`를 통해 repository의 method를 이용
+- Business Login을 처리
+- Dao로 DB에 접근하고 DTO로 데이터를 전달받고 비즈니스 로직 처리후 반환
+
+
+## Repository
