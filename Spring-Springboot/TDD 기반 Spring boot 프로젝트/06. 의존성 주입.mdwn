@@ -1,0 +1,80 @@
+# 의존성 주입
+
+Spring IOC Container가 각 객체간의 의존성을 관리함.
+
+## Component
+`@Component`를 추가하면 해당 클래스는 **Spring IOC가 객체를 관리**하게 되는데, 이 관리하는 것을 `@Autowired`로 **의존성 주입**을 한다.
+
+#### Repository에 @Component 어노테이션 추가
+```
+package com.example.jpatest.domain;
+
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class RestaurantRepository {
+    private List<Restaurant> restaurants = new ArrayList<>();
+
+    public RestaurantRepository(){
+
+        restaurants.add(new Restaurant(1004L, "Bob zip", "Seoul"));
+        restaurants.add(new Restaurant(2020L, "Cyber food", "Seoul"));
+    }
+    public List<Restaurant> findAll() {
+
+        return restaurants;
+    }
+
+    public Restaurant findById(Long id) {
+        return restaurants.stream()
+                .filter(r -> r.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+}
+```
+
+#### Repository를 사용하는 클래스에 @Autowired 어노테이션 추가.
+
+```
+package com.example.jpatest.interfaces;
+
+import com.example.jpatest.domain.Restaurant;
+import com.example.jpatest.domain.RestaurantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+@RestController
+public class RestaurantController {
+
+    @Autowired
+    private RestaurantRepository repository;
+
+    @GetMapping("/restaurants")
+    public List<Restaurant> list(){
+        return repository.findAll();
+    }
+
+    @GetMapping("restaurants/{id}")
+    public Restaurant detail(@PathVariable("id") Long id){
+
+        return repository.findById(id);
+    }
+}
+```
+
+근데 이렇게 하면 Test는 안됨 그래서 `@SpyBean` 어노테이션으로 테스트 컨트롤러에 의존성 주입
+
+## 장점
+
+의존 관계라는게 여러 관계로 묶여있으면 **강한 의존성**이라는 특징이 나타나는데 이는 프로그램 개발 시에 좋지 않은 현상이다. 그러므로 의존 관계를 최소화 해야하고, 효율적으로 해야하는데 Spring IOC라는 것이 대신 해주게 된다.
+
