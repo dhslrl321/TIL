@@ -2,7 +2,12 @@
 
 ## JwtTokenUtil.class
 
+토큰 검증, 생성, 만료 기간 등등에 관한 로직을 처리하는 메서드가 담긴 클래스
+
+
 ## JWtRequestFilter
+
+요청에 토큰이 있는지 확인하는 필터
 
 ## JwtRequest
 
