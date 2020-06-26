@@ -1,4 +1,4 @@
-# ROL :: Record Of Learning
+# TIL :: Today I Learned
 
 ## 이 REPOSITORY는 2020.01 ~ ... 하루에 공부한 내용들을 저장하는 공간입니다.
 
