@@ -1,0 +1,11 @@
+# 알고리즘 기초
+
+## 소수 찾기 [프로그래머스](https://programmers.co.kr/learn/courses/30/lessons/12921)
+에라토스테네스의 채를 이용한 방법
+
+
+
+
+# 알고리즘 초급 ()
+# 알고리즘 중급 (dp, greedy)
+# 알고리즘 고급 ()
