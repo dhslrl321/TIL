@@ -1,5 +1,6 @@
-let sym = Symbol();
+let car = {
+    "name": "sonata", 
+    "wheel" : 4
+};
 
-console.log(sym);
-
-sym.toString();
+console.log(car.name, car.wheel)
