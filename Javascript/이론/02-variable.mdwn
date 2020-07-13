@@ -1,0 +1,14 @@
+# var let const의 차이
+
+## var 
+
+var은 중복 선언이 가능하다는 아주 큰 단점을 갖고 있다.
+
+예를 들어서 
+
+```js
+var a = 10;
+console.log(a);
+var a = "hello";
+console.log(a)
+```

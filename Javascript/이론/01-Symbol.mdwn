@@ -1,0 +1,17 @@
+# Symbol
+
+객체의 고유한 식별자.
+
+Number
+String
+Object
+Undefined
+Null
+Boolean
+
+
+기존에는 다음과 같은 데이터 타입이 있었다
+
+하지만 ECMAScript6 부터 Symbol이 추가된 새로운 기능들을이 사용될 수 있게 되었다.
+심볼은 정의하는 순간 독립적인 값이 된다.
+우리가 String으로 심볼을 정의한다고 하더라도 실제는 String 값이 아니므로 String + Symbol을 할 수 없다.
