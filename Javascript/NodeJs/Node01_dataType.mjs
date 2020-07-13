@@ -1,6 +1,15 @@
-let car = {
-    "name": "sonata", 
-    "wheel" : 4
-};
+function car(brand, wheel){
+    this.brand = brand;
+    this.wheel = wheel;
+}
 
-console.log(car.name, car.wheel)
+var santafe = new car("hyundai", 4);
+
+console.log(santafe);
+var a = new String("asdf");
+console.log(a);
+
+let date = new Date();
+console.log(date);
+
+

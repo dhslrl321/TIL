@@ -9,6 +9,6 @@ var은 중복 선언이 가능하다는 아주 큰 단점을 갖고 있다.
 ```js
 var a = 10;
 console.log(a);
-var a = "hello";
+var a = ";
 console.log(a)
 ```
