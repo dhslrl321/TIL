@@ -7,7 +7,7 @@ class TOC extends Component {
         let data = this.props.data;
         let list = []
         for(let i = 0; i < data.length; i++){
-            list.push(<li><a href={"/content/"+data[i].id}>{data[i].title}</a></li>)
+            list.push(<li key={data[i].id}><a href={"/content/"+data[i].id}>{data[i].title}</a></li>)
         }
 
         return(
