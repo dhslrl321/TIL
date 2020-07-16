@@ -3,7 +3,6 @@ import './App.css';
 import Subject from './components/Subject'
 import Content from './components/Content'
 import TOC from './components/TOC'
-
 class App extends Component {
   constructor(props){
     super(props);

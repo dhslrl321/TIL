@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import TodoListTemplate from './components/todoListTemplate/TodoListTemplate';
 import Form from './components/form/Form';
 import TodoItemList from './components/todoItemList/TodoItemList';
+import axios from 'axios';
+
 class App extends Component {
 
   id = 1
@@ -21,6 +23,8 @@ class App extends Component {
 
 
   handleCreate = () => {
+    const axios = require('axios');
+
     const { input, todos } = this.state;
     this.setState({
       input: '', // 인풋 비우고
@@ -31,6 +35,7 @@ class App extends Component {
         checked: false
       })
     });
+    
   }
 
   handleKeyPress = (e) => {
