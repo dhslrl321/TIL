@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import TodoListTemplate from './components/todoListTemplate/TodoListTemplate';
 import Form from './components/form/Form';
 import TodoItemList from './components/todoItemList/TodoItemList';
-import axios from 'axios';
+// import axios from 'axios';
 
 class App extends Component {
 
@@ -10,6 +10,7 @@ class App extends Component {
 
   state = {
     input: '',
+    message: '',
     todos: [
       { id: 0, text: ' 할 일을 추가해보세요', checked: false }
     ]
@@ -20,22 +21,24 @@ class App extends Component {
       input: e.target.value // input 의 다음 바뀔 값
     });
   }
-
+  
 
   handleCreate = () => {
-    const axios = require('axios');
-
-    const { input, todos } = this.state;
-    this.setState({
-      input: '', // 인풋 비우고
-      // concat 을 사용하여 배열에 추가
-      todos: todos.concat({
-        id: this.id++,
-        text: input,
-        checked: false
-      })
-    });
     
+    const { input, todos } = this.state;
+    if(input === ""){
+      alert("todo list에 할 일을 넣어주세요!");
+    }else {
+      this.setState({
+        input: '', // 인풋 비우고
+        // concat 을 사용하여 배열에 추가
+        todos: todos.concat({
+          id: this.id++,
+          text: input,
+          checked: false
+        })
+      });
+    }
   }
 
   handleKeyPress = (e) => {
@@ -43,6 +46,7 @@ class App extends Component {
     if(e.key === 'Enter') {
       this.handleCreate();
     }
+
   }
 
   handleToggle = (id) => {
