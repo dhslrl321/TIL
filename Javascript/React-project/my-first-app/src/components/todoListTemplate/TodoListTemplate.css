@@ -6,6 +6,10 @@
     margin-top: 10rem;
 }
 
+.login-wrapper {
+    margin: 1rem;
+    border-bottom: thick double #22b8cf;
+}
 .title {
     padding: 2rem;
     font-size: 2.5rem;
