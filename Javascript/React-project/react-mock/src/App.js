@@ -4,7 +4,7 @@ import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
 
 class App extends Component {
   render(){
-    return (
+    return ( 
       <BrowserRouter>
         <ul>
           <li>
