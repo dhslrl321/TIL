@@ -1,21 +1,18 @@
 import React, { Component } from 'react';
 import './App.css';
+import Greeting from './Counter.js';
 
 class App extends Component {
+
   render(){
     return ( 
-      <SayHello name="jang"></SayHello>
+      <Counter></Counter>
     );
   }
 }
 
-function SayHello(props){
-  return(
-    <div>
-      {props.name}
-    </div>
-  );
-}
+
+
 
 export default App;
 
