@@ -10,7 +10,7 @@ class Greeting extends Component {
     render() {
         return (
             <div> 
-                Hello mr. {this.state.name}. welcome to my page<br></br>
+                Hello mr. {this.state.name} welcome to my page<br></br>
                 your phone number is {this.state.phone}
             </div>
         );
