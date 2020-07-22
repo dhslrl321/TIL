@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 
 class PhoneForm extends Component {
     state = {
-        name : '',
-        phone : ''
+        name: '',
+        phone: ''
     }
 
     handleChange = (e) => {
@@ -11,9 +11,20 @@ class PhoneForm extends Component {
             [e.target.name]: e.target.value
         });
     }
+
+    handleSubmit = (e) => {
+        e.preventDefault();
+
+        this.props.onCreate(this.state);
+
+        this.setState({
+            name: '',
+            phone: ''
+        })
+    }
     render() {
         return (
-            <form>
+            <form onSubmit={this.handleSubmit}>
                 <input
                     placeholder="name"
                     value={this.state.name}
@@ -26,7 +37,7 @@ class PhoneForm extends Component {
                     onChange={this.handleChange}
                     name="phone"
                 />
-                <div>{this.state.name} {this.state.phone}</div>
+                <button type="submit">등록</button>
             </form>
         );
     }
