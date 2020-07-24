@@ -1,20 +1,31 @@
 import React from 'react';
 
 
-const names = [
-  {id: 1, name: "jang", age: 24},
-  {id: 2, name: "heo", age: 25}
+const foodILike = [
+  { id: 1, name: "kimchi" },
+  { id: 2, name: "bibimbap" },
+  { id: 3, name: "kimbob" }
 ]
 
-function Food({fav}){
+function Food({ name }) {
   return (
-    <div>{fav}</div>
-  )
+    <div>
+      I Like {name}
+    </div>
+  );
+}
+
+function foodRendering(dish) {
+  return <Food key={dish.id} name={dish.name} />
+
 }
 
 function App() {
   return (
-    <Food fav="kimchi"></Food>
+    <div>
+      <h2>Hello</h2>
+      {foodILike.map(foodRendering)}
+    </div>
   );
 }
 
