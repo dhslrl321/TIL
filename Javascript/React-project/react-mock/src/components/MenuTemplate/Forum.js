@@ -1,5 +1,5 @@
 function Forum() {
-    return (
-        <div>this is forum</div>
-    );
+  return (
+    <div>this is forum</div>
+  );
 }
