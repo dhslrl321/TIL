@@ -14,7 +14,12 @@ class LoginForm extends Component {
 
   handleLogin = e => {
     // 로그인 통신 로직 구현
-    console.log("email: ", this.state.email, "password: ", this.state.password);
+    if (this.state.email === 'admin' && this.state.password === 'admin') {
+      console.log("hello admin");
+      alert("hello admin");
+    } else {
+      alert("check your info");
+    }
   }
 
   render() {

@@ -5,7 +5,7 @@ import Forum from './topMenu/forum/Forum';
 import Roadmap from './topMenu/roadmap/Roadmap';
 import People from './topMenu/people/People';
 import Login from './topMenu/login/Login';
-import Register from './topMenu/login/Register';
+import Register from './topMenu/register/Register';
 import Home from './topMenu/home/Home';
 import './MenuTemplate.css';
 
