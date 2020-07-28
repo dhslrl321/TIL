@@ -1,9 +1,18 @@
 
+var obj = {
+    outer: function () {
+        console.log(this);
 
-function hoisting() {
-    a = 10;
-    console.log(a)
+        var innerFunc = function () {
+            console.log(this);
+        }
+        innerFunc();
+
+        var self = this;
+        var innerFunc2 = function () {
+            console.log(self);
+        }
+    }
 }
 
-hoisting() // 호출
-console.log(a)
+obj.outer();
