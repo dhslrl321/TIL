@@ -1,18 +1,9 @@
 
-var obj = {
-    outer: function () {
-        console.log(this);
+let btn = document.getElementById("root");
 
-        var innerFunc = function () {
-            console.log(this);
-        }
-        innerFunc();
+alert("hello world");
 
-        var self = this;
-        var innerFunc2 = function () {
-            console.log(self);
-        }
-    }
-}
 
-obj.outer();
+btn.innerHTML("good");
+
+btn.appendChild("Child Component");
