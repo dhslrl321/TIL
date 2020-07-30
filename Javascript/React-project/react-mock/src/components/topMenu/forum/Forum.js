@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-function Forum() {
-  return (
-    <div>this is forum</div>
-  );
+class Forum extends Component {
+  render() {
+    return (
+      <div> this is forum</div>
+    );
+  }
 }
 
 export default Forum;
