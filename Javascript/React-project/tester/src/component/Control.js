@@ -9,7 +9,6 @@ class Control extends Component {
 
             <a href="/create"
               onClick={function (e) {
-
                 e.preventDefault();
                 this.props.onChangeMode("create");
               }.bind(this)}>create

@@ -3,10 +3,12 @@ import TOC from './component/TOC';
 import ReadContent from './component/ReadContent';
 import Subject from './component/Subject';
 import Control from './component/Control';
+import CreateContent from './component/CreateContent';
 
 class App extends Component {
   constructor(props) {
     super(props);
+    this.content_max_id = 3;
     this.state = {
       mode: "welcome",
       selected_content_id: 2,
@@ -22,7 +24,7 @@ class App extends Component {
 
   render() {
 
-    let _title, _desc = null;
+    let _title, _desc, _article = null;
 
     if (this.state.mode === 'welcome') {
       _title = this.state.welcome.title;
@@ -38,6 +40,17 @@ class App extends Component {
         }
         i = i + 1
       }
+      _article = <ReadContent title={_title} desc={_desc}></ReadContent>
+    } else if (this.state.mode === 'create') {
+      _article = <CreateContent onSubmit={function (title, desc) {
+        this.content_max_id = this.content_max_id + 1;
+        const arr = this.state.content.concat({
+          id: this.content_max_id,
+          title: title,
+          desc: desc
+        })
+        this.setState({ content: arr })
+      }.bind(this)}></CreateContent>
     }
     return (
       <div>
@@ -62,7 +75,7 @@ class App extends Component {
           this.setState({ mode: mode })
         }.bind(this)} />
 
-        <ReadContent title={_title} desc={_desc} />
+        {_article}
       </div>
     );
   }
