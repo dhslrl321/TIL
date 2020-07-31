@@ -57,6 +57,8 @@ class App extends Component {
             this.setState({ mode: "read", selected_content_id: Number(id) })
           }.bind(this)} />
 
+        <Control />
+
         <Content title={_title} desc={_desc} />
       </div>
     );
