@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import TOC from './component/TOC';
-import Content from './component/Content';
+import ReadContent from './component/ReadContent';
 import Subject from './component/Subject';
+import Control from './component/Control';
 
 class App extends Component {
   constructor(props) {
@@ -57,9 +58,11 @@ class App extends Component {
             this.setState({ mode: "read", selected_content_id: Number(id) })
           }.bind(this)} />
 
-        <Control />
+        <Control onChangeMode={function (mode) {
+          this.setState({ mode: mode })
+        }.bind(this)} />
 
-        <Content title={_title} desc={_desc} />
+        <ReadContent title={_title} desc={_desc} />
       </div>
     );
   }
