@@ -3,15 +3,16 @@ import React, { Component } from 'react';
 
 class App extends Component {
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div>
-        hello
-      </div >
+        <header>
+          Top Menu
+        </header>
+        <main>
+          Main Contents
+        </main>
+      </div>
     );
   }
 }
