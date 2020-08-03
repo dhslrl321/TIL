@@ -1,10 +1,11 @@
 import React from 'react';
 import './TodoListTemplate.css';
 
-const TodoListTemplate = ({form, children, login}) => {
+
+const TodoListTemplate = ({ form, children, login }) => {
     return (
         <main>
-            
+
             <div className="todo-list-template">
                 <section>
                     {login}
