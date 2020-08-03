@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import TopTemplate from './components/top/TopTemplate';
 
 
 class App extends Component {
@@ -6,9 +7,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <header>
-          Top Menu
-        </header>
+        <TopTemplate></TopTemplate>
         <main>
           Main Contents
         </main>
