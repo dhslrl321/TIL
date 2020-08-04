@@ -1,38 +1,41 @@
 import React, { Component } from 'react';
-//import { BrowserRouter, Link } from 'react-router-dom'
+import { Route, Switch, BrowserRouter, Link } from 'react-router-dom'
+import Login from '../login/Login';
+import App from '../../App';
 
 class TopTemplate extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoggedIn: false,
-    }
-  }
 
   loginControl = (isLoggedIn) => {
-    isLoggedIn ? <User /> : <Guest />
+    return isLoggedIn ? <UserMenu /> : <GuestMenu />
   }
-  render() {
 
+  render() {
+    const { isLoggedIn } = this.props;
     return (
       <div>
-        <Link to="/">Home</Link>
-        {loginControl}
+        <BrowserRouter>
+          <Link to="/">Home</Link>
+          {this.loginControl(isLoggedIn)}
+
+
+        </BrowserRouter>
       </div>
     );
-
   }
 }
-
-function Guest() {
+function GuestMenu() {
   return (
-    <Link to="/login">Login</Link>
-    <Link to="/join">Join</Link>
+    <span>
+      <Link to="/login">Login</Link>
+      <Link to="/join">Join</Link>
+
+
+    </span>
   );
 }
 
-function User() {
+function UserMenu() {
   return (
     <Link to="/info">Member</Link>
   );

@@ -11,6 +11,15 @@ import './MenuTemplate.css';
 
 
 class MenuTemplate extends Component {
+  getContent() {
+    let _content = null;
+
+    if (!isLogin()) {
+      _content = <Link className="login" to="/login">Login</Link>;
+    }
+
+    return _content;
+  }
   render() {
     return (
       <header>
