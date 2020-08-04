@@ -1,41 +1,49 @@
 import React, { Component } from 'react';
 import { Route, Switch, BrowserRouter, Link } from 'react-router-dom'
-import Login from './Login';
-import Register from './Register';
-import Info from './Info';
-import App from '../App';
 
 class TopTemplate extends Component {
 
 
-  loginControl = (isLoggedIn) => {
-    return isLoggedIn ? <UserMenu /> : <GuestMenu />
+  loginControl = (isLoggedIn, handleChangePage) => {
+    return isLoggedIn ? <UserMenu handleChangePage={handleChangePage} /> : <GuestMenu handleChangePage={handleChangePage} />
   }
 
   render() {
-    const { isLoggedIn } = this.props;
+    const { isLoggedIn, handleChangePage } = this.props;
     return (
       <div>
         <BrowserRouter>
-          <Link to="/">Home</Link>
-          {this.loginControl(isLoggedIn)}
+          <Link to="/" onClick={() => {
+            handleChangePage("index");
+          }}>Home</Link>
+          {this.loginControl(isLoggedIn, handleChangePage)}
+          <Route path="/login">
+            asdf
+          </Route>
         </BrowserRouter>
       </div>
     );
   }
 }
-function GuestMenu() {
+
+function GuestMenu(props) {
   return (
     <span>
-      <Link to="/login">Login</Link>
-      <Link to="/register">Join</Link>
+      <Link to="/login" onClick={() => {
+        props.handleChangePage("login");
+      }}>Login</Link>
+      <Link to="/register" onClick={() => {
+        props.handleChangePage("register");
+      }}>Join</Link>
     </span>
   );
 }
 
-function UserMenu() {
+function UserMenu(props) {
   return (
-    <Link to="/info">Member</Link>
+    <Link to="/info" onClick={() => {
+      props.handleChangePage("info");
+    }}>Member</Link>
   );
 }
 
