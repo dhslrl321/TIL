@@ -18,7 +18,7 @@ class TopTemplate extends Component {
           }}>Home</Link>
           {this.loginControl(isLoggedIn, handleChangePage)}
           <Route path="/login">
-            asdf
+
           </Route>
         </BrowserRouter>
       </div>
