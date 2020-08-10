@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Router from 'react-router-dom'
 import TopTemplate from './components/TopTemplate';
 import Index from './components/Index';
 import Login from './components/Login';
@@ -46,6 +47,9 @@ class App extends Component {
     let page = null;
     page = this.getContent(page);
     return (
+      <Switch>
+
+      </Switch>
       <div>
         <TopTemplate isLoggedIn={isLoggedIn} handleChangePage={this.handleChangePage}></TopTemplate>
         {page}
