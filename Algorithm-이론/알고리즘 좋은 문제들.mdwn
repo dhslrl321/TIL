@@ -1,25 +1,39 @@
 # 알고리즘 기초
 
 ### 소수 찾기 [프로그래머스](https://programmers.co.kr/learn/courses/30/lessons/12921)
+
 에라토스테네스의 채를 이용한 방법
 
 ### 자릿수 더하기 [프로그래머스](https://programmers.co.kr/learn/courses/30/lessons/12931)
+
 자릿수 더하는 방법인데 수학적 접근이 좋은 기초 문제
 
 ### 제일 작은 수 제거하기 [프로그래머스](https://programmers.co.kr/learn/courses/30/lessons/12935)
+
 배열의 특성을 이해하는데 좋은 문제 1
 
-
-
-
-
+---
 
 # 알고리즘 초급 ()
 
-# 알고리즘 중급 (dp, greedy)
+---
 
 # 알고리즘 중급
+
+## DP, Greedy
+
+## 그래프
+
+### DFS와 BFS [백준](https://www.acmicpc.net/problem/1260)
+
+그래프의 가장 기본적인 탐색 알고리즘인 BFS와 DFS를 이해하는지 판별하는 좋은 문제
+
+## UnCategorized
+
 ### 소시지 자르기 [백준](https://www.acmicpc.net/problem/1188)
+
 깊은 생각을 할 수 있는 구현 문제.
+
+---
 
 # 알고리즘 고급 ()
