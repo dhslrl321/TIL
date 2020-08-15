@@ -7,7 +7,7 @@ const UserDetail = ({ match, history }) => {
     { id: 3, email: "park@test.com", password: "789", name: "Park" },
   ]
 
-  const user = users.find((user) => user.id === match.param.id)
+  const user = users.find((user) => user.id === match.params.id)
 
   return (
     <div>
