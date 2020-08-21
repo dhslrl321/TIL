@@ -7,15 +7,7 @@ class App extends Component {
     return (
       <Router>
         <header>
-          <Link to="/">
-            <button>Home</button>
-          </Link>
-          <Link to="/about">
-            <button>About</button>
-          </Link>
-          <Link to="/users">
-            <button>Users</button>
-          </Link>
+          F
         </header>
         <hr />
         <main>
