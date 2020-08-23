@@ -25,6 +25,7 @@ const InputSample = () => {
     })
 
     nameInput.current.value = "";
+
   }
 
   return (
