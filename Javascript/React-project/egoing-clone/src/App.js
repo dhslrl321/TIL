@@ -5,7 +5,9 @@ import About from "./page/About";
 import NotFound from "./page/NotFound";
 import Profile from './page/Profile';
 import { signIn } from './config/Auth';
-
+import AuthRoute from './config/AuthRoute';
+import LoginForm from './component/LoginForm';
+import LogoutButton from './component/LogoutButton'
 
 function App() {
   const [user, setUser] = useState(null);
@@ -13,6 +15,7 @@ function App() {
 
   const login = ({ email, password }) => setUser(signIn({ email, password }));
   const logout = () => setUser(null);
+
   return (
     <Router>
       <header>
@@ -25,13 +28,30 @@ function App() {
         <Link to="/profile">
           <button>Profile</button>
         </Link>
+
+        {authenticated ? (
+          <LogoutButton logout={logout} />
+        ) : (
+            <Link to="/login">
+              <button>Login</button>
+            </Link>
+          )}
       </header>
       <hr />
       <main>
         <Switch>
           <Route exact path="/" component={Home} />
           <Route path="/about" component={About} />
-          <Route path="/profile" component={Profile} />
+          <Route path="/login" render={props => (
+            <LoginForm authenticated={authenticated} login={login} {...props} />
+          )}>
+
+          </Route>
+          <AuthRoute
+            authenticated={authenticated}
+            path="/profile"
+            render={props => <Profile user={user} {...props} />}
+          />
           <Route component={NotFound} />
         </Switch>
       </main>
