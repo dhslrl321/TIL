@@ -13,12 +13,12 @@ const App = () => {
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    console.log(e.target.value);
 
     setInputs({
       ...inputs,
       [name]: value
     });
+    console.log([name], value)
   }
 
   const [users, setUsers] = useState([
