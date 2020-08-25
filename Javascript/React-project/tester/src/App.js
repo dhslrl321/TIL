@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import UserList from './components/UserList';
 import CreateUser from './components/CreateUser';
 
@@ -10,9 +10,21 @@ const App = () => {
     { id: 3, username: "Jpark01", email: "Jpark23@gmail.com", name: "박지훈" },
     { id: 4, username: "mapu0029", email: "mapu0029@gmail.com", name: "최재웅" },
   ]
+  const [inputs, setInputs] = useState({
+    username: "",
+    email: "",
+    name: ""
+  })
+  const { username, email, name } = inputs;
 
-  const handleCreate = () => {
+  const handleCreate = (e) => {
     // 추가 버튼 클릭했을 시의 액션
+    const { name, value } = e.target;
+
+    setInputs({
+      ...inputs,
+      [name]: value
+    })
   }
 
   const handleChange = () => {
