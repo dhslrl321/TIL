@@ -6,79 +6,18 @@ import Control from './component/Control';
 import CreateContent from './component/CreateContent';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.content_max_id = 3;
-    this.state = {
-      mode: "welcome",
-      selected_content_id: 2,
-      welcome: { title: "welcome", content: "Hello React" },
-      subject: { title: "web", sub: "World wide web" },
-      content: [
-        { id: 1, title: "html", desc: "html is for information" },
-        { id: 2, title: "css", desc: "html is for information" },
-        { id: 3, title: "javascript", desc: "html is for information" }
-      ]
-    }
-  }
 
   render() {
-
-    let _title, _desc, _article = null;
-
-    if (this.state.mode === 'welcome') {
-      _title = this.state.welcome.title;
-      _desc = this.state.welcome.desc;
-    } else if (this.state.mode === 'read') {
-      let i = 0;
-      while (i < this.state.content.length) {
-        let data = this.state.content[i];
-        if (data.id === this.state.selected_content_id) {
-          _title = data.title;
-          _desc = data.desc;
-          break;
-        }
-        i = i + 1
-      }
-      _article = <ReadContent title={_title} desc={_desc}></ReadContent>
-    } else if (this.state.mode === 'create') {
-      _article = <CreateContent onSubmit={function (title, desc) {
-        this.content_max_id = this.content_max_id + 1;
-        const arr = this.state.content.concat({
-          id: this.content_max_id,
-          title: title,
-          desc: desc
-        })
-        this.setState({ content: arr })
-      }.bind(this)}></CreateContent>
+    third = () => {
+      console.log("asdf")
     }
-    return (
-      <div>
-        <Subject
-          title={this.state.subject.title}
-          sub={this.state.subject.sub}
-          onChangePage={function () {
-            console.log("변경 전 : ", this.state.mode)
-            this.setState({
-              mode: "welcome"
-            })
-            console.log("변경 후 : ", this.state.mode);
-          }.bind(this)} />
-
-        <TOC
-          data={this.state.content}
-          onChangePage={function (id) {
-            this.setState({ mode: "read", selected_content_id: Number(id) })
-          }.bind(this)} />
-
-        <Control onChangeMode={function (mode) {
-          this.setState({ mode: mode })
-        }.bind(this)} />
-
-        {_article}
-      </div>
-    );
   }
+
+  return(
+    { third }
+  );
+
+
 }
 
 export default App;

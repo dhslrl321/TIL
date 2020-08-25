@@ -13,6 +13,7 @@ const App = () => {
 
   const onChange = (e) => {
     const { name, value } = e.target;
+    console.log(e.target.value);
 
     setInputs({
       ...inputs,
@@ -20,7 +21,7 @@ const App = () => {
     });
   }
 
-  const users = [
+  const [users, setUsers] = useState([
     {
       id: 1,
       username: 'velopert',
@@ -36,11 +37,19 @@ const App = () => {
       username: 'liz',
       email: 'liz@example.com'
     }
-  ];
+  ]);
 
   const nextId = useRef(4);
 
   const onCreate = () => {
+
+    const user = {
+      id: nextId.current,
+      username,
+      email
+    }
+
+    setUsers([...users, user]);
 
     setInputs({
       username: "",
