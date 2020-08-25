@@ -14,7 +14,7 @@ const UserList = ({ users }) => {
   return (
     <div>
       {users.map(user => (
-        <User username={user.username} email={user.email} name={user.name} />
+        <User key={user.id} username={user.username} email={user.email} name={user.name} />
       ))}
     </div>
   );
