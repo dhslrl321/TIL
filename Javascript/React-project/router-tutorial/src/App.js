@@ -52,7 +52,7 @@ const App = () => {
     }
 
     setUsers([...users, user]);
-
+    console.log(...users);
     setInputs({
       username: "",
       email: ""
