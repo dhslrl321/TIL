@@ -45,19 +45,22 @@ const App = () => {
     nextId.current += 1;
   }
 
+  const onRemove = (id) => {
+    setUsers(users.filter(user => user.id !== id));
+  }
+
   return (
     <div>
       <h1>DDodo Users</h1>
       <hr />
 
       <CreateUser
-        username={username}
-        email={email}
         onChange={onChange}
         onCreate={onCreate} />
 
       <UserList
-        users={users} />
+        users={users}
+        onRemove={onRemove} />
     </div>
   );
 }
