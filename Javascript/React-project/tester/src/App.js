@@ -5,10 +5,10 @@ import CreateUser from "./components/CreateUser";
 const App = () => {
 
   const [users, setUsers] = useState([
-    { id: 1, username: "장원익", email: "dhslrl321@gmail.com" },
-    { id: 2, username: "허혜진", email: "heo60070@gmail.com" },
-    { id: 3, username: "박지훈", email: "jpark10947@gmail.com" },
-    { id: 4, username: "최재웅", email: "mapu1123@gmail.com" },
+    { id: 1, username: "장원익", email: "dhslrl321@gmail.com", active: true },
+    { id: 2, username: "허혜진", email: "heo60070@gmail.com", active: false },
+    { id: 3, username: "박지훈", email: "jpark10947@gmail.com", active: false },
+    { id: 4, username: "최재웅", email: "mapu1123@gmail.com", active: false },
   ])
 
   const [inputs, setInputs] = useState({
@@ -49,6 +49,14 @@ const App = () => {
     setUsers(users.filter(user => user.id !== id));
   }
 
+  const onToggle = (id) => {
+    setUsers(
+      users.map(user => (
+        user.id === id ? { ...user, active: !user.active } : user
+      ))
+    )
+  }
+
   return (
     <div>
       <h1>DDodo Users</h1>
@@ -60,7 +68,8 @@ const App = () => {
 
       <UserList
         users={users}
-        onRemove={onRemove} />
+        onRemove={onRemove}
+        onToggle={onToggle} />
     </div>
   );
 }
