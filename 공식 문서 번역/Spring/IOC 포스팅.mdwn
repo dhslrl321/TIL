@@ -1,0 +1,71 @@
+# Inversion Of Control
+
+제어의 역전으로 인스턴스 생성부터 소멸까지 생명주기 관리를 컨테이너가 대신 해준다는 뜻.
+개발자가 컨테이너 역할을 해주는 프레임워크에게 제어의 권한을 넘겨 개발자의 코드가 신경 써야 할 부분을 줄이자는 전략.
+
+Spring Container가 IoC를 지원하고 메타데이터 설정(XML)을 통해서 Beans를 관리.
+DI를 통해서 IoC관리
+
+컴포넌트 의존관계 결정 및 설정, 생명주기를 해결하기 위한 패턴
+
+POJO의 생성, 초기화, 서비스, 소멸에 대한 권한을 갖는다.
+
+## IoC의 종류
+
+IOC 에는 DL, DI가 있다.
+
+- DL (Dependency Lookup)
+- DI (Dependency Injection)
+
+DL: Dependency Lookup : (EJB, Spring) : 특정 프레임워크에 종속되는 API를 사용하기 떄문에 잘 사용하지 않음
+DI: Dependency Injection : (Spring, PicoContainer)
+DI에는 Setter Injection, Constructor Injection, Method Injection으로 분류된다.
+
+#### DL
+
+**의존성 검색**으로 저장소에 저장된 Bean에 접근하기 위해 컨테이너가 제공하는 API를 이용해서 Bean을 Lookup
+대표적으로 (EJB, Spring)프레임워크가 사용되는데 위에서 말한 컨테이너 API를 사용하기 때문에 컨테이너 종속성이 증가해서 DI를 더 많이 사용함.
+
+#### DI
+
+**의존성 주입** 각 클래스간의 의존 관계를 빈 설정 정보(Bean Definition Configuration)를 토대로 컨테이너가 자동으로 연결해줌
+
+## DI
+
+각 클래스간의 의존 관계를 빈 설정(XML이나 Annotation) 정보(Bean Definition Configuration)를 토대로 컨테이너가 자동으로 연결해줌
+
+- 빈 설정 파일에 의존 관계가 필요하다는 정보를 추가하면 된다.
+- 객체 레퍼런스를 컨테이너로부터 주입 받아서, 런타임 시점에 동적으로 의존 관계가 생성됨
+- 컨테이너가 흐름의 주체가 되어 어플리케이션 코드에 의존 관계를 주입
+
+#### 장점
+
+- 코드가 단순해진다.
+- 컴포넌트간의 결합도가 제거된다.
+
+```
+MyClass my = new MyClass();
+
+@Autowired
+MyClass my;
+```
+
+## DI 유형
+
+DI 유형에는 세 가지가 있다.
+
+- Setter Injection
+- Constructor Injection
+- Method Injection
+
+### Setter Injection
+
+의존성을 입력 받는 Setter 메서드를 만들고 이를 통해 의존성을 주입
+
+### Constructor Injection
+
+필요한 의존성을 포함하는 클래스의 생성자를 만들고 이를 통해 의존성 주입.
+
+### Method Injection
+
+의존성을 입력 받는 일반 메서드를 만들고 이를 통해 의존성을 주입
