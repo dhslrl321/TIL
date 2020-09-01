@@ -69,3 +69,23 @@ DI 유형에는 세 가지가 있다.
 ### Method Injection
 
 의존성을 입력 받는 일반 메서드를 만들고 이를 통해 의존성을 주입
+
+## Bean
+
+Spring DI 컨테이너가 관리하는 객체를 빈(bean)이라고 하고, 이 빈들을 관리한다는 의미로 컨테이너를 빈 팩토리(BeanFactory)라고 부른다.
+객체의 생성과 객체 사이의 런타임 관계를 DI 관점에서 볼 떄는 컨테이너를 BeanFactory라고 한다.
+BeanFactory에서 여러 컨테이너 기능을 추가한 것을 ApplicationContext라고 부른다.
+
+## BeanFactory vs ApplicationContext
+
+### BeanFactory
+
+- Bean을 등록, 생성, 조회, 반환 관리
+- 보통 BeanFactory를 바로 사용하지 않고, 이를 확장한 ApplicationContext를 사용함.
+- getBean() 메서드가 정의되어 있음
+
+### ApplicationContext
+
+- Bean을 등록, 생성, 조회, 반환 관리 기능은 BeanFactory와 같음
+- Spring의 각종 부가 서비스를 추가로 제공
+- Spring이 제공하는 ApplicationContext 구현 클래스가 여러 가지 종류가 있음
