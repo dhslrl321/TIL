@@ -1,3 +1,7 @@
+# Spring을 한 줄로 정의하자면
+
+**IoC와 AOP를 지원하는 경량 컨테이너 프레임워크**
+
 # Inversion Of Control
 
 제어의 역전으로 인스턴스 생성부터 소멸까지 생명주기 관리를 컨테이너가 대신 해준다는 뜻.
@@ -24,7 +28,7 @@ DI에는 Setter Injection, Constructor Injection, Method Injection으로 분류�
 #### DL
 
 **의존성 검색**으로 저장소에 저장된 Bean에 접근하기 위해 컨테이너가 제공하는 API를 이용해서 Bean을 Lookup
-대표적으로 (EJB, Spring)프레임워크가 사용되는데 위에서 말한 컨테이너 API를 사용하기 때문에 컨테이너 종속성이 증가해서 DI를 더 많이 사용함.
+대표적으로 (EJB, Spring)프레임워크가 사용되는데 위에서 말한 컨테이너 API를 사용하기 때문에 컨테이너 종속성이 증가해서 DI를 더 많이 사용함. 결국 종속성으로 인해 스펙이 너무 복잡함.
 
 #### DI
 
@@ -88,4 +92,4 @@ BeanFactory에서 여러 컨테이너 기능을 추가한 것을 ApplicationCont
 
 - Bean을 등록, 생성, 조회, 반환 관리 기능은 BeanFactory와 같음
 - Spring의 각종 부가 서비스를 추가로 제공
-- Spring이 제공하는 ApplicationContext 구현 클래스가 여러 가지 종류가 있음
+- Spring이 제공하는 `ApplicationContext` 구현 클래스가 여러 가지 종류가 있음
