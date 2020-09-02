@@ -90,6 +90,8 @@ BeanFactory에서 여러 컨테이너 기능을 추가한 것을 ApplicationCont
 
 ### ApplicationContext
 
+`BeanFactory` 인터페이스를 상속받는 `ApplicationContext`는 AOP, 메세지 처리, 이벤트 처리와 같은 기능을 제공한다.
+
 - Bean을 등록, 생성, 조회, 반환 관리 기능은 BeanFactory와 같음
 - Spring의 각종 부가 서비스를 추가로 제공
 - Spring이 제공하는 `ApplicationContext` 구현 클래스가 여러 가지 종류가 있음
