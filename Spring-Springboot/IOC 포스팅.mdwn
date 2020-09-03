@@ -2,6 +2,14 @@
 
 **IoC와 AOP를 지원하는 경량 컨테이너 프레임워크**
 
+- POJO
+- IOC
+- Bean
+- DI
+
+- POJO -> Bean 등록
+- setter, constructor Injection
+
 # Inversion Of Control
 
 제어의 역전으로 인스턴스 생성부터 소멸까지 생명주기 관리를 컨테이너가 대신 해준다는 뜻.
@@ -65,28 +73,63 @@ DI 유형에는 세 가지가 있다.
 ### Setter Injection
 
 의존성을 입력 받는 Setter 메서드를 만들고 이를 통해 의존성을 주입
+한 번에 하나의 의존 관계를 주입할 수 있다.
+
+Setter 메서드를 통해서 의존관계가 있는 Bean을 주입하는 개념으로 `<property>` 태그를 사용한다.
+
+- `ref` Bean이름을 이용해서 주입할 Bean을 찾는다.
+- `value` 레퍼런스 타입이 아닌 단순 값 또는 Bean이 아닌 객체를 주입할 때 사용한다.
 
 ### Constructor Injection
 
 필요한 의존성을 포함하는 클래스의 생성자를 만들고 이를 통해 의존성 주입.
+`setterInjection`과는 다르게한 번에 여러 개의 의존 관계를 주입할 수 있다.
+
+생성자를 통해 의존 관계가 있는 Bean을 주입하는 개념으로 `<constructor-arg>` 태그를 사용한다.
+생성자 주입을 위헌 설정으로 index를 지정하거나 name을 지정하는 2가지 방법이 있다.
+
+**index 설정**
+
+```
+<bean id="hello" class="packagename.di.hello">
+    <constructor-arg index="0" value="Spring"/>
+    <constructor-arg index="1" ref="printer"/>
+</bean>
+```
+
+**name 설정**
+
+```
+<bean id="hello" class="packagename.di.hello">
+    <constructor-arg name="name" value="Spring"/>
+    <constructor-arg name="printer" ref="printer"/>
+</bean>
+```
 
 ### Method Injection
 
 의존성을 입력 받는 일반 메서드를 만들고 이를 통해 의존성을 주입
 
-## Bean
+## DI 컨테이너의 개념
+
+### Bean
 
 Spring DI 컨테이너가 관리하는 객체를 빈(bean)이라고 하고, 이 빈들을 관리한다는 의미로 컨테이너를 빈 팩토리(BeanFactory)라고 부른다.
+
 객체의 생성과 객체 사이의 런타임 관계를 DI 관점에서 볼 떄는 컨테이너를 BeanFactory라고 한다.
 BeanFactory에서 여러 컨테이너 기능을 추가한 것을 ApplicationContext라고 부른다.
 
 ## BeanFactory vs ApplicationContext
+
+BeanFactory, ApplicationContext는 Spring 의 DI 컨테이너이다.
 
 ### BeanFactory
 
 - Bean을 등록, 생성, 조회, 반환 관리
 - 보통 BeanFactory를 바로 사용하지 않고, 이를 확장한 ApplicationContext를 사용함.
 - getBean() 메서드가 정의되어 있음
+
+BeanFactory를 바로 사용하지는 않고 보통 ApplicationContext를 사용한다.
 
 ### ApplicationContext
 
