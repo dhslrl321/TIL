@@ -37,10 +37,43 @@ const App = () => {
     setTodos(todos.filter(todo => todo.id !== id));
   }
 
+  const nextTodoId = useRef(3);
+
+  const [todoInput, setTodoInput] = useState({
+    todoTitle: ""
+  })
+
+  const { title } = todoInput;
+
+  const handleTodoInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setTodoInput({
+      ...todoInput,
+      [name]: value
+    });
+  }
+
+  const handleTodoItemAdd = () => {
+    const todo = {
+      id: nextTodoId.current,
+      title
+    }
+
+    setTodos([...todos, todo]);
+    setTodoInput({
+      title: ""
+    })
+
+    nextTodoId += 1;
+  }
+
   return (
     <div>
       <div><h2>Todo List</h2></div>
-      <Form />
+      <Form
+        handleTodoInputChange={handleTodoInputChange}
+        handleTodoItemAdd={handleTodoItemAdd} />
       <TodoList
         todos={todos}
         handleMouseHoverTrue={handleMouseHoverTrue}

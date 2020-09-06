@@ -1,10 +1,10 @@
 import React from 'react';
 
-const Form = () => {
+const Form = ({ handleTodoInputChange, handleTodoItemAdd }) => {
   return (
     <div>
-      <input type="text" placeholder="What Todo..." />
-      <button>추가</button><br></br><br></br><br></br>
+      <input type="text" placeholder="What Todo..." onChange={handleTodoInputChange} />
+      <button onClick={handleTodoItemAdd}>추가</button><br></br><br></br><br></br>
     </div>
   );
 }
