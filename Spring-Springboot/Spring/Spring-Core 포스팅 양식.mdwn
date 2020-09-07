@@ -3,3 +3,29 @@
 # Spring이 xml기반 Bean을 등록하기 위한 과정
 
 XML과 Annotation은 차이가 존재한다.
+
+XML은 `XmlBeanDefinitionReader`로 Bean을 등록한다.
+그렇게 `AbstractBeanDefinitionReader`를 상속받는데,
+하지만 Annotation은 `AnnotationBeanDefinitionReader`가 있고, `AbstractBeanDefinitionReader`는 없다.
+그 이유는 어노테이션으로 등록하려는 빈들은 이미 클래스로더에서 꺼내올 수 있기 때문에로 추측
+
+`AbstractBeanDefinitionReader`를 상속받는 클래스는 Groovy, PropertiesBean, XML이 있는데 이들의 특징이 바로 Resource에 접근을 해야하는 경우이다.
+
+# `XmlBeanDefinitionReader`가 Bean을 읽는 과정
+
+1. Spring이 Context가 생성
+2. `refresh`명령
+3. `ApplicationContext`는 설정을 뒤져서 최하위 `ApplicationContext`부터 자신이 해야할 `refresh`동작 수행
+4. 상위 `refresh`수행
+5. 위 2, 3, 4 과정을 반복하다가 `AbstractApplication`에도 `refresh` 명령 도달
+6. `AbstractApplicationContext`가 `invokeBeanFactoryPostProcessors` 메소드 호출
+7. `invokeBeanFactoryPostProcessors`에서 `PostProcessorRegisterationDelegate`라는 딜리게이트에 Bean 등록을 위힘
+8. `PostProcessorRegisterationDelegate`은 `BeanFactoryPostProcessor` 리스트 생성
+9. `BeanFactoryPostProcessor`은 `BeanPostProcessor`과 빈 등록에 관여
+10. `BeanPostProcessor`에 `BeanDefinitionRegistery`를 넘겨주고 `BeanFactoryPostProcessor`의 `postProcessBeanDefinitionRegistry()` 메서드로 넘어감.
+11. `XmlBeanDefinitionReader`가 생성되어 `XmlBeanDefinitionReader`의 `loadBeanDefinitions`가 호출됨.
+
+# `DefaultBeanDefinitionDocumentReader` XML FileReader
+
+**package org.springframework.beans.factory.xml**
+내 생각엔 여기서 상수로 `beans, bean, alias`등이 할당되어 있는것을 보니 이게 XML을 불러오는 것 같음

@@ -40,10 +40,10 @@ const App = () => {
   const nextTodoId = useRef(3);
 
   const [todoInput, setTodoInput] = useState({
-    todoInput: ""
+    todoTitle: ""
   })
 
-  const { title } = todoInput;
+  const { todoTitle } = todoInput;
 
   const handleTodoInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,14 +57,14 @@ const App = () => {
   const handleTodoItemAdd = () => {
     const todo = {
       id: nextTodoId.current,
-      title,
+      todoTitle,
       active: false,
       hover: false
     }
 
     setTodos([...todos, todo]);
     setTodoInput({
-      todoInput: ""
+      todoTitle: ""
     })
 
     nextTodoId.current += 1;
