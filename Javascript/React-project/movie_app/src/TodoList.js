@@ -13,7 +13,7 @@ const TodoItem = ({ todo, handleMouseHoverTrue, handleMouseHoverFalse, handleTod
         onMouseEnter={() => handleMouseHoverTrue(todo.id)}
         onMouseLeave={() => handleMouseHoverFalse(todo.id)}
         onClick={() => handleTodoItemClick(todo.id)}
-      >{todo.id} {todo.title}</span> <button onClick={() => handleTodoItemRemove(todo.id)}>삭제</button>
+      >{todo.title}</span> <button onClick={() => handleTodoItemRemove(todo.id)}>삭제</button>
     </div >
   )
 }
@@ -23,6 +23,7 @@ const TodoList = ({ todos, handleMouseHoverTrue, handleMouseHoverFalse, handleTo
     <div>
       {todos.map(todo => (
         <TodoItem
+          key={todo.id}
           todo={todo}
           handleMouseHoverTrue={handleMouseHoverTrue}
           handleMouseHoverFalse={handleMouseHoverFalse}
