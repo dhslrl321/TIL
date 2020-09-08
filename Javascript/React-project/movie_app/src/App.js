@@ -40,10 +40,10 @@ const App = () => {
   const nextTodoId = useRef(3);
 
   const [todoInput, setTodoInput] = useState({
-    todoTitle: ""
+    title: ""
   })
 
-  const { todoTitle } = todoInput;
+  const { title } = todoInput;
 
   const handleTodoInputChange = (e) => {
     const { name, value } = e.target;
@@ -57,14 +57,14 @@ const App = () => {
   const handleTodoItemAdd = () => {
     const todo = {
       id: nextTodoId.current,
-      todoTitle,
+      title,
       active: false,
       hover: false
     }
 
     setTodos([...todos, todo]);
     setTodoInput({
-      todoTitle: ""
+      title: ""
     })
 
     nextTodoId.current += 1;
@@ -74,7 +74,6 @@ const App = () => {
     <div>
       <div><h2>Todo List</h2></div>
       <Form
-        title={title}
         handleTodoInputChange={handleTodoInputChange}
         handleTodoItemAdd={handleTodoItemAdd} />
       <TodoList

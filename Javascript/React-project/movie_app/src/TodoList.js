@@ -9,6 +9,7 @@ const TodoItem = ({ todo, handleMouseHoverTrue, handleMouseHoverFalse, handleTod
           cursor: "pointer",
           color: todo.active ? "green" : "black",
           fontWeight: todo.active ? "bolder" : (todo.hover ? "bold" : "normal"),
+          textDecorationLine: todo.active ? "line-through" : "none"
         }}
         onMouseEnter={() => handleMouseHoverTrue(todo.id)}
         onMouseLeave={() => handleMouseHoverFalse(todo.id)}
