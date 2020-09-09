@@ -29,3 +29,11 @@ XML은 `XmlBeanDefinitionReader`로 Bean을 등록한다.
 
 **package org.springframework.beans.factory.xml**
 내 생각엔 여기서 상수로 `beans, bean, alias`등이 할당되어 있는것을 보니 이게 XML을 불러오는 것 같음
+
+# XMl 로드되는 과정
+
+- `GenericXmlApplicationContext`에서 생성자 매개변수로 xml 경로를 넣음
+- `GenericXmlApplicationContext`의 생성자에서 `this.load()`를 수행
+- `this.load()`는 멤버 변수인 `XmlBeanDefinitionReader`의 `loadBeanDefinitions(위치)` 메서드 호출
+- `AbstractBeanDefinitionReader`의 `loadBeanDefinition(위치)` 메서드 실행 후 int형의 count를 반환
+- `XmlBeanDefinitionReader`의 `loadBeanDefinitions()`호출 여기서 `Document`형태로 가져옴
