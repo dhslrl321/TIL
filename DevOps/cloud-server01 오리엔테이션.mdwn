@@ -1,0 +1,17 @@
+# DevOps
+
+- 소통, 협업, 통합 및 **자동화**를 강조하는 소프트웨어 개발 방법론
+- 개발과 운영이 상호의존적 대응
+- 개발과 운영 사이의 역할
+
+## Tool
+
+- Jira
+- Confluence
+- Bitbucket
+- Jenkins
+
+## 업무 환경
+
+- EC2, S3, RDS
+- Docker
