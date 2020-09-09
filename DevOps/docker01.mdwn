@@ -1,0 +1,19 @@
+도커 설치
+`brew docker`
+
+도커 리스트 확인
+`docker ps -a`
+
+> Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+> 이건 도커가 동작하지 않거나 실행되지 않았을 때 뜨니까 다시 도커를 실행해야 한다.
+
+도커 다시 실행
+`sudo systemctl start docker`
+도커 컨테이너 삭제
+`docker rm --volumes --force ""`
+도커 컨테이너 설치
+`docker pull cptactionhank/`
+도커 컨테이너 생성
+`docker create --restart=no --name ""`
+도커 컨테이너 실행
+`docker start --attach ""`

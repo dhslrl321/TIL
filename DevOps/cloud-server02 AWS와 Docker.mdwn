@@ -1,0 +1,50 @@
+# AWS
+
+클라우드 서버 구축 서비스
+
+- 전동적 IDC(International Data Corporation)
+- 클라우드의 중요성 증대
+- 탄력적 웹 규모 컴퓨팅
+- 다양한 API 제공
+- 유연한 클라우드 호스팅 서비스
+- 통합(RDS, EC2, S3를 서로 통합)
+- 안정성
+- 보안
+- 가격
+
+## AWS 종류
+
+#### Server
+
+- EC2 (오토스케일링으로 유연한 환경 제공)
+- Lambda (서버를 관리할 필요 없이 코드를 실행할 수 있음. 모든 유형의 Back 코드를 별도 관리 없이 실행 가능)
+- VPC(Virtual Private Cloud) 고객이 정의하는 가상 네트워킹 환경을 제어할 수 있음
+
+#### Storage
+
+- S3(비용을 최적화고 유일한 쿼리 기능을 할 수 있음)
+- EBS(Elastic Block Storage)
+
+#### DataBase
+
+- RDS
+- DynamoDB(규모와 관계 없이 빠른 어플리케이션을 위한 NoSql 서비스)
+- RedShift
+- AuroraDB
+
+#### Management
+
+- Cloud Watch(모니터링 서비스 및 로그 파일 수집)
+
+#### Analysis
+
+- Kinesis()
+
+# Docker
+
+오픈소스 컨테이너 프로젝트
+**실행시점에 상관없이 구성 시점을 고를 수 있음**
+**개발 프로그램 설치와 삭제가 용이**
+초기 인프라 환경 설정은 복잡하고 어려우나, 쉽고 일관성 있게 만들어줌
+도커는 리눅스 컨테이너를 사용
+여러군대 배포할 수 있는 확장성
