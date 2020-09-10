@@ -1,5 +1,14 @@
-도커 설치
-`brew docker`
+### ec2 인스턴스에 접속
+
+1. 키 파일을 퍼미션 400으로 조정
+   `chmod 400 [key.pem파일 경로\key.pem 파일명]`
+2. ssh 접속
+   `ssh -i [key.pem파일 경로\key.pem 파일명] ec2-user@[서버 아이피 또는 도메인]`
+
+### 도커 설치
+
+ec2 인스턴스에서 도커 설치
+`sudo yum install docker`
 
 도커 리스트 확인
 `docker ps -a`
@@ -17,3 +26,5 @@
 `docker create --restart=no --name ""`
 도커 컨테이너 실행
 `docker start --attach ""`
+
+### spring 프로젝트 설치
