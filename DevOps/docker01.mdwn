@@ -28,3 +28,21 @@ ec2 인스턴스에서 도커 설치
 `docker start --attach ""`
 
 ### spring 프로젝트 설치
+
+### Tomcat 세팅
+
+`sudo systemctl enable tomcat` : 톰캣 사용 가능하도록 enable
+`sudo systemctl status tomcat` : 톰캣 확인
+`sudo systemctl start tomcat` : 톰캣 시작
+`sudo chgrp -R tomcat /opt/tomcat` : 해당 폴더를 tomcat user 권한 부여
+`sudo chown -R tomcat webapps/work/temp/logs/` : 소유권을 톰캣으로 정의
+`sudo chmod g+x conf-Config` : 폴더 권한 부여
+`sudo chmod 777 webapps` : 파일 삭제 및 수정 권한 부여
+
+이동
+`cd /opt/tomcat/webapps`
+
+`sudo rm -rf manager`
+`sudo rm -rf host-manager`
+`sudo rm -rf examples`
+`sudo rm -rf docs`
