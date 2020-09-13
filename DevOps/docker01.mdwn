@@ -34,6 +34,7 @@ ec2 인스턴스에서 도커 설치
 `sudo systemctl enable tomcat` : 톰캣 사용 가능하도록 enable
 `sudo systemctl status tomcat` : 톰캣 확인
 `sudo systemctl start tomcat` : 톰캣 시작
+`sudo systemctl daemon-reload` : 톰캣 데몬 리로드
 `sudo chgrp -R tomcat /opt/tomcat` : 해당 폴더를 tomcat user 권한 부여
 `sudo chown -R tomcat webapps/work/temp/logs/` : 소유권을 톰캣으로 정의
 `sudo chmod g+x conf-Config` : 폴더 권한 부여
