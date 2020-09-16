@@ -2,6 +2,12 @@ import React, { useRef, useState } from "react";
 import CreateUser from "./components/CreateUser";
 import UserList from "./components/UserList";
 
+const countActiveUsers = (users) => {
+  console.log("활성 사용자를 세는 중...");
+  return users.filter(user => user.active).length;
+}
+
+
 const App = () => {
 
   const [inputs, setInputs] = useState({
@@ -82,6 +88,7 @@ const App = () => {
       /><br></br>
 
       <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+      <div>Activated user: {count} </div>
     </div>
   );
 }
