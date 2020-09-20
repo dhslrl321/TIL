@@ -11,6 +11,10 @@
 `docker run -p` ==> 호스트의 특정 포트와 도커의 포트를 포트포워딩
 `docker run -e` ==> 도커 환경 변수 값 등록
 `docker run --link [alias:targetName]` ==> 도커와 다른 도커를 연결하는데 alias라는 이름으로 타겟 네임을 연결 _Deprecated_
+`docker run ... -v [host-share-directory:container-share-directory]` ==> 영속성을 위한 도커 볼륨으로 도커가 호스트의 디렉토리를 공유함.
+`docker run ... -v [host-dir/fileName:container-dir/fileName]` ==> 영속성을 위한 도커 볼륨으로 도커가 호스트의 단일 파일을 공유함.
+`docker run ... --volumns-from [containerName]` ==> `-v` 옵션으로 호스트와 볼륨을 공유한 컨테이너와 연결
+
 **image**
 `docker images` ==> 도커 엔진에 존재하는 이미지 출력
 
@@ -36,6 +40,25 @@
 
 **stop**
 `docker stop` ==> 도커 중단.
+
+**inspect**
+`docker inspect` ==> 도커 볼륨이 어디에 저장되어있는지 확인
+`docker inspect --type [name]` ==> name이름의 볼륨을 검색
+
+## 볼륨
+
+**create**
+`docker volume create` ==> 도커 볼륨을 생성
+`docker volume create --name[name]` ==> 도커 볼륨을 name이라는 이름으로 생성
+
+**run**
+`docker volumn run -v [volumeName:containerDir]` ==> 호스트와 볼륨을 공유할 때
+
+**ls**
+`docker volume ls` ==>
+**inspect**
+`docker volume inspect` ==> 도커 볼륨이 어디에 저장되어있는지 확인
+
 `docker ` ==>
 `docker ` ==>
 `docker ` ==>
