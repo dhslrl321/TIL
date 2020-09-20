@@ -1,0 +1,41 @@
+# 도커 명령어 모음
+
+`docker ` ==>
+`docker -v` ==> 도커 버전 확인
+
+**run**
+`docker run` ==> 도커 실행
+`docker run -i -t` ==> 도커를 입출력 모드와 tty 서버로 실행
+`docker run -i -t --[name]` ==> name에 해당하는 이름으로 실행
+`docker run -d` ==> 도커를 백그라운드로 실행
+`docker run -p` ==> 호스트의 특정 포트와 도커의 포트를 포트포워딩
+`docker run -e` ==> 도커 환경 변수 값 등록
+`docker run --link [alias:targetName]` ==> 도커와 다른 도커를 연결하는데 alias라는 이름으로 타겟 네임을 연결 _Deprecated_
+**image**
+`docker images` ==> 도커 엔진에 존재하는 이미지 출력
+
+**create**
+`docker create` ==> 도커 생성
+
+**start**
+`docker start` ==> 도커 실행
+
+**pull**
+`docker pull` ==> 이미지가 없을 때 다운
+
+**ps**
+`docker ps` ==> 도커 프로세스 리스트 확인
+`docker ps -a` ==> 도커
+
+**rename**
+`docker rename` ==> 도커 이미지 이름 변경
+
+**rm**
+`docker rm` ==> 도커 삭제
+`docker rm -f` ==> 실행중인 컨테이너 삭제
+
+**stop**
+`docker stop` ==> 도커 중단.
+`docker ` ==>
+`docker ` ==>
+`docker ` ==>
