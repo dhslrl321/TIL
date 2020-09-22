@@ -60,10 +60,31 @@
 `docker volume inspect` ==> 도커 볼륨이 어디에 저장되어있는지 확인
 
 `docker ` ==>
-`docker ` ==>
-`docker ` ==>
+
+## 도커 이미지
+
+**commit**
+`docker commit -m "[message]"` ==> 메시지로 컨테이를 커밋하여 이미지 생성
+`docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]` ==> 컨테이너를 이미지로 만듦
+
+**rmi**
+`docker rmi [image name]` ==> 도커 이미지 이름으로 삭제
+
+**save**
+`docker save -o [추출 파일명] [이미지 이름]` ==> 이미지 이름을 추출 파일명으로 이미지 추출
+
+**load**
+`docker load -i [추출된 파일명]` ==> 추출된 이미지를 도커 엔진에 생성
+
+**export**
+`docker export -o [추출 파일명] [이미지 이름]` ==> 이미지 이름을 추출 파일명으로 이미지 추출
+
+**import**
+`docker import [로드할 파일명] [추출된 파일명]` ==> 추출된 파일명을 로드할 파일명으로 도커 엔진에 생성
 
 ## 도커 허브
 
 `docker search` ==> 도커 허브에서 이미지 검색
-`docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]` ==> 컨테이너를 이미지로 만듦
+
+**tag**
+`docker tag [기존 이미지 이름] [도커허브 아이디/새롭게 생성될 이름]` ==> 생성될 이미지 이름에 태그를 붙힘(도커 허브에 올릴 때 필수)
