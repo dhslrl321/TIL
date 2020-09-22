@@ -62,3 +62,8 @@
 `docker ` ==>
 `docker ` ==>
 `docker ` ==>
+
+## 도커 허브
+
+`docker search` ==> 도커 허브에서 이미지 검색
+`docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]` ==> 컨테이너를 이미지로 만듦
