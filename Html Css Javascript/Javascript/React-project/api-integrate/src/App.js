@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from "axois";
+import axios from "axios";
 
 function App() {
 
@@ -7,26 +7,27 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+
+  const fetchUsers = async () => {
+    try {
+      setError(null);
+      setUsers(null);
+
+      setLoading(true);
+
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+
+      setUsers(response.data);
+    } catch (e) {
+      setError(e);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setError(null);
-        setUsers(null);
-
-        setLoading(true);
-
-        const response = await axios.get(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-
-        setUsers(response.data);
-      } catch (e) {
-        setError(e);
-      }
-
-      setLoading(false);
-    };
-
     fetchUsers();
   }, [])
 
@@ -41,6 +42,7 @@ function App() {
           {user.username} ({user.name})
         </li>
       ))}
+      <button onClick={fetchUsers}>Re</button>
     </div>
   );
 }
