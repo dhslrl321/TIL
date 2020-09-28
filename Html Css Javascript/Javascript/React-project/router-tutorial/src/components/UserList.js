@@ -2,13 +2,6 @@ import React, { useEffect } from 'react';
 
 const User = ({ user, onRemove, onToggle }) => {
 
-  useEffect(() => {
-    console.log("show");
-    return () => {
-      console.log("disappear");
-    }
-  }, []);
-
   return (
     <div>
       <b
