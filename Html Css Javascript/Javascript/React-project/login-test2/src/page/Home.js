@@ -1,6 +1,5 @@
 import React from 'react';
-import { Todo } from './Todo';
-import { Route, NavLink, Switch } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 export const Home = ({ authenticated }) => {
 

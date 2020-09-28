@@ -9,7 +9,7 @@ import { AuthRouter } from './components/AuthRouter';
 import { NotFount } from './page/NotFound';
 const App = () => {
 
-  const authenticated = true;
+  const authenticated = false;
 
   return (
     <div>
