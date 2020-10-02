@@ -31,3 +31,5 @@ h1 {
 - id, class 태그 모두 섞을 경우 : `selector(id, className, tag)` 로 사용한다.
 
 ---
+
+font-size는 특정 픽셀 또는 계산된 값을 써야한다.
