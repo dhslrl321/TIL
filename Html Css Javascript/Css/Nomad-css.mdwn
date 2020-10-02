@@ -1,0 +1,26 @@
+# CSS
+
+**Cascading Style Sheet**
+
+Cascading이란 one after other이다.
+마치 폭포수 처럼.
+
+이 cascading을 아는 것이 css를 더욱 멋지게 이용할 수 있게 한다.
+
+**css는 순서에 영향을 받는다.**
+
+Box 속성
+
+### 기본적 box
+`<div></div>`
+이에 반해 `<span>` 태그는 box가 아니다.
+
+# block vs inline
+
+block : 다음에 아무것도 못 온다.
+> `<address>`, `<div>`
+inline : 다음에 다른 요소가 올 수 있다.
+> `<span>`, `<a>`, `<img>`
+
+대부분 html 요소에는 block이라 오히려 block이 아닌 것들을 외우는 것이 block과 inline을 구분하는데 편하다.
+`<span>`, `<a>`, `<img>`은 inline이고 이를 제외한 대부분이 block이다.
