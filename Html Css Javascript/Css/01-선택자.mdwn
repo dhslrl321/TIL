@@ -29,3 +29,5 @@ h1 {
 - id일 경우 : `#idName`
 - 태그랑 클래스를 섞을 경우 : `tag-name .className { }`
 - id, class 태그 모두 섞을 경우 : `selector(id, className, tag)` 로 사용한다.
+
+---
