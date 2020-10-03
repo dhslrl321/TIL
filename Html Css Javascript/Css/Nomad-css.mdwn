@@ -12,20 +12,23 @@ Cascading이란 one after other이다.
 Box 속성
 
 ### 기본적 box
+
 `<div></div>`
 이에 반해 `<span>` 태그는 box가 아니다.
 
 # block vs inline
 
 block : 다음에 아무것도 못 온다.
+
 > `<address>`, `<div>`
-inline : 다음에 다른 요소가 올 수 있다.
+> inline : 다음에 다른 요소가 올 수 있다.
 > `<span>`, `<a>`, `<img>`
 
 대부분 html 요소에는 block이라 오히려 block이 아닌 것들을 외우는 것이 block과 inline을 구분하는데 편하다.
 `<span>`, `<a>`, `<img>`은 inline이고 이를 제외한 대부분이 block이다.
 
 **block만 가지고 있는 특징**
+
 - 다음에 다른 요소가 올 수 없다.
 - 높이와 너비를 가질 수 있다.
 
@@ -39,9 +42,13 @@ box는 padding, margin, border을 가질 수 있다.
 # margin vs padding vs border
 
 ### margin
+
 margin : box의 경계(border)로부터 바깥에 있는 공간.
 `margin: top right bottom left`로 줄 수 있다.
 
 ### padding
+
 padding : box의 경계(border)로부터 안쪽에 있는 공간.
 
+inline은 margin의 top과 bottom을 가질 수 없다.
+만약 inline에게 top과 bottom을 가지게 하기 위해서는 block으로 만들어야 한다.
