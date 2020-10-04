@@ -54,3 +54,21 @@ inline은 margin의 top과 bottom을 가질 수 없다.
 만약 inline에게 top과 bottom을 가지게 하기 위해서는 block으로 만들어야 한다.
 
 ---
+
+# 포스팅 목록
+
+- css의 cascading 의미
+- block과 inline의 차이
+- margin
+- padding
+- border
+- classes / id
+- inline block
+- flexbox
+- fixed
+- relative / absolute
+- pseudo selector
+- combinators
+- pseudo selectors part two
+- states
+- colors and variables
