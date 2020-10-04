@@ -58,17 +58,10 @@ inline은 margin의 top과 bottom을 가질 수 없다.
 # 포스팅 목록
 
 - css의 cascading 의미
-- block과 inline의 차이
-- margin
-- padding
-- border
-- classes / id
-- inline block
+- box modeling (margin, padding, border)
+- block과 inline의 차이 그리고 inline block
 - flexbox
-- fixed
-- relative / absolute
-- pseudo selector
-- combinators
-- pseudo selectors part two
+- 선택자의 모든 것 (id, class, tag, pseudo, combinators)
+- Position (relative / absolute / fixed)
 - states
 - colors and variables

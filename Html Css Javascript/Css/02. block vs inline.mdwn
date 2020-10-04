@@ -26,3 +26,10 @@ Block 속성에는 Inline과 달리 한 줄에 나열되지 않고 그 자체로
 
 - 기본적으로 너비는 100 %가 된다.
 - Inline과 다르게 `margin`, `width`, `height` 속성이 적용된다.
+
+# inline-block 속성
+
+inline-block 속성은 inline의 속성의 특징과 block의 특징을 모두 가지고 있는 속성이다.
+기본적인 특징은 inline과 비슷한데, inline에서 할 수 없던 width, height, margin, padding등을 적용할 수 있는 특징이 있다.
+
+하지만 inline-block은 다른 inline 요소에 대한 상대적인 정렬으로 다르게 표시될 때가 많다.
