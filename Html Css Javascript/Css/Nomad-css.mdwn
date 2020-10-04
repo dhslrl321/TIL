@@ -52,3 +52,5 @@ padding : box의 경계(border)로부터 안쪽에 있는 공간.
 
 inline은 margin의 top과 bottom을 가질 수 없다.
 만약 inline에게 top과 bottom을 가지게 하기 위해서는 block으로 만들어야 한다.
+
+---
