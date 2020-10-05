@@ -12,5 +12,33 @@
   justify-content: space-between;
 }
 .nav__link {
+  position: relative;
   color: inherit;
+}
+
+.nav__notification {
+  background-color: tomato;
+  width: 20px;
+  height: 20px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: 500;
+  position: absolute;
+  left: 23px;
+  bottom: 15px;
+}
+
+.nav__ellipsis {
+  background-color: tomato;
+  display: flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 23px;
 }
