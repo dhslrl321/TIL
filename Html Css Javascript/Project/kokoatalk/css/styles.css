@@ -1,50 +1,16 @@
 @import "./reset.css";
-@import "./status-bar.css";
 @import "./variable.css";
+
+/* components */
+@import "./components/status-bar.css";
+@import "./components//nav-bar.css";
+
+/* screens */
+@import "./screens/login.css";
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-}
 
-.welcome-header {
-  margin: 90px 0px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-weight: 600;
-}
-
-.welcome-header__title {
-  margin-bottom: 20px;
-  font-size: 25px;
-}
-
-.welcome-header__text {
-  width: 60%;
-  opacity: 0.6;
-}
-
-#login-form {
-  display: flex;
-  flex-direction: column;
-  margin: 0px 30px;
-}
-
-#login-form input {
-  border: none;
-  padding: 15px 0px;
-  font-size: 18px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  margin-bottom: 25px;
-  transition: border-color 0.3s ease-in-out;
-}
-
-#login-form input::placeholder {
-  color: rgba(0, 0, 0, 0.2);
-}
-
-#login-form input:focus {
-  border-color: var(--yellow);
+  height: 1000vh;
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/styles.css" />
-    <title>Welcome to KakaoTalk</title>
+    <title>Friends - KakaoTalk</title>
   </head>
   <body>
     <div class="status-bar">
@@ -22,19 +22,29 @@
       </div>
     </div>
 
-    <header class="welcome-header">
-      <h1 class="welcome-header__title">Welcome to kakaoTalk</h1>
-      <p class="welcome-header__text">
-        If you have a kakao account, Log-in with your email or phone number
-      </p>
-    </header>
+    <nav class="nav">
+      <ul class="nav__list">
+        <li class="nav__btn">
+          <a class="nav__link" href="friends.html"
+            ><i class="fas fa-user fa-2x"></i
+          ></a>
+        </li>
+        <li class="nav__btn">
+          <a class="nav__link" href="#chat.html"
+            ><i class="far fa-comment fa-2x"></i
+          ></a>
+        </li>
+        <li class="nav__btn">
+          <a class="nav__link" href="#"><i class="fas fa-search fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+          <a class="nav__link" href="#"
+            ><i class="fas fa-ellipsis-h fa-2x"></i
+          ></a>
+        </li>
+      </ul>
+    </nav>
 
-    <form id="login-form" action="friends.html" method="GET">
-      <input type="text" placeholder="Email or phone number" />
-      <input type="password" placeholder="Password" />
-      <input type="submit" value="login" />
-      <a href="#">Fine Kakao Account or Password</a>
-    </form>
     <script
       src="https://kit.fontawesome.com/525e231814.js"
       crossorigin="anonymous"
