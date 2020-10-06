@@ -1,7 +1,7 @@
 # react-router-dom
 
-- [ ] HashRouter
-- [ ] BrowserRouter
+- [x] HashRouter
+- [x] BrowserRouter
 - [ ] Router Composition
 - [ ] Switch
 - [ ] withRouter
