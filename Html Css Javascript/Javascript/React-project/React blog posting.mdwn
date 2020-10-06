@@ -4,15 +4,16 @@
 - [ ] BrowserRouter
 - [ ] Router Composition
 - [ ] Switch
+- [ ] withRouter
 
 # styled-components
 
 - [ ] react styled-components
-- [ ] createGlobalStyle
 - [ ] withComponent로 태그 변경하기
 - [ ] styled(Button.withComponent('a'))로 컴포넌트 연장
 - [ ] hover
 - [ ] styled-reset
+- [ ] props 전달하기
 
 # etc.
 
