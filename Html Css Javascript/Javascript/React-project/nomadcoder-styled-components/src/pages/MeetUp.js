@@ -1,0 +1,1 @@
+export default MeetUp => "밋업"

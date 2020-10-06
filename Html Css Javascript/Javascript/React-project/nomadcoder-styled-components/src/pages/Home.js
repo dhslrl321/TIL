@@ -1,0 +1,1 @@
+export default Home => "개인적으로 너무 멋지다고 생각하는 DesignBase의 Main 페이지";
