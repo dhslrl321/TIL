@@ -6,6 +6,8 @@ import CourseDesign from "../pages/CourseDesign";
 import CourseCoding from "../pages/CourseCoding";
 import Bookmark from "../pages/Bookmark";
 import Contact from "../pages/Contact";
+import MeetUp from '../pages/MeetUp';
+
 export const Routes = () => {
   return (
     <Switch>
@@ -14,6 +16,7 @@ export const Routes = () => {
       <Route path="/course-design" component={CourseDesign} />
       <Route path="/course-coding" component={CourseCoding} />
       <Route path="/bookmark" component={Bookmark} />
+      <Route path="/meetup" component={MeetUp} />
       <Route path="/contact" component={Contact} />
     </Switch>
   );
