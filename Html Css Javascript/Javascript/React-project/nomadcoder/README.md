@@ -9,6 +9,6 @@
 
 - [ ] Now Playing (Movies)
 - [ ] Upcomming (TV, Movie)
-- [ ] Top Rated (TV, Movies)
-- [ ] Popular (TV, Movies)
+- [ ] Top Rated (TV)
+- [ ] Popular (TV, X)
 - [ ] Airing Today (TV)
