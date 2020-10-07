@@ -28,6 +28,10 @@
 - [ ] mixin (전체 재사용하기)
 - [ ] createGlobalStyle (전역에서 사용하기)
 
+# Axios
+
+- [ ] axios가 무엇인지.
+
 # etc.
 
 - [ ] Fragment
