@@ -3,19 +3,17 @@ import DetailPresenter from "./DetailPresenter";
 
 export default class extends React.Component {
   state = {
-    nowPlaying: null,
-    upcomming: null,
-    popular: null,
+    result: null,
     error: null,
     loading: true
   };
 
   render() {
-    const { nowPlaying, upcomming, popular, error, loading } = this.state;
+    const { result, error, loading } = this.state;
+    console.log(this.props);
+
     return <DetailPresenter
-      nowPlaying={nowPlaying}
-      upcomming={upcomming}
-      popular={popular}
+      result={result}
       error={error}
       loading={loading} />
   }
