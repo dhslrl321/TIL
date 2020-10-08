@@ -32,7 +32,9 @@
 
 - [ ] axios가 무엇인지.
 - [ ] axios create
+- [ ] encodeURIComponent()
 
 # etc.
 
 - [ ] Fragment
+- [ ] Continer Present Pattern
