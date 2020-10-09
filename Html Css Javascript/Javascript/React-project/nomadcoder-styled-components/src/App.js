@@ -5,6 +5,9 @@ import { Routes } from './components/Routes';
 import GlobalStyles from "./components/GlobalStyles";
 
 export const App = () => {
+
+
+
   return (
     <>
       <GlobalStyles />

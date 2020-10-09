@@ -8,9 +8,18 @@ export default class extends React.Component {
     loading: true
   };
 
+  async componentDidMount() {
+    const {
+      match: {
+        params: { id }
+      } } = this.props;
+
+    console.log(id);
+
+  }
+
   render() {
     const { result, error, loading } = this.state;
-    console.log(this.props);
 
     return <DetailPresenter
       result={result}
