@@ -2,12 +2,10 @@ import React from 'react';
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-const DetailPresenter = ({ topRated, popular, airingToday, loading, error }) => null;
+const DetailPresenter = ({ result, loading, error }) => null;
 
-TVPresenter.propTypes = {
-    topRated: PropTypes.array,
-    popular: PropTypes.array,
-    airingToday: PropTypes.array,
+DetailPresenter.propTypes = {
+    result: PropTypes.object.isRequired,
     loading: PropTypes.bool.isRequired,
     error: PropTypes.string
 }

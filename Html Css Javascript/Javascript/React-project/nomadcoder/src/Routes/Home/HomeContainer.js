@@ -4,7 +4,7 @@ import { movieApi } from "../../api";
 export default class extends React.Component {
   state = {
     nowPlaying: null,
-    upcomming: null,
+    upcoming: null,
     popular: null,
     error: null,
     loading: true
@@ -16,7 +16,7 @@ export default class extends React.Component {
         data: { results: nowPlaying }
       } = await movieApi.nowPlaying();
       const {
-        data: { results: upcomming }
+        data: { results: upcoming }
       } = await movieApi.upComming();
       const {
         data: { results: popular }
@@ -24,7 +24,7 @@ export default class extends React.Component {
 
       this.setState({
         nowPlaying,
-        upcomming,
+        upcoming,
         popular
       })
     } catch {
@@ -40,11 +40,12 @@ export default class extends React.Component {
   }
 
   render() {
-    const { nowPlaying, upcomming, popular, error, loading } = this.state;
+    const { nowPlaying, upcoming, popular, error, loading } = this.state;
+    console.log(this.state);
 
     return <HomePresenter
       nowPlaying={nowPlaying}
-      upcomming={upcomming}
+      upcoming={upcoming}
       popular={popular}
       error={error}
       loading={loading} />
