@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import Section from "Components/Section";
+import Loader from '../../Components/Loader';
 
 const Container = styled.div`
-
+  padding: 0px 10px;
 `;
 
-const TVPresenter = ({ topRated, popular, airingToday, loading, error }) => loading ? null : (
+const TVPresenter = ({ topRated, popular, airingToday, loading, error }) => loading ? <Loader /> : (
   <Container>
     {topRated && topRated.length > 0 && (
       <Section title="Top Rated">
@@ -18,7 +19,7 @@ const TVPresenter = ({ topRated, popular, airingToday, loading, error }) => load
     )}
 
     {popular && popular.length > 0 && (
-      <Section title="Popular">
+      <Section title="Popular Show">
         {popular.map(show =>
           show.name
         )}
