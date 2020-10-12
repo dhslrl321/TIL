@@ -1,10 +1,10 @@
 import React from "react";
-
+import icons from "styled-icons";
 const App = () => {
 
   return (
     <div>
-      hello
+      {icons}
     </div>
   );
 }
