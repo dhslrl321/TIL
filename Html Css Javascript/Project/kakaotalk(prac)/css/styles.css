@@ -1,3 +1,32 @@
 body {
   background-color: antiquewhite;
 }
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.status-bar__column {
+  width: 33%;
+}
+
+.status-bar__column:first-child {
+  margin-right: 5px;
+  background-color: oldlace;
+}
+
+.status-bar__column:nth-child(2) {
+  display: flex;
+  background-color: greenyellow;
+  justify-content: center;
+}
+
+.status-bar__column:last-child {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: silver;
+}

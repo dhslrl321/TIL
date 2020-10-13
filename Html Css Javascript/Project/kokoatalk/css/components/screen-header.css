@@ -9,3 +9,7 @@
   font-size: 28px;
   font-weight: 600;
 }
+
+.screen-header__icons span {
+  margin-left: 8px;
+}

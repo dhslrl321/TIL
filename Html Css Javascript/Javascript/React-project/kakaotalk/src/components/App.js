@@ -1,6 +1,6 @@
 import React from 'react';
-import GlobalStyle from "./config/GlobalStyle";
-import StatusBar from './components/StatusBar';
+import GlobalStyle from "../config/GlobalStyle";
+import StatusBar from './StatusBar';
 import styled from "styled-components";
 
 
