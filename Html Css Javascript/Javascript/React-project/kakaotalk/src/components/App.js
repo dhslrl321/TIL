@@ -1,7 +1,7 @@
 import React from 'react';
 import GlobalStyle from "../config/GlobalStyle";
-import StatusBar from './StatusBar';
 import styled from "styled-components";
+import Header from './Header';
 
 
 const ScrollTestBlock = styled.div`
@@ -12,8 +12,7 @@ function App() {
   return (
     <div>
       <GlobalStyle />
-      <StatusBar />
-      <ScrollTestBlock />
+      <Header />
     </div>
   );
 }
