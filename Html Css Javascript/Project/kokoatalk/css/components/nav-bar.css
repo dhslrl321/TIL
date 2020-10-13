@@ -33,12 +33,10 @@
 
 .nav__ellipsis {
   background-color: tomato;
-  display: flex;
-  width: 8px;
-  height: 8px;
-  border-radius: 5px;
-  justify-content: center;
-  align-items: center;
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 2.5px;
   position: absolute;
-  left: 23px;
+  left: 25px;
 }
