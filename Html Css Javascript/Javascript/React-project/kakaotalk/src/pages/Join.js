@@ -1,3 +1,3 @@
 import React from 'react';
 
-export default Join => "This is Join";
+export default () => "This is Join";

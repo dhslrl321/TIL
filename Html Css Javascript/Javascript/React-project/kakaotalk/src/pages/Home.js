@@ -1,13 +1,4 @@
 import React from 'react';
+import styled from "styled-components";
 
-
-export default () => (
-  <>
-    <div>
-      Box1
-    </div>
-    <div>
-      Box2
-    </div>
-  </>
-);
+export default () => "This is Home";
