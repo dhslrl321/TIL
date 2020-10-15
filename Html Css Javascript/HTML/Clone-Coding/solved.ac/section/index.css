@@ -1,3 +1,60 @@
-.top-menu{
-    background: red;
+body {
+  background: #cfd8dc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.work-stage {
+  margin-top: 100px;
+  width: 600px;
+  height: 800px;
+  background: white;
+  overflow-y: auto;
+}
+
+.work-stage__box {
+  width: 60%;
+  height: 300%;
+  position: relative;
+}
+
+.work-stage__box div {
+  width: 150px;
+  height: 150px;
+  border: 1px solid;
+  position: absolute;
+}
+
+.work-stage__box div:first-child {
+  top: 20px;
+  left: 20px;
+  background: powderblue;
+  z-index: 3;
+}
+
+.work-stage__box div:nth-child(2) {
+  top: 40px;
+  left: 40px;
+  background: tomato;
+  z-index: 2;
+}
+
+.work-stage__box div:last-child {
+  top: 60px;
+  left: 60px;
+  background: wheat;
+  z-index: 1;
+}
+.work-stage__box {
+  background: powderblue;
+  width: 100px;
+  height: 100px;
+  transition: 1s ease-in;
+}
+
+.work-stage__box:hover {
+  width: 200px;
+  height: 200px;
+  border-radius: 100px;
 }
