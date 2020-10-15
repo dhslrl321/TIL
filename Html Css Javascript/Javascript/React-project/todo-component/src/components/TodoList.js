@@ -6,13 +6,18 @@ const TodoListBlock = styled.div`
   padding: 20px 32px;
   padding-bottom: 48px;
   overflow-y: auto;
-  background: gray;
 `;
 
 const TodoList = () => {
   return (
     <TodoListBlock>
       <TodoItem text="create" done={true} />
+      <TodoItem text="create" done={false} />
+      <TodoItem text="create" done={false} />
+      <TodoItem text="create" done={false} />
+      <TodoItem text="create" done={false} />
+      <TodoItem text="create" done={false} />
+
     </TodoListBlock>
   );
 }
