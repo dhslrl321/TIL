@@ -1,11 +1,10 @@
 import React from 'react';
-import Header from "./Header";
-import styled from "styled-components";
+import Test from './Test';
 
 function App() {
   return (
     <div>
-      hello
+      <Test />
     </div>
   );
 }
