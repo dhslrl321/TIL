@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import HomePresenter from "./HomePresenter";
-
 const HomeContainer = () => {
+
   return (
     <HomePresenter />
   );

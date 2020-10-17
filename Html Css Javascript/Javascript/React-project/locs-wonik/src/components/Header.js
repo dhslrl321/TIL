@@ -37,6 +37,8 @@ const LinkBlock = styled(Link)`
     margin: 0px 14px;
   }
 `;
+
+
 const Header = ({ location: { pathname } }) => {
   return (
     <>

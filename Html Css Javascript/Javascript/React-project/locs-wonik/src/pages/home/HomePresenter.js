@@ -59,8 +59,7 @@ const HomePresenter = () => {
           <LastTodo>할 일 2개 남음</LastTodo>
         </TopBlock>
         <BottomBlock>
-          <TodoItem checked={false} name="리액트 공부" />
-          <TodoItem checked={false} name="스프링 공부" />
+
         </BottomBlock>
       </TodoBlock>
     </Container>
