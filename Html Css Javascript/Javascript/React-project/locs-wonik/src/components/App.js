@@ -21,37 +21,39 @@ function App() {
   useEffect(() => {
 
     async function getUser() {
-      const { data: { data: result } } = await UserApi.findUser(1);
+      const { data: { data: result } } = await UserApi.deleteUser(2);
 
       setTestUser({
-        username: result.username,
-        password: result.password,
-        email: result.email
+        //username: result.username,
+        //password: result.password,
+        //email: result.email
       })
     }
 
     async function createUser(username, password, email) {
-      const { data: { data: result } } = await UserApi.createUser("react post test", "react post test", "react post test");
+
+      //const { data: { data: result } } = await UserApi.createUser("제발", "돼라", "진짜루");
+
+
 
       setPostUser({
-        username: result.username,
-        password: result.password,
-        email: result.email
+        //username: result.username,
+        //password: result.password,
+        //email: result.email
       })
     }
 
 
-    createUser();
     getUser();
   }, [])
 
   return (
     < Router >
       <div>
-        GET Test ==> {testUser.username}
+        GET Test ==> {}
       </div>
       <div>
-        POST Test ==> {postUser.username}
+        POST Test ==> {}
       </div>
       <GlobalStyle />
       <Header />

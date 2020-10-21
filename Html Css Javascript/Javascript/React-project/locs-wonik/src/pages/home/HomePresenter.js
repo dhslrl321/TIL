@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from "styled-components";
-import Section from "../../components/Section";
 
 const Container = styled.div`
   display: flex;
@@ -41,13 +40,6 @@ const BottomBlock = styled.div`
   border: 1px solid;
 `;
 
-const TodoItem = ({ className, checked, name }) => {
-  return (
-    <div>
-      {checked} {name}
-    </div>
-  );
-}
 
 const HomePresenter = () => {
   return (
