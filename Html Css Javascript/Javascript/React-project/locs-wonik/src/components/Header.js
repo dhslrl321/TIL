@@ -43,16 +43,16 @@ const Header = ({ location: { pathname }, user }) => {
 
   const login = (
     <NavBlock>
-      <LinkBlock to="/login">Login</LinkBlock>
-      <LinkBlock to="/join">Join</LinkBlock>
+      <LinkBlock to="/login" current={pathname === "/login"}>Login</LinkBlock>
+      <LinkBlock to="/join" current={pathname === "/join"}>Join</LinkBlock>
     </NavBlock>
   )
 
   // todo 로그아웃시에 redirect 해줘야함.
   const logout = (
     <NavBlock>
-      <LinkBlock to="/mypage">My Page</LinkBlock>
-      <LinkBlock to="/logout">Logout</LinkBlock>
+      <LinkBlock to="/mypage" current={pathname === "/mypage"}>My Page</LinkBlock>
+      <LinkBlock to="/logout" current={pathname === "/logout"}>Logout</LinkBlock>
     </NavBlock>
   );
 

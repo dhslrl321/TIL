@@ -19,7 +19,13 @@ const auth = (username, password) => {
         data: result
       }
     }= await UserApi.login(username, password);
-    this.user = result.username
+    
+    // 사용자가 있을 때, 101
+    // 아이디가 있지만 비밀번호가 다를 때, 102
+    // 사용자가 없을 때 103
+
+    if(result.resultCode == 101)
+
   }
 
   login(username, password) **/
@@ -27,7 +33,7 @@ const auth = (username, password) => {
   // 그럼 결과로 user가 나오던 error 메시지가 나옴
   // user 가 나오면 user를 설정
   // error 가 나오면 do nothing
-  user.auth = true;
+  user.auth = false;
 }
 
 const App = () => {
