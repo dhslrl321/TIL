@@ -4,59 +4,38 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Header from './Header';
 import { UserApi } from "../api";
 
+const user = {
+  id: 0,
+  username: "",
+  email: "",
+  auth: false
+}
 
-function App() {
-  const [testUser, setTestUser] = useState({
-    username: "",
-    password: "",
-    email: ""
-  });
+const auth = (username, password) => {
+  // api 호출해서 login 과정 인증
+  /** async function login(username, password){
+    const {
+      data: {
+        data: result
+      }
+    }= await UserApi.login(username, password);
+    this.user = result.username
+  }
 
-  const [postUser, setPostUser] = useState({
-    username: "",
-    password: "",
-    email: ""
-  });
+  login(username, password) **/
 
-  useEffect(() => {
+  // 그럼 결과로 user가 나오던 error 메시지가 나옴
+  // user 가 나오면 user를 설정
+  // error 가 나오면 do nothing
+  user.auth = true;
+}
 
-    async function getUser() {
-      const { data: { data: result } } = await UserApi.deleteUser(2);
-
-      setTestUser({
-        //username: result.username,
-        //password: result.password,
-        //email: result.email
-      })
-    }
-
-    async function createUser(username, password, email) {
-
-      //const { data: { data: result } } = await UserApi.createUser("제발", "돼라", "진짜루");
-
-
-
-      setPostUser({
-        //username: result.username,
-        //password: result.password,
-        //email: result.email
-      })
-    }
-
-
-    getUser();
-  }, [])
-
+const App = () => {
+  auth();
   return (
     < Router >
-      <div>
-        GET Test ==> {}
-      </div>
-      <div>
-        POST Test ==> {}
-      </div>
       <GlobalStyle />
-      <Header />
+      <Header user={user} />
     </Router >
   );
 }
