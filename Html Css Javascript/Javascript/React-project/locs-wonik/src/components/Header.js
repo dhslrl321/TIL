@@ -39,7 +39,7 @@ const LinkBlock = styled(Link)`
 `;
 
 
-const Header = ({ location: { pathname }, user }) => {
+const Header = ({ location: { pathname }, user, login }) => {
 
   const login = (
     <NavBlock>
