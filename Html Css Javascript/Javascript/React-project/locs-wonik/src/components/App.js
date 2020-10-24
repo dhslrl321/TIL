@@ -11,7 +11,7 @@ const App = () => {
   const login = ({ username, password }) => setUser()
 
   return (
-    < Router >
+    <Router>
       <GlobalStyle />
       <Header user={user} login={login} />
     </Router >
