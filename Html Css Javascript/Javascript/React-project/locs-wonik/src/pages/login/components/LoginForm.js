@@ -19,7 +19,7 @@ const LoginForm = () => {
   }
 
   const handleOnClick = (e) => {
-
+    console.log(inputs);
   }
 
   return (
