@@ -1,11 +1,26 @@
 import React, { useRef, useState, useMemo, useCallback, useReducer } from 'react';
-import translations from "./translations";
-import Lang from './context';
-const App = () => {
-  return (
-    <Lang defaultLang="en" translations={translations}>
 
-    </Lang>
+
+const initialState = {
+  toDos: {
+
+  }
+}
+const App = () => {
+
+  const onSubmit = e => {
+    e.preventDefault();
+  }
+
+  const onChange = e => {
+    const
+  }
+
+  return (
+    <h1>Todo </h1>
+    <form>
+      <input type="text" placeholder="wirte" />
+    </form>
   );
 }
 
