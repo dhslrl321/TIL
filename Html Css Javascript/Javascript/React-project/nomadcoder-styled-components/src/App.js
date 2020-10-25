@@ -1,20 +1,22 @@
 import React from 'react';
-import { BrowserRouter as Router } from "react-router-dom";
-import Header from './components/Header';
-import { Routes } from './components/Routes';
-import GlobalStyles from "./components/GlobalStyles";
+import styled from "styled-components";
+
+const Box1 = styled.input`
+  background-color: red;
+`;
+
+const Box2 = styled.div`
+  background-color: wheat;
+`;
 
 export const App = () => {
 
-
-
   return (
     <>
-      <GlobalStyles />
-      <Router>
-        <Header />
-        <Routes />
-      </Router>
+      <h1>asdf</h1>
+      <input type="text" />
+      <input type="text" />
+      <button>로그인</button>
     </>
   );
 }

@@ -1,1 +1,0 @@
-export default Bookmark => "북마크";
