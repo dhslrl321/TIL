@@ -1,24 +1,26 @@
 import React from 'react';
-import { createGlobalStyle } from "styled-components";
-import TodoTemplate from './components/TodoTemplate';
-import TodoHead from './components/TodoHead';
-import TodoList from "./components/TodoList";
-import TodoCreate from "./components/TodoCreate";
-const GlobalStyle = createGlobalStyle`
-  body {
-    background: #e9ecef;
+
+const initialState = {
+  todo: []
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case ADD: {
+      return { todo: [...todo, action.payload] }
+    }
+    default: {
+      return
+    }
   }
-`;
+}
 
 function App() {
+
   return (
     <>
-      <GlobalStyle />
-      <TodoTemplate>
-        <TodoHead />
-        <TodoList />
-        <TodoCreate />
-      </TodoTemplate>
+      <h1>Welcome</h1>
+      <input type="text" placeholder="write to dos" />
     </>
   );
 }
