@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>layout1</title>
+    <style>
+      /*화면 너비가 0 ~ 1280일 때 : 풀스크린*/
+      body {
+        background-color: #4158f0;
+      }
+      @media (max-width: 1280px) {
+        body {
+          background: #880e4f;
+        }
+      }
+
+      /*화면 너비가 0 ~ 1024일 때 : 데스크탑*/
+      @media (max-width: 1024px) {
+        body {
+          background: #4a148c;
+        }
+      }
+      /*화면 너비가 0 ~ 960일 때 : 노트북 */
+      @media (max-width: 960px) {
+        body {
+          background: #311b92;
+        }
+      }
+      /*화면 너비가 0 ~ 768일 때 : 태블릿 */
+      @media (max-width: 768px) {
+        body {
+          background: #4158f0;
+        }
+      }
+      /*화면 너비가 0 ~ 576일 때: 모바일 */
+      @media (max-width: 576px) {
+        body {
+          background: #8c9fbf;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>미디어 쿼리</h1>
+    <p>
+      화면 크기에 따른 각각의 속성 값을 지정해서, 여러가지 화면을 구성하는
+      기술ㅇ
+    </p>
+
+    <p>@media only all and (조건문) {실행문}</p>
+    <ul>
+      <li>@media</li>
+      <li>only</li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </body>
+</html>
