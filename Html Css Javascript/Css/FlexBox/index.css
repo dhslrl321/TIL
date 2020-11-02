@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  height: 100%;
+  justify-content: space-around;
+}
+
+.box {
+  width: 200px;
+  height: 200px;
+  background: peru;
+  text-align: center;
+  font-size: 32px;
+  color: white;
+  margin: 5px;
+}
+
+.box:nth-child(2) {
+  order: 1;
+}
