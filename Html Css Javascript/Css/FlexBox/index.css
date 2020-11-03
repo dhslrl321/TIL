@@ -2,6 +2,8 @@
   display: flex;
   height: 100%;
   justify-content: space-around;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
 }
 
 .box {
@@ -12,8 +14,7 @@
   font-size: 32px;
   color: white;
   margin: 5px;
-}
-
-.box:nth-child(2) {
-  order: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
