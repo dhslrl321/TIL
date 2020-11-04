@@ -1,24 +1,11 @@
 import React from 'react';
 import styled from "styled-components";
-
-const Box1 = styled.input`
-  background-color: red;
-`;
-
-const Box2 = styled.div`
-  background-color: wheat;
-`;
+import { useSpring, animated } from "react-spring";
 
 export const App = () => {
-
   return (
     <>
-      <h1>asdf</h1>
-      <input type="text" />
-      <input type="text" />
-      <button>로그인</button>
+      <h1>React Spring 예제</h1>
     </>
   );
 }
-
-export default App;
