@@ -1,27 +1,24 @@
 .father {
+  color: white;
+  background: #888;
   display: grid;
-  grid-template-columns: repeat(4, 200px);
-  grid-template-rows: repeat(4, 200px);
-  grid-template-areas:
-    "header header header header"
-    "content content content nav"
-    "content content content nav"
-    "footer footer footer footer";
+  height: 50vh;
+  gap: 5px;
+  grid-template-columns: repeat(4, 100px);
+  grid-template-rows: repeat(4, 100px);
+  justify-content: center;
 }
 
 .header {
   background: #3498db;
-  grid-area: header;
+  justify-self: auto;
 }
 .content {
   background: #8e44ad;
-  grid-area: content;
 }
 .nav {
   background: #f39c12;
-  grid-area: nav;
 }
 .footer {
   background: #ee84ad;
-  grid-area: footer;
 }
