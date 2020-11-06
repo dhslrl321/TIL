@@ -4,35 +4,35 @@ import {
   SidebarRoute, SidebarMenu, SidebarWrapper,
   Icon, CloseIcon
 } from "./styles";
-const Sidebar = () => {
+const Sidebar = ({ isOpen, toggle }) => {
   return (
-    <SidebarContainer>
-      <Icon>
+    <SidebarContainer isOpen={isOpen}>
+      <Icon onClick={toggle}>
         <CloseIcon />
       </Icon>
       <SidebarWrapper>
         <SidebarMenu>
           <SidebarLink to="about">
-            about
+            About
           </SidebarLink>
-          <SidebarLink to="discover">
-            discover
+          <SidebarLink to="tour">
+            Tour
           </SidebarLink>
-          <SidebarLink to="services">
-            services
+          <SidebarLink to="pricing">
+            Pricing
           </SidebarLink>
-          <SidebarLink to="signup">
-            signup
+          <SidebarLink to="reservation">
+            Reservation
           </SidebarLink>
         </SidebarMenu>
       </SidebarWrapper>
       <SideBtnWrap>
         <SidebarRoute to="/signin">
-          Signin
+          FAQ
         </SidebarRoute>
       </SideBtnWrap>
     </SidebarContainer>
   )
 }
 
-export default Sidebar
+export default Sidebar;

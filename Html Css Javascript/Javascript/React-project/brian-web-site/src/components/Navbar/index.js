@@ -4,14 +4,15 @@ import {
   Nav, NavbarContainer, NavLogo, MobileIcon,
   NavMenu, NavItem, NavLinks
 } from "./styles";
-const Navbar = () => {
+const Navbar = ({ toggle }) => {
+
   return (
     <Nav>
       <NavbarContainer>
         <NavLogo to="/">
-          Dolla
+          Blessed Music Studio
         </NavLogo>
-        <MobileIcon>
+        <MobileIcon onClick={toggle}>
           <FaBars />
         </MobileIcon>
         <NavMenu>
@@ -21,18 +22,18 @@ const Navbar = () => {
             </NavLinks>
           </NavItem>
           <NavItem>
-            <NavLinks to="discover">
-              discover
+            <NavLinks to="tour">
+              Tour
             </NavLinks>
           </NavItem>
           <NavItem>
-            <NavLinks to="services">
-              Services
+            <NavLinks to="pricing">
+              Pricing
             </NavLinks>
           </NavItem>
           <NavItem>
-            <NavLinks to="signup">
-              Sign Up
+            <NavLinks to="Reservation">
+              Reservation
             </NavLinks>
           </NavItem>
         </NavMenu>
