@@ -1,24 +1,14 @@
 .father {
   color: white;
-  background: #888;
   display: grid;
-  height: 50vh;
   gap: 5px;
-  grid-template-columns: repeat(4, 100px);
-  grid-template-rows: repeat(4, 100px);
-  justify-content: center;
+  grid-column-start: 2;
 }
 
-.header {
+.item:nth-child(odd) {
+  background: #2ecc71;
+}
+
+.item:nth-child(even) {
   background: #3498db;
-  justify-self: auto;
-}
-.content {
-  background: #8e44ad;
-}
-.nav {
-  background: #f39c12;
-}
-.footer {
-  background: #ee84ad;
 }
