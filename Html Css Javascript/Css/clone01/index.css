@@ -1,0 +1,10 @@
+@import url("./reset.css");
+
+body {
+  height: 100vh;
+}
+
+header {
+  background: #f0f0f0;
+  width: 33%;
+}
