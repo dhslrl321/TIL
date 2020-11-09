@@ -1,22 +1,28 @@
+@import url("./reset.css");
+
 body {
   background: #cfd8dc;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
-.work-stage {
-  margin-top: 100px;
-  width: 600px;
-  height: 800px;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.input-form {
+.nav {
+  height: 80px;
   border: 1px solid;
-  padding: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  padding: 0px 24px;
+}
+
+.nav-column {
+  display: flex;
+}
+
+.nav-column__menu__item {
+  margin: 0 24px;
+  cursor: pointer;
+  transition: 1s ease;
 }
