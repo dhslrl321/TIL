@@ -19,5 +19,3 @@ Authentication, Authorization과 악용에 대한 포괄적인 보호를 제공�
 그니까 PasswordEncoder는 데이터를 저장하기 위한 일방향 암호지 자격증명을 위해 양방향 전송에는 적합하지 않음
 
 ### 악용으로부터 보호
-
-- CSRF
