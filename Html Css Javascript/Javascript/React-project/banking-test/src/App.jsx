@@ -5,6 +5,7 @@ const App = () => {
   return (
     <GlobalContext>
       <ContextTest />
+      <div>Heloo</div>
     </GlobalContext>
   );
 };

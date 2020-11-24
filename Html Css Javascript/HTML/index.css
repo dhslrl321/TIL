@@ -6,23 +6,16 @@ body {
   justify-content: center;
 }
 
-.nav {
-  height: 80px;
+.container {
+  display: grid;
+  width: 200px;
+  height: 280px;
+  grid-template-columns: 1fr;
   border: 1px solid;
-  width: 100%;
+  align-items: center;
+}
+
+.price-items__columns {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  max-width: 1100px;
-  padding: 0px 24px;
-}
-
-.nav-column {
-  display: flex;
-}
-
-.nav-column__menu__item {
-  margin: 0 24px;
-  cursor: pointer;
-  transition: 1s ease;
 }

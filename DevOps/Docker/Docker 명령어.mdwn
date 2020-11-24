@@ -6,7 +6,7 @@
 **run**
 `docker run` ==> 도커 실행
 `docker run -i -t` ==> 도커를 입출력 모드와 tty 서버로 실행
-`docker run -i -t --[name]` ==> name에 해당하는 이름으로 실행
+`docker run -it --[name]` ==> name에 해당하는 이름으로 실행
 `docker run -d` ==> 도커를 백그라운드로 실행
 `docker run -p` ==> 호스트의 특정 포트와 도커의 포트를 포트포워딩
 `docker run -e` ==> 도커 환경 변수 값 등록
@@ -17,6 +17,7 @@
 
 **image**
 `docker images` ==> 도커 엔진에 존재하는 이미지 출력
+`docker rmi [OPTION] IMAGE [IMAGE...]` ==> 도커 이미지 삭제
 
 **create**
 `docker create` ==> 도커 생성
