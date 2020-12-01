@@ -4,30 +4,29 @@ const add = document.getElementById("add");
 const minus = document.getElementById("minus");
 const number = document.getElementById("span");
 
-const reducer = () => {
-  return "hello";
+const reducer = (count = 0, action) => {
+  if (action.type === "ADD") {
+    return count + 12;
+  } else if (action.type === "MINUS") {
+    return count - 1;
+  } else return count;
 };
-const store = createStore();
+const store = createStore(reducer);
 
-console.log(store);
-
-let count = 0;
-
-number.innerText = count;
+number.innerText = store.getState();
 
 const updateText = () => {
   number.innerText = count;
 };
 
 const handleAdd = () => {
-  count = count + 1;
+  store.dispatch({ type: "ADD" });
   updateText();
 };
 
 const handleMinus = () => {
-  count = count - 1;
+  store.dispatch({ type: "MINUS" });
   updateText();
-  console.log("hello");
 };
 
 add.addEventListener("click", handleAdd);

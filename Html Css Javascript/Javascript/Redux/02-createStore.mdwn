@@ -126,3 +126,69 @@ store.dispatch({type: "MINUS"});
 
 console.log(store.getState());
 ```
+
+# Subscribe
+
+subscribe는 변화를 감지하는 함수임
+
+```
+const reducer = (state = 0, action) => {
+  if(action.type === "ADD") state + 1;
+  return state;
+}
+const store = createStore(reducer);
+
+store.dispatch({type: "ADD"})
+```
+
+일케 ADD로 액션 타입이 들어가면 리듀서 함수에서 state + 1을 한다고 치면
+
+여기서
+
+```
+const reducer = (state = 0, action) => {
+  if(action.type === "ADD") state + 1;
+  return state;
+}
+const store = createStore(reducer);
+
+store.dispatch({type: "ADD"})
+
+const onChange() => {
+  console.log("changed");
+}
+
+store.subscribe(onChnage);
+```
+
+subscribe() 매개변수로 onChange() 함수를 주자.
+
+state가 변화될 때 마다 onChange가 호출됨
+
+위에선 if문 썼는데 이거 switch로 바꿔야됨.
+
+```
+const reducer = (state = 0, action) => {
+  swtich(action.type) {
+    case "ADD":
+      return state + 1;
+    case "MINUS":
+      return state - 1;
+    default:
+      return count;
+  }
+}
+const store = createStore(reducer);
+
+store.dispatch({type: "ADD"})
+
+const onChange() => {
+  console.log("changed");
+}
+
+store.subscribe(onChnage);
+```
+
+일케
+
+그리고
