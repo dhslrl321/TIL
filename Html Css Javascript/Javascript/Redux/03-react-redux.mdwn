@@ -22,6 +22,30 @@ Vue, Angular, Ember, Vanilla JS 랑도 별개.
 ## Provider
 
 우리의 App 컴포넌트가 store를 사용할 수 있게 하기 위해서 `<Provider />` 로 wrapping 해야함.
+리덕스 스토어를 이용가능하게 하는 역할을 수행
+보통 index.js나 index.jsx에서 사용함.
+
+그리고 Provider는 한 개의 props를 받는데, 그게 바로 스토어 프롭스임
+
+```
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+import { Provider } from 'react-redux'
+import store from './store'
+
+import App from './App'
+
+const rootElement = document.getElementById('root')
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  rootElement
+)
+```
+
+일케 쓰임
 
 ## connect
 
