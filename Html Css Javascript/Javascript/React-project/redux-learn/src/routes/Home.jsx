@@ -35,6 +35,7 @@ const mapStateToProps = (state, ownProps) => {
   // 그리고 내 컴포넌트 props로 주는거임
   console.log(state, ownProps);
   return { todo: state };
+  Q;
 };
 
 const mapDispatchToProps = (dispatch) => {
