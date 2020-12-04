@@ -2,3 +2,75 @@
 
 [공홈](https://react-redux.js.org)
 
+리덕스는 독립적인 라이브러리임
+Vue, Angular, Ember, Vanilla JS 랑도 별개.
+
+지난 시간에 그냥 리덕스를 썼음
+이런 리덕스를 다른 프레임워크나 라이브러리에서 쓸 때는 UI 바인딩을 해야되는데, 그게 바로 React에서는 React-Redux임.
+
+각각 UI 라이브러리, 플웍마다의 최적화된 성능 설계가 달라서 쓰는거임 이런걸
+
+그리고 각각 store나 triggering 하는게 재사용될 수 있고 각각마다 달름.
+
+# 구성 요소
+
+- Provider
+- connect
+- mapStateToProps
+- mapDispatchToProps
+
+## Provider
+
+우리의 App 컴포넌트가 store를 사용할 수 있게 하기 위해서 `<Provider />` 로 wrapping 해야함.
+
+## connect
+
+리액트의 컴포넌트 자체는 리덕스랑 원래 연결할 수 없음
+근데 connect를 쓰면 컴포넌트를 리덕스랑 연결할 수 있음.
+이게 react-redux의 고유 기능.
+
+그리고 이 connect 함수는 2개의 인자를 받는데, 둘 다 옵셔널임
+
+그게 밑에 나올 두 함수
+
+## mapStateToProps 함수
+
+state가 변할 때 마다 호출되는데, 전체 store state를 수신하고 이거 쓸 때는 객체로 반환해야됨.
+store 에 있는 state를 props로 전달
+
+## mapDispatchToProps 함수
+
+store 에 있는 reducer를 실행시킬 dispatch를 props로 전달
+이 파라미터는 함수가 될 수 있고 객체가 될 수 있어.
+
+- 함수인 경우
+  이게 함수이면 매개번수로 `dispatch`함수를 받을거임
+  그리고 이건 객체를 반환해야됨
+
+- 객체인 경우
+  actionCreator 라면
+
+# mapStateToProps 사용하기
+
+이건 connect 함수의 처음으로 전달되는 인자라고 위에서 말함
+이건 store의 state를 내가 원하는 컴포넌트에서 사용할 때 사용되는데, 간단하게 mapState라고 부르기도 함
+
+## mapStateToProps 정의하기
+
+```
+function mapStateToProps(state, ownProps?)
+```
+
+첫 번째 매개변수인 state는 꼭 필요한 존재고
+ownProps는 옵셔널임.
+
+여기 인자 2개 에 대해서 알아보자.
+
+- state
+  state는 store.getState()한거랑 비슷하고 그냥 일반적으로 state라고 불러
+
+- ownProps
+  얘는 redux store랑 관련 없이 실제로 컴포넌트가 다른 곳에서 호출되어 props를 전달받을 때 사용함
+  만약 `<NameCard name="jang"/>` 이라고 하면 `NameCard` 안에서는 ownProps가 jang이 되는거고.
+
+# mapDispatchToProps 사용하기
