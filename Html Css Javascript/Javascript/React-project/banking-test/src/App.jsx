@@ -1,12 +1,23 @@
 import "./App.css";
-import GlobalContext from "./config/context";
-import ContextTest from "./components/ContextTest";
+import styled from "styled-components";
+import Bg from "./bg.png";
+
+const Background = styled.div`
+  height: 100vh;
+  background: gray;
+  display: flex;
+  flex-direction: column;
+`;
+
+const BgImage = styled.img`
+  width: 100%;
+  height: 100%;
+`;
 const App = () => {
   return (
-    <GlobalContext>
-      <ContextTest />
-      <div>Heloo</div>
-    </GlobalContext>
+    <Background>
+      <BgImage src={Bg}></BgImage>
+    </Background>
   );
 };
 
