@@ -1,24 +1,30 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
-const TodoItem = React.memo((todo, onToggle) => {
+// 컴포넌트 최적화를 위하여 React.memo를 사용합니다
+const TodoItem = React.memo(function TodoItem({ todo, onToggle }) {
   return (
     <li
-      style={{ textDecoration: todo.done ? 'line-through' : "none" }}
-      onClick={() => onToggle(todo.id)}>
+      style={{ textDecoration: todo.done ? 'line-through' : 'none' }}
+      onClick={() => onToggle(todo.id)}
+    >
       {todo.text}
     </li>
   );
-})
+});
 
-const TodoList = React.memo((todos, onToggle) => {
+// 컴포넌트 최적화를 위하여 React.memo를 사용합니다
+const TodoList = React.memo(function TodoList({ todos, onToggle }) {
   return (
-    <ul>{todos.map(todo => (
-      <TodoItem key={todo.id} todo={todo} onToggle={onToggle} />
-    ))}</ul>
+    <ul>
+      {todos.map(todo => (
+        <TodoItem key={todo.id} todo={todo} onToggle={onToggle} />
+      ))}
+    </ul>
   );
-})
+});
 
-const Todos = () => {
+
+const Todos = ({ todos, onCreate, onToggle }) => {
   const [text, setText] = useState('');
   const onChange = e => setText(e.target.value);
   const onSubmit = e => {
