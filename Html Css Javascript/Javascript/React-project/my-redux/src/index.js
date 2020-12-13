@@ -4,9 +4,12 @@ import App from "./App";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import rootReducer from "./modules";
-import { composeWithDevTools } from "redux-devtools-extension";
-import myLogger from "./middlewares/myLogger";
-const store = createStore(rootReducer, applyMiddleware(myLogger));
+import logger from "redux-logger";
+import { composeWithDevTools } from 'redux-devtools-extension';
+import ReduxThunk from "redux-thunk";
+const store = createStore(rootReducer, composeWithDevTools(
+  applyMiddleware(ReduxThunk, logger),
+));
 
 ReactDOM.render(
   <Provider store={store}>
