@@ -1,7 +1,30 @@
 {
-  "posts": [
-    { "id": 1, "title": "hello" },
-    { "id": 2, "title": "react" },
-    { "id": 3, "title": "redux" }
+  "user": [
+    {
+      "id": 1,
+      "username": "dhslrl321",
+      "password": "whale0531",
+      "token": "BHI31DFJIOVOSLKJDSLFJSDF23432LJFDS"
+    },
+    {
+      "id": 2,
+      "username": "dhslrl321",
+      "password": "whale0531",
+      "token": "BHI31DFJIOVOSLKJDSLFJSDF23432LJFDS"
+    },
+    {
+      "id": 3,
+      "username": "dhslrl321",
+      "password": "whale0531",
+      "token": "BHI31DFJIOVOSLKJDSLFJSDF23432LJFDS"
+    }
+  ],
+
+  "todos": [
+    { "id": 1, "name": "react-learn" },
+    { "id": 2, "name": "react-learn" },
+    { "id": 3, "name": "react-learn" },
+    { "id": 4, "name": "react-learn" },
+    { "id": 5, "name": "react-learn" }
   ]
 }
