@@ -1,15 +1,16 @@
-import React from 'react'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const PostList = ({ posts }) => {
+function PostList({ posts }) {
   return (
     <ul>
       {posts.map(post => (
         <li key={post.id}>
-          {post.title}
+          <Link to={`/${post.id}`}>{post.title}</Link>
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-export default PostList
+export default PostList;

@@ -1,14 +1,14 @@
-import "./App.css";
-import React from "react";
-import CounterContainer from "./container/CounterContainer";
-import PostListContainer from "./container/PostListContainer";
+import React from 'react';
+import { Route } from 'react-router-dom';
+import PostListPage from './pages/PostListPage';
+import PostPage from './pages/PostPage';
 
 function App() {
   return (
-    <div>
-      <h1>Redux Middleware</h1>
-      <PostListContainer />
-    </div>
+    <>
+      <Route path="/" component={PostListPage} exact={true} />
+      <Route path="/:id" component={PostPage} />
+    </>
   );
 }
 
