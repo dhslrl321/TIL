@@ -1,6 +1,6 @@
 import styled from "styled-components";
 //import { SECTION_HEIGHT, SECTION_WIDTH } from "../../common/CommonStyle";
-import { SECTION_HEIGHT, SECTION_WIDTH } from "common/CommonStyle";
+import { SECTION_HEIGHT, SECTION_WIDTH } from "common/StylesCommon";
 export const Container = styled.div`
   width: ${SECTION_WIDTH};
   height: ${SECTION_HEIGHT};

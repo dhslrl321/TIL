@@ -1,7 +1,15 @@
-import React from "react";
-import { Container } from "./styles";
-const Section1 = () => {
-  return <Container>safd</Container>;
+import React, { useState } from "react";
+import { Container, HeroTitleContainer, Title, Subtitle } from "./styles";
+
+const HeroSection = () => {
+  return (
+    <Container>
+      <HeroTitleContainer>
+        <Title>배재대학교</Title>
+        <Subtitle>SW 공학부 정보보안학과</Subtitle>
+      </HeroTitleContainer>
+    </Container>
+  );
 };
 
-export default Section1;
+export default HeroSection;
