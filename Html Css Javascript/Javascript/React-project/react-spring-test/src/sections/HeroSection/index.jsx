@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Container, HeroTitleContainer, Title, Subtitle } from "./styles";
 
 const HeroSection = () => {
