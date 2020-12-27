@@ -3,9 +3,9 @@ import { Container, ChatBox, ChatBallon } from "./styles";
 import useScrollFadeIn from "hooks/useScrollFadeIn";
 const ValueSection = () => {
   const animatedItem = {
-    0: useScrollFadeIn("UP", 1, 0),
-    1: useScrollFadeIn("UP", 1, 0.2),
-    2: useScrollFadeIn("UP", 1, 0.4),
+    0: useScrollFadeIn("up", 1, 0),
+    1: useScrollFadeIn("up", 1, 0.2),
+    2: useScrollFadeIn("up", 1, 0.4),
   };
 
   return (

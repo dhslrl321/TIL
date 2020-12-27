@@ -12,13 +12,14 @@ import {
   ImageComponents,
 } from "./styles";
 import useScrollFadeIn from "hooks/useScrollFadeIn";
+import useScrollFadeOut from "hooks/useScrollFadeOut";
 
-const StrengthSection = ({ scroll }) => {
+const StrengthSection = () => {
   const animatedItem = {
-    0: useScrollFadeIn("DOWN", 1, 0.1),
-    1: useScrollFadeIn("UP", 1, 0.3),
-    2: useScrollFadeIn("UP", 1, 0.4),
-    3: useScrollFadeIn("UP", 1, 0.5),
+    0: useScrollFadeIn("down", 1, 0.1),
+    1: useScrollFadeIn("up", 1, 0.3),
+    2: useScrollFadeIn("up", 1, 0.4),
+    3: useScrollFadeIn("up", 1, 0.5),
   };
 
   return (
