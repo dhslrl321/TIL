@@ -11,10 +11,11 @@ const Home = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", navPosition);
-  }, []);
+  }, [scroll]);
+  console.log(window.innerHeight / scroll);
   return (
     <>
-      {console.log(scroll)}
+      {console.log(window.scrollY)}
       <HeroSections scroll={scroll} />
       <StrengthSection scroll={scroll} />
       <ValueSection />

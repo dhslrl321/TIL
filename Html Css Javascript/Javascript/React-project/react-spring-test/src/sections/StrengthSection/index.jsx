@@ -11,19 +11,25 @@ import {
   BottomWrap,
   ImageComponents,
 } from "./styles";
+import useScrollFadeIn from "hooks/useScrollFadeIn";
 
 const StrengthSection = ({ scroll }) => {
+  const animatedItem = {
+    0: useScrollFadeIn("DOWN", 1, 0.1),
+    1: useScrollFadeIn("UP", 1, 0.3),
+    2: useScrollFadeIn("UP", 1, 0.4),
+    3: useScrollFadeIn("UP", 1, 0.5),
+  };
+
   return (
     <Container>
-      <TextWrapper scroll={scroll}>
+      <TextWrapper {...animatedItem[0]}>
         <Title>우리가 갖고있는 강점</Title>
-        <Paragraph>
-          배재대학교 사이버 보안학과에서는 실무형 인재들을 양성하기 위해
-        </Paragraph>
+        <Paragraph>여기에서는 실무형 인재들을 양성하기 위해</Paragraph>
         <Paragraph>다양한 활동을 하고 있습니다.</Paragraph>
       </TextWrapper>
       <ImageWrapper>
-        <ImageComponents scroll={scroll}>
+        <ImageComponents {...animatedItem[1]}>
           <TopWrap>
             <TopImage />
           </TopWrap>
@@ -32,7 +38,7 @@ const StrengthSection = ({ scroll }) => {
             <BottomImage />
           </BottomWrap>
         </ImageComponents>
-        <ImageComponents scroll={scroll}>
+        <ImageComponents {...animatedItem[2]}>
           <TopWrap>
             <TopImage />
           </TopWrap>
@@ -41,7 +47,7 @@ const StrengthSection = ({ scroll }) => {
             <BottomImage />
           </BottomWrap>
         </ImageComponents>
-        <ImageComponents scroll={scroll}>
+        <ImageComponents {...animatedItem[3]}>
           <TopWrap>
             <TopImage />
           </TopWrap>

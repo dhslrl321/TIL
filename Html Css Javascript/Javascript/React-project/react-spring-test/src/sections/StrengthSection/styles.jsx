@@ -26,7 +26,6 @@ export const TextWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  ${({ scroll }) => (scroll > 450 ? FADE_IN_LEFT : FADE_OUT)};
 `;
 
 export const Title = styled.h1`
@@ -71,14 +70,4 @@ export const ImageComponents = styled.div`
   display: flex;
   flex-direction: column;
   margin: 10px;
-
-  :first-child {
-    ${({ scroll }) => (scroll > 450 ? FADE_IN_LEFT : FADE_OUT)}
-  }
-  :nth-child(2) {
-    ${({ scroll }) => (scroll > 450 ? FADE_IN_RIGHT : FADE_OUT)}
-  }
-  :last-child {
-    ${({ scroll }) => (scroll > 450 ? FADE_IN_RIGHT : FADE_OUT)}
-  }
 `;

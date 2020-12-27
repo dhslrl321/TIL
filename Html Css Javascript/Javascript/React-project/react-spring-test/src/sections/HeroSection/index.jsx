@@ -5,8 +5,8 @@ const HeroSection = () => {
   return (
     <Container>
       <HeroTitleContainer>
-        <Title>배재대학교</Title>
-        <Subtitle>SW 공학부 정보보안학과</Subtitle>
+        <Title>안녕하세요</Title>
+        <Subtitle>CSS ANIMATION 연습</Subtitle>
       </HeroTitleContainer>
     </Container>
   );
