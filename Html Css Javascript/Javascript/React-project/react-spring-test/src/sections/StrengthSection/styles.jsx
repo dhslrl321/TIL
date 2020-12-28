@@ -5,12 +5,6 @@ import {
   SECTION_HEIGHT,
   SECTION_WIDTH,
 } from "common/StylesCommon";
-import {
-  FADE_IN_LEFT,
-  FADE_IN_RIGHT,
-  FADE_OUT,
-  TRACKING_IN_CONTRACT,
-} from "common/AnimationsCommon";
 export const Container = styled.section`
   width: ${SECTION_WIDTH};
   height: ${SECTION_HEIGHT};

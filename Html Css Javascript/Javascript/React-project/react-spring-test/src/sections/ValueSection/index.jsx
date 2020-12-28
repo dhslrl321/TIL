@@ -1,19 +1,13 @@
 import React from "react";
 import { Container, ChatBox, ChatBallon } from "./styles";
-import useScrollFadeIn from "hooks/useScrollFadeIn";
-const ValueSection = () => {
-  const animatedItem = {
-    0: useScrollFadeIn("up", 1, 0),
-    1: useScrollFadeIn("up", 1, 0.2),
-    2: useScrollFadeIn("up", 1, 0.4),
-  };
 
+const ValueSection = () => {
   return (
     <Container>
       <ChatBox>
-        <ChatBallon {...animatedItem[0]}>asdf</ChatBallon>
-        <ChatBallon {...animatedItem[1]}>asdf</ChatBallon>
-        <ChatBallon {...animatedItem[2]}>asdf</ChatBallon>
+        <ChatBallon>asdf</ChatBallon>
+        <ChatBallon>asdf</ChatBallon>
+        <ChatBallon>asdf</ChatBallon>
       </ChatBox>
     </Container>
   );
