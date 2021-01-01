@@ -1,0 +1,87 @@
+`페이지를 연결하기 위한 방법 Link 그리고 Pre-Fetch`
+
+우리가 페이지끼리 연결할 때 어떤 태그를 썼는지 생각해보자.
+
+여기서 말하는 연결이란? 다른 페이지로 이동하거나 게시판에서 글을 클릭하거나 하는 행동을 했을 시에 우리가 브라우저로 보게되는 view를 바꿔보자는 이야기다.
+
+우린 html의 `<a></a>` 를 이용해서 페이지를 이동했다.
+
+근데 이 `<a></a>`태그를 이용할 경우 브라우저는 해당 페이지로 이동하기 위해서 viewport 전체를 새롭게 Rendering하기 때문에 화면이 깜빡거리며 필요하다면 네트워크를 이용하게 된다.
+
+하지만 이런 과정 자체를 Next JS 에서는 Client Side Routing 으로 페이지를 연결하여 Single Page Application 처럼 만들어 네트워크 개입을 없앤다.
+
+**아니 잠깐 뭔가 이상하다. 우리는 SSR을 배우러 왔는데 왜 CSR을 해?**
+
+나를 포함한 사람들이 오해하고 있을 수 있는 부분이 있다.
+나는 SPA의 CSR의 한계를 극복하고자 SSR을 위한 Next JS로 오게 되었다.
+나와 비슷하게 react에서 next로 유입된 사람들이지만 이것 하나는 확실히 해야한다.
+
+#### 우리는 next.js를 Server Side Rendering 을 하려고만 쓰는게 아니라.
+
+#### Server Side Rendering의 **장점**과 Client Side Rendering 의 **장점**을 적절히 섞은 **좋은 성능의 앱을 만들기 위해** 사용한다는 것을 염두해야 한다.
+
+어떻게 Next js가 Client Side Rendering을 좋은 성능으로 제공하는 지는 다음에 있을 **Pre-Rendering**에서 알아볼 것이고, 오늘은 가볍게 Link와 Pre-Fetch 에 대해서만 알아가도 충분하다.
+
+# 새로운 페이지 만들기
+
+우리는 지난 시간 동적 라우팅으로 url 파라미터에 따라 다른 컴포넌트를 만들었는데, 오늘은 **새로운 페이지를 만들고 다른 페이지로 연결**하는 것을 해볼 것이다.
+
+# Link
+
+`next/link`, `<Link />`를 사용할 경우 Pre-Fetch를 통해 페이지를 새로 고치지 않고 이동 할 수 있다.
+
+```
+import Link from "next/Link";
+```
+
+- Link는 `<a>` 태그랑 비슷함.
+- next에서 Link를 쓰려면 `next/link`에서 가져와야 함.
+- 그리고 `<a>` 태그를 감싸야 함
+- `<Link>`는 클라이언트 사이드에서 링크를 해줌.
+
+그리고 네트워크 탭을 보면서 리로딩이 될 때 CSR 이 되는지 확인하자
+
+CSR이 되면 빠르게 가능함.
+
+# Link 컴포넌트의 Props
+
+`Link` 컴포넌트는 특정 속성만을 받는 HOC이기 때문에 지정된 속성이 아니면 오류를 뿜어낸다.
+
+# 코드 스플리팅
+
+- next는 자동으로 코드 스플리팅을 하는데, 가각 페이지가 불러진다면 필요한 js만 가져와지고 나머지는 가져오지 않음.
+  이게 성능을 더 향상시켜줌.
+- 빌드에서 링크 요소가 화면에 보여질 때 마다 next가 백그라운드에서 Link로 연결된 페이지의 코드를 자동으로 setting하고 클릭 되면 바로 그 코드를 보여줄 수 있게 함. 그래서 페이지 전환이 거의 즉시 일어남 이걸 PreFetch라고 함
+
+# `<Link>` 속성의 html attribute
+
+`Link` 태그를 꾸미고싶을 때 어케할까?
+
+```
+<Link href="/login" className="login">
+  <a>로그인하기</a>
+</Link>
+```
+
+이렇게 하면
+
+```
+Warning: Failed prop type: Link: unknown props found: title
+```
+
+이런 오류가 남.
+
+이유는 next에서 link 태그는 `onClick` 속성만 받는 HOC임.
+그래서 만약 link에 다른 속성을 (props)를 받고싶다면 `Link`만 쓸게 아니라 `Link` 안에 `a` 태그를 넣고 해당 태그에 attribute를 추가해야됨.
+
+# Code Splitting 과 Prefetching
+
+#### Next가 Code Splitting 을 이용해서...
+
+최초 페이지 요청이 있다면 모든 코드를 호출하는 Single Page Application과는 다르게 Next js 에서는 코드를 자동으로 분할해서 해당 페이지에 **필요한 것만 로드**한다.
+즉, 홈페이지가 _렌더링 될 때 다른 페이지의 코드는 호출되지 않기_ 때문에 Code Splitting이 있다면 수백개의 페이지가 있더라도 페이지는 **빠르게 로드될 수 있다.**
+
+#### Next가 Pre-Fetcing 을 이용하니까...
+
+그리고 Next js는 build 시점에 `Link` 컴포넌트가 브라우저에 표시될 때마다 백그라운드에서 링크된 페이지의 코드를 자동으로 설정한다.
+그래서 페이지의 전환이 SPA와 비슷하게 즉시 이루어지는 것 처럼 느낄 수 있다.

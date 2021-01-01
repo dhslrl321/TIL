@@ -1,0 +1,118 @@
+# `create-react-app` 에서의 라우팅
+
+우리가 원래 react app 에서 라우팅을 하려면 어떻게 해야했는지 생각해보자.
+
+아마 대부분 다음과 같은 과정을 거쳤었다.
+
+1.  npm 모듈로 `react-router-dom` 설치
+2.  `BrowserRouter`을 App 컴포넌트에 감싸기
+3.  `Link` 혹은 `NavLink`로 url 매핑
+4.  `Route`으로 url에 따라 다른 컴포넌트 렌더링
+
+이런 과정이 아주 복잡했지만 큰 특징은 바로 **Single Page Application**의 특성을 정확히 보여주고 있다는 것이다.
+
+우리가 next js를 배우려 하는 이유는 대부분 좀 더 쉽고 간단한 ssr을 위해서일 것이다.
+
+그럼 간단한 라우팅 유명한 next에서는 어떻게 할까?
+
+# `create-next-app` 에서의 라우팅
+
+next에서는 `pages`라는 폴더가 **라우터 기능을 수행한다.**
+
+이는 Next js file-system based 로 라우팅을 기본으로 하기 때문엔데, 정확히 말하면 `pages`라는 디렉토리 안에 있는 `js`, `jsx`, `ts` `tsx` 파일들의 이름에 따라서 라우팅을 한다는 것이다.
+
+이제 우리는 위에서 봤던 그 귀찮은 과정들에서 해방될 수 있는 것이다.
+
+만약 우리가 `pages/about.js`를 생성했고 export한다면, 즉
+
+```
+function About() {
+  return <div>오 넥스트 참 신기하네요</div>
+}
+
+export default About
+```
+
+이렇게 된다면 우리는 `localhost:3000/about` 에 접근하면 `오 넥스트 참 신기하네요`라는 문구를 만날 수 있게 되는 것이다.
+
+[##_Image|kage@bCqfon/btqRL2FvbPv/VqwZez7zCMEN8HnT3cCvO0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그럼 더 나가서 디렉토리 구조에 따라서 다른 url path를 설계할 수 있을 것 같다.
+
+# Directory 구조에 따른 url path
+
+`pages` 디렉토리 안에서는 `export`한 컴포넌트를 라우팅하게 되는데, 디렉토리에서 `index.js`를 라우팅한다면 해당 디렉토리 명이 바로 주소 명이 된다.
+
+[##_Image|kage@GSswr/btqROfEBoTM/HDDp5XGU5hG6mkc2u9gT11/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+아래 그림과 같이 디렉토리 구조가 있다면 어떻게 될까?
+
+다음과 같이 될 것이다.
+
+- [x] `pages/index.jsx` [http://my-server.com/](http://my-server.com/)
+- [x] `pages/join/index.jsx` [http://my-server.com/join](http://my-server.com/join)
+- [x] `pages/login/index.jsx` [http://my-server.com/login](http://my-server.com/login)
+- [x] `pages/user/user1.jsx` [http://my-server.com/user/user1](http://my-server.com/user/user1)
+- [x] `pages/user/user2.jsx` [http://my-server.com/user/user2](http://my-server.com/user/user2)
+- [x] `pages/user/user3.jsx` [http://my-server.com/user/user3](http://my-server.com/user/user3)
+
+이 되는 것이다.
+
+근데 여기서 조금 의아한 점이 있다.
+
+위에서 user1 user2 user3과 같이 동적으로 늘어나는 페이지 (게시글 수)는 어떻게 해야할까?
+
+위의 예제 처럼 일일이 만들어야하나?
+
+그럴리가 없다.
+
+이런 상황을 위해서 Next에서는 Dynamic Routing을 제공한다.
+
+# Next의 Dynamic Routing
+
+일반적인 웹 페이지에서는 위의 예제처럼 미리 정의된 경로를 사용하는 것으로 충분하지 않고 아주 잘못된 접근이다.  
+예를 들어 게시판과 같은 경우에는 사용자가 글을 쓸때 마다 url이 증가하게 된다.  
+이런 상황을 위해서 Next.js 에서는 페이지 파리미터에 대괄호를 추가해서 url을 **동적으로 만들 수 있다.**  
+즉 이렇게 하면 된다는 소리다.
+
+```
+pages/user/[param].jsx
+```
+
+그리고 이를 위에서 봤던 문제에 적용해보면 다음과 같다.
+
+[##_Image|kage@cfCdmi/btqRL2yKJN3/W0WOmzCwqAgGNrAmlRIRu0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+여기서 일치하는 경로의 parameter 가 query parameter 로 페이지에 전송되고 다른 query parameter과 합쳐지게 된다.
+
+이제 코드를 구현해보자.
+
+**`[user].jsx`**
+
+```
+import { useRouter } from "next/router"; // query parameter 을 사용하기 위해 next의 router 패키지의 useRouter를 가져온다.
+
+const User = () => {
+  const router = useRouter();
+
+  // router의 url 쿼리에 존재하는 user 의 값을 가져온다. 이는 [user].jsx의 user와 대응된다.
+  const { user } = router.query;
+
+  return <h3>사용자 이름: {user}</h3>;
+};
+
+export default User;
+```
+
+그리고 각각 다른 query param을 주게 되면 다음과 같이 각기 다른 컴포넌트가 동적으로 생성된다.
+
+[##_Image|kage@crouBu/btqRCV1xPso/1NmlnliDJYhg5RL2f87Dx1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+여기서 일치하는 경로의 parameter 가 query parameter 로 페이지에 전송되고 다른 query parameter과 합쳐지게 된다.
+
+Path variable 과 Query Parameter 의 값을 따로 가져올 수 있는데, `router.query` 의 객체 값을 보면 알 수 있다.
+
+- `/post/abc` 는 `{"pid": "abc"}`
+- `/post/abc?foo=bar` 는 `{ "foo": "bar", "pid": "abc" }`
+
+그리고 물론 동적인 쿼리 파라미터도 `pages/post/[pid]/[comment].js`과 같은 형식으로 사용할 수 있다.

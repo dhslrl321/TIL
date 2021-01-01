@@ -1,0 +1,226 @@
+#### 왜 우리는 프로젝트 디렉토리에서 `index.html`파일을 보지 못했을까?
+
+만약 우리가 기본적으로 제공하는 Next의 SSG 기능을 사용한다면? 즉 `pages` 디렉토리 아래에 리액트 컴포넌트를 만들게 된다면 **HTML 파일은 Build될 때 생성된다.**
+이 말이 무슨 말이냐면 우리가 개발을 다 했고 빌드 스크립트만 쳐야 한다고 가정해보자.
+그럼 아마 이런 명령어를 치게 될 것이다.
+
+```
+// next build 명령어를 칠 경우
+$ next build
+
+// npm script를 미리 작성해 놓은 경우
+$ npm run build
+
+// yarn script를 미리 작성해 놓은 경우
+$ yarn build
+```
+
+그럼 그제서야 HTML 파일이 생성되고 각각 요청에 따라 HTML이 재사용 된다.
+이것이 **우리가 프로젝트 디렉토리 내에서 `html`파일을 보지 못한** 이유이다.
+
+# SSG
+
+기본적으로 우리가 일반적인 리액트 컴포넌트를 Next에서 개발했다고 가정해보자.
+그럼 2가지 상황을 나눌 수 있는데
+
+1. 컴포넌트에서 사용할 외부 데이터가 없는 경우
+2. 컴포넌트에서 사용할 외부 데이터가 있는 경우
+
+로 나눌 수 있다.
+
+## 컴포넌트에서 사용할 외부 데이터가 없는 경우
+
+우선 외부 데이터 사용이 없는 경우를 보자.
+
+```
+function About() {
+  return <div>About</div>
+}
+
+export default About
+```
+
+여기에는 보이다싶이 외부 데이터가 사용되지 않았다.
+즉 next가 pre-render을 하기 위해서 사용되어야 할 외부 데이터가 제공되지 않았다는 소리인데, 이 때는 단순히 HTML을 build 하게 되는 것이다.
+
+넥스트에서 프리 렌더링하기 위해서 외부 데이터를 쓰면 getStaticProps를 써야하는 것으로 알고 있는데 예를 들어 data.js라고 해서 js 객체를 가져오는 것도 외부 데이터로 치고 getStaticProps에 값을 넣어줘야 하나요??
+
+## 컴포넌트에서 사용할 외부 데이터가 있는 경우
+
+우리가 웹을 만들다 보면 특정 페이지에서는 외부 데이터가 필요할 때가 있다.
+
+그게 같은 파일 시스템에 존재하는 `dummy.json`이던 `일기.mdwn`이던 혹은 다른 url에서 api 호출을 하는 것이던 모든 경우의 외부 데이터를 일컫는다.
+
+그 때 nextjs에서는 페이지 컴포넌트를 export할 때 **Next가 제공하는 2가지 함수**를 상황에 맞게 사용해야 한다.
+
+> **상황에 맞게?**
+
+그렇다. 상황에 맞게.
+
+2가지 상황이 있다.
+
+1. 페이지에서 **내용이 외부 데이터를 사용**할 경우
+2. 페이지의 **url이 외부 데이터를 사용**할 경우.
+
+각각의 경우에 따라 사용하는 함수가 다르다.
+
+첫 번째 상황인 *페이지에서 **내용이 외부 데이터를 사용**할 경우*에는 `getStaticProps` 라는 함수를 사용해하고
+두 번째 상황인 *페이지에서**url이 외부 데이터를 사용**할 경우*에는 `getStaticPaths` 라는 함수를 사용한다.
+
+# getStaticProps 를 사용하는 경우
+
+페이지 내부에서 **외부 데이터**를 사용할 경우에는 비동기 함수인 `getStaticProps`를 **export** 해줘야 한다.
+`getStaticProps`는 `async` 함수이어야 하는데, 이 함수를 Next.js 는 빌드 시점에 해당 함수에서 반환된 props를 이용해서 **Pre-Rendering**을 진행하게 된다.
+
+```
+// 함수를 사용할 경우
+export async function getStaticProps(context) {
+  return {
+    props: {}
+  }
+}
+
+// ES6 화살표 함수를 사용할 경우
+export const getStaticProps = async(context) => {
+  return {
+    props: {}
+  }
+}
+```
+
+여기서 `props:{}` 라는 객체가 있다.
+props 객체가 바로 Pre-Rendering을 위해 Next가 필요로 하는 값이다.
+해당 값들을 이용해서 해당 컴포넌트에 값들을 추가해준다.
+
+### 사용해보기
+
+`getStaticProps`를 사용해서 Pre-Rendering 해보기 위해서 프로젝트 아래 디렉토리에 `data.js` 파일을 생성한다.
+
+그리고 해당 data 파일에서 import 한 값들을 Pre-Rendering 해보자.
+
+#### **data.js**
+
+원래 data.js 파일에 있는 데이터들이 api 요청에의해서 가져와진 값이어야 한다.
+하지만 우리의 목적은 `getStaticProps`를 알아가기 위한 것이므로 data.js파일 값들이 데이터 요청된 값이라고 가정하자.
+
+```
+export const data = [
+  { id: 1, name: "James", email: "james123@gmail.com" },
+  { id: 2, name: "Andre", email: "Andre@naver.com" },
+  { id: 3, name: "Michel", email: "Michel@hanmail.net" },
+]
+```
+
+#### **index.js**
+
+```
+import React from "react";
+import { data } from "../data/myInfo";
+const Info = ({ jsonData }) => {
+  return (
+    <div>
+      <h1>this is about</h1>
+      {jsonData.map((data) => (
+        <div key={data.id}>
+          <h3>{data.name}</h3>
+          <ul>
+            <h4>{data.email}</h4>
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export async function getStaticProps(context) {
+  return {
+    props: {
+      jsonData: data,
+    },
+  };
+}
+export default Info;
+```
+
+이렇게 하면 `import {data} from "../data/myInfo"`로 받은 데이터를 Pre-Rendering 할 수 있게 되는데, 만약 여기서 data의 값이 없다면 `notFount`를 반환해줄 수 있다.
+
+```
+export async function getStaticProps(context) {
+
+  if(!data) {
+    return {
+      notFound: true,
+    }
+  }
+
+  return {
+    props: {
+      jsonData: data,
+    },
+  };
+}
+export default Info;
+```
+
+# getStaticPaths 를 사용하는 경우
+
+페이지의 url에서 **외부 데이터**를 사용할 경우에는 비동기 함수인 `getStaticPaths`를 **export** 해줘야 한다.
+
+주로 동적 라우팅 시에 많이 사용되는 기능이다.
+
+`getStaticPathss`는 `async` 함수이어야 하는데, 이 함수를 Next.js 는 빌드 시점에 해당 함수에서 반환된 props를 이용해서
+**Pre-Rendering**을 진행하게 된다.
+
+```
+// 함수를 사용할 경우
+export async function getStaticPaths() {
+  return {
+    paths: [
+      { params: { ... } }
+    ],
+    fallback: true or false
+  };
+}
+
+// ES6 화살표 함수를 사용할 경우
+export const getStaticPaths = async () => {
+  return {
+    paths: [
+      {params: { ... }}
+    ],
+    fallBack: true or false
+  }
+}
+```
+
+여기서 `paths`와 `fallBack` 값들이 있다.
+
+### paths
+
+`getStaticPaths`의 필수 값이이며, paths 에서 반환되는 `params` 값으로 동적 라우팅 경로의 이름이 된다.
+예를 들어
+
+```
+export const getStaticPaths = async () => {
+  return {
+    paths: [
+      { params: { id: '1' } },
+      { params: { id: '2' } },
+    ]
+  }
+}
+```
+
+과 같이 반환 된다면 Next는 static 하게 url을 `post/1`과 `post/2`을 생성해낸다.
+
+##### 주의해야할 점이 있는데, `params`는 페이지 이름과 같아야 한다.
+
+##### 예를 들어서 `pages/posts/[postId]/[commentId]` 라는 페이지 이름이 있다면 `params` 객체는 꼭 `postId`와 `commentId` 라는 객체를 반환해야 한다.
+
+### fallBack
+
+fallBack 값도 필수 값인데, fallBack 은 **Boolean** 타입이다.
+
+fallBack이 **false라면** `getStaticPaths`에서 반환되지 않는 모든 경로는 404 페이지가 된다.
+
+그리고 `getStaticProps()`가 export 될 때 next한테 이 컴포넌트는 외부 데이ㅌ를 쓴다고 아렬준다.

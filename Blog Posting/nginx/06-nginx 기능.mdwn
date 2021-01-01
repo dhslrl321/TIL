@@ -1,0 +1,98 @@
+# 장애 대응
+
+장애 대응은 Backend 서버에 대한 요청과 응답을 토대로 장애를 판단하는 서비스이다.
+
+장애 대응을 위해서는 Upstream Module을 사용하는데, `max_fails`, `fail_timeout`으로 서버의 상태를 확인한다.
+
+그 설정으로 서버 상태를 확인해서 설정 값을 초과하면 백업 서버로 서비스가 활성화되게 하며 장애를 대응한다.
+
+- `max_fails=n` : n으로 지정된 횟수만큼 연결 실패하면 서버 다운된 것으로 판단.
+- `fail_timeout=n` : max_fails가 지정된 상태에서 n값이 설정만큼 서버가 응답하지 않으면 서버가 다운된 것으로 판단.
+
+```t
+upstream service {
+    ip_hash;
+    server 192.168.0.121:80
+    server 192.168.0.188:80 max_fails=5 fail_timeout=15s;
+}
+```
+
+# 로드 밸런싱
+
+클러스터에 설정되는 서버 정보와 포트를 upstream 모듈로 설정해서 첫 번째 설정된 서버가 우선으로 처리
+
+```t
+upstream myservice {
+    ip_hash;
+    server 192.168.0.121:80;
+    server 192.168.0.188:80;
+}
+server {
+        listen 80;
+        server_name localhost;
+
+    location / {
+        proxy_pass http://myservice;
+
+}
+```
+
+# Keep Alive 제어
+
+Keep Alive는 Http 소켓 연결이 종료된 시점부터 웹 서버에 설정된 Timeout 까지 기존 소켓을 유지하는 기능
+Keep-Alive 옵션으로 0이 가면 비활성화 1이면 활성화
+keepalive_timeout 으로 커넥션 시간 설정 가능
+
+```t
+upstream myservice {
+    server 192.168.0.121:80;
+    keepalive 1
+}
+Server {
+    keepalive_timeout 10
+}
+```
+
+# Sub-Domain
+
+가상호스트 방식으로 두 개의 server을 하나의 웹서버에서 호스팅할 수 있게 해준다.
+
+```t
+server {
+    listen 80;
+    server_name test1.mydomain.com
+    location / {
+    root /var/www/test1/public_html;
+}
+server {
+    listen 80;
+    server_name test2.mydomain.com
+    location / {
+    root /var/www/test2/public_html;
+}
+```
+
+!@#
+
+# 캐싱 처리
+
+캐싱이란 웹 서비스의 이미지,CSS, 자바스크립트 같은 정적인 데이터를 저장하여
+웹 서비스의 응답 속도를 보다 빠르게 처리 가능하다
+
+- location : 캐시로 저장할 파일 설정
+- expires : 데이터의 저장 기간 설정
+- expires 1 (m, y) 설정 기간 동안 정적 데이터를 보관하는 설정으로 m은 달 y는 년
+
+```t
+location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+    expires 1M;
+    access_log off;
+    add_header Cache-Control "public";
+}
+```
+
+---
+
+오늘은 Nginx를 왜 우리가 사용해야하고 배워야 하는지에 대해서 조금 알아보았다.
+
+다음 시간에는 Nginx로 위의 기능들을 하나 하나 구현해보면서 이해해보는 시간을 가져보자.

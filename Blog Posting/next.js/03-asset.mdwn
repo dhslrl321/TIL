@@ -1,0 +1,105 @@
+이번 시간에는 Next JS가 어떻게 **static Assets**들을 관리하는지 알아볼 것이다.
+**Static Assets** 이라고 한다면 일반적으로 Jpeg, png, svg와 같은 이미지나 mp4, mov와 같은 Video 데이터이다.
+
+# assets
+
+next는 이미지같은 static assets들을 public 디렉토리에서 관리한다.
+만약 이런 asset들을 사용하길 원한다면 pages 디렉토리에서 public 아래에 있는 asset들을 가져와서 사용하면 된다.
+
+# 이미지 불러오는 예제 해보자
+
+### npm 모듈 설치
+
+우선 우리는 먼저 **styled-components**를 npm 모듈에 추가시킬 것이다.
+
+```
+// npm 사용자일 경우
+> $ npm install styled-components
+
+// yarn 사용자일 경우
+> $ yarn add styled-components
+```
+
+를 입력해서 의존성을 추가시켜주자.
+
+### asset 디렉토리 생성
+
+이제 asset들을 저장시킬 디렉토리를 만들 것인데, `public` 아래에 2가지 디렉토리를 만들어 줄 것이다.
+
+- `public/iamges` 디렉토리
+- `public/movies` 디렉토리
+
+거기에 assets들을 넣고 사용할 때는 `src="/images/..."` 이런식으로 public 아래의 절대 경로를 넣어주면 된다.
+
+# 중요한건
+
+그럴일 없겠지만 public 이라고 다른 디렉토리를 이름지으면 중복으로 검색되늬까 주의해
+
+**index.jsx**
+
+```
+import Link from "next/Link";
+import styled from "styled-components";
+
+const RootContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: wheat;
+`;
+
+const ImageContainer = styled.div`
+  width: 600px;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 10px;
+`;
+
+const ImageText = styled.p``;
+const ImageBox = styled.img`
+  width: 400px;
+  height: 400px;
+  display: block;
+`;
+
+const MovieContainer = styled.div`
+  width: 600px;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 10px;
+`;
+
+const MovieText = styled.p``;
+
+const MovieBox = styled.video`
+  width: 400px;
+  height: 400px;
+  display: block;
+`;
+
+export default function Home() {
+  return (
+    <RootContainer>
+      <ImageContainer>
+        <ImageBox src="/images/xd.png" />
+        <ImageText>이미지</ImageText>
+      </ImageContainer>
+      <MovieContainer>
+        <MovieBox src="/videos/video.mov" />
+        <MovieText>영상</MovieText>
+      </MovieContainer>
+    </RootContainer>
+  );
+}
+```
+
+# 번외로 robots.txt도 public 아래에서 관리한다!
+
+그리고 public 폴더 아래에는 robots.txt 파일도 위치할 수 있다.
+robots.txt 파일은 Google이 Site를 검증할 때 해당 파일을 검증하는데 이건 [위키 백과 robot.txt](https://ko.wikipedia.org/wiki/로봇_배제_표준)을 읽어보면 된다.

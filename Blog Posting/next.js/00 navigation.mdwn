@@ -1,0 +1,84 @@
+```
+1. [정직하게 배워보는 Next js] create-next-app으로 Next 개발 환경 세팅하고 next js에 대해서 알아보자.
+2. [정직하게 배워보는 Next js] create-next-app에서 만난 첫 번째 핵심 pages. 그리고 동적 라우팅
+3. [정직하게 배워보는 Next js] 페이지를 연결하기 위한 Link-Component 그리고 Pre-Fetch
+```
+
+[##_Image|kage@Hh7IR/btqRv9MZuD7/d0qTT1UPkki8V2Ga5Bo3k0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+> 해당 블로그 시리즈는 **정직하게 배워보는 Next js** 시리즈로써 총 8부작으로 이루어져 있습니다.  
+> **Next.js공식 홈페이지**에서 이야기하는 내용을 최대한 _이해하기 쉽고 직관적이게_ 구성하였습니다.
+
+#### 0\. [목차](https://wonit.tistory.com/365?category=829651)
+
+#### 1\. [create-next-app으로 next 개발 환경 세팅하기](https://wonit.tistory.com/355?category=829651)
+
+#### 2\. [create-next-app에서 만난 첫 번째 핵심 pages. 그리고 동적 라우팅](https://wonit.tistory.com/356?category=829651)
+
+#### 3\. [페이지를 연결하기 위한 Link-Component 그리고 Pre-Fetch](https://wonit.tistory.com/357?category=829651)
+
+##### [Dynamic Routing과 Link를 이용해 간단한 게시판을 만들어보자.](https://wonit.tistory.com/359?category=829577)
+
+#### 4\. [Next.js에서 head 태그를 조작하는 멋진 방법](https://wonit.tistory.com/358?category=829651)
+
+##### [번외 & 실습) 이미지와 동영상을 저장하고 사용해보자.](https://wonit.tistory.com/360?category=829577)
+
+#### 5\. [웹의 발전 과정으로 보는 SSG와 SSR](https://wonit.tistory.com/361?category=829651)
+
+#### 6\. [next의 두 번째 핵심 Pre-Rendering](https://wonit.tistory.com/362?category=829651)
+
+#### 7\. [SSG로 검색 엔진 최적화 노리기](https://wonit.tistory.com/363?category=829651)
+
+#### 8\. [정직하게 배워보는 Next.js 시리즈를 마치며..](https://wonit.tistory.com/364?category=829651)
+
+---
+
+# 상세 버전
+
+[##_Image|kage@Hh7IR/btqRv9MZuD7/d0qTT1UPkki8V2Ga5Bo3k0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+> 해당 블로그 시리즈는 **정직하게 배워보는 Next js** 시리즈로써 총 10부작으로 이루어져 있습니다.
+> **Next.js공식 홈페이지**에서 이야기하는 내용을 최대한 _이해하기 쉽고 직관적이게_ 구성하였습니다.
+
+#### 1\. [create-next-app으로 next 개발 환경 세팅하기](https://wonit.tistory.com/355?category=829651)
+
+- `create-next-app` 로 프로젝트 생성하기
+- 직접 npm dependencies 추가하여 프로젝트 생성하기
+
+#### 2\. [create-next-app에서 만난 첫 번째 핵심 pages. 그리고 동적 라우팅](https://wonit.tistory.com/356?category=829651)
+
+- pages
+- url 구조
+- dynamic routing(동적 라우팅)
+  > [번외 Next js의 Dynamic Routing과 Link를 이용해 간단한 게시판을 만들어보자.](https://wonit.tistory.com/359?category=829577)
+
+#### 3\. [페이지를 연결하기 위한 Link-Component 그리고 Pre-Fetch](https://wonit.tistory.com/357?category=829651)
+
+- Link
+- Linking with Dynamic Routing
+- Code Splitting & Pre-Fetching
+
+#### 4\. [Next.js에서 head 태그를 조작하는 멋진 방법](https://wonit.tistory.com/358?category=829651)
+
+- `<Head>`
+- `_document.js`
+  > [(번외 & 실습)이미지와 동영상을 저장하고 사용해보자.](https://wonit.tistory.com/360?category=829577)
+
+#### 5\. [웹의 발전 과정으로 보는 SSG와 SSR](https://wonit.tistory.com/361?category=829651)
+
+- 최초의 렌더링
+- ajax와 CSR
+- SSR의 진화 SSG
+- 그럼 언제 뭘 써야할까?
+
+#### 6\. [next의 두 번째 핵심 Pre-Rendering](https://wonit.tistory.com/362?category=829651)
+
+- Pre-Rendering의 2가지 단계
+- Pre-Rendering의 SSG와 SSR
+
+#### 7\. [SSG로 검색 엔진 최적화 노리기](https://wonit.tistory.com/363?category=829651)
+
+- `getStaticProps` 란?
+- `getStaticPaths` 란?
+
+#### 8\. [정직하게 배워보는 Next.js 시리즈를 마치며..](https://wonit.tistory.com/364?category=829651)

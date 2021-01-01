@@ -1,0 +1,49 @@
+# NGINX 설정
+
+- nginx가 어떤식으로 동작할지는 **파일에 설정 값들을 넣어서 지정**.
+- 설정 파일은 `conf` 디렉토리 아래에 위치
+- 설치 방법에 따라서 설정 파일의 위치가 다를 수 있어서 `sudo find / -name nginx.conf`로 찾으면 쉬움
+
+## 설정퍼일들 역할
+
+1. nginx.conf : 메인 설정 파일
+2. fcgi.conf : Fast CGI 환경설정 파일
+3. sites-enabled : 활성화된 사이트들의 설정파일 위치
+4. sites-available : 비활성화된 사이트들의 설정파일 위치
+
+# Nginx 디렉토리 구조 맛보기
+
+우리는 nginx 패키지가 설치된 디렉토리고 가야한다.
+
+그러기 위해서 기본 설정 파일이 있는 경로를 찾아야한다.
+
+만약 당신이 위에서 했던 것 처럼 바이너리 파일을 yum이나 wget, apt-get으로 다운받았다면 운영체제의 계열별로 다른 위치에 존재할 수 도 있다.  
+하지면 리눅스 명령어로 이 파일들의 위치를 쉽게 찾을 수 있다.
+
+```
+> $ sudo find / -name nginx.conf
+```
+
+[##_Image|kage@A0mdS/btqOFiKW8mw/K1nKXddK58kdR6aczuzK4K/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그리고 nginx.conf 파일이 있는 디렉토리에서 어떤 파일과 디렉토리가 있는지 확인해보자.
+
+리눅스에서 디렉토리 구조를 트리형태로 나타내기 위해서는 tree 패키지를 인스톨해야한다.
+
+```
+> $ sudo yum install tree
+> /etc/nginx$ sudo tree
+```
+
+명령어로 확인해보자.
+
+[##_Image|kage@djxuz9/btqOtFnSYZ5/9vMwlj09Kl1b2hCWCAk021/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그럼 위와 같이 출력되는데, 각각의 파일과 디렉토리는 다음과 같은 역할을 한다.
+
+1. nginx.conf : 메인 설정 파일
+2. fcgi.conf : Fast CGI 환경설정 파일
+3. sites-enabled : 활성화된 사이트들의 설정파일 위치
+4. sites-available : 비활성화된 사이트들의 설정파일 위치
+
+이제 다음 시간부터 해당 파일들을 다뤄보고 nginx.conf 파일을 더 깊게 이해해보자.

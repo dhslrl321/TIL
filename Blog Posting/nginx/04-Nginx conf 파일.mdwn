@@ -1,0 +1,72 @@
+모든 Nginx 의 설정 파일들은 /etc/nginx/ 디렉토리 안에 위치한다. (운영체제나 인스톨 방식에 따라서 조금 달라질 수 있음)
+
+여기에 가장 중요한 설정 파일은 `nginx.conf` 파일이다.
+
+# 디렉티브
+
+**(directive)**는 nginx에서 설정 옵션을 부르는 말이다.
+이 디렉티브는 Block-Group + Context-Group로 이루어진다.
+
+마치 이런 구조다
+`Directive = Block + Countext`
+
+### 디렉티브를 끝내는 방법
+
+- 세미콜론
+- 중괄호 블록
+
+### nginx.conf 에서 주석
+
+- `#`
+
+### nginx.conf에서 최초의 디렉티브 블록 형태
+
+```
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+       . . .
+}
+
+http {
+       . . .
+}
+```
+
+여기서 보면 4개의 디렉티브로 시작한다.
+
+- user
+- woker_processes
+- eroor_log
+- pid
+
+얘들은 어떤 특정 블록이나 컨텍스트에 포함되지 않고 **메인 컨텍스트**라고 불림.
+
+그리고 추가적인 디렉티브로 **events와 http**블록이 존재
+
+# Http 블록
+
+http 블록은 웹 트래픽을 처리하는 디렉티브들을 담고 있음
+Universal으로 불리기도 함.
+
+http 블록에서 사용되는 모든 디렉티브들은 [nginx](https://nginx.org/en/docs/http/ngx_http_core_module.html) 문서에서 볼 수 있음
+
+# Server 블록
+
+하나의 웹 사이트를 선언하는데 사용됨.
+가상 호스팅의 개념이고 하나의 서버로 두 개를 동시에 운영하고 싶을 때 사용함
+
+- http 블록 안에 있는 nginx에게 웺
+
+# location 블록
+
+server 블록 안에서 나오면서 특정 url을 처리하는 방법을 정의함
+예를 들어서 `http://localhost:80/login` 과 `http://localhost:80/join`으로 접근을 다르게 하고싶을 때 사용됨.
+
+# events 블록
+
+주로 네트워크의 동작 방법과 관련된 설정값들을 가짐.

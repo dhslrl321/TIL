@@ -1,0 +1,15 @@
+# `_document.js`
+
+`/pages/_document.js` 생성
+
+- 필수 파일은 아님 (해당프로젝트에 이 파일이 없으면 next 안에 있는 기본 `_docuemnt`를 쓰게됨)
+- `<head>` 태그 내에 필요한 내용들을 선언할 수 있음
+- `<Head>`, `<Main>`, `<NextScript>` 컴포넌트가 필수임
+
+# `<Head>` 컴포넌트
+
+- `_document` 를 생성할 때 가장 유용하게 사용되는 기본 컴포넌트
+- `_docuemen` 안에서 선언할 때는 `next/docuemnt` 패키지를 사용해야함.
+  - `import {Head} from "next/document";` 를 임포트
+- `_docuemen` 안이 아닌 다른 컴포넌트에서 사용하려면 `next/head` 패키지를 사용해야함.
+  - `import Head from "next/head"`

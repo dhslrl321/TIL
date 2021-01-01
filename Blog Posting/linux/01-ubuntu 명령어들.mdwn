@@ -1,0 +1,5 @@
+# dpkg
+
+# apt-get
+
+# apt-cache

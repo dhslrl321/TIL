@@ -1,0 +1,61 @@
+SPA의 특성을 먼저 생각해보자.
+SPA는 처음이 **느리고** 그 다음부터 **빠르다**.
+SPA 에서는 사용자가 실제 컨텐츠를 보려면 서버로 요청을 한 뒤에 html, js, assets 파일을 다 다운 받기 전 까지 대기해야한다.
+그리고 다 다운받고 난뒤 Javascript 를 이용해서 매 화면의 컨텐츠를 동적으로 바꾼다.
+하지만 이런 것들이 SPA를 느리게 하는 이유가 되는데, 이런 문제를 해결하기 위해서는 SSR위해 HTML 파일을 반환해줄 서버를 둬야한다.
+하지만 NextJs에서는 이런 문제를 Pre-Rendering 으로 SSR보다 복잡하지 않은 비용으로 해결할 수 있다.
+
+# Pre-Rendering
+
+프리 렌더링은 next js 에서 가장 중요한 개념이다.
+next에서 모든 페이지가 사용자에게 전해지기 전에 HTML을 미리 생성해서 프리 렌더링을 수행한다.
+
+우리가 `create-react-app`으로 만든 일반적인 애플리케이션일 경우 js 기능을 브라우저에서 사용하지 않으면 보이지 않게 되는데, 프리 렌더링된 next 앱은 서버에서 미리 만들어지기 때문에 js 기능을 사용하지 않더라도 볼 수 있다.
+
+> [여기](https://next-learn-starter.now.sh)는 next로 만든 리액트 앱인데, js 기능을 끄더라도 동작하는것을 볼 수 있다.
+
+# Pre-Rendering의 과정
+
+Pre-Rendering에는 2가지 과정이 있다.
+
+1. initial load
+2. hydration
+
+### initial load html
+
+js 동작만 없는 html을 먼저 화면에 보여주는데, 아직 js 파일이 로드되기 전 이므로 `<Link>`와 같은 컴포넌트는 동작하지 않는다.
+
+### hydration
+
+**initial load** 에서 html 을 로드한 뒤 js 파일을 서버로부터 받아 html을 연결시키는 과정이다.
+여기서 js랑 html이랑 연결한다.
+해당 과정에서 **react 컴포넌트는 초기화**되고 사용자와 상호작용할 준비를 마친다.
+
+### 만약 Pre-Rendering이 없다면?
+
+# Pre-Rendering의 2가지 SSG와 SSR
+
+> 이는 이 전 [번외](https://wonit.tistory.com/361?category=829651)에서 설명했지만 혹시 모를 사람이 있기 때문에 SSG SSR CSR에 대해서 모른다면 해당 링크를 들어가 확인하는 것을 추천한다.
+
+Next.js 에서는 2가지 Pre-Rendering 기법을 사용한다.
+
+1. Static Site Generation : html 을 빌드 타임에 생성하고 각 요청에 따라서 재사용한다. (SSG)
+2. Server Side Rendering : html을 각 리퀘스트가 일어날 때 마다 생성 (SSR)
+
+### Static Site Generation
+
+SSG는 동일한 HTML을 매 요청마다 생성해서 쓰는 SSR의 단점을 보완하기 위해 탄생한 기법이다.
+Next.js 내부에 존재하는 Pre-Render 메서드가 최초에 HTML을 Build할 때 동작한다.
+그리고 Pre-Render된 HTML 파일은 요청에 따라 재사용된다.
+
+### Server Side Rendering
+
+위에서 한 말 때문에 SSR이 SSG보다 더 비효율적으로 비춰질 수 있다.
+하지만 SSR은 HTML을 각 리퀘스트가 일어날 시점마다 생성을 해주기 때문에 SSR을 써야하는 부분은 명백히 존재한다.
+주로 사용자마다 페이지의 데이터가 변경되어야 하는 페이지에서 사용된다.
+
+# 어떤 상황에서 써야할까
+
+next 공식 홈페이지 에서는 가능한 static generation을 추천한다.
+매 요청마다 data가 자주 업데이트 되는 이를테면 요청마다 콘텐츠가 달라지는 경우는 SSR을 선택해야 하고, 그것이 아니라면 SSG를 선택하도록 하자.
+위의 경우에 만약 자주 업데이트 되는 데이터가 있으면 걍 csr 하는게 좋고.

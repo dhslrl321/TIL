@@ -1,0 +1,44 @@
+---
+
+# next js 기능
+
+- ssr 지원
+- 빠르게 페이지를 로드하기 위해서 자동으로 코드 스플리팅
+- 페이지를 기반으로 한 csr 제공
+- 개발 환경에서 자동으로 fast refresh가 됨.
+- express나 node 서버와 빠르게 혼용 가능
+
+# setup
+
+가능한 노드 버전 최신화 하고하는ㄱ ㅓ추천
+
+- next.js는 window mac, linux 모두 동작함.
+- next를 사용할라믄 node.js 를 설치해야됨
+- 각 운영체제별로 조금 다른데 mac 기준으로 설명
+
+#### Create a Next.js app 만들기
+
+```
+npx create-next-app nextjs-blog --use-npm --example "https://github.com/vercel/next-learn-starter/tree/master/learn-starter"
+```
+
+#### 해당 디렉토리로 이동
+
+```
+cd nextjs-blog
+```
+
+#### 해당 next 프로젝트 실행
+
+```
+npm run dev
+```
+
+# 수정해보기
+
+- pages 에 index.js를 클릭하고 아무거나 수정해도 cra 처럼 바로 새로고침 됨.
+- 이걸 Fast Refresh 기술이라고 함 자세한건 [What is Fast Refresh?](https://nextjs.org/docs/basic-features/fast-refresh)에서 확인 가능
+
+# 서버 끄기
+
+- `ctrl + c`을 클릭하면 서버가 꺼짐

@@ -1,0 +1,56 @@
+nginx의 기본 값으로도 웹서버 운영하는데 문제 없음.
+근데 환경설정을 변경하면 보안이랑 성능을 강화할 수 있음
+
+# nginx.conf 내부 파일
+
+```
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+
+- user : 이게 root로 지정되어있으면 워커 프로세서가 root로 동작하게 하고 사용자가 워커 프로세스를 악의적으로 사용할 수 있어서 보안상 위험함
+
+### worker_process
+
+워커 프로세스를 몇 개를 생성할 것인지 지정
+
+### worker_connections
+
+이벤트 안에서 사용하는 지시어인데 동시에 접속을 얼마나 처리할 것인지 지정하는 값임. worker_process가 4고 worker_connections가 1024면 4 \* 1024로 4096의 커넥션을 처리할 수 있음.
+
+### log_not_found
+
+404 에러를 로그 파일로 기록할 것인지 여부
+
+### client_max_body_size
+
+업로드할 수 있는 용량의 크기를 지정.

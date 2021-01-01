@@ -1,0 +1,123 @@
+# 무엇이 CI냐
+
+CI는 개발 주기가 끝날 때 크게 하는게 아니라, 작은 코드 변경에 자주 병합하는거다.
+더 작은 기능을 목표로 개밣하고 테스트해서 더 좋은 소프트웨어를 만드는게 목적임
+그게 travis ci가 가능케 함.
+travis 는 자동으로 코드 변경을 구축, 테스트, 즉각적 피드백 및 배포, 알림을 관리해주는 자동화 도구다.
+
+# CI Build와 자동: 빌드, 테스팅, 배포
+
+1. 빌드를 실행하면 트래비스는 Github 저장소를 새로운 환경으로 **복제**
+2. 테스팅 (만약 실패하면 빌드 실패)
+3. 웹서버나 컨테이너에 코드를 배포.
+4. 알림 설정등 여러 작업으로 추가 제공
+
+# 빌드 stages, Jobs 그리고 phase
+
+여기서 말 하는 build, stage, phase, job
+
+- build : 두 가지 작업이 있을 수 있고 각각 다른 버전으로 프로젝트를 테스팅, 모든 작업이 완료되면 빌드 종료
+- stage : 단계로 구성된 순차 빌드 프로세스의 일부로 병렬 실행되는 worker process
+- job : 깃헙 레포를 가상 환경으로 복제 한 뒤, 컴파일, 테스트하는 단계를 수행하는 프로세스 반환 코드가 0이면 성공 아니면 실패
+- phase : 작업의 순차 단계 예를 들어서 설치 phase는 스크립트 phase 뒤에 오고 배포 전에 어쩌고 저쩌고
+
+# 순서
+
+1. 깃헙 레포 활성화
+
+- Activate 버튼 클릭하면 됨
+- Travis CI랑 통합하려면 Admin이어야 함.
+
+2. travis.yml 파일 추가
+
+- Travis CI가 프로젝트를 빌드하려면 .travis.yml 파일이 해당 레포 루트에 있어야됨.
+
+3. 첫 빌드를 git push 로 실행
+
+- 그럼 끝
+
+# 깃허브랑 Travis 랑 연동하기 순서
+
+1. Travis-ci.com 이랑 github 회원가입
+2. 서로 연결하고 계정 활성화.
+3. Travis 대쉬보드에서 프로필 사진이랑 Activate 버튼을 클릭하고 Travis CI 랑 함께 쓸 레포를 선택 & 혹은 깃헙에서 바로 시작 가능
+
+# Travis.yml에서 Travis CI 워커의 빌드 수행 과정
+
+1. 언어 런타임 변경
+2. Github 에서 클론
+3. before_install 스크립트 실행
+4. 클론 받은 디렉토리로 이동하고 의존성 설치 명령어 실행
+5. after_install 스크립트 실행
+6. before_script 스크립트 실행
+7. 테스트 스크립트 명령어 실행 (성공하면 0 리턴 아니면 모두 싪0)
+8. after_script 스크립트 실행(옵셔널)
+
+## before_script, after_script
+
+```yml
+before_script: [command]
+after_script: [commad]
+```
+
+여러 명령어 지정 가능
+
+```yaml
+before_script:
+  - [command1]
+  - [command2]
+after_script:
+  - [command1]
+  - [command2]
+```
+
+이 과정은 어떤 작업을 수행할 때 사용 가능
+
+## install
+
+의존성 관리 도구 설치
+
+```yml
+install: ant install-deps
+```
+
+## before_install, after_install
+
+의존성 설치 스크립트 이전과 이후에 실행할 명령어들
+apt나 apt-get, yum 등 update는 before_install 로 설정함
+의존성 패키지도 설정함 before_t로
+
+```
+before_install: [command]
+after_install: [anotehr_command]
+```
+
+## 런타임 설정
+
+런타임 설정 가능
+여기서 설정한 버전이랑 런티음을 트레비스에서 테스트 실행
+
+## 환경 변수 설정
+
+`env` 로 환경변수설정 가능
+
+## 브랜치 지정
+
+```yml
+branches:
+    expect:
+        - test
+        - mock
+branches:
+    only:
+        - master
+        - stable
+```
+
+## 노티피케이션
+
+```
+notifications:
+    email:
+        - emali@emasdf.com
+```

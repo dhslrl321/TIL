@@ -1,0 +1,31 @@
+[ec2-user@ip-172-31-34-77 client]\$ pwd
+/home/ec2-user/deploy/Bless-Music-Studio/client
+
+# dockercompose
+
+version: '2'
+
+services:
+bless-music-studio-server:
+image: bless-music-studio-images
+volumes: - /home/ec2-user/deploy/Bless-Music-Studio:/deploy/Bless-Music-Studio
+ports: - "3000:3000"
+
+# start server
+
+#!/bin/bash
+
+cd /deploy/Bless-Music-Studio
+
+npm install
+npm start
+
+# Dockerfile
+
+FROM node:10.14
+
+VOLUME /deploy/Bless-Music-Studio/client
+
+COPY ./start-server.sh /usr/local/bin
+RUN ln -s /usr/local/bin/start-server.sh /start-server.sh
+CMD ["start-server.sh"]
