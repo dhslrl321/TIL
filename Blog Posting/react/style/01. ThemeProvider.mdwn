@@ -1,0 +1,54 @@
+- 매번 프로젝트에서 코드의 양이 증가함에 따라 스타일 코드의 일관성이 떨어짐.
+- 협업에서도 많은 문제가 예상 됨.
+- 전체적인 스타일 규격을 맞출 무언가가 필요
+- 재사용 가능한 스타일 규격을 적용시키기 위해 ThemeProvider를 사용해보자ㅣ
+
+# ThemeProvider
+
+- `<ThemeProvider>` 을 통해서 강력한 theming 을 제공함.
+- 이 컴포넌트가 context API를 통해서 모든 리액트 컴포넌트한테 theme을 제공함.
+- 컴포넌트 몇 단계의 뎁스가 있던 모든 렌더 트리에 있는 styled-components 는 다 이 `<ThemeProvider>`를 거치게 됨.
+
+### 예를 들어서
+
+```
+import React from "react";
+import { ThemeProvider } from "styled-components";
+
+const theme = {
+  // ... 사용자 정의 theme code
+}
+
+const Home = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <Header />
+      <Sidebar />
+      <HeroSection />
+      <Footer />
+    </ThemeProvider>
+  );
+}
+```
+
+과 같은 방식으로 사용하는데, 이 경우 **Home** 컴포넌트에서 최상단의 태그가 `<ThemeProvider>` 이므로 하위 자식의 모든 컴포넌트는 `<ThemeProvider>` 의 props로 넘어가는 `theme` 값을 사용할 수 있게되는 것이다.
+
+```
+### 실제로 사용해보기.
+```
+
+# Function Themes
+
+- theme prop으로 함수 넘길 수 있음
+- 이러면 문맥적으로 테마가 만들어질 수 있음
+
+```
+### 함수 팀 사용하기
+```
+
+# 프로젝트에선 어떻게 사용할까?
+
+- 그냥 우리가 context api를 사용하는 것과 비슷한 느낌
+- 공통되는 값들을 theme provider에서 반환해주고 중복된 코드 줄인다는 느낌으로 쓰면됨.
+- 이를테면 display:flex나 h1의 font-size, 박스의 color나 mediaquery 의 device별 크기등등.
+  font-size를 ThemeProvider를 사용해서 공통 작업을 한다고 해보자.

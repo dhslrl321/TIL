@@ -1,0 +1,80 @@
+이 글은 Styled-components의 ThemeProvider에 대한 기본적인 선행 지식이 필요합니다.
+혹시 ThemeProvider에 대한 정보를 확인해보고 싶다면 [ThemeProvider로 공통 스타일 속성 관리하기](https://wonit.tistory.com/366)를 방문해서 가볍게 읽고 와보세요. 그럼 더 도움이 될거에요 :)
+
+---
+
+어떤 종류의 언어나 도구가 되었던 **웹 프론트의 스타일링**을 하는 과정에는 **많은 노력과 힘**이 들어간다.
+그 중에서도 모바일과 웹의 스타일을 따로 나누는 미디어 쿼리 부분에서 굉장히 반복되는 작업을 많이 하게 되는데, 이 작업을 우리는 해결하는 방법을 알고 있다.
+바로 ThemeProvider.
+오늘은 이 ThemeProvider를 통해서 미디어 쿼리를 좀 더 쉽게 사용하는 방법에 대해서 알아볼 것이다.
+
+### 그 전에 미디어 쿼리를 먼저 알아보자.
+
+미디어 쿼리는 CSS3에서 나온 기술로 특정 조건이 true 일 때만 css 속성을 적용할 수 있게 해주는 문법이다.
+여기서 특정 조건에 보통 우리는 **화면의 넓이나 높이**와 같이 브라우저가 어떤 기기에서 실행되고 있는지를 파악해서 기기별로 **서로 다른 스타일**을 제공하는 방법을 선택하는데, 이것을 바로 **반응형 프로그래밍**이라고 한다.
+
+```css
+@media screen and (max-width: 768px) {
+  font-size: 3rem;
+  font-weight: bold;
+}
+```
+
+와 같은 방식으로 사용한다.
+
+그럼 screen 영역에서 768px 전 까지의 width에서는 `font-size: 3rem`과 `font-weight: bold` 속성을 적용받을 수 있게 되는 것이다.
+
+# ThemeProvider를 이용한 2가지 미디어 쿼리 사용기
+
+ThemeProvider를 사용해서 미디어 쿼리를 사용하는 대표적인 방법은 2가지 이다.
+
+1. MediaQuery 속성을 객체화 하여 사용하기.
+2. CustomThemeProvider 정의하기.
+
+각각의 장단점이 있지만 1번 방법의 경우 우선 정의하기도 간단하고 사용하기도 편하다.
+그리고 2번의 경우
+
+# MediaQuery 속성을 객체화 하여 사용하기.
+
+MediaQuery 속성을 객체화 하여 사용하는 것은 지난 시간에 봤던 [프로젝트에서 ThemeProvider 사용하기](https://wonit.tistory.com/366)의 방법과 정확히 동일하다.
+
+우선 `theme.js` 파일을 생성한다.
+
+#### theme.js
+
+그리고 2개의 객체를 생성한다.
+
+1. size 객체
+2. device 객체
+
+```
+const size = {
+  mobileS: "320px",
+  moblilM: "375px",
+  mobileL: "425px",
+  tablet: "768px",
+  laptop: "1024px",
+  desktop: "2560px",
+}
+```
+
+# CustomThemeProvider 정의하기.
+
+이 방법은 import가 없다.
+
+2개의 js 파일을 생성한다.
+
+1. `media.js` : media 쿼리 자체를 export
+2. `theme.js` : 커스텀 ThemeProvider 파일
+
+### media.js
+
+```
+import { css } from "styled-components";
+
+const sizes = {
+
+}
+```
+
+### theme.js

@@ -1,0 +1,194 @@
+### 기본 컨셉 이해하기
+
+`Context API`를 이용한다는 ThemeProvider의 기본 컨셉을 이해하기 위해서 간단한 2개의 버튼을 만들어 보자.
+
+```
+import React from "react";
+import styled from "styled-components";
+
+const Button = styled.button`
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border-radius: 3px;
+`;
+
+const ThemeProviderPrac = () => {
+  return (
+    <div>
+      <Button>Normal 1</Button>
+      <Button>Normal 2</Button>
+    </div>
+  );
+};
+```
+
+그럼 아무 스타일이 적용되지 않은 버튼이 생성된다.
+
+`<ThemeProvider>`를 사용하려면 일반적인 **Context API**를 사용하는 과정과 동일하다.
+
+모든 자식 컴포넌트를 감싸는 Context 역할을 수행하기 위해 `<ThemeProvider>`를 Theme의 스타일 속성을 적용받으려는 컴포넌트 **렌더 트리 최상단**에 배치한다.
+
+```
+... 생략
+
+const ThemeProviderPrac = () => {
+  return (
+    <div>
+      <Button>Normal</Button>
+      <ThemeProvider theme={theme}>
+        <Button>Themed</Button>
+      </ThemeProvider>
+    </div>
+  );
+};
+
+... 생략
+```
+
+그리고 색상 비교를 위해 기존에 만들었던 `Button` 컴포넌트의 **defaultProps**도 지정해보자.
+
+```
+Button.defaultProps = {
+  theme: {
+    main: "palevioletred",
+  }
+}
+```
+
+위의 과정을 거치면 결론적으로 다음과 같은 코드가 작성된다.
+
+```
+import React from "react";
+import styled, { ThemeProvider } from "styled-components";
+
+const Button = styled.button`
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border-radius: 3px;
+
+  color: ${(props) => props.theme.main};
+  border: 2px solid ${(props) => props.theme.main};
+`;
+
+Button.defaultProps = {
+  theme: {
+    main: "palevioletred",
+  },
+};
+
+const theme = {
+  main: "mediumseagreen",
+};
+
+const ThemeProviderPrac = () => {
+  return (
+    <div>
+      <Button>Normal</Button>
+      <ThemeProvider theme={theme}>
+        <Button>Themed</Button>
+      </ThemeProvider>
+    </div>
+  );
+};
+
+export default ThemeProviderPrac;
+```
+
+그리고 수행한다면 ThemeProvider를 사용한 컴포넌트를 만들 수 있게 된다.
+
+### Function THeme
+
+함수를 이용한 `<ThemeProvider>` 를 이용하기 위해서 2개의 버튼을 만들고 각각을 Theme의 props로 foreground의 **fg** 속성과 background의 **bg** 속성 값을 `palevioletred`와 `white`로 줘보자.
+
+```
+import React from "react";
+import styled, { ThemeProvider } from "styled-components";
+
+const Button = styled.button`
+  color: ${(props) => props.theme.fg};
+  background: ${(props) => props.theme.bg};
+  border: 2px solid ${(props) => props.theme.fg};
+
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border-radius: 3px;
+`;
+
+const theme = {
+  fg: "palevioletred",
+  bg: "white",
+};
+
+const ThemeProviderPrac = () => {
+  return (
+    <div>
+      <ThemeProvider theme={theme}>
+        <Button>기본 theme props 사용</Button>
+        <Button>함수를 이용한 new theme</Button>
+      </ThemeProvider>
+    </div>
+  );
+};
+
+export default ThemeProviderPrac;
+```
+
+그럼 다음과 같은 동일한 palevioletred 색을 가진 버튼 2개가 나온다.
+
+이제 `invertTheme` 이라는 함수를 만들어보자.
+
+```
+const invertTheme = ({ fg, bg }) => ({
+  fg: bg,
+  bg: fg
+});
+```
+
+이 함수는 보이다싶이 서로 색을 스위칭 하여 theme props를 반환하게 된다.
+
+해당 함수의 theme props를 새로운 `ThemeProvider` 컨텍스트를 만들어서 감싸보자.
+
+```
+import React from "react";
+import styled, { ThemeProvider } from "styled-components";
+
+const Button = styled.button`
+  color: ${(props) => props.theme.fg};
+  background: ${(props) => props.theme.bg};
+  border: 2px solid ${(props) => props.theme.fg};
+
+  font-size: 1em;
+  margin: 1em;
+  padding: 0.25em 1em;
+  border-radius: 3px;
+`;
+
+const theme = {
+  fg: "palevioletred",
+  bg: "white",
+};
+
+const invertTheme = ({ fg, bg }) => ({
+  fg: bg,
+  bg: fg,
+});
+
+const ThemeProviderPrac = () => {
+  return (
+    <div>
+      <ThemeProvider theme={theme}>
+        <Button>기본 theme props 사용</Button>
+        <Button>함수를 이용한 new theme</Button>
+      </ThemeProvider>
+    </div>
+  );
+};
+
+export default ThemeProviderPrac;
+
+```
+
+우리는 이제 함수를 이용해서 theme을 바꿀 수 있게 되었다.
