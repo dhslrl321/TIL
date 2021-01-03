@@ -4,7 +4,7 @@ const pixelToRem = (size) => `${size / 16}rem`;
 
 const fontSizes = {
   title: pixelToRem(60),
-  subtitle: pixelToRem(30),
+  subtitle: pixelToRem(50),
   paragraph: pixelToRem(18),
 };
 

@@ -28,13 +28,14 @@
 
 ThemeProvider를 사용해서 미디어 쿼리를 사용하는 대표적인 방법은 2가지 이다.
 
-1. MediaQuery 속성을 객체화 하여 사용하기.
-2. CustomThemeProvider 정의하기.
+1. MediaQuery **속성을** 모듈화 하기.
+2. MediaQuery **자체를** 모듈화 하기.
 
-각각의 장단점이 있지만 1번 방법의 경우 우선 정의하기도 간단하고 사용하기도 편하다.
-그리고 2번의 경우
+어떤 방법을 선택하던 각각의 장단점이 존재한다.
 
-# MediaQuery 속성을 객체화 하여 사용하기.
+방법을 따라가며 뒤에서 무엇이 본인에게 더 맞을지 비교해보자.
+
+# MediaQuery **속성을** 모듈화 하기.
 
 MediaQuery 속성을 객체화 하여 사용하는 것은 지난 시간에 봤던 [프로젝트에서 ThemeProvider 사용하기](https://wonit.tistory.com/366)의 방법과 정확히 동일하다.
 
@@ -48,33 +49,185 @@ MediaQuery 속성을 객체화 하여 사용하는 것은 지난 시간에 봤�
 2. device 객체
 
 ```
-const size = {
-  mobileS: "320px",
-  moblilM: "375px",
-  mobileL: "425px",
+const deviceSizes = {
+  mobile: "375px",
   tablet: "768px",
   laptop: "1024px",
-  desktop: "2560px",
-}
+};
+
+const device = {
+  mobile: `screen and (max-width: ${deviceSizes.mobile})`,
+  tablet: `screen and (max-width: ${deviceSizes.tablet})`,
+  laptop: `screen and (max-width: ${deviceSizes.laptop})`,
+};
+
+const theme = {
+  device
+};
+
+export default theme;
 ```
 
-# CustomThemeProvider 정의하기.
+그리고 ThemeProvider의 `theme` props로 전달해준다.
 
-이 방법은 import가 없다.
+```
+const Div = styled.div`
+  font-size: ${({ theme }) => theme.fontSizes.subtitle};
+  width: 100vw;
+  height: 100vh;
+  background: wheat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media ${({ theme }) => theme.device.tablet} {
+    flex-direction: column;
+    font-size: ${({ theme }) => theme.fontSizes.paragraph};
+  }
+`;
+```
+
+# MediaQuery **자체를** 모듈화 하기.
+
+이 방법은 위의 방법에서 조금 발전한 방법이라고 할 수 있다.
+
+위에서는 `screen and (max-width: ${deviceSizes.mobile})` 을 상수화 시켜 export한 것을 사용했다.
+그럼 우리는
+
+```
+@media {}
+```
+
+를 만들어서 사용했지만 이 방법에는 MediaQuery 문맥 자체를 직접 만든다.
 
 2개의 js 파일을 생성한다.
 
 1. `media.js` : media 쿼리 자체를 export
-2. `theme.js` : 커스텀 ThemeProvider 파일
+2. `theme.js` : 통일화를 위해 정의된 다른 theme 속성 (일반적인 ThemeProvider의 theme props 값)
 
-### media.js
+#### media.js
 
 ```
 import { css } from "styled-components";
 
 const sizes = {
+  mobile: 320,
+  tablet: 768,
+  laptop: 1024,
+  tesktop: 2560,
+};
 
-}
+export default Object.keys(sizes).reduce((acc, label) => {
+  acc[label] = (...args) => css`
+    @media screen and (max-width: ${sizes[label]}px) {
+      ${css(...args)};
+    }
+  `;
+  return acc;
+}, {});
 ```
 
-### theme.js
+#### theme.js
+
+```
+import styled from "styled-components";
+
+const colors = {
+  black: "#000000",
+  grey: "#999999",
+};
+
+// ... 생략
+
+const theme = {
+  fontSizes,
+  colors,
+  common,
+};
+
+export default theme;
+```
+
+### ThemeProvider에 적용하기
+
+이 방법은 Theme 속성에 들어갈 파일이 2개가 되므로 2개읭 속성을 ThemeProvider의 props로 넣어줘야한다.
+
+```
+import React from "react";
+import styled, { ThemeProvider } from "styled-components";
+import theme from "./theme";
+import media from "./media";
+
+const Div = styled.div`
+  font-size: ${({ theme }) => theme.fontSizes.subtitle};
+
+  ${({ theme }) => theme.tablet` // theme props의 media 객체 사용하기
+    flex-direction: column;
+    font-size: ${({ theme }) => theme.fontSizes.paragraph}; // theme props의 theme.js 객체 사용하기
+  `};
+
+  width: 100vw;
+  height: 100vh;
+  background: wheat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Div2 = styled.div`
+  width: 100px;
+  height: 100px;
+  background: white;
+  margin: 5px;
+`;
+
+const ThemeProviderPrac = () => {
+  return (
+    <ThemeProvider theme={{ ...theme, ...media }}>
+      <Div>
+        <Div2>정말로</Div2>
+        <Div2>리액트</Div2>
+        <Div2>재밌어요</Div2>
+        <Div2>진짜로</Div2>
+      </Div>
+    </ThemeProvider>
+  );
+};
+
+export default ThemeProviderPrac;
+
+```
+
+만약 기존에 정의된 theme이 있다면 다음과 같이 `theme={ media}` 을 `theme={{ ...theme, ...media }}>`과 같이 theme과 media를 모두 spread 시켜주면 된다.
+
+전개 연산으로 theme의 속성과 media 속성을 spread 시켜주면 **정의된 theme 속성을 통일성 있게 사용할 수 있고** media로 정의된 Media Query 속성을 사용할 수 있다.
+
+# 두 방법의 차이
+
+두 방법에는 차이가 하나 있다.
+
+```
+/* 첫 번째 medie 속성을 모듈화 하기 */
+const Box = styled.div`
+  @media ${({ theme }) => theme.device.tablet} {
+    flex-direction: column;
+    font-size: ${({ theme }) => theme.fontSizes.paragraph};
+  }
+`;
+
+
+/* 두 번째 방법 media 쿼리 자체를 모듈화 하기*/
+const Box = styled.div`
+  ${({ theme }) => theme.tablet`
+    flex-direction: column;
+    font-size: ${({ theme }) => theme.fontSizes.paragraph};
+  `};
+`;
+```
+
+첫 번째 방법은 미디어 쿼리 문법 자체를 모듈화 했기 때문에 `@media`만 없다 뿐이지 사용법 자체는 미디어 쿼리와 동일하다.
+
+두 번째 방법은 문맥의 시작이 `@media`로 시작하므로 미디어 쿼리가 시작된다고 누가 보더라도 알 수 있고 직관적이다.
+
+또한 미디어 속성이 많아지는 경우 첫 번째 경우는 한 파일에 많은 속성들이 들어가 있어서 헷갈릴 수 있는 요소들이 많은 반면 두 번째경우는 하나의 **media.js** 파일에서 미디어 속성을 따로 관리하기 때문에 코드의 분리가 가능하다.
+선택은 본인에게 맞는 방법을 하면 되지만 필자라면 2번째 방법을 사용하겠다!
