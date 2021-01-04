@@ -1,0 +1,66 @@
+# [Next.js] \_document.js로 레이아웃 템플릿을 사용해서 html 과 body 태그 커스터마이징 하기.
+
+- Next.js에는 `<html>` 태그와 `<body>` 태그를 조작하기 위해서 `<Document>` 컴포넌트를 제공함.
+- `<Document>`는 **Class 형 컴포넌트만 지원**함.
+- Build 시점에 `_document.js`파일을 pages 디렉토리 안에서 탐색하고 `<Document>`를 extends 한 컴포넌트를 이용해서 커스텀 설정을 받아들임.
+- 필수 파일은 아니고 만약 우리가 커스텀하지 않으면 기본 Next의 모듈에 존재하는 `_document.js` 파일을 실행시킴.
+
+## 기본 구조
+
+```
+import Document, { Html, Head, Main, NextScript } from 'next/document'
+
+class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const initialProps = await Document.getInitialProps(ctx)
+    return { ...initialProps }
+  }
+
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    )
+  }
+}
+
+export default MyDocument
+```
+
+`<Document>` 컴포넌트를 사용하기 위해서는 4가지가 필수
+
+- `<Html>`
+- `<Head>`
+- `<Main>`
+- `<NextScript>`
+
+그리고 각각 `next/document`에서 import 해야됨.
+여기서 설명하지 않는 `<Main>`과 `<NextScript>`는 [이곳](https://stackoverflow.com/questions/52083848/nextjs-main-and-nextscript)에서 확인할 수 있다.
+
+### 주의
+
+`next/head`라고 [지난 시간 Next에서 head 태그를 조작하는 방법](https://wonit.tistory.com/358?category=829651)에 배운적이 있음.
+그거랑 다름.
+
+# `next/head`의 Head 컴포넌트와 `next/document`의 Head 컴포넌트의 차이점
+
+### `next/head`의 Head 컴포넌트
+
+`next/head`의 Head 컴포넌트는 **특정 페이지에서 바뀌는 Head 태그**에서 사용해야한다.
+예를 들어 페이지마다 바뀌는 `<title>` 태그를 적용할 경우, 이는 pages 디렉토리 내에 있는 컴포넌트에서 `next/head의 <Head>` 컴포넌트를 이용해야한다.
+
+### `next/document` 의 Head 컴포넌트
+
+`next/document` 의 Head 컴포넌트는 **모든 페이지에서 사용할 Head 속성들을 조작할** 때 사용한다.
+예를 들어 페이지의 언어 설정인 `<lang>`과 같은 속성일 경우 `_document.js`에서 `next/document의 <Head>`를 import 하여 사용한다.
+
+# 끝으로
+
+이렇게 오늘은 document.js 파일에서 Html 구조를 조작하는 방법에 대해서 알아보았다.
+`Document` 컴포넌트는 오로지 서버에서만 렌더되므로 `onClick`과 같은 이벤트 헨들러는 작동하지 않는다.
+또한 `<Main />` 밖에 있는 리액트 컴포넌트는 브라우저에서 작동하지 않고, 만약 HTML에 항상 존재하는 NavBar이나 SideBar과 같은 컴포넌트를 적용시키고 싶다면 `App` 컴포넌트를 이용할 수 있다.

@@ -21,7 +21,11 @@
 
 #### 4\. [Next.js에서 head 태그를 조작하는 멋진 방법](https://wonit.tistory.com/358?category=829651)
 
-##### [번외 & 실습) 이미지와 동영상을 저장하고 사용해보자.](https://wonit.tistory.com/360?category=829577)
+##### [번외 `_document.js` 로 html 과 body 태그 커스터마이징 하기.](https://wonit.tistory.com/370)
+
+##### [번외 & 실습 이미지와 동영상을 저장하고 사용해보자.](https://wonit.tistory.com/360?category=829577)
+
+##### [번외 renderPage 함수로 styled-components 오류 방지하기.](https://wonit.tistory.com/369)
 
 #### 5\. [웹의 발전 과정으로 보는 SSG와 SSR](https://wonit.tistory.com/361?category=829651)
 
@@ -61,8 +65,9 @@
 #### 4\. [Next.js에서 head 태그를 조작하는 멋진 방법](https://wonit.tistory.com/358?category=829651)
 
 - `<Head>`
-- `_document.js`
-  > [(번외 & 실습)이미지와 동영상을 저장하고 사용해보자.](https://wonit.tistory.com/360?category=829577)
+- [`_document.js` 로 html 과 body 태그 커스터마이징 하기..](https://wonit.tistory.com/370)
+- [(번외 & 실습)이미지와 동영상을 저장하고 사용해보자.](https://wonit.tistory.com/360?category=829577)
+- [renderPage 함수로 styled-components 오류 방지하기.](https://wonit.tistory.com/369)
 
 #### 5\. [웹의 발전 과정으로 보는 SSG와 SSR](https://wonit.tistory.com/361?category=829651)
 

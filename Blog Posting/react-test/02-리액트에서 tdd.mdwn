@@ -1,0 +1,31 @@
+# TDD
+
+- test driven develop 혹은 test first develop
+- Kent beck 이 이야기한 내용
+
+## 구성 요소
+
+- red : 실패하고
+- green : 성공하고
+- refactor : 효율적이게 동작하게.
+
+# tdd가 어려운 이유
+
+testable code
+테스트가능한 코드를 만들기가 어려움
+
+**해결 방법**
+
+- 관심사의 분리로 테스트 가능한 코드를 만들자.
+
+# 실제 코드로 보자.
+
+- 자동화된 코드를 미리 작성.
+
+```
+describe() => {
+  it('renders tasks', () => {
+
+  })
+}
+```

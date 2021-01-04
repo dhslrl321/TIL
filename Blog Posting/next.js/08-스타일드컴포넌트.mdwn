@@ -1,0 +1,84 @@
+# renderPage 함수로 styled-component 오류 방지하기.
+
+### 문제
+
+- 스타일이 바로 적용되지 않고 HTML이 렌더링 됨.
+- 일정 시간 후에 깜빡 거리며 적용되는 것을 볼 수 있음.
+- 이는 Next.js는 SSR혹은 SSG를 기본으로 사용해서 Pre-Rendering 을 하면서 [Initial Load](https://wonit.tistory.com/362?category=829651) 과정에서 미리 HTML을 로드하고 [Hydration](https://wonit.tistory.com/362?category=829651) 과정에서 다른 파일들을 로드하기 떄문에 발생함.
+
+### 해결
+
+- pages 디렉토리에 `_document.js` 파일을 생성.
+- `_document.js` 파일을 수정하면 전체적인 HTML 구조에 Custom 설정을 부여할 수 있음.
+- `_document.js` 파일에서 `ServerStyleSheet` 함수를 SC에서 import 하여 Global하게 설정하면 됨.
+
+### 더 알아보기
+
+- `<Document />` 가 `<html>`, `<body>`, `<head>` 태그를 감싸고 있음.
+- `<Document />` 에서 `renderPage` 메서드로 **synchronously** 하게 서버 사이드에서 실행시도록 할 수 있음
+
+### 코드
+
+**styled-components의 바벨 플러그인을 설치**
+
+```
+$ yarn add -D babel-plugin-styled-components
+```
+
+**.babelrc**
+
+```
+{
+  "presets": [
+    "next/babel"
+  ],
+  "plugins": [
+    [
+      "styled-components",
+      {
+        "ssr": true,
+        "displayName": true,
+        "preprocess": false
+      }
+    ]
+  ]
+}
+```
+
+preprocessing 과정을 해제하는 과정임.
+
+**\_document.js**
+
+```
+import Document from 'next/document';
+import { ServerStyleSheet } from 'styled-components';
+
+export default class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const sheet = new ServerStyleSheet();
+    const originalRenderPage = ctx.renderPage;
+
+    try {
+      ctx.renderPage = () =>
+        originalRenderPage({
+          enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
+        });
+
+      const initialProps = await Document.getInitialProps(ctx);
+      return {
+        ...initialProps,
+        styles: (
+          <>
+            {initialProps.styles}
+            {sheet.getStyleElement()}
+          </>
+        )
+      };
+    } finally {
+      sheet.seal();
+    }
+  }
+}
+```
+
+Next.js 공식 홈페이지에서는 위의 커스터마이징이 오로지 CSS-in-js 라이브러리를 사용할 떄만 사용하라고 나와있음.
