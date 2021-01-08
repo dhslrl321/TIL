@@ -1,0 +1,51 @@
+# atom
+
+- Link (hover 색, active 색)
+- Image (이미지 모양 : 네모, 둥근 네모, 동그라미)
+- Title (사이즈, 폰트 색)
+- Label
+- Icon
+- Description
+- Anchor
+- TextContent
+- ChatTitle
+
+# components
+
+- LinkGroup
+- LogoLink
+- DropdownColumn
+- FooterColumn
+- ChatBalloon
+- SectionHeader
+- TagBox
+- ClassCard
+- JobCard
+- ImageBall
+- ChatMenuGroup
+- InterviewCard
+- QnABox
+- ProfessorCard
+- ActivityCard
+
+# organisms
+
+- Navbar
+- Sidebar
+- DropdownMenu
+- Footer
+- ChattingGroup
+- ImageBallGroup
+- TagGroup
+- ClassGroup
+- ProfessorGroup
+
+# pages
+
+- Home
+- edu / curriculum
+- edu / jobs
+- edu / interview / [id]
+- activities
+- member / professor
+- member / student
