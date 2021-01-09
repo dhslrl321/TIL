@@ -28,7 +28,7 @@
 - ProfessorCard
 - ActivityCard
 
-# organisms
+# template
 
 - Navbar
 - Sidebar
