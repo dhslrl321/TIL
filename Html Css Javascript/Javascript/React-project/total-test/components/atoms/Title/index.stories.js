@@ -1,7 +1,6 @@
 import React from "react";
 
-import Title from "./Title";
-
+import Title from ".";
 export default {
   title: "Atoms / Title",
   component: Title,
@@ -17,4 +16,9 @@ Primary.args = {
 export const Secondary = Template.bind({});
 Secondary.args = {
   content: "Secandary Header",
+}
+
+export const Third = Template.bind({});
+Third.args = {
+  content: "Third Header",
 }

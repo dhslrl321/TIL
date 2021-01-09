@@ -1,4 +1,4 @@
-import Title from "components/atoms/Title/Title";
+import Title from "components/atoms/Title";
 export default function Home() {
   return (
     <div>
