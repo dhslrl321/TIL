@@ -13,7 +13,7 @@ const data = {
 
 const Template = (args) => <SectionHeader {...args} />
 
-export const RenderStory = Template.bind({});
-RenderStory.args = {
+export const Rendering = Template.bind({});
+Rendering.args = {
   data
 }

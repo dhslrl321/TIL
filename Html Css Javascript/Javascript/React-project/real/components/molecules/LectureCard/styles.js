@@ -5,7 +5,7 @@ export const Container = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  width: 330px;
+  width: 450px;
   height: 70px;
   background: ${theme("palettes.cardBg")};
   border-radius: 10px;
@@ -14,7 +14,7 @@ export const Container = styled.div`
 
 export const IconColumn = styled.div`
   ${theme("shortcuts.flexCenter")};
-  margin-left: 20px;
+  margin-left: 30px;
 `;
 
 export const TextColumn = styled.div`
@@ -26,6 +26,6 @@ export const TextColumn = styled.div`
     font-weight: bolder;
   }
   p:nth-child(2){
-    width: 200px;
+    width: 300px;
   }
 `

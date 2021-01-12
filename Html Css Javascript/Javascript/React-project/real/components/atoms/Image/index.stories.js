@@ -16,5 +16,5 @@ Picture.args = {
 export const Icon = Template.bind({})
 Icon.args = {
   styleType: "Icon",
-  src: "/c_icon.svg"
+  src: "/lecture/c_icon.svg"
 }
