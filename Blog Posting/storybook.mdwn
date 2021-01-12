@@ -10,6 +10,14 @@
 - TextContent
 - ChatTitle
 
+---
+
+- LectureCard (Icon + Label + Description)
+- LectureGroup (LectureTitle + LectureCard)
+- Curriculum (SectionHeader + LectureGroup)
+
+---
+
 # components
 
 - LinkGroup
@@ -19,7 +27,7 @@
 - ChatBalloon
 - SectionHeader
 - TagBox
-- ClassCard
+
 - JobCard
 - ImageBall
 - ChatMenuGroup

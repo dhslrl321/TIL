@@ -7,6 +7,22 @@ const theme = {
     SecondLabel: "0.8rem;",
     ThirdLabel: "0.7rem;",
     FourthLabel: "0.6rem;",
+
+    PrimaryDesc: "0.8rem;",
+    SecondaryDesc: "0.6rem;"
+  },
+  shortcuts: {
+    flexCenter: `
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    `,
+    flexCenterColumn: `
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    `
   }
 }
 
