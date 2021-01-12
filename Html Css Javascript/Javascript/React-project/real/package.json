@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "storybook": "start-storybook -p 6006",
-    "start-storybook": "start-storybook -s ./public -p 9001",
+    "storybook": "start-storybook -s ./public -p 9001",
     "build-storybook": "build-storybook"
   },
   "dependencies": {
