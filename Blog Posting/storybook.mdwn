@@ -1,16 +1,60 @@
-# atom
+# atoms
 
-- Link (hover 색, active 색)
+- Link (hover 색, activated 색)
+  > Anchor, Link
 - Image (이미지 모양 : 네모, 둥근 네모, 동그라미)
-- Title (사이즈, 폰트 색)
-- Label
-- Icon
-- Description
-- Anchor
-- TextContent
-- ChatTitle
+  > Picture, Icon
+- Title (사이즈)
+  > MainTitle, SubTitle
+- Label (사이즈)
+- Description (사이즈)
 
 ---
+
+- Navbar
+- Sidebar
+- Footer
+
+# Sections
+
+- Home
+- Merit
+- Qualification
+- Timeline
+- Curriculum
+- Sugge
+- Interview
+- InterviewDetail
+- CTF
+- Activities
+- Professor
+- Laboratory
+
+# Pages
+
+## /
+
+- Navbar
+- Sidebar
+- Home
+- Merit
+- Qualification
+- Timeline
+- Footer
+
+## /edu/curriculum
+
+- Navbar
+- Curriculum
+- Sidebar
+
+## /edu/jobs
+
+- Navbar
+- Sidebar
+-
+
+# Curriculum Section
 
 - LectureCard (Icon + Label + Description)
 - LectureGroup (LectureTitle + LectureCard)
