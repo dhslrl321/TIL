@@ -1,9 +1,9 @@
 const theme = {
   fontSize: {
-    MainTitle: "1.7rem;",
+    MainTitle: "2rem;",
     SubTitle: "1.5rem;",
 
-    FirstLabel: "1rem;",
+    FirstLabel: "0.9rem;",
     SecondLabel: "0.8rem;",
     ThirdLabel: "0.7rem;",
     FourthLabel: "0.6rem;",

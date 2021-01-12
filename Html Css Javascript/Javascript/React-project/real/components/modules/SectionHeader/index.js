@@ -3,8 +3,7 @@ import * as S from "./styles";
 import Title from "../../atoms/Title";
 import Description from "../../atoms/Description";
 
-const SectionHeader = ({ data }) => {
-  const { title, description } = data;
+const SectionHeader = ({ title, description }) => {
 
   return (
     <S.Container>
