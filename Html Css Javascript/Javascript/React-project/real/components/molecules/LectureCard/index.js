@@ -1,18 +1,19 @@
 import React from 'react'
 import * as S from "./styles";
-import Image from 'components/atoms/Image';
-import Label from 'components/atoms/Label';
-import Description from 'components/atoms/Description';
+import Image from '../../atoms/Image';
+import Label from '../../atoms/Label';
+import Description from '../../atoms/Description';
 
-const LectureCard = () => {
+const LectureCard = ({ data }) => {
+  const { title, description, src } = data;
   return (
     <S.Container>
       <S.IconColumn>
-        <Image styleType="Icon" src="/c_icon.svg" />
+        <Image styleType="Icon" src={src} />
       </S.IconColumn>
       <S.TextColumn>
-        <Label styleType="FirstLabel">asdf</Label>
-        <Description styleType="PrimaryDescription">asdf</Description>
+        <Label styleType="FirstLabel">{title}</Label>
+        <Description styleType="SecondaryDescription">{description}</Description>
       </S.TextColumn>
     </S.Container>
   )
