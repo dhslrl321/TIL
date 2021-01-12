@@ -15,6 +15,7 @@
     "next": "10.0.5",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "styled-breakpoints": "^9.0.8",
     "styled-components": "^5.2.1",
     "styled-reset": "^4.3.4",
     "styled-tools": "^1.7.2"
