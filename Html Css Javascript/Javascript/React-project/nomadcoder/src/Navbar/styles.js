@@ -8,7 +8,7 @@ export const Header = styled.header`
   font-size: 1.2rem;
   font-weight: bolder;
   height: 80px;
-  background: gray;
+  background: black;
 `;
 
 export const HeaderWrapper = styled.div`
@@ -26,32 +26,18 @@ export const TitleColumn = styled.div`
 
 export const LinkColumn = styled.div`
   display: flex;
-  position: relative;
   justify-content: flex-end;
-  padding-bottom: 30px;
+  position: relative;
+  padding: 20px 0;
 `;
 
 export const LinkItem = styled.li`
-  padding: 10px;
+  margin: 20px;
 `;
 
 export const Link = styled.a`
-  height: 100%;
   transition: all 0.5s ease;
   :hover{
-    color: blue;
+    color: #3C59FD;
   }
-`;
-
-export const HiddenMenu = styled.div`
-  position: absolute;
-  display: ${({ menuActivation }) => menuActivation ? "flex" : "none"};
-  top: ${({ menuActivation }) => menuActivation ? "263%" : "0%"};
-  width: 270px;
-  height: 100px;
-  background: gray;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  transition: all 0.5s ease;
-  z-index: 10;
 `;

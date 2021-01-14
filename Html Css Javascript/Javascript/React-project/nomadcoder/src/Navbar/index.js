@@ -1,17 +1,15 @@
 import React, { useState } from 'react'
 import * as S from "./styles";
+import Dropdown from '../Dropdown';
 const Navbar = () => {
 
-  const [menuActivation, setMenuActivation] = useState(false);
-
+  const [dropdown, setDropdown] = useState(false);
   const menuMouseOver = () => {
-    setMenuActivation(!menuActivation);
-    console.log("마우스 오버", menuActivation);
+    setDropdown(true);
   }
 
   const menuMouseLeave = () => {
-    setMenuActivation(!menuActivation);
-    console.log("마우스 리브", menuActivation);
+    setDropdown(false);
   }
 
   return (
@@ -21,6 +19,7 @@ const Navbar = () => {
           <li><S.Link href="/">Jangwonik</S.Link></li>
         </S.TitleColumn>
         <S.LinkColumn onMouseOver={menuMouseOver} onMouseLeave={menuMouseLeave}>
+          {dropdown && <Dropdown dropdown={dropdown} />}
           <S.LinkItem>
             <S.Link href="https://github.com/dhslrl321">Github</S.Link>
           </S.LinkItem>
@@ -30,7 +29,6 @@ const Navbar = () => {
           <S.LinkItem>
             <S.Link href="https://www.youtube.com/channel/UC-y9guKVBIwWDZ1HpwcWu6A">Youtube</S.Link>
           </S.LinkItem>
-          <S.HiddenMenu onMouseOver={menuMouseOver} onMouseLeave={menuMouseLeave} menuActivation={menuActivation}>asdf</S.HiddenMenu>
         </S.LinkColumn>
       </S.HeaderWrapper>
     </S.Header>

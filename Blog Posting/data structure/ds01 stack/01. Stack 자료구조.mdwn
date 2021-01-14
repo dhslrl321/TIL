@@ -1,0 +1,89 @@
+# Stack
+
+처음에 입력된 데이터가 맨 아래에 쌓이고 가장 최근에 입력된 데이터가 위에 쌓임.
+FILO First In Last Out 구조
+
+## 스택의 구조
+
+- `push()` : 주어진 요소를 스택에 추가
+- `pop()` : 스택의 가장 위 요소를 삭제하고 반환
+- `peek()` : 스택의 가장 위 요소를 삭제하지 않고 반환
+- `isFull()` : 스택이 가득 차 있으면 True
+- `isEmpty()` : 스택이 비어있으면 False
+- `size()` : 스택의 크기를 반환(요소 수)
+- `init()` : 스택 초기화
+
+## 스택의 활용
+
+- 문서나 그림, 편집기에서 **되돌리기** 기능.
+- 함수 호출에서 복귀 주소를 저장할 때 사용
+- 소스코드 괄호 닫기 검사 로직
+- 계산기의 수식 계산
+- 미로에서 출구를 찾기 위할 때
+
+## 스택 구현
+
+2가지 방법 존재
+
+1. 배열로 구현 : 구현하기 용이하며 크기가 제한되지 않음
+2. 연결 리스트로 구현 : 구현하기 까다로워지지만 크기에 유연
+
+##### 배열로 구현을 한다면 간단하지만 크기가 제한될 수 있다. 이를 해결하기 위해 연결 리스트로 구현하는 방법이 있는데, 배열로 구현할 때와 다르게 스택의 사이즈를 계속해서 검증할 필요가 없으므로 중간에 `isFull` 연산이 필요하지 않다.
+
+## 배열을 이용한 스택 구현
+
+algorithm -> src -> datastructure -> MyStack
+
+```
+class MyStack {
+    int[] stack;
+    int MAX_STACK_SIZE;
+    int top;
+
+    MyStack(int size) {
+        top = -1;
+        MAX_STACK_SIZE = size;
+        stack = new int[MAX_STACK_SIZE];
+    }
+
+    /* 스택이 비어있는 경우 false 반환*/
+    boolean isEmpty() {
+        return top == -1;
+    }
+
+    /* 스택이 가득 찬 경우 true 반환*/
+    boolean isFull() {
+        return top == MAX_STACK_SIZE - 1;
+    }
+
+    /* 스택에 삽입 연산 */
+    void push(int x) {
+        if(isFull()) MyException();
+        else stack[++top] = x;
+    }
+
+    int pop() {
+        int ret = 0;
+
+        if(isEmpty()) MyException();
+        else ret = stack[top--];
+
+        return ret;
+    }
+
+    void peek() {
+        int ret = 0;
+
+        if(isEmpty()) MyException();
+        else ret = stack[top];
+    }
+
+    void MyException() {
+        System.out.println("Exception detected");
+    }
+}
+```
+
+# 스택을 이용한 문제 풀이
+
+1. 수식 내의 괄호 유효성 검사
