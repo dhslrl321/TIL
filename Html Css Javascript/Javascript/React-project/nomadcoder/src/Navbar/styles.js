@@ -10,6 +10,9 @@ export const Header = styled.header`
   /* height: ${({ scrollNav }) => scrollNav ? "80px" : "-80px"}; */
   background: black;
   height: 80px;
+  /* visibility: ${({ show }) => show ? "visible" : "hidden"};
+  transition: all 100ms ${({ show }) => show ? "ease-in" : "ease-out"};
+  transform: ${({ show }) => show ? "none" : "translate(0, -100%"}; */
 `;
 
 export const HeaderWrapper = styled.div`

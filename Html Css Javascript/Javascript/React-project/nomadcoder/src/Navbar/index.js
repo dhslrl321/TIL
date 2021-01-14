@@ -1,6 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import * as S from "./styles";
 import Dropdown from '../Dropdown';
+
+const isBrowser = typeof window !== `undefined`
+
+function getScrollPosition() {
+  if (!isBrowser) return { x: 0, y: 0 }
+
+  const position = document.body.getBoundingClientRect()
+
+  return { x: window.scrollX, y: window.scrollY }
+  // : { x: position.left, y: position.top }
+  // ? 
+  // : 
+}
+
 const Navbar = () => {
 
   const [dropdown, setDropdown] = useState(false);
@@ -12,16 +26,8 @@ const Navbar = () => {
     setDropdown(false);
   }
 
-  const [scrollPos, setScrollPos] = useState(0);
-
-  const changeNav = () => {
-    setScrollPos(window.scrollY);
-    console.log(scrollPos);
-  }
-
-  useEffect(() => {
-    window.addEventListener('scroll', changeNav)
-  }, [scrollPos]);
+  const position = useRef(getScrollPosition());
+  console.log("position: ", position.current.y);
 
 
   return (
@@ -31,7 +37,7 @@ const Navbar = () => {
           <li><S.Link href="/">Jangwonik</S.Link></li>
         </S.TitleColumn>
         <S.LinkColumn onMouseOver={menuMouseOver} onMouseLeave={menuMouseLeave}>
-          {dropdown && <Dropdown dropdown={dropdown} />}
+          {dropdown && <Dropdown />}
           <S.LinkItem>
             <S.Link href="https://github.com/dhslrl321">Github</S.Link>
           </S.LinkItem>

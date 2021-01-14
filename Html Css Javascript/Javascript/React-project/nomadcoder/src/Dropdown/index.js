@@ -1,14 +1,10 @@
 import React from 'react'
 import * as S from "./styles";
 
-const Dropdown = ({ dropdown }) => {
-
-  const hover = () => {
-    console.log("mouse hover");
-  }
+const Dropdown = () => {
 
   return (
-    <S.Container onMouseEnter={hover} dropdown={dropdown}>
+    <S.Container>
       <S.NavColumn>
         <S.NavItem>
           <S.Link href="#">project</S.Link>
