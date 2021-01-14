@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import * as S from "./styles";
 import Dropdown from '../Dropdown';
 const Navbar = () => {
@@ -11,6 +11,18 @@ const Navbar = () => {
   const menuMouseLeave = () => {
     setDropdown(false);
   }
+
+  const [scrollPos, setScrollPos] = useState(0);
+
+  const changeNav = () => {
+    setScrollPos(window.scrollY);
+    console.log(scrollPos);
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', changeNav)
+  }, [scrollPos]);
+
 
   return (
     <S.Header>
