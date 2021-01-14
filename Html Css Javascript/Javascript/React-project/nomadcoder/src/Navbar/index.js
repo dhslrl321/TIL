@@ -1,23 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import * as S from "./styles";
 import Dropdown from '../Dropdown';
+import { useScrollPosition } from "@n8tb1t/use-scroll-position";
+import { FaBars } from "react-icons/fa";
 
-const isBrowser = typeof window !== `undefined`
-
-function getScrollPosition() {
-  if (!isBrowser) return { x: 0, y: 0 }
-
-  const position = document.body.getBoundingClientRect()
-
-  return { x: window.scrollX, y: window.scrollY }
-  // : { x: position.left, y: position.top }
-  // ? 
-  // : 
-}
-
-const Navbar = () => {
+const Navbar = ({ toggle }) => {
 
   const [dropdown, setDropdown] = useState(false);
+  const [hideOnScroll, setHideOnScroll] = useState(true)
+
   const menuMouseOver = () => {
     setDropdown(true);
   }
@@ -26,18 +17,24 @@ const Navbar = () => {
     setDropdown(false);
   }
 
-  const position = useRef(getScrollPosition());
-  console.log("position: ", position.current.y);
+  useScrollPosition(({ prevPos, currPos }) => {
+    const isShow = currPos.y > prevPos.y
+    if (isShow !== hideOnScroll) setHideOnScroll(isShow)
+  }, [hideOnScroll])
 
 
   return (
     <S.Header>
-      <S.HeaderWrapper>
+      <S.HeaderWrapper show={hideOnScroll}>
         <S.TitleColumn>
           <li><S.Link href="/">Jangwonik</S.Link></li>
         </S.TitleColumn>
+        <S.MobileIcon onClick={toggle}>
+          <FaBars />
+        </S.MobileIcon>
         <S.LinkColumn onMouseOver={menuMouseOver} onMouseLeave={menuMouseLeave}>
-          {dropdown && <Dropdown />}
+          {dropdown && <Dropdown show={dropdown} />}
+
           <S.LinkItem>
             <S.Link href="https://github.com/dhslrl321">Github</S.Link>
           </S.LinkItem>

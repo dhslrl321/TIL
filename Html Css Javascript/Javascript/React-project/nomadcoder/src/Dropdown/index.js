@@ -1,41 +1,45 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import * as S from "./styles";
 
-const Dropdown = () => {
+const Dropdown = ({ show }) => {
 
+  const [test, setTest] = useState(false);
+  useEffect(() => {
+    if (show) setTest(true);
+  }, [])
   return (
-    <S.Container>
+    <S.Container show={test}>
       <S.NavColumn>
         <S.NavItem>
-          <S.Link href="#">project</S.Link>
+          <S.Link href="#">커리큘럼</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">readme</S.Link>
+          <S.Link href="#">졸업 후 진로</S.Link>
+        </S.NavItem>
+        <S.NavItem>
+          <S.Link href="#">선배의 인터뷰</S.Link>
         </S.NavItem>
       </S.NavColumn>
       <S.NavColumn>
         <S.NavItem>
-          <S.Link href="#">Java</S.Link>
+          <S.Link href="#">CTF</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">Python</S.Link>
+          <S.Link href="#">세미나</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">Algorithm</S.Link>
-        </S.NavItem>
-        <S.NavItem>
-          <S.Link href="#">Category</S.Link>
+          <S.Link href="#">컨퍼런스</S.Link>
         </S.NavItem>
       </S.NavColumn>
       <S.NavColumn>
         <S.NavItem>
-          <S.Link href="#">코드 윗 미</S.Link>
+          <S.Link href="#">교수진</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">Description</S.Link>
+          <S.Link href="#">랩실</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">Tech</S.Link>
+          <S.Link href="#">소모임</S.Link>
         </S.NavItem>
       </S.NavColumn>
     </S.Container>
