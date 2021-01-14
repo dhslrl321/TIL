@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import Router from "Components/Router";
-import GlobalStyles from "Components/GlobalStyles";
-
+import "./app.css";
+import Navbar from "./Navbar";
+import Main from './Main';
 class App extends Component {
   render() {
     return (
       <>
-        <GlobalStyles />
-
+        <Navbar />
+        <Main />
       </>
     );
   }
