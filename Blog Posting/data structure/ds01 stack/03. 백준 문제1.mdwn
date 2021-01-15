@@ -1,0 +1,76 @@
+# 문제
+
+> 해당 포스팅은 백준의 [백준 번 문제 링크](https://www.acmicpc.net/problem/3986) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25294007) 에서 확인 가능합니다.
+
+문제
+
+# 예제 입력 & 출력
+
+# 해결법
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지와 **어떤 트릭을 피애햐 할지**를 생각해보는 **오답 후보**를 나눠 생각해보자.
+
+### 접근법
+
+우선 해당 문제는 **스택**을 이용해서 해결할 수 있다.
+**ABAB**라는 문자를 구분하려면 A와 B가 서로 같고, AA와 BB가 서로 같다.
+하지만 A와 A를 아치형으로 선을 만들고 B와 B를 아치형으로 선을 만들면 서로 겹치는 부분이 존재하므로 오답이다.
+하지만 **AABB**를 생각해보자.
+A와 A를 아치형으로 선을 만들고 B와 B를 아치형으로 선을 만들면 서로 겹치는 부분이 없으므로 정답이 된다.
+
+이런 해결법을 **스택과 연관지어 생각해보자**
+스택에 첫 번째 인덱스를 push 하고 그 다음 인덱스를 **남은 스택의 원소**와 비교해서 같으면 pop를 하는 식으로 문자열의 모든 문자를 검사한다.
+
+### 오답 후보
+
+1. 문자열 검증이 끝났는데, stack이 비어있지 않은 경우
+
+해당 문제의 오답 후보는 하나다.
+**괄호 문제** 처럼 문자열들을 괄호라고 생각하면 쉽다.
+괄호 문제와 접근 방법과 로직이 비슷하다.
+
+### 정답 코드
+
+```
+import java.util.Scanner;
+import java.util.Stack;
+
+public class Main {
+  public static void main(String[] args) {
+
+    int answer = 0;
+
+    Scanner input = new Scanner(System.in);
+    int n = input.nextInt();
+    String[] words = new String[n];
+    for(int i = 0; i < n; i++) {
+      words[i] = input.next();
+    }
+
+    for(String word : words) {
+      Stack<Character> stack = new Stack<>();
+      check(stack, word);
+
+      if(stack.isEmpty()) answer++;
+    }
+    System.out.println(answer);
+  }
+
+  // stack과 비교하는 메서드
+  private static void check(Stack<Character> stack, String word) {
+    stack.push(word.charAt(0)); // 첫 번째 문자는 바로 stack에 추가시킨다.
+
+    /* 2번째 문자부터 스택이 비어있지 않는 선에서 반복을 돌며 pop과 push를 반복*/
+    for(int i = 1; i < word.length(); i++) {
+      if(!stack.isEmpty() && stack.peek() == word.charAt(i)){
+        stack.pop();
+        continue;
+      }
+      stack.push(word.charAt(i));
+    }
+  }
+}
+```
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25294007) 에서 확인 가능합니다.
