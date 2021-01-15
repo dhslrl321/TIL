@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import { theme } from 'styled-tools';
 
+export const Root = styled.div`
+  ${theme("shortcuts.flexCenter")};
+`;
 export const Container = styled.div`
   ${theme("shortcuts.flexCenterColumn")};
   width: 100%;
@@ -8,9 +11,7 @@ export const Container = styled.div`
 `;
 export const LectureWrapper = styled.div`
   ${theme("shortcuts.flexCenter")};
-  flex-direction: row;
   flex-wrap: wrap;
-  
 `;
 export const LectureWrap = styled.div`
   margin: 10px;
