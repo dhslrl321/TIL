@@ -15,5 +15,6 @@ const Template = (args) => <SectionHeader {...args} />
 
 export const Rendering = Template.bind({});
 Rendering.args = {
-  data
+  title: "타이틀",
+  description: "desc"
 }

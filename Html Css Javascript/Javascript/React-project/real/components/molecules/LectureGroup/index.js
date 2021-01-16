@@ -12,7 +12,6 @@ const LectureGroup = ({ data }) => {
           </S.TitleWrap>
           {data.lectures.map(lecture => (
             <S.LectureWrap>
-
               <LectureCard id={lecture.id} data={lecture} />
             </S.LectureWrap>
           ))}

@@ -34,6 +34,7 @@ export const data = {
         { id: 2, title: "데이터베이스 보안", description: "대량의 자료를 저장하는 데이터베이스의 핵심은 보안입니다. 해커로부터 안전하게 사용자의 데이터를 저장하기 위한 방법에 대해서 학습합니다.", src: "/lecture/linux_icon.svg" },
         { id: 3, title: "운영체제 보안", description: "대량의 자료를 저장하는 데이터베이스의 핵심은 보안입니다. 해커로부터 안전하게 사용자의 데이터를 저장하기 위한 방법에 대해서 학습합니다.", src: "/lecture/ai.svg" },
         { id: 4, title: "시스템 보안", description: "시스템 권한이 없는 사용자로부터 시스템을 보호하는 중요한 분야입니다.", src: "/lecture/html_icon.svg" },
+
       ]
     },
     {

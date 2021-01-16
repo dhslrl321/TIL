@@ -3,6 +3,7 @@ import { ThemeProvider } from 'styled-components';
 import { MINIMAL_VIEWPORTS } from "@storybook/addon-viewport";
 import theme from "./theme";
 import Reset from "./reset";
+
 export const decorators = [
   (Story) => (
     <>

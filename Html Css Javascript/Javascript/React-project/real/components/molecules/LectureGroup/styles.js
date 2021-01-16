@@ -7,16 +7,25 @@ export const Root = styled.div`
 export const Container = styled.div`
   ${theme("shortcuts.flexCenterColumn")};
   width: 100%;
-  max-width: 1100px;
+  max-width: 960px;
+  /* max-width: 1100px; */
 `;
 export const LectureWrapper = styled.div`
   ${theme("shortcuts.flexCenter")};
+  justify-content: center;
   flex-wrap: wrap;
+  position: relative;
+  margin: 50px;
+  @media screen and (max-width: 768px){
+    flex-direction: column;
+  }
 `;
 export const LectureWrap = styled.div`
   margin: 10px;
 `;
 
 export const TitleWrap = styled.div`
-  width: 100%;
+  position: absolute;
+  top: -25px;
+  left: 10px;
 `;

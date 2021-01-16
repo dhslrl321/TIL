@@ -6,15 +6,11 @@ export const Container = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  width: 450px;
+  width: 100%;
   height: 70px;
   background: ${theme("palettes.cardBg")};
   border-radius: 10px;
-  
   ${down("md")} {
-    width: 100%;
-  }
-  ${down("sm")} {
     width: 100%;
   }
 `;

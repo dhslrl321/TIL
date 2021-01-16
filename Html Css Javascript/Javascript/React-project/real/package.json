@@ -10,10 +10,13 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
+    "@n8tb1t/use-scroll-position": "^2.0.3",
     "@types/node": "^14.14.20",
     "next": "10.0.5",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "react-icon": "^1.0.0",
+    "react-icons": "^4.1.0",
     "styled-breakpoints": "^9.0.8",
     "styled-components": "^5.2.1",
     "styled-reset": "^4.3.4",
