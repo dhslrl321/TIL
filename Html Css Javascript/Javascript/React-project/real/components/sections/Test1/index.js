@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components';
-
+import { Element } from "react-scroll";
 const Container = styled.div`
   height: 100vh;
   display: flex;
@@ -8,12 +8,14 @@ const Container = styled.div`
   align-items: center;
   font-size: 2rem;
 `;
-const TestSection01 = ({ children }) => {
+const TestSection = ({ children, name }) => {
   return (
-    <Container>
-      {children}
-    </Container>
+    <Element name={name}>
+      <Container>
+        {children}
+      </Container>
+    </Element>
   )
 }
 
-export default TestSection01
+export default TestSection

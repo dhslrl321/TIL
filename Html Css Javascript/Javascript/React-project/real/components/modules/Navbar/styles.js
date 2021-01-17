@@ -53,7 +53,8 @@ export const LinkColumn = styled.div`
   display: flex;
   justify-content: flex-end;
   position: relative;
-  padding: 20px 0;
+  
+
   @media screen and (max-width: 768px) {
     display: none;
   }
@@ -61,10 +62,10 @@ export const LinkColumn = styled.div`
 `;
 
 export const LinkItem = styled.li`
-  margin: 20px;
-  transition: all 0.5s ease;
-  :hover{
-    color: #3C59FD;
+  margin: 0 20px;
+  padding: 30px 10px;
+  :active{
+    border-bottom: 3px solid #3C59FD;
   }
 `;
 

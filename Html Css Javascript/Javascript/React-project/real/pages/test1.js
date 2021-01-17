@@ -1,13 +1,13 @@
 import React from 'react'
 import Navbar from "../components/modules/Navbar";
-import Section1 from "../components/sections/Test1";
+import TestSection from "../components/sections/Test1";
 const test1 = () => {
   return (
     <div>
       <Navbar toggle={false} />
-      <Section1 id="section1">Section01</Section1>
-      <Section1 id="section2">Section02</Section1>
-      <Section1 id="section3">Section03</Section1>
+      <TestSection name="section1">section 1</TestSection>
+      <TestSection name="section2">section 2</TestSection>
+      <TestSection name="section3">section 3</TestSection>
     </div>
   )
 }
