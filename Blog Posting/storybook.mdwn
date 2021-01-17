@@ -12,23 +12,40 @@
 ---
 
 - Navbar
+- Dropbox
 - Sidebar
 - Footer
+- Curriculum
+- 3
+
+- Home
+- Merit (Activities, 소모임) **재웅**
+- Qualification (CTF) **원익**
+- Timeline
+
+- Suggestion **원익**
+- Carrer (Laboratory) **원익**
+- Interview **재웅**
+- InterviewDetail **재웅**
+- Professor **재웅**
 
 # Sections
 
+- 12개
+
 - Home
-- Merit
-- Qualification
+- Merit (Activities, 소모임)
+- Qualification (CTF)
 - Timeline
 - Curriculum
-- Sugge
-- Interview
+- Suggestion
+- Interview (Laboratory)
 - InterviewDetail
 - CTF
 - Activities
 - Professor
 - Laboratory
+- 소모임
 
 # Pages
 

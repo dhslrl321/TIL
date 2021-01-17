@@ -5,22 +5,22 @@ const defaultStyle = css`
   
 `;
 
-export const FirstLabel = styled.span`
+export const PrimaryLabel = styled.span`
   ${defaultStyle};
-  font-size: ${theme("fontSize.FirstLabel")};
+  font-size: ${theme("fontSize.PrimaryLabel")};
 `;
 
-export const SecondLabel = styled.span`
+export const SecondaryLabel = styled.span`
   ${defaultStyle};
-  font-size: ${theme("fontSize.SecondLabel")};
+  font-size: ${theme("fontSize.SecondaryLabel")};
 `;
 
-export const ThirdLabel = styled.span`
+export const PrimaryDescription = styled.p`
   ${defaultStyle};
-  font-size: ${theme("fontSize.ThirdLabel")};
+  font-size: ${theme("fontSize.PrimaryDescription")};
 `;
 
-export const FourthLabel = styled.span`
+export const SecondaryDescription = styled.p`
   ${defaultStyle};
-  font-size: ${theme("fontSize.FourthLabel")};
+  font-size: ${theme("fontSize.SecondaryDescription")};
 `;

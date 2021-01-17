@@ -22,13 +22,13 @@ const Dropdown = ({ show }) => {
       </S.NavColumn>
       <S.NavColumn>
         <S.NavItem>
-          <S.Link href="#">CTF</S.Link>
+          <S.Link href="#section1">CTF</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">세미나</S.Link>
+          <S.Link href="#section2">세미나</S.Link>
         </S.NavItem>
         <S.NavItem>
-          <S.Link href="#">컨퍼런스</S.Link>
+          <S.Link href="#section3">컨퍼런스</S.Link>
         </S.NavItem>
       </S.NavColumn>
       <S.NavColumn>

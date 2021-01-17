@@ -15,8 +15,9 @@ export const LectureWrapper = styled.div`
   justify-content: center;
   flex-wrap: wrap;
   position: relative;
-  margin: 50px;
+  margin: 50px 0;
   @media screen and (max-width: 768px){
+    flex-wrap: nowrap;
     flex-direction: column;
   }
 `;

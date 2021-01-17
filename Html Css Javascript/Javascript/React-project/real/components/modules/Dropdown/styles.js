@@ -12,6 +12,7 @@ export const Container = styled.div`
   opacity: ${({ show }) => show ? "1" : "0"};
   width: 350px;
   left: 1px;
+  z-index: 1;
 `;
 
 export const NavColumn = styled.div`

@@ -1,14 +1,14 @@
 import React from 'react'
 import * as S from "./styles";
 import NextLink from "next/link";
-const Link = ({ styleType, href, children }) => {
+import { Link } from "react-scroll";
+const Link = ({ styleType, children, href, to }) => {
   const props = {
-    styleType,
     href
   }
-  if (styleType === "NextLink") return <NextLink {...props}><S.NextLink>{children}</S.NextLink></NextLink>
-  else if (styleType === "Anchor") return <S.Anchor {...props}>{children}</S.Anchor>
-  else return <> </>
+  if (styleType === "NextLink") return <NextLink href={href}><S.NextLink>{children}</S.NextLink></NextLink>;
+  else if (styleType === "Anchor") return <S.Anchor href={href}>{children}</S.Anchor>
+  else return <></>
 
 }
 

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { theme } from 'styled-tools';
-
+import MyLink from "next/link";
 export const Styles = css`
   font-size: ${theme("fontSizes.FirstLabel")};
   font-weight: bold;

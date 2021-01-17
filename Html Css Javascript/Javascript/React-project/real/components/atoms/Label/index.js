@@ -6,14 +6,14 @@ const Label = ({ children, styleType }) => {
     styleType,
   }
 
-  if (styleType === "FirstLabel") {
-    return <S.FirstLabel {...props}>{children}</S.FirstLabel>;
-  } else if (styleType === "SecondLabel") {
-    return <S.SecondLabel {...props}>{children}</S.SecondLabel>;
-  } else if (styleType === "ThirdLabel") {
-    return <S.ThirdLabel {...props}>{children}</S.ThirdLabel>;
-  } else if (styleType === "FourthLabel") {
-    return <S.FourthLabel {...props}>{children}</S.FourthLabel>;
+  if (styleType === "PrimaryLabel") {
+    return <S.PrimaryLabel {...props}>{children}</S.PrimaryLabel>;
+  } else if (styleType === "SecondaryLabel") {
+    return <S.SecondaryLabel {...props}>{children}</S.SecondaryLabel>;
+  } else if (styleType === "PrimaryDescription") {
+    return <S.PrimaryDescription {...props}>{children}</S.PrimaryDescription>;
+  } else if (styleType === "SecondaryDescription") {
+    return <S.SecondaryDescription {...props}>{children}</S.SecondaryDescription>;
   } else {
     return (<></>);
   }

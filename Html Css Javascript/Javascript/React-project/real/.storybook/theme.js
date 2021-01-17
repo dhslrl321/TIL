@@ -1,15 +1,18 @@
 const theme = {
+  breakpoints: {
+    sm: '480px', // 모바일
+    md: '768px', // I Pad (태블릿)
+    lg: '1024px', // I Pad Pro (13inch 노트북)
+    xl: '1200px',
+  },
   fontSize: {
     MainTitle: "2rem;",
     SubTitle: "1.5rem;",
 
-    FirstLabel: "0.9rem;",
-    SecondLabel: "0.8rem;",
-    ThirdLabel: "0.7rem;",
-    FourthLabel: "0.6rem;",
-
-    PrimaryDesc: "0.8rem;",
-    SecondaryDesc: "0.6rem;"
+    PrimaryLabel: "0.9rem;",
+    SecondaryLabel: "0.8rem;",
+    PrimaryDescription: "0.7rem;",
+    SecondaryDescription: "0.6rem;"
   },
   shortcuts: {
     flexCenter: `

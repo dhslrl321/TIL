@@ -6,8 +6,8 @@ export const Container = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  width: 100%;
-  height: 70px;
+  width: 450px;
+  height: 75px;
   background: ${theme("palettes.cardBg")};
   border-radius: 10px;
   ${down("md")} {
@@ -19,7 +19,7 @@ export const IconColumn = styled.div`
   ${theme("shortcuts.flexCenter")};
   margin-left: 20px;
 
-  ${down("sm")} {
+  ${down("md")} {
     margin-left: 15px;
   }
 `;
@@ -32,10 +32,6 @@ export const TextColumn = styled.div`
     margin-left: 10px; 
   }
 
-  ${down("md")} {
-    
-  }
-  
   span:first-child {
     margin-bottom: 15px;
     font-weight: bolder;

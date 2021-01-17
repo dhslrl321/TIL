@@ -2,7 +2,6 @@ import React from 'react'
 import * as S from "./styles";
 import Image from '../../atoms/Image';
 import Label from '../../atoms/Label';
-import Description from '../../atoms/Description';
 
 const LectureCard = ({ data }) => {
   const { title, description, src } = data;
@@ -12,8 +11,8 @@ const LectureCard = ({ data }) => {
         <Image styleType="Icon" src={src} />
       </S.IconColumn>
       <S.TextColumn>
-        <Label styleType="FirstLabel">{title}</Label>
-        <Description styleType="SecondaryDescription">{description}</Description>
+        <Label styleType="SecondaryLabel">{title}</Label>
+        <Label styleType="SecondaryDescription">{description}</Label>
       </S.TextColumn>
     </S.Container>
   )
