@@ -1,6 +1,6 @@
 # 문제
 
-> 해당 포스팅은 백준의 [백준 번 문제 링크](https://www.acmicpc.net/problem/3986) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 해당 포스팅은 백준의 [백준 3986번 문제 링크](https://www.acmicpc.net/problem/3986) 의 접근과 해결 방법을 설명한 글 입니다.  
 > 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25294007) 에서 확인 가능합니다.
 
 문제

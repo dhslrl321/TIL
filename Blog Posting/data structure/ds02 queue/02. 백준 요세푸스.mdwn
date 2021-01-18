@@ -1,0 +1,56 @@
+# 문제
+
+> 해당 포스팅은 백준의 [11866번 요세푸스 문제](https://www.acmicpc.net/problem/11866) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25393817) 에서 확인 가능합니다.
+
+문제
+
+# 예제 입력 & 출력
+
+# 해결법
+
+이 문제는 Queue 컬렉션을 **원형 큐**처럼 만들면 쉽게 해결할 수 있다.
+
+### 접근법
+
+- n개의 입력이 들어오면 1 ~ n 까지 queue에 push해준다.
+- queue의 size 만큼 반복하며 k번째 인덱스를 dequeue한다.
+- 만약 k번째 인덱스가 아닐 경우 다시 queue에 enqueue해 원형 큐로 만든다.
+
+### 정답 코드
+
+```java
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+
+        int n = input.nextInt();
+        int k = input.nextInt();
+        Queue<Integer> queue = new LinkedList<>();
+
+        for (int i = 0; i < n; i++) {
+            queue.add(i+1);
+        }
+        System.out.print("<");
+        while(n-- > 0) {
+            for (int i = 0; i < k; i++) {
+                if(i == k-1) {
+                    if(n == 0) System.out.print(queue.poll());
+                    else System.out.print(queue.poll() + ", ");
+                }else {
+                    queue.add(queue.poll());
+                }
+            }
+        }
+        System.out.print(">");
+    }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25393817) 에서 확인 가능합니다.

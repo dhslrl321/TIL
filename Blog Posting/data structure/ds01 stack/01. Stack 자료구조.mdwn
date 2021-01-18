@@ -34,7 +34,7 @@ FILO First In Last Out 구조
 
 algorithm -> src -> datastructure -> MyStack
 
-```
+```java
 class MyStack {
     int[] stack;
     int MAX_STACK_SIZE;
@@ -84,6 +84,11 @@ class MyStack {
 }
 ```
 
-# 스택을 이용한 문제 풀이
+## 연결 리스트를 이용한 스택
 
-1. 수식 내의 괄호 유효성 검사
+이렇게만 해서 스택을 구현한다는 것은 아주 많이 모자라다.
+그 이유는 바로 **크기**이다.
+
+크기를 넉넉하게 잡으면 그만큼 메모리의 낭비가 심해질 수도 있고, 적게 잡는다면 답답한 크기로 인해 짜증을 유발할 수 있다.
+
+이를 해결할 수 있는 방법이 바로 연결 리스트를 활용한 스택 이다.

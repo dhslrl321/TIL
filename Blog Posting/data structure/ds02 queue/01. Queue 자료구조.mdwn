@@ -1,0 +1,266 @@
+# Queue
+
+처음 데이터가 가장 아래 쌓이는 **스택**과 달리, 큐는 처음 들어온 데이터가 가장 처음 나가는 FIFO 구조이다.
+
+## Queue의 구조
+
+- `enqueue()` : 주어진 요소를 큐에 추가
+- `dequeue()` : 큐의 가장 첫 부분 원소를 삭제와 함께 반환
+- `peek()` : 큐의 가장 첫 부분 원소를 삭제 없이 반환
+- `isEmpty()` : 큐가 가득 차 있으면 True
+- `isFull()` : 큐가 비어있으면 False
+- `size()` : 큐의 크기를 반환 (요소 수)
+
+## Queue의 활용
+
+- 키보드와 컴퓨터 사이의 입력 버퍼 (컴퓨터가 다른 작업을 하더라도 입력된 키 정보를 잃어버리지 않게 하기 위함)
+- 빠른 컴퓨터의 CPU와 느린 프린터 사이의 인쇄 작업 사이(CPU가 인쇄 데이터를 미리 만들어 프린터를 기다릴 필요가 없게)
+- 비디오 스트리밍에서 비디오를 스트리밍하기 충분하지 않은 데이터를 저장하였다가 충분해 졌을 때 스트리밍 시작
+
+## Queue 구현
+
+3가지 방법이 존재
+
+1. 선형 큐
+2. 원형 큐
+3. 연결 리스트로 구현한 큐
+
+## 선형 큐
+
+선형 큐는 배열로 구현을 한다.
+
+- `front` : 삭제를 위한 포인터
+- `rear` : 데이터 추가를 위한 포인터.
+
+```
+class MyLinearQueue {
+    private int[] queue;
+    private int MAX_QUEUE_SIZE;
+    private int front;
+    private int rear;
+
+    MyLinearQueue(int size) {
+        front = 0;
+        rear = 0;
+        MAX_QUEUE_SIZE = size;
+        queue = new int[MAX_QUEUE_SIZE];
+    }
+
+    boolean isEmpty() {
+        return front == rear;
+    }
+
+    boolean isFull() {
+        return rear == MAX_QUEUE_SIZE;
+    }
+
+    void enqueue(int x) {
+        if(isFull()) MyException();
+        else queue[rear++] = x;
+    }
+
+    int dequeue() {
+        if(isEmpty()) {
+            MyException();
+            return -1;
+        }
+        else return queue[front++];
+    }
+    void print() {
+        System.out.println(Arrays.toString(queue));
+    }
+    void MyException() {
+        System.out.println("Exception detected");
+    }
+}
+```
+
+위와 같이 선형 큐는 간단하게 구현될 수 있다.
+하지만 아주 크리티컬한 문제가 발생한다.
+front와 rear 값이 계속 **증가만 한다는 것**이다.
+즉, size가 3인 큐에 삽입과 삭제를 3번만 번갈아가며 수행해도 front나 rear가 **배열의 끝에 도달**하고, 배열 앞부분이 비어있더라도 더 이상 삽입하지 못하는 상황이 발생할 수 있다.
+
+그래서 이를 해결하려면 shift 연산을 통해서 모든 원소를 왼쪽으로 옮겨줘야 한다.
+만약 shift 연산에 대해서 아직 헷갈리거나 궁금한 사람은 [자바로 알고리즘에서 자주 사용되는 배열 shift 구현하기](https://wonit.tistory.com/373?category=750230) 에서 확인할 수 있다.
+
+```java
+import java.util.Arrays;
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        MyLinearQueue queue = new MyLinearQueue(4);
+        Scanner input = new Scanner(System.in);
+
+
+        while (true) {
+            System.out.print("Select Menu: 1: enqueue 2: dequeue 0: exit \n");
+            int n = input.nextInt();
+            if(n == 1) {
+                System.out.print("enqueue num: ");
+                int en = input.nextInt();
+                System.out.println();
+                queue.enqueue(en);
+                queue.print();
+            }else if(n == 2) {
+                System.out.print("dequeue num: " + queue.dequeue());
+                System.out.println();
+                queue.print();
+            }else if( n == 0) break;
+            else System.out.println("Again");
+        }
+
+    }
+}
+
+class MyLinearQueue {
+    private int[] queue;
+    private int MAX_QUEUE_SIZE;
+    private int front;
+    private int rear;
+
+    MyLinearQueue(int size) {
+        front = 0;
+        rear = 0;
+        MAX_QUEUE_SIZE = size;
+        queue = new int[MAX_QUEUE_SIZE];
+    }
+
+    boolean isEmpty() {
+        return front == rear;
+    }
+
+    boolean isFull() {
+        return rear == MAX_QUEUE_SIZE && front == 0;
+    }
+
+    void enqueue(int x) {
+        if(isFull()) MyException();
+        else queue[rear++] = x;
+    }
+
+    int dequeue() {
+        if(isEmpty()) {
+            MyException();
+            return -1;
+        }
+        int ret = queue[front];
+        queue[front++] = 0;
+        shift();
+        return ret;
+    }
+
+    void shift() {
+        reverse(queue, 1, rear);
+        reverse(queue, 0, rear);
+        rear -= 1;
+        front = 0;
+    }
+    void reverse(int[] arr, int start, int end) {
+        while(start < end) {
+            swap(arr, start, end);
+            start++;
+            end--;
+        }
+    }
+
+    void swap(int[] arr, int idx1, int idx2) {
+        int temp = arr[idx1];
+        arr[idx1] = arr[idx2];
+        arr[idx2] = temp;
+    }
+    void print() {
+        System.out.println("front 의 위치 : " + front);
+        System.out.println("rear 의 위치 : " + rear);
+        System.out.println(Arrays.toString(queue));
+    }
+    void MyException() {
+        System.out.println("Exception detected");
+    }
+}
+```
+
+하지만 이렇게 구현하는 방법의 시간 복잡도를 따져보면 `enqueue` 에는 단지 배열에 삽입만 하기 때문에 `O(1)` 시간이 소요지만 `dequeue`에는 배열을 돌면서 shift 연산을 수행하므로 `O(n)` 의 시간이 걸리게 된다.
+
+그래서 이를 해결하기 위해서 나온 방법이 바로 **원형 큐**이다.
+
+## 원형 큐
+
+원형 큐는 rear가 지정한 size보다 커지면 다시 0번째 인덱스를 가리키게 하는 방식의 큐이다.
+이런 원형 큐에는 한가지 특성이 있다.
+
+**한 자리는 무조건 비워놔야 한다.**
+
+이유는 **포화 상태**와 **공백 상태**를 구분하기 위해서 이다.
+
+- 공백 상태 : empty 한 상태 front == rear
+- 포화 상태 : full 한 상태 front가 rear 바로 하나 앞에
+
+#### 포화 상태
+
+```java
+boolean isEmpty() {
+    if(front == rear) return true;
+    else return false;
+}
+```
+
+#### 공백 생태
+
+```java
+boolean isFull() {
+    if(front == (rear + 1) % MAX_QUEUE_SIZE) return true;
+    else return false;
+}
+```
+
+포화 상태와 공백 상태를 정의하고 앞으로의 큐 연산에서 이를 활용하면 아주 깔끔하게 사용할 수 있다.
+
+```java
+class MyCircularQueue {
+    private int MAX_QUEUE_SIZE;
+    private int front;
+    private int rear;
+    int[] queue;
+    MyCircularQueue(int size) {
+        MAX_QUEUE_SIZE = size;
+        queue = new int[MAX_QUEUE_SIZE];
+    }
+
+    boolean isEmpty() {
+        return front == rear;
+    }
+
+    boolean isFull() {
+        return front == (rear + 1) % MAX_QUEUE_SIZE;
+    }
+
+    void enqueue(int x) {
+        if(isFull()) {
+            System.out.println("Queue is Full");
+        }else {
+            queue[rear++] = x;
+        }
+    }
+
+    int dequeue() {
+        if(isEmpty()) {
+            System.out.println("Queue is Empty");
+            return -1;
+        }else {
+            return queue[front];
+        }
+    }
+}
+```
+
+## 연결 리스트를 이용한 큐
+
+아무리 원형 큐로 연산을 줄였다고는 해도 근본적인 문제는 해결되지 않았다.
+
+바로 **크기**.
+크기를 넉넉하게 잡으면 그만큼 메모리의 낭비가 심해질 수도 있고, 적게 잡는다면 답답한 크기로 인해 짜증을 유발할 수 있다.
+
+이를 해결할 수 있는 방법이 바로 연결 리스트를 활용한 큐 이다.
+
+이는 연결 리스트에서 계속하겠다.

@@ -4,4 +4,6 @@
   - 문제
     1. 괄호 검사
     2. [백준 3986](https://www.acmicpc.net/problem/3986) 좋은 단어 [문제 풀이](https://wonit.tistory.com/375)
+    3. [백준 1874](https://www.acmicpc.net/problem/1874) 스택 수열 [문제 풀이](https://www.acmicpc.net/source/25385018)
 - 큐 이론
+  - 1. [백준 11866](https://www.acmicpc.net/problem/11866) 요세푸스 문제 0 [문제 풀이](https://wonit.tistory.com/377)
