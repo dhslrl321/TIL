@@ -79,3 +79,112 @@ select name from usertb where addr in('경남', '전남', '경북');
 ```
 
 ## LIKE
+
+name에 김씨를 찾으려면 LIKE와 같은 문자열 검색 연산자를 이용한다.
+2가지 Like 연산자의 키워드가 있다.
+
+- 무엇이든 허용 `%`;
+- 한 글자와 매칭 `_`;
+
+```sql
+select name from usertb1 where name like "김%";
+```
+
+이렇게 되면 김으로 시작되는 모든 문자열을 검색한다.
+이름은 물론이고 **김은 참 맛있네요**라는 문자열도 김으로 시작하므로 검색된다.
+
+```sql
+select name from usertb1 where name like "김__";
+```
+
+`_`는 한 문자와 매칭된다.
+그래서 위의 sql문은 김OO인 사람은 모두가 검색되지만 **김은 참 맛있네요**처럼 조건에 맞지 않는 문자열은 검색되지 않는다.
+
+## 서브 쿼리
+
+서브 쿼리는 **쿼리문 안에 쿼리문**을 작성하는 것을 뜻한다.
+예를 들어서 우리는 김경호라는 사람보다 키가 큰 사람들 모두를 찾고싶다.
+그럼 직접 김경호의 키를 확인한 뒤 쿼리문을 다음과 같이 작성해야한다.
+
+```sql
+# 우선 김경호의 키를 찾자.
+select height from usertb1 where name = '김경호';
+
+# 김경호의 키를 찾았으니 해당 키보다 더 큰 사람들을 찾자.
+select name, height from usertb1 where height > '172';
+```
+
+이렇게 2번 쿼리문을 사용해야만 한다.
+하지만 이것을 서브쿼리문을 이용한다면 쉽게 줄일 수 있다.
+
+```sql
+select name, height from usertb1 where height > (
+	select height from usertb1 where name = '김경호');
+```
+
+하지만 이런 서브쿼리에도 제약사항이 존재한다.
+
+**서브쿼리는 하나의 값만 반환해야한다.**
+
+이런 서브쿼리 제약을 유연하게 사용하는 방법이 바로 **ANY/ALL/SOME**이다.
+
+## 서브 쿼리와 **ANY/ALL/SOME**
+
+### ANY
+
+ANY는 조건 a나 b중 하나만 적용되면 되는 **OR**과 같은 성격을 갖는다.
+추가적으로 SOME도 ANY와 동일하게 사용된다.
+
+### ALL
+
+조건 하나만 적용되는 ANY와는 다르게 ALL은 모두 포함되어야 하는 **AND** 성격을 지닌다.
+
+# ORDER BY
+
+SELECT와 마찬가지로 DB에 직접적으로 영향을 미치지 않지만 결과가 출력되는 **순서**를 조절하는 구문이다.
+
+- `select .. from .. order by ..` 특정 조건을 오름차순으로 출력
+- `select .. from .. order by .. desc` 특정 조건을 내림차순으로 출력
+
+```sql
+select * from usertb1 order by height desc;
+```
+
+위와 같이 사용할 수 있다.
+
+order by를 **select, from, where, group by**와 사용할 때는 항상 제일 뒤에 위치해야한다.
+
+order by는 어려운 내용이 아니므로 이쯤하고 넘어가자.
+
+# DISTINCT
+
+중복된 것들을 제거하는 명령어가 바로 DISTINCT이다.
+
+```sql
+select distinct addr from usertb1;
+```
+
+# LIMIT
+
+출력하는 개수를 제한하는 쿼리문이 바로 LIMIT이다.
+예를 들어 아까 배웠던 order by로 입사일이 가장 오래된 사람순으로 정렬을 했다고 해보자.
+
+```sql
+select name, mdate from usertb1 order by mdate;
+```
+
+에서 상위 4명만 보고싶다면
+
+```sql
+select name, mdate from usertb1 order by mdate limit 5;
+```
+
+로 지정할 수 있다.
+
+혹은 offset을 직접지정할 수 있는데, 아래와 같이 수행하면 3번째에서 그 다음 5번째만 출력하게 한다.
+
+```sql
+select name, mdate from usertb1 order by mdate limit 3, 5;
+```
+
+이런 LIMIT를 이용하면 DBMS의 성능을 향상시킬 수 있다.
