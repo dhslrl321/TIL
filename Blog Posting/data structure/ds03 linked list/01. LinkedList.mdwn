@@ -173,3 +173,95 @@ class ListStacak {
     }
 }
 ```
+
+# 연결 리스트로 구현한 큐
+
+연결 리스트를 이용한 큐도 역시 Node 필드가 존재하기 때문에 필요한 메모리만 사용한다는 장점과 동시에 Node필드가 추가적인 메모리 공간을 필요로 한다는 점이 있다.
+연결 리스트를 이용한 큐를 연결된 큐 (Linked Queue)라고 부른다.
+
+연결 리스트를 사용하는 개념 자체는 스택과 비슷하다.
+스택에서는 top이 다음 노드를 가리키는 포인터 역할을 수행했듯 front와 rear가 그 역할을 수행한다.
+
+- **front** 는 큐에 가장 먼저 삽입된 노드 가리킴
+- **rear** 는 큐에 가장 나중에 삽입된 노드를 가리킴
+
+```java
+class Node {
+  private int data;
+  private Node link;
+
+  Node(Node link, int data) {
+    this.data = data;
+    this.link = link;
+  }
+
+  int getData() {
+    return data;
+  }
+
+  Node getNode() {
+    return link;
+  }
+}
+
+class LinkedQueue {
+  private Node front;
+  private Node rear;
+
+  LinkedQueue() {
+    front = rear = null;
+
+  }
+}
+```
+
+## 공백 상태
+
+공백 상태는 큐에서 말 하는 `isEmpty()`이다.
+이와 반대로 포화 상태가 있는데, 연결 리스트로 구현한 스택과 마찬가지로 연결된 큐에서는 포화 상태, 즉 `isFull()`이 존재하지 않는다.
+
+```java
+boolean isEmpty() {
+  return front == rear;
+}
+```
+
+## enqueue
+
+연결된 큐에서 enqueue는 2가지 경우로 나뉠 수 있다.
+
+1. 공백 상태인 경우
+2. 공백 상태가 아닌 경우
+
+### 공백 상태인 경우
+
+공백 상태에서 새로운 노드를 큐에 추가시킬 때는 front와 rear 모두 새로운 노드 p를 가리키게 하면 된다.
+
+```java
+void enqueue(int data) {
+  if(isEmpty()) {
+    Node node = new Node(null, data);
+    front = node.getNode();
+    rear = node.getNode();
+  }
+}
+```
+
+### 공백 상태가 아닌 경우
+
+공백 상태가 아닌 경우에는 front는 바뀌지 않고 rear만 변경된다.
+
+```java
+void enqueue(int data) {
+  if(!isEmpty()) {
+    Node node = new Node(null, data);
+    rear = node.getNode();
+  }
+}
+```
+
+## dequeue
+
+```java
+
+```
