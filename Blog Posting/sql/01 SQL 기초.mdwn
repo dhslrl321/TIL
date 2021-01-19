@@ -1,0 +1,10 @@
+# SELECT 문
+
+```sql
+SELECT select_expr
+  FROM table_reference
+  WHERE where_condition
+  GROUP BY column_name or expression or position
+  HAVING where_condition
+  ORDER BY column_name or expression or position
+```

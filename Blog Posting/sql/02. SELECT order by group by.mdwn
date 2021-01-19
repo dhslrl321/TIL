@@ -1,0 +1,51 @@
+# ORDER BY
+
+SELECT와 마찬가지로 DB에 직접적으로 영향을 미치지 않지만 결과가 출력되는 **순서**를 조절하는 구문이다.
+
+- `select .. from .. order by ..` 특정 조건을 오름차순으로 출력
+- `select .. from .. order by .. desc` 특정 조건을 내림차순으로 출력
+
+```sql
+select * from usertb1 order by height desc;
+```
+
+위와 같이 사용할 수 있다.
+
+order by를 **select, from, where, group by**와 사용할 때는 항상 제일 뒤에 위치해야한다.
+
+order by는 어려운 내용이 아니므로 이쯤하고 넘어가자.
+
+# DISTINCT
+
+중복된 것들을 제거하는 명령어가 바로 DISTINCT이다.
+
+```sql
+select distinct addr from usertb1;
+```
+
+# LIMIT
+
+출력하는 개수를 제한하는 쿼리문이 바로 LIMIT이다.
+예를 들어 아까 배웠던 order by로 입사일이 가장 오래된 사람순으로 정렬을 했다고 해보자.
+
+```sql
+select name, mdate from usertb1 order by mdate;
+```
+
+에서 상위 4명만 보고싶다면
+
+```sql
+select name, mdate from usertb1 order by mdate limit 5;
+```
+
+로 지정할 수 있다.
+
+혹은 offset을 직접지정할 수 있는데, 아래와 같이 수행하면 3번째에서 그 다음 5번째만 출력하게 한다.
+
+```sql
+select name, mdate from usertb1 order by mdate limit 3, 5;
+```
+
+이런 LIMIT를 이용하면 DBMS의 성능을 향상시킬 수 있다.
+
+# Group By
