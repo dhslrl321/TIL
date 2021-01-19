@@ -1,3 +1,20 @@
+# DML
+
+- 데이터 조작(선택, 삽입, 수정, 삭제)를 하는데 사용되는 언어
+- SELECT
+- INSERT
+- UPDATE
+- DELETE
+- Transaction이 발생해서 완전히 적용하지 않고 임시로 적용 (하지만 select는 transction이 발생하긴 하지만 성격이 조금 다름)
+
+# DDL
+
+- 데이터베이스, 테이블, 뷰, 인덱스 등의 DB 개체 생성/삭제/변경 언어
+- CREATE
+- DROP
+- ALTER
+- Transaction이 발생하지 않아서 Rollback이나 Commit이 없음
+
 # SELECT 문
 
 ```sql
@@ -8,3 +25,7 @@ SELECT select_expr
   HAVING where_condition
   ORDER BY column_name or expression or position
 ```
+
+1. FROM
+2. WHERE
+3. ORDER BY

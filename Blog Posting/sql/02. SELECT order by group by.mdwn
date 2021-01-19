@@ -49,3 +49,41 @@ select name, mdate from usertb1 order by mdate limit 3, 5;
 이런 LIMIT를 이용하면 DBMS의 성능을 향상시킬 수 있다.
 
 # Group By
+
+Group BY 함수는 그룹으로 묶어주는 역할을 한다.
+이렇게만 들으면 너무 추상적이라 감이 잘 안 잡힐 텐데, 다음 예제를 확인해보자.
+
+```sql
+select userId, amount from buytb1 order by userId
+```
+
+userId 순서대로 오름차순 정렬 하고 userId와 amout를 각각 출력하려 한다.
+
+여기서 각각 user마다 구매량 amout가 뜨는데 우리가 원하는 것은 한 사람이 구매한 amout의 합계를 원한다.
+
+그럴 때 **집계 함수**를 사용하는데, Group By는 이 **집계 함수를 사용하기 위해** Grouping 해주는 역할을 수행한다.
+집계 함수에 대해서 바로 다음에 설명할 것이니 걱정하지 말자.
+다시 돌아가 아까 위에서 봤던 코드를 집계 함수를 이용해서 한 사람의 모든 amount를 더해보자.
+
+```sql
+select userId, sum(amount) from buytb1 group by userId
+```
+
+추가로 여기에 AS로 alias를 줄 수 있다.
+
+```sql
+select userId as '사용자' , sum(amount) as '합계' from buytb1 group by userId
+```
+
+## 집계 함수
+
+집계 함수는 주로 계산을 위할 때 사용된다.
+집계 함수는 다양한 것들이 존재한다.
+
+- AVG : 평균
+- MIN : 최소
+- MAX : 최대
+- COUNT : 행의 개수 (중복 포함)
+- COUNT(DISTINCT) : 행의 수 (중복 제거)
+- STDEV() : 표준 편차
+- VAR_SAMP() : 분산

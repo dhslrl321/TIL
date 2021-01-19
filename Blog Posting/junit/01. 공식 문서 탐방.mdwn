@@ -1,0 +1,31 @@
+# What is Junit 5
+
+JUnit 5 = JUnit Platform + JUnit Jupiter + JUnit Vintage
+
+- JUnit Platform
+  - JVM 위에서 testing framework을 돌리게 하는 기반 모듈
+  - 플랫폼 위에서 돌아가는 모든 테스트에 대해서 TestEngine API 제공
+  - Gradle과 Maven으로 연동 가능하게 하는 콘솔 런처 제공
+- JUnit Jupiter
+  - JUnit5 기반으로 테스트 케이스를 작성하기 위한 프로그래밍 모델을 지원하는 모듈
+- JUnit Vintage
+  - JUnit3, JUni4 기반 테스트를 JUnit Platform 에서 실행시키기 위한 Test Engine API 제공
+  - 레거시를 위한듯
+
+# Annotations
+
+- `@Test`
+  - 해당 메서드가 Test 메서드임을 알림
+  - 각각의 테스트가 서로 영향을 주지 않고 독립적으로 실행됨을 원칙으로 함
+  - 재정의되기 전 까지 상속됨
+- `@Ignore`
+  - 해당 메서드는 테스트를 실행하지 않게 함
+- `@BeforeEach`
+  - `@Test` 메서드가 실행되기 전에 반드시 실행된다.
+  - JUnit 4에서는 `@Before`로 사용됨
+- `@BeforeAll`
+  - 모든 `@Test` 메서드가 실행되기 전에 반드시 실행됨
+- `@AfterEach`
+  - `@Test` 메서드가 실행된 후에 실행됨
+
+[link](https://junit.org/junit5/docs/current/user-guide/#writing-tests-annotations)
