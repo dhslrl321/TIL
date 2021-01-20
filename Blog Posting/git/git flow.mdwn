@@ -1,0 +1,14 @@
+# Gitflow
+
+- Vincent Driessen 이 블로그에 작성한 글을 통해서 퍼졌다.
+- 요즘은 Git을 이용한 프로젝트에서 표준으로 사용되곤 한다.
+
+## 5가지 branches
+
+- master : 기준이 되는 브랜치로 배포를 위한 브랜치
+- develop : 개발 브랜치로 개발자들이 해당 브랜치를 기준으로 각자 feature에서 작업한 기능을 merge
+- feature : 단위 기능을 개발하는 브랜치로 기능 개발이 완료되면 develop 브랜치에 merge
+- release : 배포를 위해서 master 브랜치로 보내기 전에 QA(품질 검사)를 위한 브랜치
+- hotfix : master 브랜치로 배포한 뒤, 버그가 생겼을 때 긴급 수정을 위한 브랜치
+
+**Gitflow 에서 핵심은 master과 develop 이며 나머지 브랜치들은 필요에 의해서 추가, 삭제될 수 있다.**
