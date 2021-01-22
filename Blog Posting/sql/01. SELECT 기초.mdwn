@@ -1,5 +1,7 @@
 # DML
 
+DML
+
 - 데이터 조작(선택, 삽입, 수정, 삭제)를 하는데 사용되는 언어
 - SELECT
 - INSERT
@@ -16,6 +18,8 @@
 - Transaction이 발생하지 않아서 Rollback이나 Commit이 없음
 
 # SELECT 문
+
+SELECT는 DML 언어 중에 가장 기본이 되는 DBMS 명령이다.
 
 ```sql
 SELECT select_expr

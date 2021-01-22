@@ -1,0 +1,120 @@
+## 원형 큐
+
+원형 큐는 rear가 지정한 size보다 커지면 다시 0번째 인덱스를 가리키게 하는 방식의 큐이다.
+이런 원형 큐에는 한가지 **아주 중요한** 특성이 있다.
+
+**한 자리는 무조건 비워놔야 한다.**
+
+이유는 **포화 상태**와 **공백 상태**를 구분하기 위해서 이다.
+
+우리는 공백 상태를 `front == rear`으로 구분을 할 것이다.
+그리고 만약 공백 상태에서 데이터를 **삭제하려고 할 때 예외를 발생**시켜줘야 하는데, 원형 큐는 front와 rear가 원형으로 되어있어 배열의 최대 크기를 넘지 못한다.
+
+한 예를 확인해보자.
+
+우리는 조금 뒤에서 자세히 배울 내용이지만 삽입 연산(enqueue) 에서 rear의 포인터를 1씩 증가시켜 배열의 rear 인덱스에 데이터를 저장할 것이다.
+그리고 삭제 연산에서는 front 포인터를 1씩 증가시켜 배열의 front 인덱스의 데이터를 삭제한다.
+하지만 **삽입과 삭제 모두 max size를 넘지 못하기 때문에** 데이터가 꽉 차 있음에도 불구하고 계속 증가하면 서로 같은 인덱스를 가리키고 있을 수 있다.
+그럼 결국 **공백과 포화를 구분하지 못 하게 되는 것**인데, 이렇게 된다면 포화 상태인데 큐가 비었다고 나올 수도 있고 역도 그렇다.
+
+#### 그래서 먼저 원형 Queue를 사용할 때 주의할 점에 대한 결론을 내리자면!
+
+- 공백 상태 : empty 한 상태 front == rear 일때
+- 포화 상태 : full 한 상태 **front가 rear 바로 하나 앞에 있을 때**.
+
+그럼 여기서 궁금한 점이. `front가 rear 바로 하나 앞에 있을 때`를 어떻게 구분하나? 이다.
+
+해답은 **모듈러 연산**이다.
+물론 if문으로 조건을 줘서 해결할 수 있지만 우리는 좀 더 아름다운 방법을 사용해보자.
+모듈러 연산으로 MAX_SIZE 의 나머지를 구하면 나머지는 절대 MAX_SIZE를 넘지 않게 되고 넘으면 0으로 시작하기 때문에 아주 좋은 해답이 된다.
+
+### 포화 상태
+
+```java
+boolean isEmpty() {
+  if(front == rear) return true;
+  else return false;
+}
+```
+
+### 공백 생태
+
+```java
+boolean isFull() {
+  if(front == (rear + 1) % MAX_QUEUE_SIZE) return true;
+  else return false;
+}
+```
+
+`front == (rear + 1) % MAX_QUEUE_SIZE` 를 수행하면 rear는 항상 front를 넘지 못한다.
+
+그래야 우리가 앞서 정의 한 포화 상태의 개념 (_front가 rear 바로 하나 앞에 있을 때_)를 만족하기 때문이다.
+
+포화 상태와 공백 상태를 정의하고 앞으로의 큐 연산에서 이를 활용하면 아주 깔끔하게 사용할 수 있다.
+
+### enqueue
+
+큐에 데이터가 삽입되는 enqueue에서는 `rear` 포인터를 이용해서 1씩 증가시켜 배열의 rear 인덱스에 데이터를 저장한다.
+
+하지만 여기서도 주의해야할 점이 rear 인덱스는 max-size를 넘지 않게 해야 하므로 역시 **모듈러 연산**으로 rear가 max-size를 넘게 되면 0으로 가게 해야한다.
+역시 포화 상태일 때는 삽입하면 안되므로 포화 상태 검증을 수행해준다.
+
+```java
+void enqueue(int x) {
+  if(!isFull()) {
+    queue[arr] = x;
+    rear = (rear + 1) % MAX_QUEUE_SIZE;
+  }
+}
+```
+
+### dequeue
+
+큐에 데이터를 삭제하는 dequeue에서는 `front` 포인터를 1씩 증가시켜 배열의 front 인덱스의 데이터를 삭제한다.
+역시나 공백 상태의 검사와 max-size를 넘지 못하게 하는 **모듈러 연산**도 추가시켜주자.
+
+```java
+void dequeue(int x) {
+  if(!isEmpty()) {
+    int ret = queue[front];
+    front = (front + 1) % MAX_QUEUE_SIZE;
+    return ret;
+  }
+}
+```
+
+### 전체 소스
+
+```java
+Class MyCircularQueue {
+  private int front; // front pointer
+  private int rear; // rear pointer
+
+  boolean isEmpty() {
+    if(front == rear) return true;
+    else return false;
+  }
+
+  boolean isFull() {
+    if(front == (rear + 1) % MAX_QUEUE_SIZE) return true;
+    else return false;
+  }
+
+  void enqueue(int x) {
+    if(!isFull()) {
+      queue[arr] = x;
+      rear = (rear + 1) % MAX_QUEUE_SIZE;
+    }
+  }
+  void dequeue(int x) {
+    if(!isEmpty()) {
+      int ret = queue[front];
+      front = (front + 1) % MAX_QUEUE_SIZE;
+      return ret;
+    }
+  }
+}
+```
+
+원형 큐에서의 핵심은 `(front + 1) % MAX_QUEUE_SIZE`이다.
+`(front + 1) % MAX_QUEUE_SIZE`

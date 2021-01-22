@@ -1,0 +1,6 @@
+# Test
+
+1. 테스트 주도 개발 책 읽기
+2. Junit4 나 5 (4는 레거시 프로젝트가 대부분 4 기반이라서)
+3. Mock 관련 framework(mockito)
+4. DB Unit

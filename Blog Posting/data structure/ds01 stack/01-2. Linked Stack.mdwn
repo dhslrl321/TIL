@@ -1,0 +1,151 @@
+# 연결 리스트로 구현한 스택
+
+지난 시간에 배운 **배열로 구현한 스택**과는 달리 각 요소들을 한 번에 할당하지 않고 필요할 때 마다 **동적으로**할당한다는 특징이 있다.
+그리고 **연결 리스트의 특징인 노드**필드를 추가적으로 정의해야 한다.
+
+## Node
+
+Node는 2가지 필드로 구성된다.
+때에 따라서 3가지, 4가지 n가지로 구성될 수 있지만 스택을 구현하기에는 2가지 필드면 충분하다.
+
+1. Data Field : 실제로 우리가 저장할 데이터가 담겨있는 필드
+2. Link Field : 다음에 연결될 Node의 주소를 저장하는 필드, 만약 Null이면 가장 아래에 있는 노드라는 뜻이다.
+
+우리는 앞으로 실제 저장하고싶은 데이터를 **Data** 에 담을 것이고, 다음 노드를 해당 노드 안에 있는 Link에 저장할 것이다.
+
+```java
+class Node {
+    private int data;
+    private Node link;
+
+    /* 생성자 */
+    Node(Node link, int data) {
+        this.data = data;
+        this.link = link;
+    }
+
+    // 은닉화를 위해서 getter를 사용
+    int getData() {
+        return this.data;
+    }
+    Node getLink() {
+        return link;
+    }
+}
+```
+
+## 연결 리스트 스택의 구성요소들
+
+- 변수 `int data`
+- 변수 `Node top`
+- 메서드 `isEmpty()`
+- 메서드 `push()`
+- 메서드 `pop()`
+
+여기서 알 수 있듯 연결 리스트로 구현한 스택에서는 `isFull()`메서드가 없다.
+각 요소들을 한 번에 할당하지 않고 필요할 때 마다 동적으로 할당을 하는 특성이 있기 때문에 Full 한 상황이 없게 된다.
+
+## Stack의 top 노드
+
+지금까지 배열로 구현한 스택에서는 top 포인터가 배열의 가장 끝 index를 가리키는데에 사용되었지만, 이제 top 포인터는 노드가 될 것이고 top 노드의 Link Field가 가리키는 노드가 배열로 구현한 스택에서 말하자면 가장 위에 있는 인덱스인 샘이다.
+
+## psuh 연산
+
+push 연산은 top 노드가 하는 일에 대해서만 파악하면 된다.
+다음 순서를 봐보자.
+
+- A가 Stack에 push 된다.
+  - top 노드가 A 노드를 가리킨다.
+- B가 Stack에 push 된다.
+  - B는 top이 가리키던 A 노드를 가리킨다.
+  - top 노드가 B를 가리킨다.
+- C가 Stack에 push 된다.
+  - C는 top이 가리키던 B 노드를 가리킨다.
+  - top 노드가 C를 가리킨다.
+
+위의 순서를 보고 알 수 있는 것은 무엇인가?
+**새로운 노드가 들어오면 top 노드가 이전에 가리키던 노드를 새로운 노드가 가리키고 top 노드가 새로운 노드를 가리키는 과정의 반복**을 알 수 있다.
+
+```java
+void push (int data) {
+  Node node = new Node(top, data);
+  top = node;
+
+  /* 위의 2 줄을 한 줄로 축약해서 쓸 수 있다. */
+  // top = new Node(top, data);
+}
+```
+
+## pop 연산
+
+pop 연산도 push와 마찬가지로 간단하게 구현될 수 있다.
+또한 순서를 확인해보자.
+
+- A, B, C가 순서대로 Stack에 저장되어 있다.
+  - top 포인터는 현재 C를 가리키고 있다.
+- 스택에 pop 연산이 호출된다.
+  - top 포인터가 가리키는 C의 데이터를 반환한다.
+  - top 포인터를 C가 가리키던 노드로 바꾼다.
+
+또 pop 연산에서 한 가지 주의해야할 것은 isEmpty() 검사를 먼저 해줘야 한다.
+
+```java
+int pop() {
+  if(isEmpty()) {
+    System.out.println("Stack Empty Exception");
+    return -1;
+  }
+  int ret = top.getData(); // 은닉화를 위해서 getter를 사용
+  top = top.getLink()
+  return ret;
+}
+```
+
+## 전체 소스코드
+
+```java
+class Node {
+    private int data;
+    private Node link;
+
+    /* 생성자 */
+    Node(Node link, int data) {
+        this.data = data;
+        this.link = link;
+    }
+
+    int getData() {
+        return this.data;
+    }
+    Node getLink() {
+        return link;
+    }
+}
+
+class ListStacak {
+    private Node top;
+    private int size;
+
+    ListStack() {
+        top = null;
+    }
+
+    boolean isEmpty() {
+        return top == null;
+    }
+
+    void push(int data) {
+        top = new Node(top, data);
+    }
+
+    int pop() {
+        if(isEmpty()) {
+            System.out.println("Stack Empty Exception");
+            return -1;
+        }
+        int ret =  top.getData();
+        top = top.getLink();
+        return ret;
+    }
+}
+```

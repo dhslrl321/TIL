@@ -1,0 +1,109 @@
+# 문제
+
+> 해당 포스팅은 백준의 [1966번 프린터](https://www.acmicpc.net/problem/1966) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/submit/1966/25469017) 에서 확인 가능합니다.
+
+문제
+
+# 예제 입력 & 출력
+
+# 해결법
+
+주의 해야할 점은 m은 0부터 시작한다.
+이 점을 염두하고 이 문제에서는 큐를 이용한다.
+입력되는 모든 수를 큐에 enqueue하고 반복을 돌며 하나씩 검증한다.
+한 번의 검증에서 찾으려는 문서의 인덱스와 다르면 count를 1씩 증가 시키고, 몇 번째로 인쇄되었는지 궁금한 문서의 index와 비교하여 같으면 count를 출력하는 방식으로 문제를 해결할 수 있다.
+
+### 접근법
+
+문서의 중복이 발생할 수 있는데, 이 문제를 문서 객체를 만들어서 해결할 수 있다.
+
+```java
+class Data {
+  int num; // 문서의 중요도
+  int flag; // 궁금한 문서인지 아닌지 판별하는 flag
+}
+```
+
+### 정답 코드
+
+```java
+import java.io.*;
+import java.util.*;
+
+class Main {
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        int t = Integer.parseInt(br.readLine());
+
+        while(t-- > 0) {
+            String[] nm = br.readLine().split(" ");
+
+            int n = Integer.parseInt(nm[0]);
+            int m = Integer.parseInt(nm[1]);
+
+            Queue<Data> queue = new LinkedList<>();
+
+            String[] str = br.readLine().split((" "));
+            int[] priorities = new int[n];
+            for (int i = 0; i < str.length; i++) {
+                priorities[i] = Integer.parseInt(str[i]);
+                Data data = new Data(Integer.parseInt(str[i]), m == i);
+                queue.add(data);
+            }
+
+            reverseOrder(priorities);
+
+            int index = 0;
+            while(!queue.isEmpty()) {
+                Data now = queue.remove();
+                int stage = priorities[index];
+                if(stage == now.num) {
+                    if(now.flag) {
+                        bw.write(++index + "\n");
+                        break;
+                    }
+                    ++index;
+                }else {
+                    queue.add(now);
+
+                }
+            }
+        }
+
+        bw.flush();
+        bw.close();
+    }
+
+    private static void reverseOrder(int[] arr) {
+        Arrays.sort(arr);
+        int start = 0;
+        int end = arr.length - 1;
+
+        while(start < end) {
+            int temp = arr[start];
+            arr[start] = arr[end];
+            arr[end] = temp;
+
+            start++;
+            end--;
+        }
+    }
+}
+
+class Data {
+    int num;
+    boolean flag;
+    Data(int num, boolean flag){
+        this.num = num;
+        this.flag = flag;
+    }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/submit/1966/25469017) 에서 확인 가능합니다.
