@@ -16,6 +16,18 @@
 
 ---
 
+- **Recursive-재귀 이론**
+
+  - 문제
+    1. [백준](https://www.acmicpc.net/problem/10872) 팩토리얼 [문제 풀이](https://wonit.tistory.com/382)
+    2. [백준](https://www.acmicpc.net/problem/10870) 피보나치 수 5 [문제 풀이](https://wonit.tistory.com/383)
+
+- **Dynamic Programming**
+
+  - 문제
+    1. [백준](https://www.acmicpc.net/problem/1003) 피보나치 함수 [문제 풀이](#)
+    2. [백준](#) 문제 [문제 풀이](#)
+
 - **이론**
 
   - 문제

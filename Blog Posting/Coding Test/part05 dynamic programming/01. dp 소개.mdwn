@@ -6,10 +6,13 @@
 
 우리는 지난 시간 재귀적으로 작성한 프로그램이 중복된 계산이 발생하고, 이는 얼마나 비효율적인 결과를 초래하는지 확인했다.
 그리고 발생하는 비효율을 memoization이라는 기법을 사용하여 해결했는데, 동적 프로그래밍은 이 Memoization에서 더 나아가 **또 다른 방법으로 중복을 방지**하는 알고리즘을 뜻한다.
+주로 **동적 프로그래밍 혹은 동적 계획법은** 아주 많은 양의 데이터, 많은 양의 문제를 한 번에 해결하기 힘들 때 작은 여러 문제로 나누어서 푸는 방식이라고 할 수 있다.
 그리고 이런 memoization은 정보 올림피아드나 코딩테스트에서 자주 출제된다.
 
-# Memoization vs Dynamic Programming
+## Memoization vs Dynamic Programming
 
+Memoization과 DP는 사실 서로 다른 개념이라고 할 수 있다.
+어떤 사람들은 Dynamic Programming에 Bottom up 방식과 Top Down 방식이 있다고 한다. 하지만 부분 문제들의 답을 배열에 저장하는 아이디어는 같지만 본질적으로 서로 다른 개념임을 알아두자
 **Memoization**
 Memoization은 재귀호출을 이용하며 위에서 아래 (Top Down) 방식의 하향식 접근법이다.
 이런 재귀호출은 함수를 호출하는 비용이 들게되지만 Dynamic Programming은 그렇지 않다.
@@ -17,5 +20,3 @@ Memoization은 재귀호출을 이용하며 위에서 아래 (Top Down) 방식�
 **Dynamic Programming**
 동적 프로그래밍은 (Bottom up) 으로 상향식 접근이라고 할 수 있다.
 함수 호출 비용을 반복으로 해결해 없앤다.
-
-- 어떤 사람들은 Dynamic Programming에 Bottom up 방식과 Top Down 방식이 있다고 한다. 하지만 부분 문제들의 답을 배열에 저장하는 아이디어는 같지만 본질적으로 서로 다른 개념임을 알아두자!

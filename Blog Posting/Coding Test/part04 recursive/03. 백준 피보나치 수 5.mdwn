@@ -1,0 +1,62 @@
+# 문제
+
+> 해당 포스팅은 백준의 [10870번 피보나치 수5](https://www.acmicpc.net/problem/10870) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25576907) 에서 확인 가능합니다.
+
+문제
+
+# 예제 입력 & 출력
+
+# 해결법
+
+해당 문제 또한 재귀 호출에 대한 개념을 학습할 때 연구했던 주제이다.
+피보나치 수는 문제에 있는 특성대로 `n = (n-1) + (n-2)` 인 수를 나열한 **수열**이다.
+
+구현 자체는 지난 재귀 호출을 잘 따라왔다면 힘들지 않을 것으로 보고 **시간 복잡도**와 **출력 자료형**에 대해서 고민해보자.
+
+### 시간 복잡도
+
+피보나치 수열의 시간 복잡도는 조금 생각해볼 가치가 있다.
+
+피보나치 수열의 재귀 함수를 그림으로 한 번 그려보자면,
+
+위와 같이 **트리 형태의 구조**를 띄게 된다.
+트리 중에서 자식 노드가 2개로 완전한 **바이너리 트리**형태가 된다.
+그럼 트리 자료구조의 특성에 의해서 높이 n인 바이너리 트리의 총 노드는 2^n이므로 재귀로 해당 문제를 접근한다면 2^n 즉 최대 2의 20제곱의 시간 복잡도를 갖게 된다.
+그럼 2의 10승이 1024이므로 1024 \* 1024는 1000만이다.
+보통 알고리즘에서 1초에 1억번의 연산을 커버할 수 있다고 하니 충분히 재귀로 풀 수 있는 문제이다.
+
+### 오답 후보
+
+이번 문제에서도 **20보다 작은 자연수 또는 0** 이라고 했으니 0이 input으로 들어올 case를 염두해야 한다.
+그럼 0과 1, 2의 반환 값을 각각 다르게 생각해야 한다.
+0의 반환 값은 0이어야 하고, 1과 2의 반환값은 1이어야 함을 염두해두자.
+
+### 정답 코드
+
+```java
+import java.io.*;
+
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    int n = Integer.parseInt(br.readLine());
+    bw.write(String.valueOf(fibonacci(n)));
+
+    bw.flush();
+    bw.close();
+  }
+
+  private static int fibonacci(int n) {
+    if(n == 0) return 0;
+    else if(n == 1 || n == 2) return 1;
+    else return fibonacci(n-1) + fibonacci(n-2);
+  }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25576907) 에서 확인 가능합니다.
