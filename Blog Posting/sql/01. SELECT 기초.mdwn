@@ -8,6 +8,7 @@ DML
 - UPDATE
 - DELETE
 - Transaction이 발생해서 완전히 적용하지 않고 임시로 적용 (하지만 select는 transction이 발생하긴 하지만 성격이 조금 다름)
+- DML은 테이블을 대상으로 수행하므로 그 전에 꼭 테이블이 정의되어있어야 함.
 
 # DDL
 
@@ -16,6 +17,10 @@ DML
 - DROP
 - ALTER
 - Transaction이 발생하지 않아서 Rollback이나 Commit이 없음
+
+# DCL
+
+- 어떤 권한을 부여하거나 뺏을 때 사용됨
 
 # SELECT 문
 

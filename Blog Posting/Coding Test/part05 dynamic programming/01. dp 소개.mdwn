@@ -4,19 +4,96 @@
 
 # Dynamic Programming
 
-우리는 지난 시간 재귀적으로 작성한 프로그램이 중복된 계산이 발생하고, 이는 얼마나 비효율적인 결과를 초래하는지 확인했다.
+우리는 지난 시간 재귀적으로 작성한 프로그램이 중복된 계산이 발생되고, 이는 얼마나 비효율적인 결과를 초래하는지 확인했다.
 그리고 발생하는 비효율을 memoization이라는 기법을 사용하여 해결했는데, 동적 프로그래밍은 이 Memoization에서 더 나아가 **또 다른 방법으로 중복을 방지**하는 알고리즘을 뜻한다.
-주로 **동적 프로그래밍 혹은 동적 계획법은** 아주 많은 양의 데이터, 많은 양의 문제를 한 번에 해결하기 힘들 때 작은 여러 문제로 나누어서 푸는 방식이라고 할 수 있다.
-그리고 이런 memoization은 정보 올림피아드나 코딩테스트에서 자주 출제된다.
+주로 **Dynamic Programming, 동적 프로그래밍 혹은 동적 계획법은** 아주 많은 양의 데이터, 많은 양의 문제를 한 번에 해결하기 힘들 때 작은 여러 문제로 나누어서 푸는 방식이라고 할 수 있다.
 
-## Memoization vs Dynamic Programming
+# 점화식
 
-Memoization과 DP는 사실 서로 다른 개념이라고 할 수 있다.
-어떤 사람들은 Dynamic Programming에 Bottom up 방식과 Top Down 방식이 있다고 한다. 하지만 부분 문제들의 답을 배열에 저장하는 아이디어는 같지만 본질적으로 서로 다른 개념임을 알아두자
-**Memoization**
-Memoization은 재귀호출을 이용하며 위에서 아래 (Top Down) 방식의 하향식 접근법이다.
-이런 재귀호출은 함수를 호출하는 비용이 들게되지만 Dynamic Programming은 그렇지 않다.
+동적 프로그래밍에서 핵심이라고 할 수 있는 개념이 바로 점화식이다.
 
-**Dynamic Programming**
-동적 프로그래밍은 (Bottom up) 으로 상향식 접근이라고 할 수 있다.
-함수 호출 비용을 반복으로 해결해 없앤다.
+수학적으로 **점화식**은 **재귀식**이라고도 하며, 수열에서 이웃하는 두개의 항 사이에 성립하는 수학적 관계를 나타낸 식이라고 한다.
+정말 말이 너무 어렵다.
+쉽게 생각했을 때, 현재 구하고자 하는 값이 **이전에 구했던 값들로 구할 수 있는 식**을 점화식이라고 생각하면 쉽다.
+우리는 이 점화식을 가지고 **동적 계획법**의 문제를 풀어나갈 것이다.
+
+# Bottom Up 과 Top Down
+
+동적 계획으로 문제를 풀기 위해서 우리는 2가지 **문제 해결 전략**을 사용할 수있다.
+
+1. Top-Down
+2. Bottom-Up
+
+## Top-Down
+
+Top-Down은 우리가 세운 점화식을 **그대로 재귀 함수를 만드는 것**이다.
+이는 우리가 작성한 점화식이 아주 직관적으로 나타날 수 있으면서 동시에 **재귀 호출**의 중복 계산이라는 단점을 함께 Handling 해야한다.
+그러기 위해서 우리는 **Memoization**이라는 기법을 도입할 것이다.
+
+#### 딱 보기에 Top-Down 방법은 **큰 수에서 시작해서 작은 수**로 가는 계산하는 것 처럼 보인다.
+
+**쉽게 factorial 문제를 풀어보며 이해하자.**
+
+```java
+import java.io.*;
+public class Main {
+
+  private static int[] memoization; // memoization 배열
+
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    int n = Integer.parseInt(br.readLine());
+
+    memoization = new int[30]; // memoization 배열 할당
+
+    bw.write(String.valueOf(factorial(n)));
+
+    bw.flush();
+    bw.close();
+  }
+
+  private static int factorial(int n) {
+    if(memoization[n] > 0) return memoization[0]; // 만약 memoization 이 계산한 과거가 있으면 중복 계산을 막기 위해 바로 탈출
+
+    if(n == 1) return memoization[1] = 1;
+    else return memoization[n] = n * memoization[n-1];
+  }
+}
+```
+
+## Bottom-Up
+
+Bottom-Up 방식은 우리가 세운 점화식을 **반복문으로 옮기는 것**이다.
+반복문의 반복을 0이나 1부터 혹은 그보다 큰 수 부터 시작해서 우리가 원하는 값을 찾을 때 까지 **증가하는 반복**조건으로 답을 찾는 방법이다.
+
+#### 딱 보기에 Bottom-Up 방법은 **작은 수에서 시작해서 큰 수**로 가는 계산하는 것 처럼 보인다.
+
+**쉽게 factorial 문제를 풀어보며 이해하자.**
+
+```java
+import java.io.*;
+public class Main {
+
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    int n = Integer.parseInt(br.readLine());
+
+    bw.write(String.valueOf(factorial(n)));
+
+    bw.flush();
+    bw.close();
+  }
+
+  private static int factorial(int n) {
+    int[] result = new int[n+1];
+    result[1] = 1;
+    for(int i = 2; i <= n; i++){
+      result[i] = i * result[i-1];
+    }
+  }
+}
+```

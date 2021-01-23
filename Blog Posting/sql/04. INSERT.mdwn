@@ -1,0 +1,28 @@
+# 데이터 삽입
+
+INSERT는 데이터를 테이블에 삽입하는 명령어다.
+
+## 형태
+
+```sql
+INSERT [INTO] 테이블[(열1 , 열2, ...)] VALUES(값1, 값2 ...)
+```
+
+테이블 이름 다음에 나오는 열은 생략이 가능하다.
+또한 생략할 경우에는 VALUES 다음에 나오는 값들의 순서나 수가 **동일해야 한다.**
+
+만약 동일하게 하고싶지 않다면 테이블 이름 뒤에 입력할 순서를 적어주면 된다.
+
+#### 순서를 생략한 경우
+
+```sql
+INSERT INTO usertb VALUES(1, "jang", 23, 2020-12-12);
+```
+
+#### 순서를 생략하지 않은 경우
+
+```sql
+INSERT INTO usertb(id, username, age, birth) VALUES(1, "Jang", 23, 2020-12-12);
+```
+
+# AUTO_INCREAMENT
