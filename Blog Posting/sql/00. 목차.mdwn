@@ -1,0 +1,4 @@
+# 목차
+
+- MySQL Data Type
+- MySQL에서 변수 사용하기

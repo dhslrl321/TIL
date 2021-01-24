@@ -1,0 +1,72 @@
+# 세팅하기
+
+- Gradle 프로젝트 생성
+- gradle 의존성 추가
+- connector j 추가
+
+# DB 연결하기
+
+- Java 로 DB 연결하려면 어떤 종류의 DB인지 먼저 설정
+- JDBC DriverManager 클래스 사용
+- Driver 로딩 & DB 연결
+
+# mavenrepository 의존성 가져오기
+
+[mavenrepository](https://mvnrepository.com/artifact/mysql/mysql-connector-java/8.0.23)에서 Connector-j 를 가져오기
+
+# 연결 확인
+
+### 순서
+
+1. JDBC Driver 가져오기
+2. JDBC 드라이버로 연동하기 위해서 Class.forName() 메서드 사용
+3. Connection 객체 생성
+4. DriverManager로 Connection을 만들고 우리의 Connection 객체에 넣어주기
+
+```java
+import java.sql.*;
+
+public class ConnectionTest {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://127.0.0.1:3306/tablename";
+        Connection con = null;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        }catch (ClassNotFoundException e) {
+            System.err.println("Connection Class Not Found: " + e.getMessage());
+        }
+
+        try {
+            con = DriverManager.getConnection(url, "id", "password");
+            System.out.println("Connection 연결 성공");
+        }catch (SQLException e) {
+            System.out.println("connection 오류 : " + e.getMessage());
+        } finally {
+            try {
+                if (con != null) con.close();
+            } catch (Exception ignored) { }
+        }
+
+    }
+}
+```
+
+- url 구조 : `서버 주소:포트번호/DB명`
+  - url에 한글 지원 : `서버 주소:포트번호/DB명?useUnicode=true&characterEncoding=euc-Kr`
+
+# Connection 전용 객체 만들기
+
+앞으로 모든 SQL문에는 Connection이 필요하므로 Connection을 어느 곳에서 불러서 사용할 수 있도록 객체화 시켜보자.
+
+```java
+import java.sql.*;
+
+public class DBConnection {
+    private Connection con;
+
+    public DBConnection() {
+
+    }
+}
+```

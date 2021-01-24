@@ -1,0 +1,43 @@
+### 순서
+
+1. JDBC Driver 가져오기
+2. JDBC 드라이버로 연동하기 위해서 Class.forName() 메서드 사용
+3. Connection 객체 생성
+4. DriverManager로 Connection을 만들고 우리의 Connection 객체에 넣어주기
+
+```java
+import java.sql.*;
+
+public class ConnectionTest {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://127.0.0.1:3306/tablename";
+        Connection con = null;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        }catch (ClassNotFoundException e) {
+            System.err.println("JDBC Driver를 JVM에 로드하지 못하였습니다.: " + e.getMessage());
+        }
+
+        try {
+            con = DriverManager.getConnection(url, "id", "password");
+            System.out.println("DriverManager와 Connection과의 연결이 성공적으로 이루어졌습니다.");
+        }catch (SQLException e) {
+            System.out.println("connection 오류 : " + e.getMessage());
+        } finally {
+            try {
+                if (con != null) con.close();
+            } catch (Exception ignored) { }
+        }
+
+    }
+}
+```
+
+### Class.forName() 의 동작
+
+`Class.forName()`를 알기 위해서는 우선 `Class`에 대해서 알아야 한다.
+
+Class 객체는 클래스가 로드 될 때에 JVM 의해 및 클래스 로더의 defineClass 메서드의 호출에 의해 자동적으로 등록되게 된다.
+
+그래서 따로 인스턴스 변수를 생성해서 받아주지 않아도 즉, 인스턴스 없이 `com.mysql.cj.jdbc.Driver` 클래스가 Class.forName()을 통해서 JVM에 동적으로 로딩되고, DriverManager가 **현재 JVM**에 있는 드라이버와 연결을 시도하는 것이다.
