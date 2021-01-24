@@ -1,0 +1,95 @@
+# 데이터를 수정하는 방법
+
+### What we gonna do
+
+- UPDATE 문의 기본적인 사용 방법
+  - 전체 칼럼 수정하기
+  - 특정 칼럼 수정하기
+- DELETE 문의 기본적인 사용 방법
+  - 전체 칼럼 삭제하기
+  - 전체 데이터 삭제하기
+  - 특정 칼럼 삭제하기
+
+# UPDATE 문이란?
+
+UPDATE 문은 기존에 입력되어 있는 값을 변경하기 위해서 사용된다.
+
+## UPDATE 문의 기본적인 사용 방법
+
+```sql
+UPDATE 테이블명 SET 열1 = 값1, 열2 = 값2 ... [WHERE] 조건;
+```
+
+### 주의하자!
+
+UPDATE문은 비교적 쉽다.
+하지만 이런 UPDATE 문에서 주의해야할 점이 있는데, UPDATE문을 사용하기 위해서는 2가지 조건을 생각해야 한다.
+
+1. 전체 column을 바꿀 것인가.
+2. 특정 column을 바꿀 것인가.
+
+### 전체 Column을 바꿀 때.
+
+전체 column을 바꾸기 위해서는 아주 간단하다.
+단순하게 UPDATE 문을 입력하면 된다.
+
+```sql
+UPDATE usertb SET name = 'Jang';
+```
+
+그럼 모든 칼럼에 동일하게 Jang라는 값이 저장된다.
+
+### 특정 Column을 바꿀 때
+
+특정 Column을 바꾸려면 where과 함께 사용되어야 한다.
+
+```sql
+UPDATE usertb SET name = 'Jang' WHERE userId = 1;
+```
+
+이렇게 되면 userId가 1인 칼럼만 name이 Jang으로 변경된다.
+
+# DELETE 문의 기본적인 사용 방법
+
+DELETE는 특정 데이터 행을 삭제하는 명령어이다.
+
+### DELETE 문의 기본적인 사용 방법
+
+```sql
+DELETE FROM 테이블명 WHERE 조건;
+```
+
+### 역시나 주의하자!
+
+UPDATE와 비슷하게 2가지 조건을 따져야 한다.
+
+1. 전체 Column을 삭제할 것인가.
+2. 특정 Column을 삭제할 것인가.
+
+### 전체 Column을 삭제하기
+
+이번은 **UPDATE와 조금 다르다.**
+지난 UPDATE에서는 조건을 주냐 안 주냐에 따라서 전체 칼럼에 적용되냐 마냐의 문제였는데, 이번에는 조건을 하나만 주더라도 여러 칼럼이 삭제될 수 있다. _사실상 UPDATE도 비슷한 문제가 발생할 수 있는데, 이렇게 구성한 이유는 조금 성격이 다름을 인지시켜주기 위해서이다._
+
+```sql
+DELETE FROM usertb WHERE name = 'jang';
+```
+
+이렇게 되면 name이 jang에 해당되는 모든 데이터가 삭제된다.
+
+### 전체 데이터 삭제하기
+
+또 추가적으로 다음과같이 아예 WHERE을 빼버리면 전체 데이터를 삭제할 수도 있다.
+
+```sql
+DELETE FROM usertb;
+```
+
+### 특정 Column을 삭제하기
+
+특정 데이터만을 삭제하고싶다면 WHERE을 좀 더 촘촘하게 짜자.
+PK를 이용하는 것도 좋은 방법이다.
+
+```sql
+DELETE FROM usertb WHERE name = 'jang' LIMIT 1;
+```

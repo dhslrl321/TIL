@@ -1,5 +1,11 @@
 # ORDER BY
 
+### What we gonna do
+
+- ORDER BY 의 기초
+  - DISTINCT
+  - LIMIT
+
 SELECT와 마찬가지로 DB에 직접적으로 영향을 미치지 않지만 결과가 출력되는 **순서**를 조절하는 구문이다.
 
 - `select .. from .. order by ..` 특정 조건을 오름차순으로 출력

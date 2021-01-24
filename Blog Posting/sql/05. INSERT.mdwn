@@ -1,0 +1,66 @@
+### What We gonna do
+
+- INSERT 문의 기본 사용 방법
+  - 순서를 생략한 경우
+  - 순서를 생략하지 않은 경우
+- AUTO_INCREAMENT 칼럼에 INSERT 하기
+- 대량의 데이터 INSERT 하기
+
+# INSERT 문의 기본 사용 방법
+
+INSERT는 데이터를 테이블에 삽입하는 명령어다.
+
+```sql
+INSERT [INTO] 테이블[(열1 , 열2, ...)] VALUES(값1, 값2 ...)
+```
+
+테이블 이름 다음에 나오는 열은 생략이 가능하다.
+또한 생략할 경우에는 VALUES 다음에 나오는 값들의 순서나 수가 **동일해야 한다.**
+
+만약 동일하게 하고싶지 않다면 테이블 이름 뒤에 입력할 순서를 적어주면 된다.
+
+### 순서를 생략한 경우
+
+```sql
+INSERT INTO usertb VALUES(1, "jang", 23, 2020-12-12);
+```
+
+### 순서를 생략하지 않은 경우
+
+```sql
+INSERT INTO usertb(id, username, age, birth) VALUES(1, "Jang", 23, 2020-12-12);
+```
+
+# AUTO_INCREAMENT 칼럼에 INSERT 하기
+
+뒤에서 나오는 CREATE 에서 자세히 배울 내용이지만 지금 잠깐 INSERT의 특성에 등장하는 개념이 나온다.
+어렵지 않은 내용이므로 가볍게 훑고 넘어가자.
+AUTO_INCREAMENT는 INSERT가 수행되면 **우리가 해당 값을 지정하지 않더라도** 자동으로 **증가**하게 하는 속성이다.
+
+이런 `AUTO_INCREAMENT` 속성이 지정된 칼럼에 INSERT를 수행할 경우 해당 칼럼 순서에 NULL을 넣어주면 된다.
+
+```sql
+SELECT INTO usertb (id, username, age, birth) VALUES(null, "Jang", 23, 220-12-12);
+```
+
+# 대량의 데이터 INSERT 하기
+
+우리는 가끔 다른 테이블에서 혹은 어떤 이유에서든 **엄청나게 큰 데이터**를 가져와야할 때가 있다.
+만약 누군가가 우리에게 `저기 user table에서 사용자 이름이랑 나이랑 전화번호만 가져와서 새로운 테이블 만들어주세요 ㅎㅎ` 라고 한다면 어떻게 할까?
+아마 `INSERT` 문을 통해서 하나하나 쳤을 것이다.
+왜냐? 아직 우린 배운게 그것 뿐이니.
+하지만 user table에 데이터가 1000만개가 있다고 해보자.
+나라면 그냥 퇴사한다.
+하지만 여러분이라면 SQL에 대해서 **배울**사람이니 어떤 방식으로 앞선 문제를 해결할지 배워보자.
+
+핵심은 **테이블을 만들고 값을 넣을 때 SELECT문을 이용**하는 것이다.
+
+```sql
+CREATE TABLE testTb (id int, name varchar(10), age varchar(10), phone varchar(10));
+
+INSERT INTO testTb
+  SELECT userId, name, age, phone from userTb;
+```
+
+이렇게 하면 기존의 대량 데이터를 쉽게 옮길 수 있다.
+_근데, 위의 상황은 그냥 대량 데이터 insert 하기를 위해서 만든 상황이니 오해하지 말자_

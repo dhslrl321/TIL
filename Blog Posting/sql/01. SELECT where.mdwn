@@ -46,6 +46,17 @@ insert into buytb1 values(NULL, "SSK", "운동화", null, 630, 5);
 - `select .. from .. where` 특정 조건 조회
 - `select .. from .. where .. between .. and ..`
 
+### What We gonna do
+
+- SELECT 문의 기본 속성
+  - BETWEEN A AND B
+  - `IN()`
+  - `LIKE()`
+- SELECT 의 서브 쿼리
+  - ANY
+  - ALL / SOME
+  - `ANY !=` 로 표현되는 `IN()`
+
 ## BETWEEN A AND B
 
 특정 A와 B 사이의 값 조회하는데, **연속적인 값**에만 해당이 된다.
