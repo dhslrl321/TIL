@@ -1,0 +1,45 @@
+# Weather Observation Station 3
+
+해당 문제는 [해커 랭크 SQL](https://www.hackerrank.com/domains/sql) 파트에서 확인하실 수 있습니다.
+
+## 문제 접근
+
+문제의 해설을 잘 읽어야 하는 문제이다.
+
+문제는 **STATION 테이블에 짝수인 ID를 갖고있는 CITY 칼럼을**원한다.
+추가적으로 **중복을 없애**길 원하고 있다.
+
+보통 우리가 프로그래밍에서 짝수를 고를 때는 모듈러 연산을 사용한다.
+
+`x % 2` 라는 값이 0이면 보통 짝수, 1이면 홀수를 나타내는데, MySQL 에서는 해당 모듈러를 `mod()` 로 수행할 수 있다.
+
+## 정답 쿼리문
+
+```sql
+SELECT DISTINCT city
+FROM station
+WHERE mod(id, 2) = 0;
+```
+
+# Weather Observation Station 4
+
+해당 문제는 [해커 랭크 SQL](https://www.hackerrank.com/domains/sql) 파트에서 확인하실 수 있습니다.
+
+## 문제 접근
+
+문제의 해설을 잘 읽어야 하는 문제이다.
+
+문제는 **STATION 테이블에 짝수인 ID를 갖고있는 CITY 칼럼을**원한다.
+추가적으로 **중복을 없애**길 원하고 있다.
+
+보통 우리가 프로그래밍에서 짝수를 고를 때는 모듈러 연산을 사용한다.
+
+`x % 2` 라는 값이 0이면 보통 짝수, 1이면 홀수를 나타내는데, MySQL 에서는 해당 모듈러를 `mod()` 로 수행할 수 있다.
+
+## 정답 쿼리문
+
+```sql
+SELECT DISTINCT city
+FROM station
+WHERE mod(id, 2) = 0;
+```

@@ -1,0 +1,11 @@
+# 문제 이름
+
+해당 문제는 [해커 랭크 SQL](https://www.hackerrank.com/domains/sql) 파트에서 확인하실 수 있습니다.
+
+## 문제 접근
+
+## 정답 쿼리문
+
+```sql
+SELECT
+```

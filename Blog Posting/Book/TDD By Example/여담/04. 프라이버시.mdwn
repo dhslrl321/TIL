@@ -1,0 +1,39 @@
+# 프라이버시
+
+지난 시간 우리는 모두를 위한 평등에서 equals 메서드를 통해서 VO 객체임을 증명하였다.
+그럼 이제 우리가 처음 작성했던 `testMultiplication()` 에서 중복을 제거하고 더욱 이쁘게 테스트 코드를 리팩토링할 수 있다.
+
+```java
+public class MainTest {
+    @Test
+    public void testMultiplication() {
+        Dollar five = new Dollar(5);
+        assertEquals(new Dollar(10), five.times(2));
+        assertEquals(new Dollar(15), five.times(3));
+    }
+
+    @Test
+    public void testEquality() {
+        assertTrue(new Dollar(5).equals(new Dollar(5)));
+        assertFalse(new Dollar(5).equals(new Dollar(10)));
+    }
+}
+
+class Dollar {
+    int amount;
+    Dollar(int amount) {
+        this.amount = amount;
+    };
+
+    public Dollar times(int multiplier) {
+        return new Dollar(amount * multiplier);
+    }
+
+    public boolean equals(Object object) {
+        Dollar dollar = (Dollar) object;
+        return amount == dollar.amount;
+    }
+}
+```
+
+그리고 이제 amount를 사용하는 것은 Dollar 객체 뿐이니 private으로 변경해주자.
