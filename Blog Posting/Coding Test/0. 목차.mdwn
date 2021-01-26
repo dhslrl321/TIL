@@ -26,6 +26,9 @@
     1. [백준 1003](https://www.acmicpc.net/problem/1003) 피보나치 함수 [문제 풀이](https://wonit.tistory.com/384)
     2. [백준 1904](https://www.acmicpc.net/problem/1904) 01 타일 [문제 풀이](https://wonit.tistory.com/385)
     3. [백준 1149](https://www.acmicpc.net/problem/1149) RGB 거리 [문제 풀이](https://wonit.tistory.com/386)
+    4. [백준 1463](https://www.acmicpc.net/problem/1463) 1로 만들기 [문제 풀이](https://wonit.tistory.com/388)
+    5. [백준 11726](https://www.acmicpc.net/problem/11726) 2xn 타일링1 [문제 풀이](https://wonit.tistory.com/389)
+    6. [백준 11727](https://www.acmicpc.net/problem/11727) 2xn 타일링2 [문제 풀이](https://wonit.tistory.com/390)
 
 - **이론**
 

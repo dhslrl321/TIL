@@ -1,0 +1,72 @@
+# 문제
+
+> 해당 포스팅은 백준의 [1463번 1로 만들기](https://www.acmicpc.net/problem/1463) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/20537478) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+우선 문제를 제대로 이해하는 것 부터 해보자.
+
+문제에서 이렇게 조건을 주었다.
+
+1. x가 3으로 나누어 떨어지면, 3으로 나눈다.
+2. x가 2로 나누어 떨어지면, 2로 나눈다.
+3. 1을 뺀다.
+
+그리고 이 조건을 적절히 이용해서 입력된 수 n이 가장 최단의 횟수로 1이 되는 과정을 묻는 문제이다.
+
+### 접근법
+
+어떤 수 n(문제 조건에서 바로 1이 될 수 있는 1, 2, 3을 제외한 수)이 있다고 생각해보자.
+
+그럼 그 n은 최대로 n-1번의 연산이 필요하다.
+10이 들어오면 -1을 9번 하면 1이 되듯.
+
+그럼 다시 조건으로 돌아가서, x가 3으로 나누어 떨어지면 3으로 나눈다는 소리느 n/3 을 한 수의 **최단 횟수에서** 한 번만 더 해주면 되지 않을까?
+똑같이 2로 나누어 떨어지면 n/2를 한 **최단 횟수**에서 한 번만 더해주면 된다.
+
+이렇게 우리는 문제를 해결할 것이다.
+우선 arr 하나를 만들고 해당 배열에 인덱스가 우리가 입력한 n이 될 것이며 `arr[n]`의 값에는 최소 연산 횟수가 들어있을 것이다.
+
+### 오답 후보
+
+나도 문제를 풀면서 이것 때문에 한참 걸렸다.
+문제를 꼼꼼히 읽었더라면 어려움 없이 풀었을 텐데, 문제를 꼼꼼히 읽지 않았고 충분히 생각할 시간을 갖지 않고 무턱대고 문제로 들어갔다.
+
+1을 생각해보자.
+1을 1로 만들기 위해서는 몇 번의 경우가 필요할까?
+0번의 가지가 필요하다.
+왜? 1은 자체로 1이니까.
+
+### 정답 코드
+
+```java
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        int n = Integer.parseInt(br.readLine());
+        int[] arr = new int[10000001];
+        arr[1] = 0; arr[2] = 1; arr[3] = 1;
+
+        for (int i = 4; i <= n; i++) {
+            arr[i] = arr[i-1] + 1;
+            if(i % 2 == 0) arr[i] = Math.min(arr[i/2] + 1, arr[i]);
+            if(i % 3 == 0) arr[i] = Math.min(arr[i/3] + 1, arr[i]);
+        }
+        bw.write(String.valueOf(arr[n]));
+        bw.flush();
+        bw.close();
+    }
+}
+
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/20537478) 에서 확인 가능합니다.
