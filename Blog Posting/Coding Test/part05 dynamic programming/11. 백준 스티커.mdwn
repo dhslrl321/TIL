@@ -1,0 +1,67 @@
+# 문제
+
+> 해당 포스팅은 백준의 [문제 이름](#) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+### 접근법
+
+### 오답 후보
+
+### 정답 코드
+
+```java
+import java.io.*;
+import java.io.*;
+import java.util.Arrays;
+
+public class Main {
+    public static void main (String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        int t = Integer.parseInt(br.readLine());
+        while(t-- > 0) {
+            int n = Integer.parseInt(br.readLine());
+            int[][] d = new int[2][100001];
+            String[] column = br.readLine().split(" ");
+            d[0] = strArrToIntArr(column, n);
+            column = br.readLine().split(" ");
+            d[1] = strArrToIntArr(column, n);
+            d[1][0] += Math.max(d[0][0], d[0][1]);
+            d[1][1] += Math.max(d[0][0], d[0][1]);
+            for(int i = 2; i < n; i++) {
+                for(int j = 0; j < 2; j++) {
+                    if(j == 0) {
+                        d[j][i] += Math.max(d[1][i-1], Math.max(d[0][i-2], d[1][i-2]));
+                    }else {
+                        d[j][i] += Math.max(d[0][i-1], Math.max(d[0][i-2], d[1][i-2]));
+                    }
+                }
+            }
+            bw.write(Arrays.deepToString(d));
+        }
+        bw.flush();
+        bw.close();
+    }
+
+    private static int[] strArrToIntArr(String[] arr, int size) {
+        int[] ret = new int[arr.length];
+        for(int i = 0; i < size; i++){
+            ret[i] = Integer.parseInt(arr[i]);
+        }
+        return ret;
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
