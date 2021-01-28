@@ -1,20 +1,48 @@
 # 문제
 
-> 해당 포스팅은 백준의 [문제 이름](#) 의 접근과 해결 방법을 설명한 글 입니다.  
-> 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/9465) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25724623) 에서 확인 가능합니다.
 
 이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
 
 # 해결법
 
+스티커 문제는 **백준의 [계단 오르기](https://www.acmicpc.net/problem/2579)** 문제와 비슷한 논리로 풀 수 있다.
+계단 오르기는 1차원 배열이었고, 이번 스티커 문제는 2차원 배열이라고 생각하면 된다.
+
+점화식 자체를 도출해내는 방법은 크게 어렵지 않았지만 2차원 배열을 다루는데에 조금 아쉬운 점들이 있던 문제였다.
+시작해보자.
+
 ### 접근법
 
-### 오답 후보
+동적 프로그래밍에서 핵심은 **현재 단계(배열의 인덱스)**의 값을 구하려면 이전의 어떤 단계(배열의 이전 인덱스)들을 더하면 될지를 생각하면 쉽게 풀릴 수 있다.
+
+스티커의 가중치가 최대로 되려면 **큰 수만 보고 뽑으면 된다.**
+하지만 제약 조건 하나가 추가된다.
+
+- 한 장을 떼면 해당 스티커와 변을 공유하는 스티커는 모두 찢어져 사용 불가.
+
+이 말은 `[n][m]` 칸에 스티커를 뗀다면 `[n-1][m]` `[n+1][m]`, `[n][m+1]`의 스티커는 사용하지 못한다는 뜻이다.
+그럼 `[n][m]` 번 째 스티커는 **무조건** `[n-1][m]` 스티커와 함께 쓰일 수 밖에 없다.
+기호로 하니 헷갈릴 수 있는데, 이 말은 현재 뜯으려는 스티커의 **대각선 스티커**만 함께 뜯을 수 있다는 뜻이다.
+그리고 하나 더 있다.
+n-2번째 스티커는 대각선이던 아니던 둘 다 쓸 수 있으므로, n-2 번째 열의 스티커를 포함한 현재 가중치와 n-1번째 대각선 스티커를 포함한 현재 가중치 중 **더 큰 수를 뽑으면** 해결할 수 있는 문제이다.
+
+### 주의하자
+
+이 배열의 반복을 다루기 위해서는 우리가 일반적으로 알고 있는 2중 for loop에서 조금 더 생각해야 한다.
+
+```java
+for (int i = 0; i < arr[0].length; i++) {
+    for (int j = 0; j < 2; j++) {
+        System.out.println(arr[j][i]);
+    }
+}
+```
 
 ### 정답 코드
 
 ```java
-import java.io.*;
 import java.io.*;
 import java.util.Arrays;
 
@@ -31,8 +59,9 @@ public class Main {
             d[0] = strArrToIntArr(column, n);
             column = br.readLine().split(" ");
             d[1] = strArrToIntArr(column, n);
-            d[1][0] += Math.max(d[0][0], d[0][1]);
-            d[1][1] += Math.max(d[0][0], d[0][1]);
+
+            d[0][1] += d[1][0];
+            d[1][1] += d[0][0];
             for(int i = 2; i < n; i++) {
                 for(int j = 0; j < 2; j++) {
                     if(j == 0) {
@@ -42,10 +71,21 @@ public class Main {
                     }
                 }
             }
-            bw.write(Arrays.deepToString(d));
+
+            bw.write(findMaxNum(d) + "\n");
         }
         bw.flush();
         bw.close();
+    }
+
+    private static int findMaxNum(int[][] arr) {
+        int max = 0;
+        for (int i = 0; i < arr[0].length; i++) {
+            for (int j = 0; j < 2; j++) {
+                max = Math.max(arr[j][i], max);
+            }
+        }
+        return max;
     }
 
     private static int[] strArrToIntArr(String[] arr, int size) {
@@ -64,4 +104,4 @@ public class Main {
 
 > 회고
 
-#### 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25724623) 에서 확인 가능합니다.
