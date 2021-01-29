@@ -1,0 +1,53 @@
+# 문제
+
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/1912) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25798795) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+해당 문제도 지난 [가장 긴 증가하는 부분 수열](https://wonit.tistory.com/394)문제와 비슷한 dp 테이블을 갖는 알고리즘이다.
+
+우선 가장 긴 증가하는 부분 수열과 다른 점이 하나 있다면, 그것은 **연속된**이라는 문제의 조건이다.
+
+가장 긴 증가하는 부분 수열에서는 연속되지 않아도 돼서 기존에 거쳐왔던 배열 인덱스를 모두 검증하기 위한 2중 for문을 사용했다.
+
+하지만 이번 문제는 바로 직전의 값만 비교하면 되므로 for문 하나로 충분히 풀 수 있는 문제이다.
+
+### 접근법
+
+dp 테이블부터 정의해보자.
+
+##### `dp[i]` 는 해당 인덱스에 해당하는 연속 합의 최대를 저장하는 테이블
+
+### 오답 후보
+
+오답 후보는 마이너스만 존재하는 값이 있기 때문에 최대값을 저장하는 answer 변수의 초기화를 0이 아닌 첫 번째 dp 테이블 인덱스로 해야한다.
+
+## 정답 코드
+
+```java
+import java.io.*;
+
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    bw.flush();
+    bw.close();
+  }
+}
+```
+
+---
+
+## 문제 회고
+
+> 해당 문제에서 런타임 에러를 2번이나 발생시켰다.  
+> 문제 조건에 n은 100,000이라고 했는데, 지난 문제의 형식이 비슷해서 입출력 코드를 복사해서 썼었다.  
+> 그러는 바람에 첫 번쨰 런타임 오류를 발생시켰고, 두 번째 런타임 에러는 수가 -1,000 ~ 1,000 이라고 했는데 이걸 n 크기라고 봐서 또 실수했다.  
+> 제발 문제좀 똑바로 읽자..
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25798795) 에서 확인 가능합니다.

@@ -1,0 +1,148 @@
+# 문제
+
+> 해당 포스팅은 백준의 [11053번 가장 긴 증가하는 부분 수열](https://www.acmicpc.net/problem/11053) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25797999) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+해당 문제는 2중 반복 DP, 세그먼트 트리 DP, 이분 탐색, 완전 탐색등 다양한 알고리즘 이론에서 사용될 수 있는 유명한 문제이다.
+
+가장 긴 증가하는 부분 수열, Longest Increasing Sub Sequence, **LIS** 라고 한다.
+
+문제를 이해해보자.
+
+배열 `arr = {10, 20, 10, 30, 20, 50};` 이 있다고 했을 때, 여기서 LIS는 다음과 같이 된다.
+arr = **10** **20** 10 **30** 20 **50**
+
+이것을 알고리즘으로 구현하기 위해서는 2가지의 트릭이 필요하다.
+
+1. 현재 검사하는 수의 값이 전의 값보다 **증가하는가**
+2. 현재 검사하는 수의 값이 **얼만큼 증가했는가**
+
+이 것을 구현하는 것이 이번 문제의 핵심이다
+
+### 접근법
+
+우리는 해당 문제를 해결하기 위해서 `arr[index]`에 값이 얼마나 긴 증가 부분 수열인지 알기 위해 dp 테이블을 하나 생성할 것이다.
+
+#### 현재 검사하는 수의 값이 전의 값보다 **증가하는가**
+
+길이가 5인 arr 의 4번째 인덱스가 있다고 가정해보자.
+
+그럼 우리는 `arr[0]` ~ `arr[2]` 까지를 3번째 인덱스와 비교해야 한다.
+그러므로 2중 for문이 필요하다.
+
+#### 현재 검사하는 수의 값이 **얼만큼 증가했는가**
+
+이 것은 조건문으로 뽑을 수 있다.
+
+우선 **증가 했는가**에 대한 조건은 간단히 `현재 인덱스 > j번쨰 인덱스` 로 검증하면 되지만 **얼만큼 증가하고 있는지**를 구하는 것이 핵심이다.
+
+사실 이는 2가지 방법이 존재한다.
+
+1. `dp[n] < dp[i] + 1`
+2. `d[n] = Math.max(d[n], d[i] + 1)`
+
+첫 번째 방법은 현재 검사하는 인덱스보다 작은 수의 dp 테이블에서 하나씩 점진적으로 증가시키는 방법이다.
+
+두 번째 방법은 예로 들자면 10 20 10 30 이 있다고 가정했을 때 30은 3증가 수열이다.
+그럼 30이라는 수가 있는 인덱스에 있다고 가정하자.
+10(증가 수열 길이: 1) 20(2) 9(1) 30(?) 상황에서 첫 번쨰 인덱스인 10은 30보다 작으니 30의 증가 수열 길이는 1이 되고, 2도 마찬가지 2가 된다.
+하지만 그 다음 인덱스인 9의 증가 수열은 1인 길이이다.
+여기서 기존에 있던 10, 20 인덱스의 증가 길이보다 9인 증가 길이가 더 작으므로 더 큰 10, 20 인덱스 길이로 포함시키면 된다.
+이 것을 `Math.max()` 메서드로 검사할 수 있다.
+
+### 정답 코드
+
+위에서 말한 2가지 방법 모두로 풀어보겠다.
+
+#### 첫번쨰 풀이
+
+```java
+import java.io.*;
+
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    int n = Integer.parseInt(br.readLine());
+
+    String[] nums = br.readLine().split(" ");
+
+    int[] arr = new int[1001];
+    int[] dp = new int[1001];
+
+    for(int i = 0; i < nums.length; i++){
+      arr[i] = Integer.parseInt(nums[i]);
+    }
+
+    dp[0] = 1;
+
+    for(int i = 1; i < n; i++) {
+      dp[i] = 1;
+      for(int j = 0; j < i; j++){
+        if (arr[i] > arr[j]) {
+          dp[i] = Math.max(dp[i], dp[j] + 1);
+        }
+      }
+    }
+    int answer = 0;
+    for(int len: dp) answer = Math.max(len, answer);
+    bw.write(String.valueOf(answer));
+    bw.flush();
+    bw.close();
+  }
+}
+```
+
+#### 두 번쨰 풀이
+
+```java
+import java.io.*;
+
+public class Main {
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    int n = Integer.parseInt(br.readLine());
+    int[] arr = new int[1001];
+    int[] dp = new int[1001];
+
+    String[] nums = br.readLine().split(" ");
+    for (int i = 0; i < nums.length; i++) {
+      arr[i] = Integer.parseInt(nums[i]);
+    }
+
+    dp[0] = 1;
+
+    for (int i = 1; i <= n; i++) {
+      dp[i] = 1;
+      for (int j = 0; j < i; j++) {
+        if(arr[i] > arr[j] && dp[i] < dp[j] + 1) {
+            dp[i] = dp[j] + 1;
+        }
+      }
+    }
+    int answer = 0;
+    for (int i = 0; i < n; i++) {
+      answer = Math.max(dp[i], answer);
+    }
+    bw.write(String.valueOf(answer));
+    bw.flush();
+    bw.close();
+  }
+}
+```
+
+---
+
+## 문제 회고
+
+> 해당 문제를 처음 본 것은 아마 **소프트웨어 마에스트로 11기**였을 것이다.  
+> 그때 당시는 정렬로 문제를 풀고 시간 복잡도가 통과 됐는지 히든 케이스는 맞는지 조차 생각하지 않았다.  
+> 하지만 이제 생각해보니 틀렸을 것 같다.
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25797999) 에서 확인 가능합니다.
