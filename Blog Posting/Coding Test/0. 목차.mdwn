@@ -1,4 +1,4 @@
-## 스택과 큐 (Stack & Queue)
+# 자료 구조
 
 - **스택 이론**
 
@@ -20,6 +20,8 @@
     1. [백준 10872](https://www.acmicpc.net/problem/10872) 팩토리얼 [문제 풀이](https://wonit.tistory.com/382)
     2. [백준 10870](https://www.acmicpc.net/problem/10870) 피보나치 수 5 [문제 풀이](https://wonit.tistory.com/383)
 
+# 알고리즘
+
 - **Dynamic Programming**
 
   - 문제
@@ -39,6 +41,7 @@
     14. [백준 11722](https://www.acmicpc.net/problem/11722) 가장 긴 감소하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
     15. [백준 11054](https://www.acmicpc.net/problem/11054) 가장 긴 바이토닉 부분 수열 [문제 풀이](#)
     16. [백준 1912](https://www.acmicpc.net/problem/1912) 연속합 [문제 풀이](#)
+    17. [백준 2579](https://www.acmicpc.net/problem/2579) 계단 오르기 [문제 풀이](https://wonit.tistory.com/395)
 
 - **이론**
 
