@@ -32,7 +32,7 @@
     5. [백준 11726](https://www.acmicpc.net/problem/11726) 2xn 타일링1 [문제 풀이](https://wonit.tistory.com/389)
     6. [백준 11727](https://www.acmicpc.net/problem/11727) 2xn 타일링2 [문제 풀이](https://wonit.tistory.com/390)
     7. [백준 10844](https://www.acmicpc.net/problem/10844) 쉬운 계단 수 [문제 풀이](https://wonit.tistory.com/393)
-    8. [백준 11057](https://www.acmicpc.net/problem/11057) 오르막 수 [문제 풀이](#)
+    8. [백준 11057](https://www.acmicpc.net/problem/11057) 오르막 수 [문제 풀이](https://wonit.tistory.com/396)
     9. [백준 2193](https://www.acmicpc.net/problem/2193) 이친수 [문제 풀이](https://wonit.tistory.com/391)
     10. [백준 9465](https://www.acmicpc.net/problem/9465) 스티커 [문제 풀이](https://wonit.tistory.com/392)
     11. [백준 2156](https://www.acmicpc.net/problem/2156) 포도주 시식 [문제 풀이](#)
