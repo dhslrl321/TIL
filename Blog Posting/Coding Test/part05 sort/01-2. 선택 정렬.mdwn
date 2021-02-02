@@ -1,0 +1,70 @@
+# 선택 정렬 알고리즘
+
+- 처리되지 않은 데이터 중 가장 작은 데이터를 골라서 제일 앞으로 보내는 것을 반복
+- O(n^2)
+- 메모리 사용이 제한적인 경우에서 성능 상 이점이 있음
+
+### 종류
+
+- 최소 선택 정렬 (오름차순)
+- 최대 선택 정렬 (내림차순)
+
+### 순서
+
+1. 주어진 배열에서 **최소 값을 찾는다.**
+2. 그 값을 **맨 앞에 위치한 값과 교체**한다.
+3. 맨 처음 위치를 뺀 나머지 리스트를 같은 방법으로 교체한다.
+
+[위키 백과 선택 정렬 이미지 가져오기](https://ko.wikipedia.org/wiki/선택_정렬)
+
+### 의사 코드
+
+```pseudo
+for i = 0 to n:
+  a[i] 부터 a[n-1] 까지 차례로 비교하여 가장 작은 값이 a[j]에 있다고 ㅎ자.
+  a[i]와 a[j]의 값을 서로 바꾼다.
+```
+
+### 자바 코드
+
+```java
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        int[] arr = {9, 1, 5, 3, 8, 6, 2, 7, 4, 0};
+
+        System.out.println("정렬 전: " + Arrays.toString(arr));
+
+        selectionSort(arr);
+
+        System.out.println("정렬 후: " + Arrays.toString(arr));
+    }
+
+    static void selectionSort(int[] arr) {
+        int minIndex;
+        for (int i = 0; i < arr.length; i++) {
+            minIndex = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if(arr[minIndex] > arr[j]) {
+                    minIndex = j;
+                }
+            }
+            swap(arr, i, minIndex);
+        }
+    }
+
+    static void swap(int[] arr, int index1, int index2) {
+        int temp = arr[index1];
+        arr[index1] = arr[index2];
+        arr[index2] = temp;
+    }
+}
+```
+
+### 시간 복잡도
+
+- n-1개, n-2개, n-3개 ... 1개 씩 비교를 반복
+- 최악의 시간복잡도: O(n^2)
+- 최고의 시간복잡도: O(n^2)
+- 평균의 시간복잡도: O(n^2)

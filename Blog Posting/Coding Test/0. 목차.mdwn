@@ -1,6 +1,6 @@
 # 자료 구조
 
-- **스택 이론**
+- **스택 자료구조**
 
   - 문제
     1. [Comprehension Check](https://wonit.tistory.com/374) 괄호 유효성 검사
@@ -8,13 +8,13 @@
     3. [백준 1874](https://www.acmicpc.net/problem/1874) 스택 수열 [문제 풀이](https://wonit.tistory.com/376)
     4. [백준 1406](https://www.acmicpc.net/problem/1406) 에디터 [문제 풀이](https://wonit.tistory.com/380) - 연결 리스트로 구성된 스택 직접 구현해서 풀어보기
 
-- **큐 이론**
+- **큐 자료구조**
 
   - 문제
     1. [백준 11866](https://www.acmicpc.net/problem/11866) 요세푸스 문제 0 [문제 풀이](https://wonit.tistory.com/377)
     2. [백준 1966](https://www.acmicpc.net/problem/1966) 프린터 큐 [문제 풀이](https://wonit.tistory.com/381)
 
-- **Recursive-재귀 이론**
+- **Recursive 재귀**
 
   - 문제
     1. [백준 10872](https://www.acmicpc.net/problem/10872) 팩토리얼 [문제 풀이](https://wonit.tistory.com/382)
@@ -22,7 +22,7 @@
 
 # 알고리즘
 
-- **Dynamic Programming**
+- **Dynamic Programming 동적 계획법**
 
   - 문제
     1. [백준 1003](https://www.acmicpc.net/problem/1003) 피보나치 함수 [문제 풀이](https://wonit.tistory.com/384)
@@ -42,6 +42,16 @@
     15. [백준 11054](https://www.acmicpc.net/problem/11054) 가장 긴 바이토닉 부분 수열 [문제 풀이](#)
     16. [백준 1912](https://www.acmicpc.net/problem/1912) 연속합 [문제 풀이](#)
     17. [백준 2579](https://www.acmicpc.net/problem/2579) 계단 오르기 [문제 풀이](https://wonit.tistory.com/395)
+
+- **Sort 정렬 알고리즘**
+
+  - 문제
+    1. [백준 2751](https://www.acmicpc.net/problem/2751) 수 정렬하기 2 [문제 풀이](https://wonit.tistory.com/397)
+    2. [백준 11650](https://www.acmicpc.net/problem/11650) 좌표 정렬하기 [문제 풀이](https://wonit.tistory.com/398)
+    3. [백준 11651](https://www.acmicpc.net/problem/11651) 좌표 정렬하기 2 [문제 풀이](https://wonit.tistory.com/399)
+    4. [백준 10814](https://www.acmicpc.net/problem/10814) 나이순 정렬 [문제 풀이](https://wonit.tistory.com/400)
+    5. [백준 10825](https://www.acmicpc.net/problem/10825) 국영수 [문제 풀이](https://wonit.tistory.com/401)
+    6. [백준 10989](https://www.acmicpc.net/problem/10989) 수 정렬하기 3 [문제 풀이]()
 
 - **이론**
 

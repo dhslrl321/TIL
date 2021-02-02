@@ -1,0 +1,56 @@
+# 계수 정렬
+
+- 특정 조건이 부합할 때만 사용할 수 있지만 **매우 빠르게 동작**하는 정렬 알고리즘
+- 데이터 크기가 정수 형태로 표현할 수 있을 때만 사용 가능
+- 최악의 경우에도 O(N) 를 보장
+- [시각화](https://www.cs.miami.edu/home/burt/learning/Csc517.091/workbook/countingsort.html)
+
+## 특징
+
+- 배열이 추가적으로 생성됨
+- 배열 인덱스로 접근
+- 요소 값들 끼리 서로 비교하지 않는 정렬 알고리즘
+- 배열 내 최대 값 + 1 만큼의 길이가 필요해서 메모리 낭비가 있을 수 있음
+- 데이터가 0과 9999로 단 2개만 존재할 때, 카운팅 배열을 9999개만큼 생성해야 하므로 비효율일 수 있음
+- **동일 값을 가지는 데이터가 여러 개 등장할 때** 효과적
+
+## 정렬 순서
+
+1. 카운팅 배열 생성 및 초기화
+2. 정렬할 배열을 돌며 해당 배열의 값의 등장 횟수를 계산
+3. 카운팅 배열에 존재하는 값들 만큼 출력
+
+## 소스 코드
+
+```java
+import java.util.Arrays;
+public class Main {
+  public static void main(String[] args) {
+    int max = 5;
+    int[] nums = {1, 0, 1, 5, 4, 3, 1, 4, 5, 2, 1};
+    int[] sorted = countingSort(arr, max);
+    System.out.println(Arrays.toString(sorted));
+  }
+
+  private static int[] countingSort(int[] arr, int max) {
+    int[] counts = new int[max + 1];
+    int[] sorted = new int[arr.length];
+
+    for(int i = 0; i < arr.length; ++i) {
+      ++counts[arr[i]];
+    }
+
+    for(int i = 0; i < max; ++i) {
+      counts[i] += counts[i - 1];
+    }
+
+    for(int i = 0; i < arr.length; ++i) {
+      sorted[--counts[arr[i]]] = arr[i];
+    }
+
+    return sorted;
+  }
+}
+```
+
+## 시간 복잡도

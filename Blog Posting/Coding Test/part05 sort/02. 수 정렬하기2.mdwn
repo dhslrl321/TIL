@@ -1,0 +1,74 @@
+# 문제
+
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/2751) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25939494) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+이 문제는 기본적인 정렬임에도 불고하고 **정답률이 30%나** 되는 문제이다.
+아마 일반적인 STL의 정렬 알고리즘을 사용해서 사람들이 많이 틀렸을 것 같다.
+
+## 접근법
+
+정렬을 하라고 이미 문제에서 주어졌지만 문제의 오답률이 높다.
+입력을 보고 어떤 알고리즘을 사용할지 생각해보자.
+
+우선 수의 개수 N은 `1,000,000`이고 시간 제한이 2초면 대략 `2억 ~ 10억` 까지, 안전하게 `2억 ~ 5`억 까지라고 잡자.
+그럼 O(N^2) 알고리즘을 선택하면, `1,000,000,000,000` 으로 절대 제한시간 내에 통과할 수 없지만, 최소 O(N log N)인 알고리즘은 `1,000,000 x 6`으로 가볍게 통과할 수 있다.
+
+그리고 우리가 알고 있는 4가지 정렬 알고리즘들을 확인해보자.
+
+1. 선택 정렬
+2. 삽입 정렬
+3. 퀵 정렬
+4. 계수 정렬
+
+입력이 100만이면 평균적인 시간 복잡도가 **O(N^2)인 Selection, Insertion sort**는 당연히 통과하지 않을 것으로 보인다.
+
+그럼 우리가 사용할 수 있는 알고리즘은 **퀵 정렬, 계수 정렬**이 있다.
+
+하지만 주의해야할 것이 퀵 정렬은 **모든 상황에서 `n log n`의 복잡도를 갖는 것이 아니다**.
+데이터가 거의 정렬된 경우에는 n log n이 아니라 n^2이 걸리게 된다.
+그래서 조심해야 하는데, 이번 상황에서는 **빠른 입출력**과 **퀵 소트**를 이용해서 문제를 풀어볼 것이다.
+
+## 오답 후보
+
+## 정답 코드
+
+```java
+import java.util.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException{
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+
+        int n = Integer.parseInt(br.readLine());
+
+        ArrayList<Integer> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            list.add(Integer.parseInt(br.readLine()));
+        }
+
+        Collections.sort(list);
+
+        for(int i : list) {
+            bw.write(i + "\n");
+        }
+        bw.flush();
+        bw.close();
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25939494) 에서 확인 가능합니다.
