@@ -81,4 +81,4 @@ class Point {
 
 > 회고
 
-#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25940324) 에서 확인 가능합니다.
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25940718) 에서 확인 가능합니다.
