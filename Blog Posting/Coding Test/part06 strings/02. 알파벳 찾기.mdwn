@@ -1,0 +1,80 @@
+# 문제
+
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/10809) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/submit/10809/25976221) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+이번 문제는 바로 앞서 풀었던 문제 [알파벳 개수](https://wonit.tistory.com/404)와 동일한 문제인데, 조건만 조금 다르다.
+
+이 문제를 봐보자.
+
+> 알파벳 소문자로만 이루어진 단어 S가 주어진다. 각각의 알파벳에 대해서, 단어에 포함되어 있는 경우에는 처음 등장하는 위치를, 포함되어 있지 않은 경우에는 -1을 출력하는 프로그램을 작성하시오.
+
+여기서 조건을 찾을 수 있다.
+우리가 문제를 해결하기 위해서 꼭 거쳐야할 조건들을 뽑아보자.
+
+1. 알파벳 소문자
+2. 처음에 등장하는 위치
+3. 포함되어 있지 않은 경우 -1 출력
+
+## 접근법
+
+위의 3가지 조건에 의해서 프로그램을 작성하면 된다.
+
+#### 알파벳 소문자.
+
+우선 모든 입력은 **알파벳 소문자**라고 한다.
+그럼 입력을 처리할 때 알파벳 배열의 인덱스를 결정하는 방법으로는 `- 'a'`로 해결할 수 있다.
+
+#### 처음 등장하는 위치
+
+이 문제는 개수를 세아리는게 아니고 언제 처음 등장했는지만 찾으면 된다.
+그래서 지난 알파벳 찾기 처럼 누적합을 하는게 아니고 처음으로 등장한 인덱스만 넣어주면 된다.
+우리는 이 검사를 알파벳 인덱스가 -1이 아닐 때만 값을 넣기로 하면 된다.
+
+#### 포함되어 있지 않은 경우 -1 출력
+
+해당 조건을 달성하기 위해 마지막 출력에 조건문 처리를 할 수도 있지만 아예 처음부터 모든 배열 값들을 -1로 초기화 시키면 마지막 과정을 거치지 않을 수 있다.
+물론 시간적으로는 중복 반복이 없는 전자가 더 효율적일 수 있다.
+하지만 문제의 조건을 정확히 지키고 하나씩 지워간다는 문제풀이 전략에 더욱 부합하는 후자를 선택하려 한다.
+
+```java
+java.util.Arrays.fill(int[] arr, int value);
+```
+
+메서드를 사용한다면 우리가 원하는 값을 배열에 fill할 수 있다.
+
+## 정답 코드
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+    char[] s = br.readLine().toCharArray();
+
+    int[] alphabet = new int[26];
+
+    Arrays.fill(alphabet, -1);
+
+    for(int i = 0; i < s.length; i++) {
+      if(alphabet[s[i] - 'a'] == -1) lphabet[s[i] - 'a'] = i;
+    }
+
+    for(int i = 0; i < alphabet.length; i++) {
+      bw.write(alphabet[i] + " ");
+    }
+
+    bw.flush();
+    bw.close();
+  }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/submit/10809/25976221) 에서 확인 가능합니다.

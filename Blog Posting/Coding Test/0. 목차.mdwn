@@ -1,12 +1,18 @@
 - **자바 문제풀이 팁**
   - 스킬
     1. 배열 뒤집기
-    2. 자바 정렬 기준 바꾸기
-    3. 자바 동등과 동일 (equals vs `==`)
+    2. 배열 Shift 연산
+    3. 자바 정렬 기준 바꾸기
+    4. 자바 동등과 동일 (equals vs `==`)
+    5. 알파벳 개수 (백준 문제까지)
+    6. 모듈러 연산
   - 문제풀이 스킬
     1. Scanner와 System.out.println으로 기본적인 입출력 처리하기
     2. BufferedReader & BufferedWriter 로 빠른 입출력 처리하기
     3. 입력 유형에 따른 전처리 방법
+    4. Int to Char, Char to Int, Char to String, String to Char
+    5. 자바에서 EOF 처리하기
+    6. StringBuilder() 사용법
 
 # 자료 구조
 
@@ -24,7 +30,15 @@
 
   - 문제
     1. [백준 11866](https://www.acmicpc.net/problem/11866) 요세푸스 문제 0 [문제 풀이](https://wonit.tistory.com/377)
+    2. [백준 1158](https://www.acmicpc.net/problem/1158) 요세푸스 문제 [문제 풀이](https://wonit.tistory.com/410) - Queue를 이용한 풀이
+    3. [백준 1966](https://www.acmicpc.net/problem/1966) 프린터 큐 [문제 풀이](https://wonit.tistory.com/381)
+
+- **연결 리스트 자료구조**
+
+  - 문제
+    1. [백준 11866](https://www.acmicpc.net/problem/11866) 요세푸스 문제 0 [문제 풀이](https://wonit.tistory.com/377)
     2. [백준 1966](https://www.acmicpc.net/problem/1966) 프린터 큐 [문제 풀이](https://wonit.tistory.com/381)
+    3. [백준 1158](https://www.acmicpc.net/problem/1158) 요세푸스 문제 [문제 풀이](https://wonit.tistory.com/410) - LinkedList를 이용한 풀이
 
 - **Recursive 재귀**
 
@@ -63,6 +77,17 @@
     3. [백준 11651](https://www.acmicpc.net/problem/11651) 좌표 정렬하기 2 [문제 풀이](https://wonit.tistory.com/399)
     4. [백준 10814](https://www.acmicpc.net/problem/10814) 나이순 정렬 [문제 풀이](https://wonit.tistory.com/400)
     5. [백준 10825](https://www.acmicpc.net/problem/10825) 국영수 [문제 풀이](https://wonit.tistory.com/401)
+    6. [백준 11656](https://www.acmicpc.net/problem/11656) 접미사 배열 [문제 풀이](https://wonit.tistory.com/409)
+
+- **문자열 처리**
+
+  - 문제
+    1. [백준 10808](https://www.acmicpc.net/problem/10808) 알파벳 개수 [문제 풀이](https://wonit.tistory.com/404)
+    2. [백준 10809](https://www.acmicpc.net/problem/10809) 알파벳 찾기 [문제 풀이](https://wonit.tistory.com/405)
+    3. [백준 10820](https://www.acmicpc.net/problem/10820) 문자열 분석 [문제 풀이](https://wonit.tistory.com/406)
+    4. [백준 11655](https://www.acmicpc.net/problem/11655) ROT13 [문제 풀이](https://wonit.tistory.com/407)
+    5. [백준 10824](https://www.acmicpc.net/problem/10824) 네 수 [문제 풀이](https://wonit.tistory.com/408)
+    6. [백준 11656](https://www.acmicpc.net/problem/11656) 접미사 배열 [문제 풀이](https://wonit.tistory.com/409)
 
 - **이론**
 

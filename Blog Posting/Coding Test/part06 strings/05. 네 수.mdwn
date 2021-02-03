@@ -1,0 +1,66 @@
+# 문제
+
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/10824) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25979480) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+이번 문제는 간단한 논리로 풀 수 있지만 정답 비율이 39%로 높은 비율은 아니다.
+
+왜 사람들이 많이 틀릴지 생각해보며 문제를 풀어보자.
+
+## 접근법
+
+우선 우리는 4개의 자연수를 받게 된다.
+AB를 붙히고 CD를 붙힌 수에 산술 합을 구하면 문제는 끝난다.
+
+그럼 AB라는 수를 합치려면 어떻게 해야할까?
+
+정답이다.
+
+문자열로 만들고 이를 서로 합치면 된다.
+
+## 오답 후보
+
+여기서 주의해야할 점이 하나 있다.
+
+입력 a, b, c, d는 최대 백만의 수가 들어온다.
+그럼 a 와 b를 합친 수는 백만자리 + 백만자리가 될 것이다.
+그럼 결국 1조라는 수가 될 것이고, int의 최대 범위인 21억을 훨씬 넘게 되어 정수 오버플로우가 발생한다.
+
+그래서 우리는 a와 b를 합친 문자열을 long 자료형으로 받아야 한다.
+
+```java
+a = 1,000,000;
+b = 1,000,000;
+ab = 1,000,000,000,000;
+```
+
+아마 이게 정답률을 떨어트리는 요인이 되지 않았을까 싶다.
+
+## 정답 코드
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    String[] abcd = br.readLine().split(" ");
+
+    StringBuilder sb = new StringBuilder();
+    long ab = Long.parseLong(String.valueOf(sb.append(abcd[0]).append(abcd[1])));
+    sb.setLength(0);
+    long cd = Long.parseLong(String.valueOf(sb.append(abcd[2]).append(abcd[3])));
+
+    bw.write(String.valueOf(ab + cd));
+    bw.flush();
+    bw.close();
+  }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/25979480) 에서 확인 가능합니다.
