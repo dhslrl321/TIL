@@ -1,0 +1,123 @@
+유클리드 호제법 (알고리즘)은 세계 최초의 알고리즘이다.
+
+이 세계 최초 알고리즘은 어떤 동작을 하고 어떤 결과를 내는지 알아보자.
+
+### 우리가 배울 것
+
+- 유클리드 호제법
+  - 최대 공약수
+  - 최소 공배수
+- Java로 구현하기
+  - 최대 공약수
+    - 반복문을 통한 구현
+    - 재귀호출을 통한 구현
+  - 최소 공배수
+- 시간복잡도
+
+# 유클리드 호제법
+
+유클리드 알고리즘은 2개의 자연수의 **최대 공약수**를 구하는 방법이다.
+
+최대 공약수란 무엇인지 기억이 나면 좋겠지만 최대공약수는 중학교 1학년 교육 과정에 나오는 내용이라 까먹었을 수 있는 여러분에게 다시 한번 상기시켜주자면
+
+### 최대 공약수와 최소 공배수
+
+**최대 공약수**와 **최소 공배수**를 가장 빨리 상기시키는 방법은 우리가 죽어라 했던 공식을 한 번 보여주는 것이라 생각했다.
+
+#### 최대공약수(GCD) 는 어떤 두 수 A, B가 존재할 때, 공통인 약수 중 가장 큰 수
+
+#### 최소공배수(LCM) 는 어떤 두 수 A, B가 존재할 때, 그들의 배수가되는 가장 작은 수
+
+보통 우리는 최대 공약수를 구할때 다음과 같이 구하게 된다.
+
+[##_Image|kage@wlW4o/btqVIK86wcQ/LNZHmVeVTwmIcfsLnCttR0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="494" height="NaN" data-ke-mobilestyle="widthContent"|출처 :&nbsp;http://yoonbumtae.com/?p=2302||_##]
+
+이제 다시 본론으로 돌아가서 유클리드 호제법이 무엇이냐?  
+위에서 본 사진처럼 GCD이나 LCM을 구하게 되면 만약 A, B가 말도 안되게 큰 수라면 아주 힘들어진다.
+하지만 유클리드 호제법을 이용한다면 쉽고 체계적으로 구할 수 있다.
+
+## 유클리드 호제법으로 최대공약수 구하기
+
+유클리드 호제법의 핵심은 **모듈러 연산**이다.
+모듈러 연산을 반복하여 0이될 때 까지 간다면 우리는 최대공약수를 구할 수 있다.
+
+만약 수 A와 B가 있고 해당 수의 나머지, 모듈러 N이 있다고 가정해보자.
+
+[##_Image|kage@yGELN/btqVIbly0wq/0r9aFV5kciB7X723pkBLd1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="387" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+이 둘을 다음과 같은 과정을 반복하면 된다.
+
+1. A와 B중 더 큰 수 찾기.
+2. 큰 수를 A로 작은 수를 B로 설정
+3. `A % B = N` 구하기
+4. `N == 0` 이면 `B`는 최대공약수
+5. `N != 0` 이면 `A = B, B = N` 으로 대입하고 3번 ~ 5번 과정 반복
+
+[##_Image|kage@bsfuaf/btqVFBEOMpb/u26kPaZP6wfA5BkNyKeUhK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="434" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+## 유클리드 호제법으로 최소공배수 구하기
+
+최소 공배수의 핵심은 **GCD**이다.
+유클리드 알고리즘을 통해서 구한 최대 공약수에 a와 b를 각각 곱한 값을 나눠만 준다면 최소공배수를 구할 수 있다.
+[LCM PPT]()
+
+# Java로 구현하기
+
+GCD를 자바로 구현하는 방법에는 크게 2가지 방법이 있다.
+
+1. 반복문을 통한 구현
+2. 재귀호출을 통한 구현
+
+두 방법 모두를 사용해 볼 것이다.
+
+## 반복문을 통한 구현
+
+```java
+private static int gcdByLoop(int a, int b) {
+  if(a < b) swap(a, b);
+  while(b > 0) {
+    int temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return a;
+}
+
+private static void swap(int a, int b) {
+  int temp = a;
+  a = b;
+  b = temp;
+}
+```
+
+## 재귀호출을 통한 구현
+
+```java
+private static int gcdByRecursive(int a, int b) {
+  if(a < b) swap(a, b);
+  if(b == 0) {
+    return a;
+  }
+  return gcdByRecursive(b, a % b);
+}
+
+private static void swap(int a, int b) {
+  int temp = a;
+  a = b;
+  b = temp;
+}
+```
+
+## 최소공배수 구현
+
+```java
+private static int lcm(int a, int b) {
+  return (a * b) / gcdByLoop(a, b);
+}
+```
+
+# 시간 복잡도
+
+일반적인 논리에 의해서 최대 공약수, 최소 공배수를 구한다면 O(N^2)의 시간이 평균적으로 소요된다.
+
+하지만 유클리드 알고리즘을 이용한다면 O(log N)이라는 시간이 소요된다.

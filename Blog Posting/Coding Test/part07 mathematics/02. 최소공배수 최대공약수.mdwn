@@ -1,0 +1,108 @@
+# 문제
+
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/2609) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26019632) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+이번 문제는 2개의 자연수를 GCD, LCM 처리하라는 문제이다.
+GCD, LCM을 처리하는 일반적인 방법을 통해서 구한다면 O(N^2)의 시간 복잡도가 소요된다.
+하지만 문제에서는 시간 제한도 넉넉하고 n이 2로 고정되어있기 때문에 어떤 방법을 통해 해결해도 제한이 되지 않는다.
+
+하지만 그래도 시간 복잡도가 더 적은 유클리드 알고리즘을 통해서 O(log N)으로 문제를 해결해보자.
+
+## 접근법
+
+해당 문제는 유클리드 알고리즘이 사용된다.
+만약 유클리드 알고리즘에 대해서 알지 못한다면 [유클리드 알고리즘을 통한 최대 공약수와 최소 공배수](https://wonit.tistory.com/411)에서 학습하는 것을 적극 추천한다.
+
+유클리드 알고리즘을 2가지 방법으로 구현하고 시간을 분석해보자.
+
+1. 반복문을 통한 구현
+2. 재귀호출을 통한 구현
+
+## 반복문을 통한 구현
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    String[] ab = br.readLine().split(" ");
+    int a = Integer.parseInt(ab[0]);
+    int b = Integer.parseInt(ab[1]);
+
+    bw.write(gcdByLoop(a, b) + "\n" + lcm(a, b));
+    bw.flush();
+    bw.close();
+  }
+
+  private static int gcdByLoop(int a, int b) {
+    if(a < b) swap(a, b);
+    while(b > 0) {
+      int temp = b;
+      b = a % b;
+      a = temp;
+    }
+    return a;
+  }
+
+  private static int lcm(int a, int b) {
+    return (a * b) / gcdByLoop(a, b);
+  }
+
+  private static void swap(int a, int b) {
+    int temp = a;
+    a = b;
+    b = temp;
+  }
+}
+```
+
+## 재귀 호출을 통한 구현
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    String[] ab = br.readLine().split(" ");
+    int a = Integer.parseInt(ab[0]);
+    int b = Integer.parseInt(ab[1]);
+
+    bw.write(gcdByRecursive(a, b) + "\n" + lcm(a, b));
+    bw.flush();
+    bw.close();
+  }
+
+  private static int gcdByRecursive(int a, int b) {
+    if(a < b) swap(a, b);
+    while(b > 0) {
+      int temp = b;
+      b = a % b;
+      a = temp;
+    }
+    return a;
+  }
+
+  private static int lcm(int a, int b) {
+    return (a * b) / gcdByRecursive(a, b);
+  }
+
+  private static void swap(int a, int b) {
+    int temp = a;
+    a = b;
+    b = temp;
+  }
+}
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26019632) 에서 확인 가능합니다.

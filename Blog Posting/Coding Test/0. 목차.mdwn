@@ -1,11 +1,22 @@
+# 자료 구조 & 알고리즘 기초
+
+- 기초
+  - 연산 및 수학
+    1. 모듈러 연산
+    2. [유클리드 알고리즘을 이용한 최소공배수, 최대공약수](https://wonit.tistory.com/411)
+
+# 자바 알고리즘 PS 팁
+
 - **자바 문제풀이 팁**
+
   - 스킬
+
     1. 배열 뒤집기
     2. 배열 Shift 연산
     3. 자바 정렬 기준 바꾸기
     4. 자바 동등과 동일 (equals vs `==`)
     5. 알파벳 개수 (백준 문제까지)
-    6. 모듈러 연산
+
   - 문제풀이 스킬
     1. Scanner와 System.out.println으로 기본적인 입출력 처리하기
     2. BufferedReader & BufferedWriter 로 빠른 입출력 처리하기
@@ -88,6 +99,14 @@
     4. [백준 11655](https://www.acmicpc.net/problem/11655) ROT13 [문제 풀이](https://wonit.tistory.com/407)
     5. [백준 10824](https://www.acmicpc.net/problem/10824) 네 수 [문제 풀이](https://wonit.tistory.com/408)
     6. [백준 11656](https://www.acmicpc.net/problem/11656) 접미사 배열 [문제 풀이](https://wonit.tistory.com/409)
+
+- **수학**
+
+  - 문제
+    1. [백준 2609](https://www.acmicpc.net/problem/2609) 최소공배수와 최대공약수 [문제 풀이](https://wonit.tistory.com/412)
+    2. [백준 1934](https://www.acmicpc.net/problem/1934) 최소공배수 _문제 풀이는 [2609번 문제 풀이](https://wonit.tistory.com/412)와 논리가 같으므로 해당 링크를 참고하세요_
+    3. [백준 1850](https://www.acmicpc.net/problem/1850) 최대공약수 [문제 풀이](https://wonit.tistory.com/413)
+    4. [백준 9613](https://www.acmicpc.net/problem/9613) GCD 합 [문제 풀이](https://wonit.tistory.com/414)
 
 - **이론**
 
