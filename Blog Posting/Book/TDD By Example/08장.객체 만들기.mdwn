@@ -1,0 +1,30 @@
+# 객체 만들기
+
+여기 Dollar 클래스와 Franc클래스의 `times()` 메서드를 확인해보자.
+
+```java
+class Dollar extends Money{
+  // ... 생략
+  public Dollar times(int multiplier) {
+    return new Dollar(amount * multiplier);
+  }
+}
+class Franc extends Money {
+  // ... 생략
+  public Franc times(int multiplier) {
+    return new Franc(amount * multiplier);
+  }
+}
+```
+
+아주 거의 비슷하다.
+
+여기서 반환하는 객체를 `Money`로 바꿔주면 더욱 비슷해진다.
+
+여기서 만약 times를 공통으로 뻈다고 치자, 그럼 Dollar와 Franc는 아무것도 없는 선언만 존재하는 빈 클래스가 된다.
+
+이 둘의 무의미함을 한번에 없애고싶지만 너무 큰 일이라 **작은 일부터 테스트로 수행해가는** TDD의 목적에 알맞지 않다.
+
+작은 것부터 해보자.
+
+우선 우리는 Factory Method 패턴을 사용할 것이다.

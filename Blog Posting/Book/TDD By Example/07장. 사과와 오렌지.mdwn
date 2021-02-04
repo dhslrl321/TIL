@@ -1,0 +1,54 @@
+# 사과와 오렌지
+
+지난 시간에 우리는 상속을 이용해서 Money를 상속받는 Dollar 클래스와 Franc 클래스를 만들었다.
+
+그리고 Dollar와 Franc에 중복되는 코드 `equals()` 를 Money로 옮겼다.
+
+하지만 여기서 문제가 발생한다.
+
+본질적으로 Dollar나 Franc나 같은 클래스를 상속받았지만 엄연히 서로 다른 클래스이다.
+
+결국 Money에서 상속받는 `equals()`에는 오류가 있다.
+
+왜? `equals()`에서는 단지 `amount`의 필드 값만 보고 비교를 하기 때문에.
+
+그래서 이번에는 `equals()`를 바꿔보도록하자.
+
+## TDD 시작
+
+### 실패하는 코드 작성
+
+```java
+@Test
+void testEquality() {
+  assertEquals(new Dollar(5), new Dollar(5));
+  assertNotEquals(new Franc(5), new Franc(1));
+  assertNotEquals(new Dollar(5), new Franc(5));
+}
+
+class Money {
+  protected int amount;
+
+  @Override
+  public boolean equals(Object object) {
+    Money money = (Money) object;
+    return amount == money.amount;
+  }
+}
+```
+
+당연히 실패한다.
+
+우리의 목적은 **금액도 같고, 클래스도 같을 때 true 반환**하는 것이기 때문에 리팩토링하자.
+
+```java
+@Override
+public boolean equals(Object object) {
+  Money money = (Money) object;
+  return amount == money.amount // 금액이 같고
+          && getClass.equals(object.getClass()); // 클래스도 같을 때
+}
+```
+
+원래라면 이런식으 equals 는 적절하지 않다.
+하지만 아직까지는 확실히 다른 디자인을 적용해야한다는 동기가 없으니 이대로 넘어가도 충분하다.
