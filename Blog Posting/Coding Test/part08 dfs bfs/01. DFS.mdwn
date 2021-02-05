@@ -1,0 +1,179 @@
+# DFS
+
+- DFS를 하기 위해서는 **스택, 재귀**이론이 필요함.
+- 인접 리스트로 그래프를 구현할 줄 알아야 함.
+
+## 사전 지식 : 스택
+
+- 스택은 후입 선출의 자료 구조임
+- 스택은 먼저 들어온 값이 제일 마지막에 나감
+- 스택은 push로 값을 추가하고 pop으로 값을 뺌
+
+## 사전 지식 : 재귀
+
+- 재귀 함수는 함수 자기 자신을 다시 호출하여 작업을 수행
+- 재귀 함수 내부에는 종료 조건과 재귀적인 무언가가 필요함.
+
+## 사전 지식 : 그래프 표현하기
+
+그래프를 표현하기 위해서 2가지 방법이 쓰인다.
+
+1. 인접 행렬
+2. 인접 리스트
+
+인접 행렬은 구현하기 쉽다는 특징이 있지만, 그래프를 인접 행렬의 원소로 추가하는 것과 인접 행렬의 모든 원소 탐색의 경우 n^2 의 시간이 소요된다.
+하지만 인접 리스트는 구현하기 어렵지만 추가와 탐색에 모든 노드를 확인하지 않기 때문에 O(E) 시간이 걸린다.
+
+두 방법에 장단점과 모두 매력이 있지만 문제 풀이에서는 **인접 리스트**를 이용한 풀이가 더욱 많다.
+하지만 코딩 테스트에 있어 **라이브러리 사용이 금지**될 때 인접 행렬을 쓴다고한다.
+아직 나는 그런 코딩 테스트를 경험해본적 없다.
+
+```java
+import java.util.ArrayList;
+
+public class Main {
+    public static void main(String[] args) {
+        int n = 4;
+        int m = 5;
+
+        int[] edge1 = {1, 2};
+        int[] edge2 = {1, 3};
+        int[] edge3 = {1, 4};
+        int[] edge4 = {2, 3};
+        int[] edge5 = {3, 4};
+
+        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+
+        // 그래프 초기화
+        for (int i = 0; i < n; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        graph.get(edge1[0]).add(edge1[1]);
+        graph.get(edge1[1]).add(edge1[0]);
+
+        graph.get(edge2[0]).add(edge2[1]);
+        graph.get(edge2[1]).add(edge2[0]);
+
+        graph.get(edge3[0]).add(edge3[1]);
+        graph.get(edge3[1]).add(edge3[0]);
+
+        graph.get(edge4[0]).add(edge4[1]);
+        graph.get(edge4[1]).add(edge4[0]);
+
+        graph.get(edge5[0]).add(edge5[1]);
+        graph.get(edge5[1]).add(edge5[0]);
+    }
+}
+```
+
+이제 본론인 DFS 알고리즘으로 들어가보자.
+
+# DFS
+
+DFS 알고리즘은 그래프의 **모든 정점**을 방문하고자 하는 전략 중 하나다.
+
+- 깊이 우선 탐색
+- 깊은 부분을 우선적으로 탐색
+- **스택, 재귀호출**사용
+
+**재귀 호출**
+
+1. `dfs(graph, v, visited)` 로 재귀 함수 첫 호출
+2. 재귀 함수 내부에서 방문한 적이 있다면 바로 탈출
+3. 방문한 적이 없으면 인접한 노드들을 상대로 또 재귀적 수행
+
+# 스택을 이용한 DFS
+
+스택을 이용한 DFS에서는 다음과 같은 과정을 거친다.
+
+## 탐색 순서
+
+1. 탐색 시작 노드를 스택에 **push 후 방문 처리**
+2. 현재 노드에서 다른 노드로 갈 수 있는지 확인인하는 flag 변수 생성 (true: 갈 수 있음, false: 갈 수 없음)
+3. 만약 갈 수 있다면 해당 노드를 **stack에 push하고 방문 처리**
+4. 만약 갈 수 없다면 **stack에서 pop** 연산 수행
+5. 이를 스택이 비어있을 때 까지 반복
+
+## 소스 코드
+
+```java
+public Class Main {
+  static boolean[] visited; // 방문 확인 배열
+  static ArrayList<ArrayList<Integer>> graph = new ArrayList<ArrayList<Integer>>(); // 인접 리스트 특정 인덱스 접근에 상수 시간이 들어서 일반 배열보다 좋음
+  static StringBuilder sb = new StringBuilder();
+
+  public static void main(String[] args) {
+    // main 함수 생략
+  }
+
+  public static void dfs(int x) {
+    Stack<Integer> stack = new Stack<>();
+    boolean flag; // 한 노드에서 더 이상 갈 수 있는 다른 노드가 있는지 확인
+    sb.append(value).append(" "); // 최초 노드는 무조건 방문하고 시작하니 바로 출력
+    visited[x] = true; // 최초 노드는 무조건 방문하고 시작하니 바로 방문 처리
+    stack.push(x);
+
+    while(!stack.isEmpty()) {
+      x = stack.peek(); // 해당 노드에서 갈 수 있는 노드를 찾기 위해서 peek
+      flag = false;
+      int size = graph.get(x).size();
+      for(int i = 0; i < size; i++) {
+        int value = graph.get(x).get(i);
+
+        if(!visited[value]) {
+          sb.append(value).append(" "); // 노드 방문 후 출력
+          visited[value] = true; // 방문 처리
+          flag = true; // 더 갈 수 있는 노드가 있었기 때문에 true로 아래 pop을 하지 않도록 함.
+          stack.push(value);
+          break; // 노드 방문을 했으니 더 깊은 곳으로 가기 위해서 break문을 통해 stack에 push하는 것을 멈춤
+        }
+      }
+      if(!flag) {
+        stack.pop();
+      }
+    }
+  }
+}
+```
+
+# 재귀 호출을 이용한 DFS
+
+재귀 호출을 이용한 DFS는 다음과 같은 과정을 거치게 된다.
+
+## 탐색 순서
+
+1. 탐색을 시작할 노드 x를 매개변수로 재귀 함수를 호출
+2. 재귀 함수 내부에서 매개변수로 들어온 노드 번호 x를 방문 처리 후 출력
+3. 노드 x에서 다른 노드로 갈 수 있는 노드를 for 문을 통해 하나씩 검증
+4. 검증 과정은 `visited` 배열에 방문 이력이 없는 노드만 검증
+5. 방문 이력이 없는 노드라면 재귀적으로 dfs를 실행해 위 과정을 계속 반복
+
+## 소스코드
+
+```java
+public Class Main {
+  static boolean[] visited; // 방문 확인 배열
+  static ArrayList<ArrayList<Integer>> graph = new ArrayList<ArrayList<Integer>>(); // 인접 리스트 특정 인덱스 접근에 상수 시간이 들어서 일반 배열보다 좋음
+  static StringBuilder sb = new StringBuilder();
+
+  public static void main(String[] args) {
+    // main 함수 생략
+  }
+
+  public static void dfs(int x) {
+    visited[x] = true; // 현재 노드를 방문 처리
+    sb.append(x).append(" "); // 현재 노드를 출력
+    for(int i = 0; i < graph.get(x).size(); i++){ // 그래프의 현재 노드 인접 리스트 사이즈만큼 반복
+      int value = graph.get(x).get(i); // 다음에 재귀적으로 방문할 노드를 확인
+      if(!visited[value]) dfs(value); // 재귀적으로 다음 노드 방문
+    }
+  }
+}
+```
+
+## 정리
+
+위에서 구현한 것을 통해서 알 수 있듯, DFS로 그래프를 탐색하는 방법은 크게 2가지가 있었다.
+스택과 재귀 호출을 통해서 구현할 수 있는데, 보통 스택은 손이 많이 가서 재귀 호출을 통한 구현을 주로 한다.
+하지만 우리는 학습을 위한 목적으로 현재 보고 있기 때문에 두 방법 모두 구현해보고 원리를 파악하는 것이 좋다.

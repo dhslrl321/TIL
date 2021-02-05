@@ -1,0 +1,113 @@
+# 문제
+
+> 해당 포스팅은 백준의 [1260번 DFS와 BFS](https://www.acmicpc.net/problem/1260) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+- [인접 리스트 구현 방법](https://wonit.tistory.com/238?category=758730)
+- [인접 행렬 구현 방법](https://wonit.tistory.com/234?category=758730)
+
+그래프의 DFS와 BFS를 구현하는 방법에는 여러 방법이 있다.
+
+1. 스택으로 DFS 구현하기
+2. 재귀 호출로 DFS 구현하기
+3. 큐로 BFS 구현하기
+
+위의 3가지 방법을 모두 경험해보며 실행시간을 비교해보자.
+
+## 접근법
+
+우선 우리는 인접 리스트와 방문 체크 배열의 길이를 입력 받은 길이 + 1로 쓸 것이다.
+여기서 2가지 옵션이 존재한다.
+
+1.  인접 리스트와 방문 체크 배열의 길이를 입력 받은 길이 그대로 쓸 것인가.
+2.  인접 리스트와 방문 체크 배열의 길이를 입력 받은 길이 + 1로 쓸 것인가.
+
+1번의 경우 출력과 그래프 작업에 + 1과 -1을 해줘야 한다.
+
+하지만 2번의 경우 1번에 비해 메모리는 더 쓰겠지만 그래도 우리가 코딩하기 편하다.
+
+## 오답 후보
+
+## 정답 코드
+
+```java
+public class Main {
+
+  static ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+  static boolean[] visited;
+  static StringBuilder sb = new StringBuilder();
+
+
+  public static void main(String[] args) throws IOException{
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    String[] nmv = br.readLine().split(" ");
+
+    int n = Integer.parseInt(nmv[0]);
+    int m = Integer.parseInt(nmv[1]);
+    int v = Integer.parseInt(nmv[2]);
+
+    // 방문 체크 배열 생성
+    visited = new boolean[m + 1];
+
+    // 인접 리스트 초기화
+    while(m-- >= 0) {
+      graph.add(new ArrayList<>());
+    }
+
+    // 입력 처리 (그래프 연결)
+    for(int i = 0; i < m; i++) {
+      String[] n1n2 = br.readLine().split(" ");
+      int n1 = Integer.parseInt(n1n2[0]);
+      int n2 = Integer.parseInt(n1n2[1]);
+
+      graph.get(n1).add(n2);
+      graph.get(n2).add(n1);
+    }
+
+    bw.write(dfsStack(1));
+    bw.flush();
+    bw.close();
+  }
+
+  private static String dfsByStack(int start) {
+    Stack<Integer> stack = new Stack<>();
+
+    for(int i = 1; i <= n; i++){
+      int size = graph.get(i).size();
+
+      for(int j = 0; j < size; j++) {
+        int v = graph.get(i).get(j);
+        if(!check[v]) {
+          sb.append(v + " ");
+          check[v] = true;
+        }
+      }
+    }
+    return sb.toString();
+  }
+
+  private static void dfsByRecursive(int x) {
+    if(visited[x]) return; // 방문한 적이 있는 노드면 바로 나가
+    check[x] true;
+    sb.append(x).append(" ");
+
+    for(int i = 0; i < graph.get(x).size(); i++) {
+      int value = graph.get(x).get(i);
+
+    }
+  }
+}
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
