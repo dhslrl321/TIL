@@ -11,6 +11,9 @@ import "aos/dist/aos.css";
 import { useEffect } from "react";
 
 const TimelineRow = ({ content, label }) => {
+  const { id } = data;
+  const queryParam = 
+
   return (
     <TimelineItem>
       <TimelineSeparator>
