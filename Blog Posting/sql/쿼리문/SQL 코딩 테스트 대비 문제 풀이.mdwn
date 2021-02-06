@@ -1,0 +1,119 @@
+# 테이블 목록
+
+1. usertb1
+2. buytb1
+
+# usertb1
+
+사용자 정보가 담긴 테이블이다.
+
+### 칼럼명
+
+- **userid (PK)** : 사용자 번호
+- name : 사용자 이름
+- birthyear : 생년 월일
+- addr : 주소
+- mobile1 : 휴대전화 번호1
+- mobile2 : 휴대전화 번호2
+- height : 키
+- mdate : 가입일자
+
+### 테이블 생성 쿼리문
+
+```sql
+DROP TABLE IF EXISTS usertb1;
+
+CREATE TABLE usertb1
+(
+  userid      CHAR(8) NOT NULL PRIMARY KEY,
+  name        VARCHAR(10) NOT NULL,
+  birthyear   INT NOT NULL,
+  addr        CHAR(3) NOT NULL,
+  mobile1     CHAR(3),
+  mobile2     CHAR(8),
+  height      SMALLINT,
+  mdate       DATE
+)
+/*만약 쿼리문이 실행되지 않으면 댓글로 알려주세요 !*/
+```
+
+### USERTB1 샘플 데이터
+
+```sql
+insert into usertb1 values('LSG', '이승기', 1987, '서울', '011', '1111111', 177, '2008-8-8');
+insert into usertb1 values('KHJ', '김호중', 1989, '경북', '010', '2222222', 183, '2010-12-23');
+insert into usertb1 values('PJH', '박지훈', 1996, '대전', '010', '3333333', 180, '2019-3-2');
+insert into usertb1 values('JWI', '장원익', 1997, '경북', '010', '4444444', 183, '2021-1-8');
+insert into usertb1 values('SHM', '손흥민', 1985, '인천', '011', '5555555', 186, '2003-6-15');
+insert into usertb1 values('PJS', '박지성', 1974, '인전', '010', '6666666', 170, '2011-3-29');
+insert into usertb1 values('JIJ', '조인준', 1950, '전남', '011', '7777777', 178, '2008-6-6');
+insert into usertb1 values('KHD', '강호동', 1968, '부산', '010', '8888888', 183, '2013-4-17');
+insert into usertb1 values('PMS', '박민수', 1993, '서울', '011', '9999999', 155, '2012-8-22');
+insert into usertb1 values('LKI', '이강인', 2001, '전남', '070', '0000000', 176, '2001-2-13');
+```
+
+# buytb1
+
+사용자가 구매한 목록이 담긴 테이블이다.
+
+### 칼럼명
+
+- **num (PK)** : 구매 번호
+- _userid (FK)_ : 구매 사용자 번호
+- prodname : 상품명
+- groupname : 카테고리 그룹명
+- price : 금액
+- amount : 가격
+
+### 테이블 생성 쿼리문
+
+```sql
+DROP TABLE IF EXISTS buytb1;
+
+CREATE TABLE buytb1
+(
+  num         INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+  userid      CHAR(8) NOT NULL,
+  prodname    CHAR(6) NOT NULL,
+  groupname   CHAR(4),
+  price       INT NOT NULL,
+  amount      SMALLINT NOT NULL,
+  FOREIGN KEY  (userid) REFERENCES usertb1(userid)
+)
+/*만약 쿼리문이 실행되지 않으면 댓글로 알려주세요 !*/
+```
+
+### BUYTB1 샘플 데이터
+
+```sql
+insert into buytb1 values(NULL, "LSG", "책", null, 15, 5);
+insert into buytb1 values(NULL, "JWI", "노트북", null, 1000, 1);
+insert into buytb1 values(NULL, "LSG", "운동화", null, 130, 5);
+insert into buytb1 values(NULL, "PJH", "청바지", null, 50, 8);
+insert into buytb1 values(NULL, "KHJ", "모자", null, 20, 13);
+insert into buytb1 values(NULL, "JIJ", "모자", null, 20, 6);
+insert into buytb1 values(NULL, "JWI", "휴대폰", null, 800, 1);
+insert into buytb1 values(NULL, "PJH", "책", null, 15, 10);
+insert into buytb1 values(NULL, "KHJ", "운동화", null, 130, 3);
+insert into buytb1 values(NULL, "PJH", "모자", null, 20, 3);
+insert into buytb1 values(NULL, "PMS", "운동화", null, 130, 4);
+insert into buytb1 values(NULL, "JIJ", "노트북", null, 1000, 1);
+insert into buytb1 values(NULL, "KHD", "노트북", null, 1000, 1);
+insert into buytb1 values(NULL, "PMS", "휴대폰", null, 800, 1);
+insert into buytb1 values(NULL, "LSG", "노트북", null, 1000, 1);
+insert into buytb1 values(NULL, "LKI", "청바지", null, 50, 2);
+insert into buytb1 values(NULL, "PJH", "노트북", null, 1000, 1);
+```
+
+# 문제
+
+- usertb1 에서 전화번호대로 분류
+- usertb1 에서 가입 년도별로 몇명 가입했는지 분류 (년도만 같으면 같은걸로)
+- usertb1 에서 키 범위로 분류 150 ~ 160 160 ~ 170 ...
+- usertb1 에서 지역별로 분류
+- usertb1 에서
+- usertb1 에서
+
+- buytb1 에서 구매한 총 금액
+- buytb1 에서 구매한 총 량
+- buytb1 에서 쿠폰이 발급될 사람 이름 (쿠폰은 1500달러 이상 구매자에게만 제공)

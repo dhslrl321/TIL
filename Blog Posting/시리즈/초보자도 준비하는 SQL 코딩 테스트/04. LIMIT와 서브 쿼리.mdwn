@@ -1,0 +1,165 @@
+# 목차
+
+- LIMIT
+  - 출력 제한하기
+  - OFFSET
+- 서브 쿼리
+  - ANY
+  - SOME
+  - ALL
+
+# LIMIT
+
+우리가 우리의 데이터베이스를 사랑한다면 LIMIT를 사용하는 것은 필수이다.
+
+LIMIT을 이용해서 우리는 데이터베이스에게 부담을 줄여줄 수 있다.
+
+예를 들어 1억개의 사용자 데이터가 존재한다고 가정해보자.
+
+1억개의 사용자 데이터에서 사용자 키 만큼 오름차순 정렬을 하고 보고싶다고 하면
+
+```sql
+SELECT name, height
+FROM usertb1
+ORDER BY height ASC;
+```
+
+우리는 지난 시간 SELECT를 마스터했으니 이정도는 쉽다.
+
+우리가 원하는대로 1억명의 데이터를 오름차순으로 출력했다.
+근데 1억개를 다 보는건 무리고, 상위 10명만 보고싶다면 어떡할까?
+
+1억개를 다 불러와서 10명만 볼까?
+그럼 나머지 99,999,990 개의 데이터는 괜히 불러온 것이다.
+
+이럴 때 바로 LIMIT을 사용한다.
+
+## 출력 제한하기
+
+```sql
+SELECT 필드명
+FROM 테이블명
+LIMIT 제한할 갯수
+```
+
+그럼 아까 우리가 원하던 1억개의 데이터에서 상위 5명의 키를 정렬한다면?
+
+```sql
+SELECT name, height
+FROM usertb1
+ORDER BY height ASC
+LIMIT 5;
+```
+
+#### 이렇게 된다면 상위 5개만 출력! 과 같은 말이 된다.
+
+## OFFSET
+
+여기서 내친김에 더 가보자.
+
+1억개의 데이터에서 5번째 데이터 부터 +3번째 데이터의 키,
+1억개의 데이터에서 100번째 데이터부터 +13번쨰 데이터의 키
+
+와 같이 어디서부터 어디까지를 OFFSET으로 지정할 수 있따.
+
+```sql
+SELECT name, height
+FROM usertb1
+ORDER BY height ASC
+LIMIT 5 OFFSET 3;
+```
+
+혹은 이를 더 줄여서
+
+```sql
+SELECT name, height
+FROM usertb1
+ORDER BY height ASC
+LIMIT 3, 5;
+```
+
+#### 이렇게 된다면 3번쨰 오프셋부터 5개를 LIMIT와 같은 말이 된다.
+
+# 서브 쿼리
+
+서브 쿼리는 간단하게 **쿼리 안에 쿼리**이다.
+
+예를 들어보자.
+
+만약 우리의 usertb에 사용자 이름과 키가 있다고 했을 때, 특정 인물의 키보다 큰 사람들을 출력하고 싶다.
+
+그럼 어떻게 해야할까?
+
+1. 우선 WHERE을 통해 특정 인물의 키를 찾는다.
+2. WHERE을 통해 특정 인물의 키를 조건으로 준다.
+
+해보자
+
+### 우선 WHERE을 통해 특정 인물의 키를 찾는다.
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE name = '장원익';
+```
+
+그럼 결과로 장원익과 183이 나온다.
+
+### WHERE을 통해 특정 인물의 키를 조건으로 준다.
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height >= 183;
+```
+
+아 너무 비효율적이다.
+
+**이 때 바로 서브 쿼리를 사용하는 것이다.**
+
+#### 서브쿼리는 쿼리문 안에 쿼리문이 존재하는 것이다.
+
+위의 더럽고 아주 비효율적인 쿼리문을 서브쿼리로 만들면
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height >= (select height from usertb1 where name = '장원익');
+```
+
+여기서 주의해야할 점이 있다.
+서브 쿼리는 하나의 값만 반환할 때 사용할 수 있다는 것이다.
+
+예를 들어 다음과 같은 상황
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height >= (select height from usertb1 where name = '장원익' or name = '김호중');
+```
+
+지금 이게 안되는 이유는 **서브 쿼리가** 2개의 값을 반환하기 때문에 어떤 조건에 맞춰야할지 모른다는 것이다.
+
+이 때 사용하는 것들이 바로 ANY와 ALL, SOME이다.
+
+## ANY / SOME : 서브 쿼리의 OR
+
+ANY는 서브 쿼리의 반환들 중 하나라도 해당한다면 되는 **OR**이다.
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height >= ANY (select height from usertb1 where name = '장원익' or name = '김호중');
+```
+
+과 같이 사용될 수 있다.
+
+## ALL : 서브 쿼리의 AND
+
+ALL은 서브 쿼리의 반환들 중 **모두**해당되는 **AND**와 같은 말이다.
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height >= ALL (select height from usertb1 where name = '장원익' or name = '손흥민');
+```

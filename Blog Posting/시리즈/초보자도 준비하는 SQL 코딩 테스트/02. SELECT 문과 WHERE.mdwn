@@ -1,0 +1,208 @@
+# 목차
+
+- 작업 환경 세팅
+- SELECT 란?
+  - SELECT의 기본 사용법
+- SELECT와 WHERE
+  - 조건 연산자
+  - 관계 연산자
+  - BETWEEN A AND B
+  - IN
+- SELECT와 ORDER BY
+  - 오름차순 정렬
+  - 내림차순 정렬
+
+[지난 시간]()에 대충 데이터베이스의 생태계에 대해서 알아보았다.
+
+이제 본격적으로 질의문에 대해서 알아볼 것인데 알아보기 전에 사전 준비물이 필요하다.
+
+1. [MySQL 설치]()
+2. [샘플 테이블 & 데이터 추가]()
+
+MySQL은 위의 링크에서 설치할 수 있고, 샘플 데이터 또한 위의 링크에서 받을 수 있다.
+각자 설치및 세팅 하고 다시 돌아오자.
+
+> 이번 시리즈의 목적은 질의문을 통해서 코딩 테스트를 준비하는 시리즈이므로 어떤 설치 과정이나 시리즈 주제에 벗어난 이론들은 최소화 하기 위해 다른 링크로 연결시킨점은 양해바랍니다 ㅠㅠ..
+
+이제부터 실질적인 질의문에 대해서 알아보자.
+
+# SELECT
+
+SELECT문은 우리가 알아야할 데이터베이스를 조작하는 **아주아주아주 기초적이고 중요한** 명령어이다.
+
+SELECT 문의 기본적인 쓰임은 다음과 같다.
+
+```sql
+SELECT select_expr
+  FROM table_reference
+  WHERE where_condition
+  GROUP BY column_name or expression or position
+  HAVING where_condition
+  ORDER BY column_name or expression or position
+```
+
+SELECT 문에서는 **조건**을 주거나, 원하는데로 **묶는다거나**, 특정 순서로 **정렬**을 할 수 있다.
+
+이러한 특정 기능을 수행할 수 있게 하는 구문이 바로
+
+- WHERE
+- GROUP BY
+- HAVING
+- ORDER BY
+
+이며 이들의 위치와 순서는 **지켜져야** 한다.
+
+앞서서 MySQL 설치와 실습 환경 세팅이 끝났다면 우리의 workbench로 가서 한 번 명령어를 쳐보자.
+
+```sql
+SELECT * FROM usertb1;
+```
+
+이 명령어는 usertb1로부터 (`FROM`) 모든 데이터(`*`)를 가져오겠다(`SELECT`)는 뜻이다.
+
+참고로 sql문은 대소문자 구분을 하지 않는다.
+그래서 나는 쿼리 명령어만 **대문자**로 쓰고 우리의 데이터 관련된 문자는 **소문자**로 처리한다.
+
+그럼 정상적으로 usertb1에 존재하는 모든 테이블의 데이터가 출력된다.
+
+만약 여기서 특정 칼럼(`name`, `addr`)만 보고싶다면 모든 데이터(`*`)가 아니라 특정 칼럼(`name`, `addr`)으로 쓰면 된다.
+
+```sql
+SELECT name, addr
+FROM usertb1;
+```
+
+을 수행하면 usertb1로부터 (`FROM`) 특정 칼럼의 모든 데이터(`name`, `addr`)를 가져오겠다(`SELECT`)는 뜻이다.
+
+이 것을 일반화 한다면 다음과 같은 SELECT 문장이 된다.
+
+```sql
+SELECT 필드
+FROM 테이블명;
+```
+
+# SELECT 에서 WHERE로 조건을 추가하기
+
+만약 내가 addr이 **서울**인 사람만 보고싶다면 어떡할까?
+
+이제 우리는 **조건을 추가해야할 타이밍**이 된 것이다.
+우리가 질의문에 **조건**을 추가한다면 우리가 원하는 데이터만 골라서 볼 수 있다.
+조건을 추가할 때는 WHERE 절을 사용한다.
+
+```sql
+SELECT 필드
+FROM 테이블명
+WHERE 조건식;
+```
+
+여기 WEHRE절 뒤에는 크게 2가지 연산자가 올 수 있다.
+
+1. 조건 연산자
+2. 관계 연산자
+
+## 조건 연산자
+
+조건 연산자는 다음과 같은 기호들이 존재한다. `=`, `<`, `>`, `<=`, `>=`, `!=`
+
+##### 조건 연산자를 통해서 addr이 서울인 사람만 출력하라
+
+```sql
+SELECT name, addr
+FROM usertb1
+WHERE addr = '서울';
+```
+
+## 관계 연산자
+
+관계 연산자는 다음과 같은 기호들이 존재한다. `OR`, `AND`, `NOT`
+
+##### 조건 연산자와 관계 연산자를 통해 이름이 '이승기'가 아니고 addr이 서울인 사람을 출력하라
+
+```sql
+SELECT name, addr
+FROM usertb1
+WHERE name != '이승기' AND addr = '서울'
+```
+
+## 관계 연산자의 진화 BETWEEN A AND B
+
+##### 키가 180 ~ 190인 사람을 조회해보자.
+
+여기까지 잘 따라왔다면 무리없이 해결할 수 있다.
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height >= 180 AND height <= 190;
+```
+
+이 문장을 좀 더 **직관적이게 표현**하는 방법이 바로 `BETWEEN A AND B` 구문이다.
+
+```sql
+SELECT name, height
+FROM usertb1
+WHERE height BETWEEN 180 AND 190;
+```
+
+## 관계 연산자의 진화 IN
+
+만약 문제에서 **addr이 서울이거나 경북인 사람**을 조회하라 라고 하면 BETWEEN A AND B를 통해서 조회할 수 있을까?
+
+불가능하다.
+
+이유는 `BETWEEN A AND B`는 연속적인 값에서만 사용할 수 있는데, 특정 이산 값들에서는 적용할 수 없다.
+
+그럴 때 바로 IN을 사용한다.
+
+##### addr이 서울이거나 경북인 사람을 조회하라
+
+```sql
+SELECT name, addr
+FROM usertb1
+WHERE addr IN('서울', '경북');
+```
+
+# 원하는 순서대로 정렬하기 ORDER BY
+
+정렬 하면 뭐가 떠오르나?
+여러가지가 있지만 나는 **오름차순과 내림차순**이 떠오른다.
+
+역시 데이터베이스에서도 오름차순 정렬과 내림차순 정렬이 존재한다.
+우리는 질의문에서 이 정렬 순서를 ORDER BY로 해결할 수 있다.
+
+기본적으로 ORDER BY의 사용법은 다음과 같다.
+
+```sql
+SELECT 필드
+FROM 테이블명
+ORDER BY 정렬 기준 필드;
+```
+
+### 오름차순의 ASC
+
+ORDER BY를 수행한다면 기본적으로 오름차순 정렬이 된다.
+
+##### 키가 180 ~ 190인 사람을 조회하는데, 키가 작은 순으로 조회하자.
+
+```sql
+SELECT name, height
+FROM usertb1
+ORDER BY height
+
+/* 혹은 */
+SELECT name, height
+FROM usertb1
+ORDER BY height ASC
+```
+
+### 내림차순의 DESC
+
+내림차순은 ORDER BY 마지막에 써주면 된다.
+
+##### 키가 180 ~ 190인 사람을 조회하는데, 키가 큰 순으로 조회하자.
+
+```sql
+SELECT name, height
+FROM usertb1
+ORDER BY height DESC
+```

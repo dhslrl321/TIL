@@ -1,0 +1,118 @@
+# 목차
+
+- 중복 처리
+  - DISTINCK와 GROUP BY
+- NULL 처리
+  - IS NULL
+  - IS NOT NULL
+
+# 중복 처리
+
+중복을 처리하기 위한 방법에는 크게 2가지가 있다.
+
+1. `DISTINCT`
+2. `GROUP BY`
+
+## 맛간을 이용한 TMI
+
+중복을 처리할 때는 교재에서 보통 DISTINCT를 사용하라고 한다.
+DISTINCT 자체가 원래 중복을 제거하기 위해서 나온 것이기도 하고 **구현하기 간단하기 때문**에 많이 사용된다.
+
+하지만 DISTINCT는 Temp Tablespace에 임시로 저정하는 방식이라 데이터베이스에 부하를 줄 수 있다고 한다.
+
+우리는 지금 SQL을 코딩테스트를 위해 배우고 있긴 하지만, 소프트웨어 엔지니어가 되기 위해 SQL 코딩 테스트를 보는 과정이니 위의 간단한 지식 정도는 기억해도 좋을 것 같다.
+
+## DISTINCT로 돌아가서
+
+우리의 usertb1을 모두 출력해보자.
+
+```sql
+SELECT *
+FROM usertb1;
+```
+
+그럼 위와 같이 사람들의 키가 중복된다.
+
+이 키를 중복 없이 출력하고 싶을 때 바로 distinct를 사용한다.
+
+```sql
+SELECT DISTINCT height
+FROM usertb1;
+```
+
+위와 같이 처리한다면 중복이 제거된 값들을 확인할 수 있다.
+
+만약 **사용자의 키가 몇이 있는지 수를 확인**하고 싶다면 어떡할까?
+예를 들어 키가
+170, 180, 190 이 있다면 키는 총 3가지가 존재한다.
+이를 확인하려면 어떤 쿼리를 짜야할까?
+
+##### 사용자 키는 몇가지가 있는지 출력하라.
+
+```sql
+SELECT count(height)
+FROM usertb1;
+```
+
+이렇게 짠다면 중복되는 키 모두가 나오기 때문에 정답이 될 수 없다.
+
+대신 이렇게 짠다면 어떨까?
+
+```sql
+SELECT count(DISTINCT height)
+FROM usertb1;
+```
+
+이렇게 쿼리문을 구성한다면 중복된 키를 제거하고 count 하기 때문에 우리가 원하는 답이 나올 수 있게 된다.
+
+# NULL 처리
+
+다시 한 번 우리의 buytb1을 모두 출력해보자.
+
+```sql
+SELECT *
+FROM buytb1;
+```
+
+보이다 싶이 `groupname`에 특정 칼럼들에 NULL이 들어가 있다.
+이 NULL 값들이 있는 칼럼만 보고싶을 때 어떻게 해야할까?
+
+그렇다 WHERE 절을 사용하면 된다.
+
+```sql
+SELECT *
+FROM buytb1
+WHERE groupname = NULL
+```
+
+앗 뭔가 이상하다.
+
+쿼리문이 실행이 되긴 하지만 아무것도 출력되지 않는다.
+이유는 **NULL은 뭘까**를 생각해보면 알 수 있다.
+null은 사실 0이라고 생각할 수 있는데, 0이 아니라 **없음**의 의미에 가깝다.
+근데 우리가 위에서 한 것은 `=`이라는 산술 연산을 수행하려고 했다.
+**아무 것도 없음에 산술 연산을 할 수 있을까?**
+그렇다. NULL은 **값**이라고 보지 않기 때문에 연산 자체가 불가능 한 것이다.
+그럼 우리는 NULL 처리를 할 수 없을까?
+
+이 때 MySQL Null 처리 내장 함수를 사용하여 NULL 처리를 할 수 있다.
+
+## IS NULL
+
+해당 칼럼이 NULL인 경우의 조건을 `IS NULL`로 확인할 수 있다.
+
+```sql
+SELECT *
+FROM buytb1
+WHERE groupname IS NULL
+```
+
+## IS NOT NULL
+
+해당 칼럼이 NULL이 아닌 경우의 조건을 `IS NOT NULL`로 확인할 수 있다.
+
+```sql
+SELECT *
+FROM buytb1
+WHERE groupname IS NOT NULL
+```
