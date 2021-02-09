@@ -1,0 +1,37 @@
+# jest
+
+1 + 1은 2여야 한다라는 테스트
+
+```js
+expect(A).toBe(B);
+```
+
+```js
+test("테스트 이름", () => {
+  expect(1 + 1).toBe(2);
+});
+```
+
+## Signature
+
+Signature - name(add), param(x, y), return(result);
+
+```js
+test("테스트 이름", () => {
+  expect(add(1 + 1)).toBe(2);
+});
+```
+
+```js
+function add(x, y) {
+  return x + y;
+}
+
+test("adding test", () => {
+  expect(add(1 + 1)).toBe(2);
+});
+```
+
+## fast refresh
+
+watchAll

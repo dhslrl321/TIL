@@ -1,0 +1,19 @@
+# 우분투에서 ssh 사용하기
+
+1. ssh-server 설치
+2. ssh-client 설치
+3.
+
+### ssh 설치
+
+**ssh-server**설치
+
+```
+sudo apt-get install openssh-server
+```
+
+**ssh-server와 client 동시 설치**
+
+```
+sudo apt-get install ssh
+```

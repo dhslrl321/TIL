@@ -1,0 +1,112 @@
+# 문제
+
+> 해당 포스팅은 백준의 [11724번 연결 요소의 개수](https://www.acmicpc.net/problem/11724) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26122078) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 해결법
+
+연결 요소(Connected Component) 문제는 **대표적인 DFS와 BFS** 문제라고 볼 수 있다.
+
+문제가 이야기하는 것은 바로 이것이다.
+
+만약 7개의 그래프 노드가 존재하고, 각각의 노드가 아래와 같이 연결되어 있다면, 연결 요소의 개수는 총 3개가 된다는 것이다.
+
+## 접근법
+
+여기서 문제는 위에서 찾은 연결 요소의 개수를 찾는 것이다.
+
+어떻게 할까?
+그래프 각 노드에서 DFS를 수행하고 처음 수행할 때만 수를 Count 해주고 (방문 이력이 없는 노드일 때만) 탐색 끝난 노드에 방문 처리를 하고 노드 1번 부터 마지막 노드까지 이 과정을 반복 해주면 될 것 같다.
+
+왜냐면 1번 노드가 2, 3, 5번 노드와 연결되어있다면 1번 노드만 DFS를 진행한다면 **연결된 모든 요소는** 이미 방문 처리가 되어 2번과 3번, 5번 각각 DFS를 수행하려 해도 연결되어있는 요소로 보고 DFS가 돌지 않을 것이다.
+
+그래서 결국 모든 요소에 대해서 DFS를 진행하면 연결 요소를 찾을 수 있다.
+
+#### 물론 이 문제는 DFS나 BFS 두 방법 모두로 해결할 수 있다. 두 방법으로 해결해보자.
+
+## 정답 코드
+
+```java
+public class Main {
+    static ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+    static boolean[] visited;
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        String[] nm = br.readLine().split(" ");
+        int n = Integer.parseInt(nm[0]);
+        int m = Integer.parseInt(nm[1]);
+        visited = new boolean[n + 1];
+        for(int i = 0; i <= n; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        while(m-- > 0) {
+            String[] uv = br.readLine().split(" ");
+            int u = Integer.parseInt(uv[0]);
+            int v = Integer.parseInt(uv[1]);
+
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+        }
+        int answer = 0;
+        for (int i = 1; i <= n; i++) {
+            if(dfsByRecursive(i)) {
+                answer += 1;
+            }
+        }
+
+        bw.write(String.valueOf(answer));
+        bw.flush();
+        bw.close();
+    }
+
+    private static boolean dfsByRecursive(int x) {
+        if(visited[x]) {
+            return false;
+        }else {
+            visited[x] = true;
+            int size = graph.get(x).size();
+            for (int i = 0; i < size; i++) {
+                int value = graph.get(x).get(i);
+                if(!visited[value]){
+                    dfsByRecursive(value);
+                }
+            }
+            return true;
+        }
+    }
+
+    private static boolean bfs(int x) {
+        Queue<Integer> queue = new LinkedList<>();
+
+        if(visited[x]) {
+            return false;
+        }else {
+            queue.add(x);
+            visited[x] = true;
+
+            while(!queue.isEmpty()) {
+                x = queue.remove();
+                int size = graph.get(x).size();
+                for(int i = 0; i < size; i++) {
+                    int value = graph.get(x).get(i);
+                    if(!visited[value]) {
+                        queue.add(value);
+                        visited[value] = true;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+}
+
+
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26122078) 에서 확인 가능합니다.
