@@ -1,0 +1,132 @@
+# 문제
+
+> 해당 포스팅은 백준의 [4963번 섬의 개수](https://www.acmicpc.net/problem/4963) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/submit/4963/26249935) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+이 문제는 전형적인 **Connected Component** 문제이다.
+다른 말로는 **연결 요소 찾기**라고 하는데, 해당 문제보다 조금 쉬운 버전이 백준의 [11724번 연결 요소의 개수](https://www.acmicpc.net/problem/11724) 문제이다.
+[연결 요소의 개수 문제 풀이](https://wonit.tistory.com/416)에서 해당 문제의 접근과 해결을 볼 수 있으니 참고하면 좋을 듯 하다.
+
+이번 문제에서는 **현재 탐색하는 노드**에서 상하좌우 + 대각선 4종류 모두 고려해야 하는 문제이다.
+
+## 해결법
+
+상하좌우, 4대각선을 탐색하기 위해서 다음과 같이 dfs를 재귀호출할 수 있다.
+
+```java
+static boolean dfs(int x, int y) {
+    if(x == -1 || y == -1 || x == n || y == m) return false;
+    if(graph[x][y] == 0) return false;
+
+    graph[x][y] = 0;
+
+    dfs(x, y + 1);
+    dfs(x, y - 1);
+
+    dfs(x - 1, y);
+    dfs(x - 1, y - 1);
+    dfs(x - 1, y + 1);
+
+    dfs(x + 1, y);
+    dfs(x + 1, y - 1);
+    dfs(x + 1, y + 1);
+
+    return true;
+}
+```
+
+이렇게 하면 8방향 모두 호출이 되는데, 이렇게 된다면 중복이 많이 발생해서 보기가 안 좋다.
+
+이런 상황에서 유용하게 쓰이는 방법이 존재하는데, 각각 대각선과 상하좌우 위치를 **배열로 저장**하고 사용하는 방법이다.
+
+```java
+static int[] dx = {0, 0, 1, 1, 1, -1, -1, -1};
+static int[] dy = {1, -1, 0, -1, 1, -1, 0, 1};
+
+static boolean dfs(int x, int y) {
+    if(x == -1 || y == -1 || x == n || y == m) return false;
+    if(graph[x][y] == 0) return false;
+
+    graph[x][y] = 0;
+
+    for (int i = 0; i < dx.length; i++) {
+        int xx = dx[i];
+        int yy = dy[i];
+        dfs(x + xx, y + yy);
+    }
+    return true;
+}
+```
+
+## 정답 코드
+
+```java
+import java.io.*;
+
+public class Main {
+
+    static int n;
+    static int m;
+    static int[][] graph;
+    static int[] dx = {0, 0, 1, 1, 1, -1, -1, -1};
+    static int[] dy = {1, -1, 0, -1, 1, -1, 0, 1};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        while(true) {
+            String[] nm = br.readLine().split(" ");
+            n = Integer.parseInt(nm[1]);
+            m = Integer.parseInt(nm[0]);
+
+            if(n == 0 && m == 0) break;
+            graph = new int[n][m];
+            for (int i = 0; i < n; i++) {
+                String[] map = br.readLine().split(" ");
+                for (int j = 0; j < map.length; j++) {
+                    graph[i][j] = Integer.parseInt(map[j]);
+                }
+            }
+
+            int count = 0;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < m; j++) {
+                    if(dfs(i, j)) count++;
+                }
+            }
+            bw.write(count + "\n");
+        }
+        bw.flush();
+        bw.close();
+    }
+
+    static boolean dfs(int x, int y) {
+        if(x == -1 || y == -1 || x == n || y == m) return false;
+        if(graph[x][y] == 0) return false;
+
+        graph[x][y] = 0;
+
+        for (int i = 0; i < dx.length; i++) {
+            int xx = dx[i];
+            int yy = dy[i];
+            dfs(x + xx, y + yy);
+        }
+        return true;
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 이번 문제는 BFS로 풀지 못한 문제이다.
+> n, m이 같은 수 일 때는 동작을 하지만 n, m이 서로 다른 수라면 loop를 빠져나가지 못하는 문제가 발생했다.
+> 문제를 해결하려고 여러 노력을 하였으나 스케줄로 인해 결국 해결하지 못한 문제였다.
+> WBS에 체크 해놓고 다음에 다시 풀어봐야겠다.
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/submit/4963/26249935) 에서 확인 가능합니다.

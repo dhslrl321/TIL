@@ -115,6 +115,9 @@
     1. [백준 1260](https://www.acmicpc.net/problem/1260) DFS와 BFS [문제 풀이](https://wonit.tistory.com/415)
     2. [백준 11724](https://www.acmicpc.net/problem/11724) 연결 요소의 개수 [문제 풀이](https://wonit.tistory.com/416)
     3. [백준 10451](https://www.acmicpc.net/problem/10451) 순열 사이클 [문제 풀이](https://wonit.tistory.com/417)
+    4. [백준 9466](https://www.acmicpc.net/problem/9466) 텀 프로젝트 [문제 풀이]()
+    5. [백준 4](https://www.acmicpc.net/problem/2667) 단지번호붙이기 [문제 풀이](https://wonit.tistory.com/419)
+    6. [백준 4963](https://www.acmicpc.net/problem/4963) 섬의 개수 [문제 풀이](https://wonit.tistory.com/420)
 
 - **이론**
 
