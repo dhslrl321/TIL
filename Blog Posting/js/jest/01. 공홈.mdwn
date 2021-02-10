@@ -1,9 +1,29 @@
-# Install
+# Testing React Apps
+
+# 목차
+
+1. react-test-render 생성
+
+# npm init
+
+```bash
+$ npm init
+```
+
+# jest 설치 & npm test 스크립트 작성
 
 ```bash
 $ yarn add --dev jest
 
 $ npm install --save-dev jest
+```
+
+package.json으로 가서 test 명령어를 만들어준다.
+
+```json
+"scripts": {
+  "test": "jest"
+},
 ```
 
 ## sum 테스트
@@ -17,7 +37,9 @@ function sum(a, b) {
 를 테스트 하려고 할 때, 다음과 같이 쓰면 됨
 
 ```js
-test("", () => {
+const sum = require("./sum");
+
+test("add 함수 테스트", () => {
   expect(sum(1, 2).toBe(3));
 });
 ```
