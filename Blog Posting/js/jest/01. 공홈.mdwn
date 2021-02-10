@@ -1,7 +1,23 @@
 # Install
 
-```js
+```bash
 $ yarn add --dev jest
 
 $ npm install --save-dev jest
+```
+
+## sum 테스트
+
+```js
+function sum(a, b) {
+  return a + b;
+}
+```
+
+를 테스트 하려고 할 때, 다음과 같이 쓰면 됨
+
+```js
+test("", () => {
+  expect(sum(1, 2).toBe(3));
+});
 ```
