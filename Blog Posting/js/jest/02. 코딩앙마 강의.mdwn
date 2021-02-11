@@ -10,6 +10,8 @@
 $ npm init
 
 $ npm install jest --save-dev
+
+$ npm install @types/jest
 ```
 
 ## package.json 설정
@@ -38,5 +40,9 @@ test('테스트명', () => {
 
 ## Matcher
 
-- `toBe()`
-- `not.toBe()`
+- `toBe()` : 참 값
+- `not.toBe()` : 아닐 값
+- `toEqual()` : 객체 비교
+- `toStrictEqual()` : 엄격한 객체 비교 (추천)
+- `toBeTruthy()` : true boolean 값
+- `toBeFalsy()` : false boolean 값s
