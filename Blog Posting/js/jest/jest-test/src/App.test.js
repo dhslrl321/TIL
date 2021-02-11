@@ -26,3 +26,9 @@ test('Item', () => {
 
   expect(handleClick).toBeCalledWith(1);
 });
+
+describe('<Item />', () => {
+  it("성공적으로 렌더링 되어야 합니다.", () => {
+    expect(1 + 1).toBe(2);
+  })
+})

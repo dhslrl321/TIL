@@ -1,0 +1,42 @@
+# jest
+
+- jest 는 facebook에서 만든 테스팅 프레임워크
+- zero configuration이라 빠르게 테스팅 가능
+- 가장 많은 사용 점유율
+
+## 다운
+
+```bash
+$ npm init
+
+$ npm install jest --save-dev
+```
+
+## package.json 설정
+
+```json
+...
+"script": {
+  "test": "jest"
+}
+...
+```
+
+## 간단한 테스트 코드
+
+```js
+// **.test.js
+
+test('테스트명', () => {
+  expect(검증할 값).toBe(성공할 기댓값);
+})
+
+test('테스트명', () => {
+  expect(검증할 값).not.toBe(실패할 기댓값);
+})
+```
+
+## Matcher
+
+- `toBe()`
+- `not.toBe()`
