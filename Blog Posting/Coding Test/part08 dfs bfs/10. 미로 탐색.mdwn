@@ -1,0 +1,148 @@
+# 문제
+
+> 해당 포스팅은 백준의 [2178번 미로 탐색](https://www.acmicpc.net/problem/2178) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26271731) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+문제를 읽으며 바로 파악해야 하는 것은 **최소의**라는 키워드이다.
+
+해당 문제는 Dfs와 Bfs 모두 풀 수 있는 문제이다.
+하지만 우리는 BFS를 사용한다.
+
+예를 들어서 다음과 같은 관계가 있다고 가정해보자.
+
+## 해결법
+
+이번 문제의 핵심은 바로 **칸의 수**를 지정하는 것이다.
+
+만약 다음과 같은 미로가 있다고 해보자.
+
+```java
+1 0 0 0 0
+1 0 0 0 0
+1 0 0 0 0
+1 0 0 0 0
+```
+
+그럼 왼쪽 제일 아래로 가려면 몇 칸을 이동해야 할까?
+
+그렇다 4칸이다.
+
+그럼 어떻게 코딩을 해야 4칸이 나올지 생각해보자.
+
+BFS에서 큐에 좌표를 넣을 때?
+BFS에서 큐로부터 데이터를 뺄 때?
+
+#### 탐색할 때, 다음에 밟을 칸에 현재 칸까지의 가중치를 더해주면 된다.
+
+약간의 DP 스러운 논리라고 생각하면 조금 쉬울 것 같다.
+
+```java
+1 0 0 0 0
+2 0 0 0 0
+3 0 0 0 0
+4 0 0 0 0
+```
+
+아마 이렇게 되지 않을까?
+
+실제로 코드 상에서는 아마 다음과 같이 될 것이다.
+
+```java
+graph[다음 칸.y][다음 칸.x] = graph[이전 칸.y][이전 칸.x] + 1;
+```
+
+이렇게 한다면 우리가 예시로 받았던 배열은 아마 다음과 같이 될 것이다.
+
+```java
+4 6 (변환 전)        4 6 (변환 후)
+1 0 1 1 1 1        1 0 9 10 11 12
+1 0 1 0 1 0        2 0 8  0 12  0
+1 0 1 0 1 1        3 0 7  0 13 14
+1 1 1 0 1 1        4 5 6  0 14 15
+```
+
+또한 `visited[][]` 방문 여부를 기록하는 배열을 통해서 중복된 방문을 하지 않도록 해주자.
+
+## 정답 코드
+
+```java
+import java.io.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Main {
+
+    static int n, m;
+    static int[][] graph;
+    static boolean[][] visited;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        String[] nm = br.readLine().split(" ");
+        n = Integer.parseInt(nm[0]);
+        m = Integer.parseInt(nm[1]);
+
+        graph = new int[n + 1][m + 1];
+        visited = new boolean[n + 1][m + 1];
+
+        for (int i = 1; i <= n; i++) {
+            String[] line = br.readLine().split("");
+            for (int j = 1; j <= m; j++) {
+                graph[i][j] = Integer.parseInt(line[j-1]);
+            }
+        }
+
+        int[] dx = {1, 0, -1, 0};
+        int[] dy = {0, 1, 0, -1};
+
+        Queue<MazePoint> queue = new LinkedList<>();
+
+        queue.add(new MazePoint(1, 1));
+        visited[1][1] = true;
+        while(!queue.isEmpty()) {
+            MazePoint point = queue.remove();
+            for (int i = 0; i < dx.length; i++) {
+                int xx = point.x + dx[i];
+                int yy = point.y + dy[i];
+                if(xx > 0 && yy > 0 && xx <= m && yy <= n) {
+                    if(graph[yy][xx] != 0 && !visited[yy][xx]) {
+                        visited[yy][xx] = true;
+                        graph[yy][xx] = graph[point.y][point.x] + 1;
+                        queue.add(new MazePoint(xx, yy));
+                    }
+                }
+            }
+        }
+        bw.write(String.valueOf(graph[n][m]));
+        bw.flush();
+        bw.close();
+}
+}
+
+class MazePoint {
+    int x;
+    int y;
+    MazePoint(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 이번 문제는 바로 앞 문제인 토마토에서 너무 진을 빼서인지 술술 풀렸던 문제이다.
+> 하지만 문제를 풀면서 StackOverFlow 에러를 한 번 마주했고, 큐를 이용할 때 꼼꼼히 enqueue 조건을 확인하지 않는 부분이 또 나를 잡았다.
+> 머리속에 염두해두고 풀고 있으면서도 빨리 실행시켜보려는 그 생각 때문에 더 실수하는 것 같다.
+> 또한 이런 x, y 좌표 문제에서 x, y를 배열로 옮긴다면 `arr[x][y]`가 아니라 `arr[y][x]` 인 것을 또 까먹었다.
+> 앞으로도 이런 실수를 하지 않게 더 더더더더더더더더더더 염두해야겠다.
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26271731) 에서 확인 가능합니다.
