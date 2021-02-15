@@ -1,0 +1,62 @@
+# 문제
+
+> 해당 포스팅은 백준의 [1476번 날짜 계산](https://www.acmicpc.net/problem/1476) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26349474) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+이번 문제는 완전 탐색의 가장 기초적인 문제로 볼 수 있다.
+
+완전 탐색 알고리즘 기법 중 **브루트 포스** 접근으로 해결할 수 있다.
+
+브루트 포스 알고리즘은 시간 면에서 가장 비효율적인 알고리즘이지만, 가장 확실한 방법으로 알려져 있다.
+
+## 해결법
+
+이 문제를 해결하기 위해서는 `E, S, M` 이 1년이 증가할 때 마다 1씩 증가하는 특성을 이용한다.
+
+우선 입력받을 `E, S, M`과 똑같은 `e, s, m` 변수를 하나 더 만들어 준다.
+
+우리의 `e, s, m`을 각각 1씩 계속 증가시켜서 입력받은 `E, S, M`과 같을 때 까지 카운팅을 하면 끝이다.
+
+## 정답 코드
+
+```java
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        String[] esm = br.readLine().split(" ");
+
+        int E = Integer.parseInt(esm[0]);
+        int S = Integer.parseInt(esm[1]);
+        int M = Integer.parseInt(esm[2]);
+        int count = 1;
+        int e = 1;
+        int s = 1;
+        int m = 1;
+
+        while(true) {
+            if(E==e && S==s && M==m) break;
+            e++; s++; m++;
+
+            if(e == 16) e = 1;
+            if(s == 29) s = 1;
+            if(m == 20) m = 1;
+
+            count++;
+        }
+        bw.write(String.valueOf(count));
+        bw.flush();
+        bw.close();
+    }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26349474) 에서 확인 가능합니다.

@@ -1,0 +1,222 @@
+# 이진 탐색 알고리즘
+
+**오름차순**으로 정렬된 리스트에서 **특정한 값의 위치를 찾는**알고리즘.
+핵심은 **대소 비교**를 통한 탐색이라는 점이다.
+마치 술게임 중 [업 앤 다운](https://namu.wiki/w/업%20앤%20다운) 게임과 같다
+
+### 장점
+
+모든 원소를 비교하는 방법과는 다르게 이진 탐색은 한 번의 검색이 **반복**이 될 때 마다 탐색해야할 **리스트의 크기가 절반**으로 줄어든기 때문에, 탐색 속도가 **두 배가 된다**.
+
+### 단점
+
+단점이라고 한다면 **이미 정렬된 리스트**에서만 사용 가능하다는 점이 있다.
+만약 정렬되지 않은 리스트라면 **정렬 과정을 거친 후** 탐색을 해야하기 때문에 좋은 성능을 내지 않을 수 있다.
+
+#### 하지만 해싱 혹은 인덱싱을 이용하는 경우에는 새로운 자료가 추가돼도 모든 자료가 재정렬이 필요없기 때문에 효율적인 탐색 성능을 제공할 수 있다.
+
+### 순서
+
+1. 처음 중간 값을 임의로 선택
+2. 임의 값보다 찾고자 하는 값의 대소 판단
+3. 만약 크다면 : 임의 값은 새로운 최대값
+4. 만약 작다면 : 임의 값은 새로운 최소 값
+5. 이를 반복하면 반씩 줄여나가는 기법
+
+# 예시
+
+예를 들어 1 ~ 10 까지 정렬된 리스트가 있다고 가정 하고, 7을 찾는다고 해보자.
+
+#### 일반 탐색
+
+```java
+int target = 7;
+
+--------------------------------------------------
+Round1 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+          - (1 != 7)
+--------------------------------------------------
+Round2 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+              - (2 != 7)
+--------------------------------------------------
+Round3 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+                  - (3 != 7)
+--------------------------------------------------
+Round4 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+                      - (4 != 7)
+--------------------------------------------------
+Round5 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+                          - (5 != 7)
+--------------------------------------------------
+Round6 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+                              - (6 != 7)
+--------------------------------------------------
+Round7 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+                                  - (7 == 7) 찾음!!
+--------------------------------------------------
+```
+
+이렇게 7번 만에 정답을 찾게 된다.
+
+하지만 이진 탐색 알고리즘을 사용한다면
+
+#### 이진 탐색
+
+```java
+int target = 7;
+--------------------------------------------------
+Round1 => 1,  2,  3,  4,  5,  6,  7,  8,  9,  10
+          -               - (5 < 7)           -
+         Min             Mid                  Max
+
+Mid != target
+
+새로운 최소 값 : 5
+
+새로운 최대 값 : 10
+--------------------------------------------------
+Round2 => 5,  6,  7,  8,  9,  10
+          -       - (7 == 7)   -
+         Min     Mid 찾음!!    Max
+
+Mid == target
+
+7의 인덱스 : 6 번쨰 인덱스
+--------------------------------------------------
+```
+
+# 구현 방법
+
+1. 반복문
+2. 재귀 호출
+
+거의 대분의 재귀 호출이 그러하듯, 이진 탐색 알고리즘 또한 재귀 호출과 반복문 모두 구현할 수 있다.
+
+## 소스 코드
+
+```pseudo
+BinarySearch(A[0..N-1], value, low, high) {
+  if (high <= low)
+    return -1 // not found
+  mid = (low + high) / 2
+  if (A[mid] > value)
+    return BinarySearch(A, value, low, mid-1)
+  else if (A[mid] < value)
+    return BinarySearch(A, value, mid+1, high)
+  else
+    return mid // found
+}
+```
+
+## Java
+
+### 재귀 호출을 통한 구현
+
+```java
+private static int binarySearch(int[] arr, int start, int end, int x) {
+  if(end >= 1) {
+    int mid = start + (end - start) / 2; // 정수 Overflow를 방지하기 위해서
+
+    if(arr[mid] == x) return mid;
+
+    if(arr[mid] > x) return binarySearch(arr, start, mid - 1, x);
+    else return binarySearch(arr, mid + 1, end, x);
+  }
+  return -1; // 찾고자 하는 데이터가 리스트에 없음
+}
+```
+
+### 반복문을 통한 구현
+
+```java
+private static int binarySearch(int[] arr, int x) {
+  int start = 0;
+  int end = arr.length;
+  while(end >= 1) {
+    int mid = start + (end - start) / 2;
+    if(arr[mid] == target) return mid;
+
+    if(arr[mid] < target) {
+      start = mid + 1;
+    }else {
+      end = mid - 1;
+    }
+  }
+  return -1; // 찾고자 하는 데이터가 리스트에 없음
+}
+```
+
+### 전체 소스코드
+
+```java
+package baekjoon.ps6binarySearch;
+
+public class Prob01_BinarySearch {
+    static int count = 0;
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+        int result1 = binarySearchByRecursive(arr, 0, arr.length, 3);
+        System.out.println("arr [" + result1 + "] 번째 인덱스에서 [" + arr[result1] + "] 발견");
+        System.out.println(count + " 번 반복을 통해서 탐색 완료함" );
+
+        int result2 = binarySearchByLoop(arr, 7);
+        System.out.println("arr [" + result2 + "] 번째 인덱스에서 [" + arr[result2] + "] 발견");
+        System.out.println(count + " 번 반복을 통해서 탐색 완료함" );
+    }
+
+    private static int binarySearchByRecursive(int[] arr, int start, int end, int x) {
+        if(end >= 1) {
+            int mid = start + (end - start) / 2;
+
+            if(arr[mid] == x) return mid;
+
+            if(arr[mid] > x) {
+                count++;
+                return binarySearchByRecursive(arr, start, mid - 1, x);
+            }
+            else {
+                count++;
+                return binarySearchByRecursive(arr, mid + 1, end, x);
+            }
+        }
+        return -1; // 찾고자 하는 데이터가 리스트에 없음
+    }
+
+    private static int binarySearchByLoop(int[] arr, int x) {
+        int start = 0;
+        int end = arr.length;
+        while(end >= 1) {
+            int mid = start + (end - start) / 2;
+            if(arr[mid] == x) return mid;
+
+            if(arr[mid] < x) {
+                start = mid + 1;
+            }else {
+                end = mid - 1;
+            }
+        }
+        return -1; // 찾고자 하는 데이터가 리스트에 없음
+    }
+}
+```
+
+워낙 BinarySearch가 유용하고 잘 알려진 알고리즘이다 보니 Java에서도 `Arrays` 클래스에 `binarySearch()` 메서드를 기본적으로 제공한다.
+
+```java
+public class Main {
+
+  public static void main(String[] args) {
+    int[] arr = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    int target = 7;
+
+    int result = Arrays.binarySearch(arr, target);
+    System.out.println("arr [" + result + "] 번째 인덱스에서 [" + arr[result] + "] 발견");
+  }
+}
+```
+
+# 시간 복잡도
+
+n개의 리스트가 있다고 가정했을 때, 반복마다 `n/2`를 수행하므로 `O(log N)`이 된다.

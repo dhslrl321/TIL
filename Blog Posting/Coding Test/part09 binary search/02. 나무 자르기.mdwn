@@ -1,0 +1,107 @@
+# 문제
+
+> 해당 포스팅은 백준의 [2805번 나무 자르기](https://www.acmicpc.net/problem/2805) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26328706) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+이 문제는 지난 [랜선 자르기](https://wonit.tistory.com/422) 문제와 비슷한 방법으로 해결할 수 있다.
+우선 문제를 읽고 **어떤 것을 원하는지 파악**부터 해보자.
+
+우리에겐 나무의 수 N과 그에 따른 나무들의 높이가 주어진다.
+그리고 상근이가 집에 가져가야 할 나무의 높이또한 주어진다.
+
+그럼 이를 한 문장으로 정리해보자.
+
+#### 나무의 수 N과 각각의 나무 높이와 상근이가 필요한 나무의 높이 M이 주어지고 M이 **최소가 되는 절단기 높이**를 구하라.
+
+그럼 절단기 높이를 `1 ~ 나무 최대 높이인 20억` 까지 설정해서 탐색하고, m이 되는 **최소의 절단기 높이**를 구하면 되지 않을까?
+
+이 완전 탐색이 가능하려면 **하나의 전제 조건**이 필요하다.
+
+바로 **최악의 경우**시간 복잡도가 통과 할 것인지.
+
+나무의 높이는 10억이다.
+
+그럼 최악의 경우 나무의 높이가 10억 일 때, 절단기 높이를 1부터 출발한다면 10억번 반복을 돌아야 하므로 **절대 제한 시간 내에 통과**할 수 **없다.**
+
+그럼 여기서 또 생각할 수 있는 것은 바로 **이분 탐색** 알고리즘이다.
+
+## 해결법
+
+이분 탐색을 하기 위해서 탐색 조건을 확인해보자.
+
+우선 우리가 찾아야 하는 것은 **절단기의 높이**이다.
+절단기의 높이는 1 ~ 20억까지 이므로 1 부터 20억 까지 이분 탐색을 통해서 답을 찾아나갈 것이다.
+
+탐색의 start와 end를 mid로 각각 나눌 2가지 조건을 생각해보자.
+
+1. 자른 나무의 총 합이 n보다 클 때 : `count >= m` 인 경우는 나무가 더 크게 잘려야 하기 때문에 start를 mid + 1 해준다.
+2. 자른 나무의 총 합이 n보다 작을 때 : `count < m` 인 경우는 나무거 더 작게 잘라야 하기 때문에 start를 mid - 1 해준다.
+
+## 오답 후보
+
+이번에도 역시 count와 mid 값의 Integer Overflow 에러를 주의해줘야 한다.
+
+그래서 int형을 벗어날 변수들을 long으로 할당해주자.
+
+## 정답 코드
+
+```java
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        String[] nm = br.readLine().split(" ");
+        int n = Integer.parseInt(nm[0]);
+        int m = Integer.parseInt(nm[1]);
+
+        long[] arr = new long[n];
+        String[] trees = br.readLine().split(" ");
+        long max = 0;
+        for (int i = 0; i < trees.length; i++) {
+            arr[i] = Long.parseLong(trees[i]);
+            max = Math.max(max, arr[i]);
+        }
+
+        long start = 1;
+        long end = 1_000_000_000;
+        long answer = 0;
+        while(start <= end) {
+            long mid = start + (end - start) / 2;
+            long count = 0;
+            for(long value : arr) {
+                if(value - mid > 0) {
+                    count += Math.abs(value - mid);
+                }
+            }
+
+            if(count >= m) {
+                answer = Math.max(answer, mid);
+                start = mid + 1;
+            }else {
+                end = mid - 1;
+            }
+        }
+
+        bw.write(String.valueOf(answer));
+
+        bw.flush();
+        bw.close();
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 이번 문제에서는 절단기의 최대 높이를 입력받은 나무들의 최대 높이로 설정해버려서 2번이나 틀렸던 문제이다.
+> 절단기의 최대 높이와 나무들의 최대 높이와는 전혀상관이 없다.
+> 왜 내가 나무 최대 높이가 상관이 있냐고 생각했냐면, 지난 랜선 자르기에서 자르는 랜선의 길이의 최대를 입력받은 랜선의 최대 길이로 설정했기 때문이다.
+> 지난번에는 입력받은 랜선의 최대 길이가 자르는 랜선의 길이보다 작을 수 없기 때문이었다.
+> 하지만 지금은 나무가 더 높이가 길 수도 있고, 잘라야 하는 절단기가 더 높아야할 수 있기 때문에 설정을 잘 해줘야 했다.
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26328706) 에서 확인 가능합니다.

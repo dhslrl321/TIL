@@ -1,0 +1,111 @@
+# 문제
+
+> 해당 포스팅은 백준의 [2309번 일곱 난쟁이](https://www.acmicpc.net/problem/2309) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26391427) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+이번 문제는 아주 대표적인 **완전 탐색** 알고리즘의 문제라고 할 수 있다.
+
+완전 탐색 알고리즘은 입력의 범위가 **충분히 작은 경우** 혹은 입력에 대한 경우의 수가 **시간 복잡도 범위를 만족**할 때 사용할 수 있는 알고리즘이다.
+
+이 완전 탐색에서도 여러 기법이 존재하지만 이번 문제는 브루트 포스 알고리즘을 통해서 해결해보자.
+
+#### 브루트포스 알고리즘은 **가능한 모든 경우를 다 해봄**으로 답을 찾는 알고리즘이다.
+
+우선 일곱 난쟁이들의 키 합이 100이라고 했으니 7번의 조건과 for문을 통해서 답을 걸러내며 구하면 충분히 풀 수 있다.
+그럼 아마 9! 의 경우의 수가 나오게 된다.
+하지만 여기서 조금 더 생각해보자.
+
+현재 우리는 **아홉 난쟁이**의 키가 있는 상태이다.
+
+일곱 난쟁이의 키 합이 100이라고 했다면 난쟁이들 중에 **두 난쟁이의 키만 빼고 그 값이 100**이어도 역시 위의 논리와 같은 논리가 된다.
+
+## 오답 후보
+
+## 정답 코드
+
+### for문을 돌며 일곱 난쟁이를 하나씩 찾는 코드
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int[] dwarfs = new int[9];
+
+        for (int i = 0; i < 9; i++) {
+            dwarfs[i] = input.nextInt();
+        }
+        Arrays.sort(dwarfs);
+        int[] ans = new int[7];
+        for (int i = 0; i < dwarfs.length-6; i++) {
+            for (int j = 0; j < dwarfs.length-5; j++) {
+                for (int k = 0; k < dwarfs.length-4; k++) {
+                    for (int l = 0; l < dwarfs.length-3; l++) {
+                        for (int m = 0; m < dwarfs.length-2; m++) {
+                            for (int n = 0; n < dwarfs.length-1; n++) {
+                                for (int o = 0; o < dwarfs.length; o++) {
+                                    if(dwarfs[i] + dwarfs[j] + dwarfs[k] + dwarfs[l] + dwarfs[m] + dwarfs[n] + dwarfs[o] == 100){
+                                        ans[0] = dwarfs[i];
+                                        ans[1] = dwarfs[j];
+                                        ans[2] = dwarfs[k];
+                                        ans[3] = dwarfs[l];
+                                        ans[4] = dwarfs[m];
+                                        ans[5] = dwarfs[n];
+                                        ans[6] = dwarfs[o];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Arrays.sort(ans);
+        for ( int iter : ans) System.out.println(iter);
+    }
+}
+```
+
+이건 무슨 콜백 지옥같이 생겼다,,
+
+### 아홉 난쟁이의 키에서 두 난쟁이의 키를 뺀 코드
+
+```java
+public class Main {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        int[] height = new int[9];
+        int sum = 0;
+        for(int i = 0; i < 9; i++) {
+            height[i] = Integer.parseInt(br.readLine());
+            sum += height[i];
+        }
+        Arrays.sort(height);
+        loop: for(int i = 0; i < 8; i++) {
+            for(int j = i + 1; j < 9; j++) {
+                int num = height[i] + height[j];
+                if(sum - num == 100) {
+                    printHeight(height, i, j);
+                    break loop;
+                }
+            }
+        }
+    }
+
+    private static void printHeight(int[] arr, int index1, int index2) {
+
+        for(int i = 0; i < arr.length; i++) {
+            if(i != index1 && i != index2) System.out.println(arr[i]);
+        }
+    }
+}
+```
+
+---
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26391427) 에서 확인 가능합니다.

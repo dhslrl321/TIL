@@ -63,6 +63,7 @@
 - **Dynamic Programming 동적 계획법**
 
   - 문제
+
     1. [백준 1003](https://www.acmicpc.net/problem/1003) 피보나치 함수 [문제 풀이](https://wonit.tistory.com/384)
     2. [백준 1904](https://www.acmicpc.net/problem/1904) 01 타일 [문제 풀이](https://wonit.tistory.com/385)
     3. [백준 1149](https://www.acmicpc.net/problem/1149) RGB 거리 [문제 풀이](https://wonit.tistory.com/386)
@@ -77,9 +78,7 @@
     12. [백준 11053](https://www.acmicpc.net/problem/11053) 가장 긴 증가하는 부분 수열 [문제 풀이](https://wonit.tistory.com/394)
     13. [백준 11055](https://www.acmicpc.net/problem/11055) 가장 큰 증가하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
     14. [백준 11722](https://www.acmicpc.net/problem/11722) 가장 긴 감소하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
-    15. [백준 11054](https://www.acmicpc.net/problem/11054) 가장 긴 바이토닉 부분 수열 [문제 풀이](#)
-    16. [백준 1912](https://www.acmicpc.net/problem/1912) 연속합 [문제 풀이](#)
-    17. [백준 2579](https://www.acmicpc.net/problem/2579) 계단 오르기 [문제 풀이](https://wonit.tistory.com/395)
+    15. [백준 2579](https://www.acmicpc.net/problem/2579) 계단 오르기 [문제 풀이](https://wonit.tistory.com/395)
 
 - **Sort 정렬 알고리즘**
 
@@ -109,16 +108,31 @@
     3. [백준 1850](https://www.acmicpc.net/problem/1850) 최대공약수 [문제 풀이](https://wonit.tistory.com/413)
     4. [백준 9613](https://www.acmicpc.net/problem/9613) GCD 합 [문제 풀이](https://wonit.tistory.com/414)
 
-- **DFS & BFS**
+- **그래프 탐색 DFS & BFS**
 
   - 문제
     1. [백준 1260](https://www.acmicpc.net/problem/1260) DFS와 BFS [문제 풀이](https://wonit.tistory.com/415)
     2. [백준 11724](https://www.acmicpc.net/problem/11724) 연결 요소의 개수 [문제 풀이](https://wonit.tistory.com/416)
     3. [백준 10451](https://www.acmicpc.net/problem/10451) 순열 사이클 [문제 풀이](https://wonit.tistory.com/417)
-    4. [백준 9466](https://www.acmicpc.net/problem/9466) 텀 프로젝트 [문제 풀이]()
-    5. [백준 2667](https://www.acmicpc.net/problem/2667) 단지번호붙이기 [문제 풀이](https://wonit.tistory.com/419)
-    6. [백준 4963](https://www.acmicpc.net/problem/4963) 섬의 개수 [문제 풀이](https://wonit.tistory.com/420)
-    7. [백준 2178](https://www.acmicpc.net/problem/4963) 미로 탐색 [문제 풀이](https://wonit.tistory.com/421)
+    4. [백준 2667](https://www.acmicpc.net/problem/2667) 단지번호붙이기 [문제 풀이](https://wonit.tistory.com/419)
+    5. [백준 4963](https://www.acmicpc.net/problem/4963) 섬의 개수 [문제 풀이](https://wonit.tistory.com/420)
+    6. [백준 2178](https://www.acmicpc.net/problem/4963) 미로 탐색 [문제 풀이](https://wonit.tistory.com/421)
+
+- **이분 탐색, Binary Search**
+
+  - 문제
+    1. [백준 1654](https://www.acmicpc.net/problem/1654) 랜선 자르기 [문제 풀이](https://wonit.tistory.com/422)
+    2. [백준 2805](https://www.acmicpc.net/problem/2805) 나무 자르기 [문제 풀이](https://wonit.tistory.com/423)
+    3. [백준 2110](https://www.acmicpc.net/problem/2805) 공유기 설치 [문제 풀이]()
+
+- **완전 탐색, Exhaustive Search**
+
+  - 문제 (Brute Force)
+    1. [백준 2309](https://www.acmicpc.net/problem/2309) 일곱 난쟁이 [문제 풀이](https://wonit.tistory.com/427)
+    2. [백준 1476](https://www.acmicpc.net/problem/1476) 날짜 계산 [문제 풀이](https://wonit.tistory.com/424)
+    3. [백준 3085](https://www.acmicpc.net/problem/3085) 사탕 게임 [문제 풀이](https://wonit.tistory.com/425)
+    4. [백준 1107](https://www.acmicpc.net/problem/1107) 리모컨 [문제 풀이]()
+    5. [백준 14500](https://www.acmicpc.net/problem/14500) 테트로미노 [문제 풀이](https://wonit.tistory.com/426)
 
 - **이론**
 
