@@ -1,0 +1,139 @@
+# 문제
+
+> 해당 포스팅은 백준의 [체스판 다시 칠하기](https://www.acmicpc.net/problem/1018) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26457789) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+이번 문제는 Brute Force 알고리즘을 이용해서 해결할 수 있는 문제이다.
+
+체스판은 2가지의 종류가 존재한다.
+
+1. B가 먼저 오는 경우
+2. W가 먼저 오는 경우
+
+이 두 경우에서 새롭게 칠해야 하는 판의 최소값을 출력하면 정답이 된다.
+
+## 해결법
+
+나는 이 문제를 해결하기 위해서 W로 시작하는 경우와 B로 시작하는 경우의 배열을 만들었다.
+체스판 전체를 만들어주고 하나씩 비교해가며 다른 경우 count 를 증가시키면 된다.
+
+```java
+String[][] bw = {
+  { "BWBWBWBW" },
+  { "WBWBWBWB" },
+  { "BWBWBWBW" },
+  { "WBWBWBWB" },
+  { "BWBWBWBW" },
+  { "WBWBWBWB" },
+  { "BWBWBWBW" },
+  { "WBWBWBWB" }
+};
+
+String[][] wb = {
+  { "WBWBWBWB" },
+  { "BWBWBWBW" },
+  { "WBWBWBWB" },
+  { "BWBWBWBW" },
+  { "WBWBWBWB" },
+  { "BWBWBWBW" },
+  { "WBWBWBWB" },
+  { "BWBWBWBW" }
+};
+```
+
+하지만 어차피 WB가 반복될 것을 알기 때문에 1차원 배열로 해결할 수 있다.
+
+```java
+char[] bw = {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'};
+char[] wb = {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'};
+```
+
+## 정답 코드
+
+```java
+public class Main {
+
+    static int n;
+    static int m;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        String[] nm = br.readLine().split(" ");
+
+        n = Integer.parseInt(nm[0]);
+        m = Integer.parseInt(nm[1]);
+
+        char[][] arr =  new char[n][m];
+
+        for (int i = 0; i < n; i++) {
+            char[] line = br.readLine().toCharArray();
+            for (int j = 0; j < m; j++) {
+                arr[i][j] = line[j];
+            }
+        }
+        int answer = 32;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                answer = Math.min(answer, countRepaintNum(arr, j, i));
+            }
+        }
+        bw.write(String.valueOf(answer));
+        bw.flush();
+        bw.close();
+    }
+
+    private static int countRepaintNum(char[][] arr, int x, int y) {
+        int count = 0;
+        int xx = x + 7;
+        int yy = y + 7;
+
+        char[] bw = {'B', 'W', 'B', 'W', 'B', 'W', 'B', 'W'};
+        char[] wb = {'W', 'B', 'W', 'B', 'W', 'B', 'W', 'B'};
+        int jIndex;
+        if(isValidPoint(xx, yy)) {
+            for (int i = y; i <= yy; i++) {
+                jIndex = 0;
+                for (int j = x; j <= xx; j++) {
+                    if(i % 2 != 0) {
+                        if(arr[i][j] != bw[jIndex++]) count++;
+                    }else {
+                        if(arr[i][j] != wb[jIndex++]) count++;
+                    }
+                }
+            }
+
+            int temp = count;
+            count = 0;
+            for (int i = y; i <= yy; i++) {
+                jIndex = 0;
+                for (int j = x; j <= xx; j++) {
+                    if(i % 2 != 0) {
+                        if(arr[i][j] != wb[jIndex++]) count++;
+                    }else {
+                        if(arr[i][j] != bw[jIndex++]) count++;
+                    }
+                }
+            }
+            return Math.min(count, temp);
+        }else return 100;
+    }
+
+    private static boolean isValidPoint(int x, int y) {
+        return (0 <= x && 0 <= y && x < m && y < n);
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26457789) 에서 확인 가능합니다.
