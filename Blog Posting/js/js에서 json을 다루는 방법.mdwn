@@ -1,0 +1,129 @@
+# JSON
+
+Json 은 JavaScript Object Notation 이라는 의미의 축약어로 데이터를 전송하거나 저장할 때 사용되는 **경량 데이터 형식**이다.
+보통 JSON을 REST API 통신할 때 주고받는 Request, Response Body 에 사용한다.
+**즉 서버와 클라이언트간의 교류에서 많이 사용**된다.
+[json 사진]()
+
+클라이언트는 서버에게 처리해야할 내용을 JSON **데이터로 변환**하고 전송한다.
+그럼 서버는 클라이언트로부터 온 JSON 데이터를 **서버의 스펙에 맞게 재변환**한다.
+여기서 말 하는 서버의 서펙이란 Java로 구성된 서버인지, Python으로 구성된 서버인지를 뜻한다.
+
+원래 JSON이라는 것은 JavaScript에서 탄생한 형식이라 Js의 객체와 매우 비슷하다.
+
+### Javascript Object VS JSON
+
+```js
+const person = {
+  name: "jang",
+  age: 12,
+};
+```
+
+```json
+{
+  "name": "jang",
+  "age": 12
+}
+```
+
+이와 같은 특징 때문에 Javascript 에서만 사용한다고 알 수 있지만 사실은 어떤 언어나 프레임워크에서도 사용할 수 있도록 **라이브러리를 제공**하기도 하며 그 상태 자체로도 사용할 수 있다.
+_하지만 그 상태 자체로 사용한다면 Ajax에서 특정 취약점이 발생할 수 있으니 주의하자_
+
+# JSON 문법
+
+JSON은 **"Key" : "Value"** 형태로 이루어져 있다.
+
+Key나 Value는 어떠한 타입의 값이 올 수 있는데, **문자열이 올 경우 항상 쌍따옴표**를 이용해야 한다.
+또한 **객체 처럼 중첩 사용**이 가능하다.
+
+```json
+{
+  "name": "jang"
+}
+{
+  "name": "jang",
+  "age": 12
+}
+{
+  "user": [
+    {"id": 1, "name": "jang", "age": 12, "hobby": ["singing", "game"]},
+    {"id": 1, "name": "jang", "age": 12, "hobby": ["cooking", "math"]},
+    {"id": 1, "name": "jang", "age": 12, "hobby": ["cleaning", "running"]},
+  ],
+  "order_list": [
+    {
+      "order_id": 1,
+      "order_item_name": "노트북",
+      "order_date": "2021-01-03:12:12:32"
+    },
+    {
+      "order_id": 1,
+      "order_item_name": "청바지",
+      "order_date": "2021-01-03:12:12:32"
+    },
+    {
+      "order_id": 1,
+      "order_item_name": "알고리즘 책",
+      "order_date": "2021-01-03:12:12:32"
+    }
+  ]
+}
+```
+
+# Javascript 에서 JSON 사용하기
+
+이제 드디어 이번 글의 목적인 JSON을 Javascript에서 어떻게 사용할지에 대해서 이야기해보자.
+
+우선 JSON을 Javascript에서 사용하는 이유는 앞에서 Client-Server 통신에서 JSON을 사용하기 때문이라고 말 했다.
+
+- 클라이언트는 서버에게 처리해야할 내용을 JSON **데이터로 변환**하고 전송한다.
+- 그럼 서버는 클라이언트로부터 온 JSON 데이터를 **서버의 스펙에 맞게 재변환**한다.
+
+이 두 기능을 Javascript에서 지원한다.
+위의 두 기능을 좀 더 일반적으로 일반화 하면, 다음과 같다.
+
+1. Javascript 객체를 JSON으로 변환
+2. JSON 을 Javascript 객체로 변환
+
+Javascript에서는 이 두 가지의 경우에 대한 **JSON클래스의 메서드 제공**한다.
+
+## Javascript 객체를 JSON으로 변환
+
+Javascript 객체를 JSON으로 변환하기 위해서는 `JSON.stringify()`를 사용한다.
+
+#### 보통 사용자로부터 받은 Front 데이터를 서버로 보낼 때 사용된다.
+
+```js
+JSON.stringify(value[, replacer[, space]])
+```
+
+위는 정석 사용법이고 대부분 우리는 단일 파라미터로 사용한다.
+
+```js
+JSON.stringify({}); // '{}'
+JSON.stringify(3.14); // '3.14'
+JSON.stringify("abc"); // '"abc"'
+JSON.stringify(true); // 'true'
+JSON.stringify({ name: "jang", age: 12 }); // '{"name": "jang", "age": 12}'
+```
+
+## JSON 을 Javascript 객체로 변환
+
+JSON을 Javascript 객체로 변환할 때는 `JSON.parse()` 메서드를 사용한다.
+
+#### 보통 서버로부터 받은 데이터를 Front 에서 처리할 때 사용한다.
+
+```js
+JSON.parse(text[, reviver])
+```
+
+위의 JSON.stringify()와 마찬가지로 다음과 같이 사용될 수 있다.
+
+```js
+JSON.stringify("{}"); // {}
+JSON.stringify("3.14"); // 3.14
+JSON.stringify('"abc"'); // "abc"
+JSON.stringify("true"); // true
+JSON.stringify('{"name": "jang", "age": 12}'); // {"name": "jang", "age": 12}
+```

@@ -1,0 +1,76 @@
+# 순서
+
+- 엘리먼트 가져오기
+- 엘리먼트에 원하는 텍스트 추가하기
+- 엘리먼트 생성, 삭제, 수정하기
+
+# 엘리먼트 가져오기
+
+HTML 요소 (Elements)를 제어하려면 우선 HTML 파일에 있는 HTML 태그 요소들을 JS 파일로 불러와야 한다.
+
+그 방법은 크게 4가지가 존재한다.
+
+1. id 속성으로 가져오기
+2. HTML Tag 로 가져오기
+3. name 속성으로 가져오기
+4. class 속성값으로 가져오기
+
+## id 속성으로 가져오기 & name 속성으로 가져오기
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello world</title>
+  </head>
+  <body>
+    <div id="first">첫 번째</div>
+    <div name="second">두 번째</div>
+  </body>
+</html>
+```
+
+위와 같이 div 태그가 id로 지정되어 있다면 우리는 `getElementById()` 메서드를 통해서 가져올 수 있다.
+혹은 div 태그가 name으로 지정되어 있다면 `getElementByName()` 을 사용한다.
+
+```js
+const element1 = document.getElementById("first");
+
+const element2 = document.getElementByName("second");
+```
+
+## HTML Tag 로 가져오기 & Class 명으로 가져오기
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello world</title>
+  </head>
+  <body>
+    <div>hello</div>
+    <div>world</div>
+
+    <span class="card">안녕하세용</span>
+    <span class="card">블로그 주인이에용</span>
+  </body>
+</html>
+```
+
+위와 같이 **div 태그**로 구성된 모든 엘리먼트를 가져오고 싶다면 `getElementByTagName()` 메서드를 통해서 가져올 수 있다.
+또한 **card라는 classname을 가진** 모든 엘리먼트를 가져오고 싶다면 `getElementByClassName()` 메서드를 통해서 가져온다.
+특이한 점은 `getElementByTagName()`과 `getElementByClassName()` 메서드를 사용한다면 HTML Element 객체 배열을 가져오므로 배열 접근을 해야 한다.
+
+```js
+const elements1 = document.getElementByTagName("div");
+const elements2 = document.getElementByClassName("card");
+
+console.log(elements1[0]);
+console.log(elements2[1]);
+
+console.log(elements2[0]);
+```
+
+# 엘리먼트에 원하는 텍스트 삽입하기
+
+# 엘리먼트 생성, 삭제, 수정하기
