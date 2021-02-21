@@ -1,0 +1,12 @@
+# ajax
+
+- `XMLHttpRequest` 객체를 이용해서 웹 서버와 비동기로 통신하고, DOM 을 이용해서 웹 페이지를 동적으로 바꿔주는 프로그래밍 기법
+- Asynchronouse JavaScript XML
+- 현재 XML을 사용하는건 드물고 JSON을 사용
+- 페이지 새로고침 없이 서버로 요청을 보냄
+- 서버로부터 데이터를 받고 작업을 수행
+
+# ajax 단계
+
+1. HTTP Request 만들기
+2. 응답 처리

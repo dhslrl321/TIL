@@ -1,8 +1,21 @@
-# 순서
+오늘은 JS 에서 HTML DOM 객체를 가져와 조작하는 방법에 대해서 알아볼 것이다.
+오늘 배울 내용들이 모든 상황에서 사용되는 것은 아니고 대충 **JS 에서도 이렇게 할 수 있구나** 하는 생각이 목적이다.
+더 자세한 내용은 많이 있으니 이번 글을 보고 방향을 잡아가길 바란다.
+
+### 학습 순서
 
 - 엘리먼트 가져오기
+  - `getElementById()`
+  - `getElementByName()`
+  - `getElementByClassName()`
+  - `getElementByTagName()`
 - 엘리먼트에 원하는 텍스트 추가하기
+  - `innerHTML`
+  - `innerText`
 - 엘리먼트 생성, 삭제, 수정하기
+  - `createElement()`
+  - `appendChild()`
+  - `removeChild()`
 
 # 엘리먼트 가져오기
 
@@ -71,6 +84,106 @@ console.log(elements2[1]);
 console.log(elements2[0]);
 ```
 
-# 엘리먼트에 원하는 텍스트 삽입하기
+# 엘리먼트에 원하는 텍스트를 쓰고 읽기
 
-# 엘리먼트 생성, 삭제, 수정하기
+HTML Element에 원하는 텍스트를 JS 에서 생성하고 주입해줄 수 있으며 또한 HTML Element 에 있는 내용을 JS로 읽어올 수도 있다.
+
+- HTML Element Text 읽기 : **textContent**
+- HTML Element Text 추가하기 : **innerHTML**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello world</title>
+  </head>
+  <body>
+    <div>hello</div>
+    <div>world</div>
+
+    <span id="first">안녕하세용</span>
+    <span id="second">블로그 주인이에용</span>
+  </body>
+</html>
+```
+
+위와 같이 존재한다면 우리는 전에 배운 `document.getElementBy..`를 통해서 Element를 가져올 수 있다.
+
+그리고 `Element.textContent`와 `Element.getElementById` 속성을 통해서 텍스트 값을 조작하면된다.
+
+```js
+const first = document.getElementById("first");
+const second = document.getElementById("second");
+
+console.log(first.textContent); // 안녕하세용
+
+second.innerHTML = second.textContent + " 만나서 반가워요";
+
+console.log(first.textContent); // 안녕하세용
+console.log(second.textContent); // 블로그 주인이에용 만나서 반가워요
+```
+
+그럼 만약 `<input type="text" />` 에 입력된 값을 가져오려면 어떻게 해야할까?
+이는 `Element.value`로 값을 가져올 수 있다.
+
+# 엘리먼트 생성, 삽입, 삭제하기
+
+우리는 JS에서 DOM 노드 객체 즉 엘리먼트를 만들고 DOM 트리에 **삽입하거나 삭제하거나 치환할 수 있다.**
+
+- 노드 생성하기
+- 노드 삽입하기
+- 노드 삭제하기
+
+### 노드 생성하기
+
+새로운 Element 객체를 생성하려면 `createElement` 메서드를 생성한다.
+
+```js
+const newNode = document.createElement("h1");
+const newNode = document.createElement("li");
+const newNode = document.createElement("href");
+```
+
+과 같이 사용할 수 있는데, 사용법은 아래 **노드 삽입하기**와 함께 해보겠다.
+
+### 노드 삽입하기
+
+노드를 삽입하기 위해서는 두 가지 메서드가 사용될 수 있다.
+
+하지만 이번 시간의 목적은 HTML DOM을 JS에서 조작할 수 있다는 것에 있기 때문에, 자세하게 들어가지 않고 **요소의 마지막에 삽입**하는 방법에 대해서만 알아볼 것이다.
+
+#### 요소의 마지막에 삽입 : `Node.appendChild()`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello world</title>
+  </head>
+  <body>
+    <div>hello</div>
+    <div>world</div>
+
+    <span id="first">안녕하세용</span>
+    <span id="second">블로그 주인이에용</span>
+  </body>
+</html>
+```
+
+```js
+const first = document.getElementById("first");
+
+const newNode = document.createElement("span");
+newNode.innerHTML = "만나서 반갑습니다";
+first.appendChild(newNode);
+```
+
+### 노드 삭제하기
+
+노드를 삭제할 때는 `removeChild()`를 사용한다.
+
+이름에서도 알 수 있듯, 자식 태그를 삭제하는데 역시 사용하기 위해서는 **부모태그**에서 사용해야 한다.
+
+```js
+node.parentNode.removeChild(node);
+```
