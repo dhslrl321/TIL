@@ -1,0 +1,84 @@
+# 문제
+
+> 해당 포스팅은 백준의 [2606번 바이러스](https://www.acmicpc.net/problem/2606) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26690202) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+이번 문제는 대표적인 **그래프 탐색** 문제라고 할 수 있다.
+그 중에서 **연결 요소 찾기**의 범주에 해당되는데, 어떻게 구현하는지 알아보자.
+
+연결 요소를 찾는 대표적인 방법에는 크게 2가지가 있다.
+
+1. DFS
+2. BFS
+
+#### 이번 문제에서는 DFS보다는 BFS로 해결하는 것이 더욱 적합하다.
+
+이번 문제에서는 **항상 시작 노드는 1번 노드**이고 더 이상 깊게 들어갈 필요 없이, 1번 노드와 인접한 노드만 구하면 된다.
+DFS는 **현재 노드에서 갈 수 있는 최대한의 깊게** 탐색하는 구조이므로 dfs보다 **현재 노드와 인접한 모든 노드를 먼저 탐색**하는 bfs가 더욱 적합한 문제였다.
+
+## 해결법
+
+우선 그래프를 구현하기 위해서 **인접 리스트**를 사용하였고, **큐**를 이용한 bfs 구현을 하였다.
+
+## 정답 코드
+
+```java
+public class Main {
+
+
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        int n = Integer.parseInt(br.readLine());
+        int v = Integer.parseInt(br.readLine());
+
+        ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
+        boolean[] visited = new boolean[n + 1];
+
+        for (int i = 0; i <= n; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        while(v-- > 0) {
+            String[] n1n2 = br.readLine().split(" ");
+            graph.get(Integer.parseInt(n1n2[0])).add(Integer.parseInt(n1n2[1]));
+            graph.get(Integer.parseInt(n1n2[1])).add(Integer.parseInt(n1n2[0]));
+        }
+
+        int answer = 0;
+
+        Queue<Integer> queue = new LinkedList<>();
+
+        queue.add(1);
+        visited[1] = true;
+        while(!queue.isEmpty()) {
+            int x = queue.remove();
+            for(int value : graph.get(x)) {
+                if(!visited[value]) {
+                    queue.add(value);
+                    visited[value] = true;
+                    answer++;
+                }
+            }
+        }
+
+        bw.write(String.valueOf(answer));
+        bw.flush();
+        bw.close();
+    }
+}
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/26690202) 에서 확인 가능합니다.
