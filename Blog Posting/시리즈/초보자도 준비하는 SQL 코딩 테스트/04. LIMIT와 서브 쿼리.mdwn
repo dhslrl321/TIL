@@ -1,3 +1,18 @@
+> 카테고리 [초보자도 준비하는 SQL 코딩 테스트](https://wonit.tistory.com/category/시리즈/-%20초보자도%20준비하는%20SQL%20코딩%20테스트)에 가시면 해당 시리즈를 확인하실 수 있습니다.
+
+- 해당 시리즈를 시작하며
+- **기초 이론 다지기**
+
+  - 이론 및 실습 환경 세팅 [샘플 데이터 및 샘플 쿼리문](https://wonit.tistory.com/441)
+  - [데이터베이스와 SQL이란?](https://wonit.tistory.com/442?category=845254)
+    1. [SELECT의 WHERE과 ORDER BY](https://wonit.tistory.com/443?category=845254)
+    2. [집계 함수와 GROUP BY](https://wonit.tistory.com/444?category=845254)
+    3. [LIMIT와 서브 쿼리에 대하여](https://wonit.tistory.com/445?category=845254)
+    4. [중복과 NULL 다루기](https://wonit.tistory.com/446?category=845254)
+    5. [SQL 코테의 꽃 조인](https://wonit.tistory.com/447?category=845254)
+
+- 초보자도 준비하는 SQL 코딩 테스트 [시리즈를 마치며](https://wonit.tistory.com/448) _부제-이제 뭘 해야 하나요?_
+
 # 목차
 
 - LIMIT
@@ -7,6 +22,8 @@
   - ANY
   - SOME
   - ALL
+
+[##_Image|kage@x31yd/btqYveUmzpX/ZOQSdPaBStQfYNOcuf0EeK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
 
 # LIMIT
 
@@ -163,3 +180,7 @@ SELECT name, height
 FROM usertb1
 WHERE height >= ALL (select height from usertb1 where name = '장원익' or name = '손흥민');
 ```
+
+---
+
+> 카테고리 [초보자도 준비하는 SQL 코딩 테스트](https://wonit.tistory.com/category/시리즈/-%20초보자도%20준비하는%20SQL%20코딩%20테스트)에 가시면 해당 시리즈를 확인하실 수 있습니다.

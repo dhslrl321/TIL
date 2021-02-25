@@ -1,3 +1,18 @@
+> 카테고리 [초보자도 준비하는 SQL 코딩 테스트](https://wonit.tistory.com/category/시리즈/-%20초보자도%20준비하는%20SQL%20코딩%20테스트)에 가시면 해당 시리즈를 확인하실 수 있습니다.
+
+- 해당 시리즈를 시작하며
+- **기초 이론 다지기**
+
+  - 이론 및 실습 환경 세팅 [샘플 데이터 및 샘플 쿼리문](https://wonit.tistory.com/441)
+  - [데이터베이스와 SQL이란?](https://wonit.tistory.com/442?category=845254)
+    1. [SELECT의 WHERE과 ORDER BY](https://wonit.tistory.com/443?category=845254)
+    2. [집계 함수와 GROUP BY](https://wonit.tistory.com/444?category=845254)
+    3. [LIMIT와 서브 쿼리에 대하여](https://wonit.tistory.com/445?category=845254)
+    4. [중복과 NULL 다루기](https://wonit.tistory.com/446?category=845254)
+    5. [SQL 코테의 꽃 조인](https://wonit.tistory.com/447?category=845254)
+
+- 초보자도 준비하는 SQL 코딩 테스트 [시리즈를 마치며](https://wonit.tistory.com/448) _부제-이제 뭘 해야 하나요?_
+
 # 목차
 
 - 작업 환경 세팅
@@ -12,12 +27,15 @@
   - 오름차순 정렬
   - 내림차순 정렬
 
-[지난 시간]()에 대충 데이터베이스의 생태계에 대해서 알아보았다.
+[##_Image|kage@x31yd/btqYveUmzpX/ZOQSdPaBStQfYNOcuf0EeK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+[지난 시간](https://wonit.tistory.com/442?category=845254)에 대충 데이터베이스의 생태계에 대해서 알아보았다.
 
 이제 본격적으로 질의문에 대해서 알아볼 것인데 알아보기 전에 사전 준비물이 필요하다.
 
-1. [MySQL 설치]()
-2. [샘플 테이블 & 데이터 추가]()
+1. [윈도우에서 MySQL 설치 방법](https://m.blog.naver.com/bjh7007/221829548634)
+2. [맥에서 MySQL 설치 방법](https://whitepaek.tistory.com/16)
+3. [샘플 테이블 & 데이터 추가](https://wonit.tistory.com/441)
 
 MySQL은 위의 링크에서 설치할 수 있고, 샘플 데이터 또한 위의 링크에서 받을 수 있다.
 각자 설치및 세팅 하고 다시 돌아오자.
@@ -86,7 +104,9 @@ FROM 테이블명;
 만약 내가 addr이 **서울**인 사람만 보고싶다면 어떡할까?
 
 이제 우리는 **조건을 추가해야할 타이밍**이 된 것이다.
-우리가 질의문에 **조건**을 추가한다면 우리가 원하는 데이터만 골라서 볼 수 있다.
+
+#### 우리가 질의문에 **조건**을 추가한다면 우리가 원하는 데이터만 골라서 볼 수 있다.
+
 조건을 추가할 때는 WHERE 절을 사용한다.
 
 ```sql
@@ -168,7 +188,8 @@ WHERE addr IN('서울', '경북');
 여러가지가 있지만 나는 **오름차순과 내림차순**이 떠오른다.
 
 역시 데이터베이스에서도 오름차순 정렬과 내림차순 정렬이 존재한다.
-우리는 질의문에서 이 정렬 순서를 ORDER BY로 해결할 수 있다.
+
+#### 우리는 질의문에서 이 정렬 순서를 ORDER BY로 해결할 수 있다.
 
 기본적으로 ORDER BY의 사용법은 다음과 같다.
 
@@ -206,3 +227,7 @@ SELECT name, height
 FROM usertb1
 ORDER BY height DESC
 ```
+
+---
+
+> 카테고리 [초보자도 준비하는 SQL 코딩 테스트](https://wonit.tistory.com/category/시리즈/-%20초보자도%20준비하는%20SQL%20코딩%20테스트)에 가시면 해당 시리즈를 확인하실 수 있습니다.

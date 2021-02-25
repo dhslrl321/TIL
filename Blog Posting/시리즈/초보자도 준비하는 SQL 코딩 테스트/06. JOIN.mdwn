@@ -1,12 +1,32 @@
+> 카테고리 [초보자도 준비하는 SQL 코딩 테스트](https://wonit.tistory.com/category/시리즈/-%20초보자도%20준비하는%20SQL%20코딩%20테스트)에 가시면 해당 시리즈를 확인하실 수 있습니다.
+
+- 해당 시리즈를 시작하며
+- **기초 이론 다지기**
+
+  - 이론 및 실습 환경 세팅 [샘플 데이터 및 샘플 쿼리문](https://wonit.tistory.com/441)
+  - [데이터베이스와 SQL이란?](https://wonit.tistory.com/442?category=845254)
+    1. [SELECT의 WHERE과 ORDER BY](https://wonit.tistory.com/443?category=845254)
+    2. [집계 함수와 GROUP BY](https://wonit.tistory.com/444?category=845254)
+    3. [LIMIT와 서브 쿼리에 대하여](https://wonit.tistory.com/445?category=845254)
+    4. [중복과 NULL 다루기](https://wonit.tistory.com/446?category=845254)
+    5. [SQL 코테의 꽃 조인](https://wonit.tistory.com/447?category=845254)
+
+- 초보자도 준비하는 SQL 코딩 테스트 [시리즈를 마치며](https://wonit.tistory.com/448) _부제-이제 뭘 해야 하나요?_
+
 # 목차
 
 - JOIN
   - 조인이란?
   - 관계란?
   - 1:N 관계
-- LEFT JOIN
 - INNER JOIN
+  - 조인에서 조건 추가하기
+  - 조인에서 정렬하기
 - OUTER JOIN
+  - LEFT JOIN
+  - RIGHT JOIN
+
+[##_Image|kage@x31yd/btqYveUmzpX/ZOQSdPaBStQfYNOcuf0EeK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
 
 # 조인
 
@@ -90,7 +110,7 @@ INNER JOIN은 INNER JOIN 조건에 해당하는 모든 칼럼을 붙여 결과 �
 
 ```sql
 SELECT 칼럼
-FROM 테이블 1
+FROM 테이블 1 (기준이 되는 테이블)
   INNER JOIN 테이블 2
   ON 조인될 조건
 [WHERE 검색 조건]
@@ -110,10 +130,122 @@ FROM buytb1
   ON buytb1.userid = usertb1.userid;
 ```
 
+#### 그럼 서로 다른 **두 개의 테이블**에서 `ON`에 지정된 조건에 부합하는 칼럽들만 묶어서 출력하는 것을 볼 수 있다.
+
+우리는 **모든 칼럼**을 출력했는데, 우리가 원하는 `userid, name, price`만 출력해보도록 하자.
+
+```sql
+SELECT userid, name, price
+FROM buytb1
+  INNER JOIN usertb1
+  ON buytb1.userid = usertb1.userid;
+```
+
+그럼 Column의 userid가 애매 (ambigous) 하다고 나온다.
+
+이유가 뭘까?
+
+#### 바로 서로 다른 두 개의 테이블에 존재하는 userid 중에 어떤 userid를 출력해야할지 몰라서이다.
+
+이렇게 JOIN을 사용할 때 질의하고자 하는 대상과 목표를 정확히 해야한다.
+
+그래서 위의 오류를 고치려면 **어떤 테이블에 있는 칼럼이 필요한지** `usertb1.userid` 와 같이 직접 테이블을 명시해주면 된다.
+
+하지만 테이블 이름이 만약 `customer_service_roll_payment` 라는 테이블이 있다고 가정해보자.
+
+그리고 그 테이블에서 `last_payment_date` 라는 칼럼을 지정할 때는 `customer_service_roll_payment.last_payment_date` 라고 지정해야한다.
+
+그럼 너무 보기 힘드니 아래의 쿼리문과 같이 **별명**을 이용해서 짧게 지정할 수도 있다.
+
+```sql
+SELECT B.userid, U.name, B.price
+FROM buytb1 B
+  INNER JOIN usertb1 U
+  ON B.userid = U.userid;
+```
+
+## JOIN에서 WHERE로 조건 걸기
+
+JOIN도 마찬가지로 조건을 지정할 수 있다.
+
+우리가 만약 앞서 질의한 쿼리문에서 정렬로 출력하고 싶다면 역시 `ORDER BY`를 이용할 수 있다.
+
+또한 이름이 이승기인 사용자만 출력하고 싶다면 `WHERE`을 이용할 수 있는 것이다.
+
+```sql
+SELECT B.userid, U.name, B.price
+FROM buytb1 B
+  INNER JOIN usertb1 U
+  ON B.userid = U.userid
+WHERE U.name = '이승기'
+ORDER BY B.price;
+```
+
 # OUTER JOIN
 
-# LEFT JOIN
+우리가 방금 위에서 배운 JOIN 즉 INNER JOIN 같은 경우는 **교집합적인 성격**을 띄고 있다.
+하지만 지금 배울 LEFT JOIN은 **합집합적인 성격**을 띈다.
 
-- INNER JOIN + LEFT
-- LEFT OUTER JOIN이라고도 함
-- 어떤 특정한 테이블을 기준으로 데이터를 가져올 때
+OUTER JOIN 의 기본적인 컨셉은 **공통된 INNER JOIN 영역을 포함해** 다른 한쪽 테이블의 다른 데이터를 포함하는 조인인데, 좀 쉽게 말 하자면
+
+#### ON 조건에 만족되지 않는 칼럼 까지도 포함시켜서 테이블을 JOIN할 때 사용한다.
+
+이라고 할 수 있다.
+
+이런 OUTER JOIN에는 크게 3가지 종류가 존재한다.
+
+1. LEFT OUTER JOIN
+2. RIGHT OUTER JOIN
+3. FULL OUTER JOIN
+
+### 기본적인 OUTER JOIN 사용 방법
+
+OUTER JOIN도 INNER JOIN 과 마찬가지로 사용법은 동일하다.
+
+```sql
+SELECT 칼럼
+FROM 테이블 1 (기준이 되는 테이블 LEFT)
+  <LEFT | RIGHT | FULL> JOIN 테이블 2 (RIGHT)
+  ON 조인될 조건
+[WHERE 검색 조건]
+[GROUP BY]
+[HAVING]
+[ORDER BY]
+```
+
+사실상 LEFT 조인이나 RIGHT 조인은 **대상 테이블**이 어디냐에 따라 달라진다.
+
+즉,
+
+```sql
+SELECT *
+FROM buytb1 B
+  RIGHT OUTER JOIN usertb1 U
+  ON B.userid = U.userid;
+
+SELECT *
+FROM usertb1 U
+  LEFT OUTER JOIN buytb1 B
+  ON B.userid = U.userid;
+```
+
+은 서로 같은 JOIN을 하고 있는 것이다.
+
+### 그럼 어떤 형태의 문제로 출제될까?
+
+**전체 회원의 구매 기록을 출력하되, 구매 기록이 없는 회원도 출력해야 한다** 라는 문제같이 특정 조건에 만족하지 않는 테이블 까지 출력할 때 사용된다.
+
+그럼 위의 문제에 대한 답을 쿼리문으로 구성해보자.
+
+```sql
+SELECT *
+FROM usertb1 U
+  LEFT OUTER JOIN buytb1 B
+  ON B.userid = U.userid;
+```
+
+그럼 구매 이력이 없는 회원들의 price 칼럼은 NULL로 처리되어 출력된다.
+
+---
+
+> 카테고리 [초보자도 준비하는 SQL 코딩 테스트](https://wonit.tistory.com/category/시리즈/-%20초보자도%20준비하는%20SQL%20코딩%20테스트)에 가시면 해당 시리즈를 확인하실 수 있습니다.
