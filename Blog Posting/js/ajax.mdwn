@@ -10,45 +10,25 @@
 
 ajax를 구현하는 기술에는 여러 기술이 존재한다.
 
-그 중에 대표적인 3가지를 알아보자.
+그 중에 대표적인 3가지에서 Fetch API에 대해서 알아보자.
 
 1. XMLHttpRequest
-2. Fetch API
+2. **Fetch API**
 3. JQuery
-
-# XMLHttpRequest 사용하기
-
-## 순서
-
-1. XMLHttpRequest 객체 생성
-2. response 받을 callback 함수 생성
-3. request Open
-4. 요청 보내기
-
-## 코드
-
-```js
-function requestListener(e) {
-  console.log(e.currentTarget.response);
-}
-
-let oReq = new XMLHttpRequest();
-let serverAddress = "http://localhost:8080/api/test";
-
-oReq.addEventListener("load", requestListener);
-oReq.open("GET", serverAddress);
-oReq.send();
-```
 
 # Fetch API
 
-- XMLHttpRequest 보다 더 유연하고 강력함
-- Fetch는 js 내장 라이브러리
-- 기본적으로 Promise base로 Promise 객체 반환
-- 그래서 실패하던 성공하던 해당 Request는 무조건 Response 객체를 받을 수 있음
-- 네트워크 에러가 발생했을 때 timeout까지 기다려야함
+Fetch API는 기본적으로 XMLHttpRequest 보다 더 강력하고 유연하다.
+이벤트 기반인 XMLHttpRequest과는 달리 Fetch API는 Promise 기반으로 구성되어 있어 **비동기 처리 프로그래밍 방식**에 잘 맞는 형태이다.
+그래서 `then`이나 `catch` 와 같은 체이닝으로 작성할 수 있다.
+결국 이는 가독성에 큰 이점을 줬고, `Async / Await` 으로 비동기 콜백을 쉽게 벗어날 수 있기도 하다.
+또한 Fetch API는 JS 기본 라이브러리기 때문에, JQuery와 같이 CDN 과 같은 다른 작업을 하지 않아도 바로 사용할 수 있다.
 
-## 기본 형태
+## Fetch API의 기본 형태
+
+앞서 말 했듯, Fetch API 는 Promise 기반이기 때문에 체이닝 형태로 사용될 수 있다.
+
+다음은 `then`과 `catch`로 체이닝을 한 형태이다.
 
 ```js
 fetch("http://server-ip.com")
@@ -57,5 +37,121 @@ fetch("http://server-ip.com")
   })
   .then((myJson) => {
     console.log(JSON.stringify(myJson));
+  })
+  .catch((error) => {
+    console.err(error);
   });
+```
+
+## header 조작하기
+
+서버와 통신을 할 때, HTTP 헤더를 조작하는 일은 필수적으로 진행되어야 한다.
+Fetch API 에서도 header를 조작할 수 있는데, 다음과 같이 **option** 객체에 headers 에 들어갈 내용들을 지정하는 방법을 사용할 수 있다.
+
+```js
+const option = {
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
+
+fetch("http://server-ip.com", option)
+  .then((response) => {
+    // 생략
+  })
+  .then((myJson) => {
+    // 생략
+  })
+  .catch((error) => {
+    // 생략
+  });
+```
+
+### Fetch API GET Method
+
+Fetch API로 HTTP의 GET 메서드를 사용하여 데이터를 서버로 보내는 방법은 다음과 같다.
+
+```js
+const option = {
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
+
+fetch("http://server-ip.com", option)
+  .then((response) => {
+    // 생략
+  })
+  .then((myJson) => {
+    // 생략
+  })
+  .catch((error) => {
+    // 생략
+  });
+```
+
+### Fetch API POST Method
+
+Fetch API로 HTTP의 POST 메서드를 사용하여 데이터를 서버로 보내는 방법은 다음과 같다.
+
+```js
+const myData = {
+  id: 1,
+  content: "content",
+};
+
+const option = {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(myData),
+};
+
+fetch("http://server-ip.com", option).then((res) => {
+  // 생략
+});
+```
+
+### Fetch API PUT Method
+
+Fetch API로 HTTP의 PUT 메서드를 사용하여 데이터를 서버로 보내는 방법은 다음과 같다.
+
+```js
+const myData = {
+  id: 1,
+  content: "content",
+};
+
+const option = {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(myData),
+};
+
+fetch("http://server-ip.com", option).then((res) => {
+  // 생략
+});
+```
+
+### Fetch API DELETE Method
+
+Fetch API로 HTTP의 DELETE 메서드를 사용하여 데이터를 서버로 보내는 방법은 다음과 같다.
+
+```js
+const myData = { id: 1 };
+
+const option = {
+  method: "DELETE",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(myData),
+};
+
+fetch("http://server-ip.com", option).then((res) => {
+  // 생략
+});
 ```
