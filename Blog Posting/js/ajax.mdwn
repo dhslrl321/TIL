@@ -3,10 +3,59 @@
 - `XMLHttpRequest` 객체를 이용해서 웹 서버와 비동기로 통신하고, DOM 을 이용해서 웹 페이지를 동적으로 바꿔주는 프로그래밍 기법
 - Asynchronouse JavaScript XML
 - 현재 XML을 사용하는건 드물고 JSON을 사용
-- 페이지 새로고침 없이 서버로 요청을 보냄
+- 페이지 새로고침 없이 **특정 데이터만 리로드**
 - 서버로부터 데이터를 받고 작업을 수행
 
-# ajax 단계
+# ajax 구현하기
 
-1. HTTP Request 만들기
-2. 응답 처리
+ajax를 구현하는 기술에는 여러 기술이 존재한다.
+
+그 중에 대표적인 3가지를 알아보자.
+
+1. XMLHttpRequest
+2. Fetch API
+3. JQuery
+
+# XMLHttpRequest 사용하기
+
+## 순서
+
+1. XMLHttpRequest 객체 생성
+2. response 받을 callback 함수 생성
+3. request Open
+4. 요청 보내기
+
+## 코드
+
+```js
+function requestListener(e) {
+  console.log(e.currentTarget.response);
+}
+
+let oReq = new XMLHttpRequest();
+let serverAddress = "http://localhost:8080/api/test";
+
+oReq.addEventListener("load", requestListener);
+oReq.open("GET", serverAddress);
+oReq.send();
+```
+
+# Fetch API
+
+- XMLHttpRequest 보다 더 유연하고 강력함
+- Fetch는 js 내장 라이브러리
+- 기본적으로 Promise base로 Promise 객체 반환
+- 그래서 실패하던 성공하던 해당 Request는 무조건 Response 객체를 받을 수 있음
+- 네트워크 에러가 발생했을 때 timeout까지 기다려야함
+
+## 기본 형태
+
+```js
+fetch("http://server-ip.com")
+  .then((response) => {
+    return response.json();
+  })
+  .then((myJson) => {
+    console.log(JSON.stringify(myJson));
+  });
+```
