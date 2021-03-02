@@ -39,5 +39,15 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+    <script></script>
+    <script>
+      function setCookie(name, value, expires) {
+        document.cookie = name + "=" + escape(value) + "; path=/; expires=";
+      }
+
+      setCookie("saveid", "asdf", 10);
+      window.location.href =
+        "https://dormweb.pcu.ac.kr/common/login.do?method=login";
+    </script>
   </body>
 </html>
