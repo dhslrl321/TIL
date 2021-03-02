@@ -17,3 +17,8 @@ const { getByText, getByLabelText, getByPlaceholderText } = render(
   <YourComponent />
 );
 ```
+
+1. Test 디렉토리 따로 만들고 싶음
+2. 왜 render() 는 안 씀?
+3. Scenario vs describe it
+4. unit test 랑 e2e 테스트의 차이
