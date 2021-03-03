@@ -1,0 +1,17 @@
+# REST API
+
+REST API는 아래의 두 가지를 꼭 만족해야한다.
+
+- **self-descriptive messages**
+  - 메시지 스스로가 스스로에 대한 설명이 가능해야한다.
+  - 서버가 변해서 메시지가 변해도 메시지만 보고 해석이 가능해야 한다.
+    - 예를 들어 REST API 안에 API 문서의 링크만 함께 넣어도 해당 메시지만 보고 해석이 가능해지므로 self-descriptive 하다고 할 수 있다.
+  - 확장 가능한 커뮤니케이션
+- **HATEOAS**
+  - 하이퍼미디어(링크)를 통해 애플리케이션 상태 변화가 가능해야 한다.
+  - 다음 상태로 전의하는 링크를 포함해야한다.
+  - 링크 정보를 동적으로 바꿀 수 있다.
+
+#### 강좌에서는 어떻게 REST API를 만족시킬 것인가
+
+Hypertext Application Language 스펙에 따라서 HAL의 링크 데이터에 profile 링크를 추가하는 방식으로 Self-descriptive 와 HATEOAS를 만족시킴
