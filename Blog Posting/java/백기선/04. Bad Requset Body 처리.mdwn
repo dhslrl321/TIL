@@ -1,0 +1,62 @@
+# Bad Requset 에 메세지로 처리하기
+
+- 지난 시간에 BadRequset 에 대한 처리를 함
+- 단순히 상태 코드만을 넘기는게 아니라 이번에는 메시지 Body에 에러에 대한 정보를 넘김
+- 테스트 코드 first
+  - 테스트 코드에서 `jsonPath()` 에 배열 값을 넘김
+
+```java
+this.mockMvc.perform(post("/api/events")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(this.objectMapper.writeValueAsString(event)))
+        .andExpect(status().isBadRequest());
+```
+
+원래는 이랬던 테스트 코드
+
+- 단지 BadRequest만을 보내고 있어서 어떤 에러인지 모름
+
+```java
+this.mockMvc.perform(post("/api/events")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(this.objectMapper.writeValueAsString(event)))
+        .andExpect(jsonPath("$[0].objectName").exists()) // 어떤 객체에서 발생했는지
+        .andExpect(jsonPath("$[0].field").exists()) // 어떤 Field 에서 발생 했는지
+        .andExpect(jsonPath("$[0].defaultMessage").exists()) // 기본 메세지는 무엇인지
+        .andExpect(jsonPath("$[0].code").exists()) // 에러 코드는 어떤 코드인지
+        .andExpect(jsonPath("$[0].rejectedValue").exists()) // 에러가 발생된 값이 무엇인지
+        .andExpect(status().isBadRequest());
+```
+
+이렇게 바꿈
+
+근데 저 배열 값들을 우리가 만들어야 하나?
+
+- `@Valid` 와 함께 추가한 `Errors` 에 들어있음
+
+- 그럼 여기서 **ResponseEntity 로 보낼 때 Errors랑 같이 보내면 되지 않냐?**라고 할 수 있음
+- 근데 그게 안됨
+- `Event`는 JavaBean 스펙을 따르기 때문에 `BeanSerializer`로 JSON으로 바꾸는데, Errors는 BeanSpec 를 안 따라서 BeanSerializer로 못 바꿈
+- 단순히 `common` 폴더 아래에 `ErrorsSerializer`를 만들어 Error를 JSON으로 시리얼라이징 하면됨
+
+```java
+public class ErrorsSerializer extends JsonSerializer<Errors> {
+    @Override
+    public void serialize(Errors errors, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStartArray();
+
+        errors.getFieldErrors().forEach(e -> {
+            // 생략
+        });
+        errors.getGlobalErrors().forEach(e -> {
+            // 생략
+        });
+
+        jsonGenerator.writeEndArray();
+    }
+}
+```
+
+- 시리얼라이저를 만을었으니 `ObjectMapper` 에 등록을 해야함
+- Springboot 에서 제공하는 `@JsonComponent` 를 사용하면 됨
+- 이제 Errors 라는 객체를 만나면 Spring boot 는 ObjectMapper를 이용해서 에러를 등록함
