@@ -1,0 +1,58 @@
+# 템플릿 메서드
+
+- 알고리즘의 구조를 메소드에 정의하고 하위 클래스에서 알고리즘 구조의 변경 없이 알고리즘을 재정의하는 패턴
+  - 부분적으로 다른 구문으로 구성된 메서드의 코드 중복을 최소화 할 때 유용
+
+# 사용처
+
+- 구현하는 알고리즘이 일정한 프로세스가 있을 때
+  - 단계별로 나눌 수 있을 때
+
+# 템플릿 메서드 단계
+
+1. 알고리즘을 여러 단계로 나눈다.
+2. 나눠진 단계를 메서드로 선언한다.
+3. 알고리즘을 수행할 템플릿 메서드를 만든다.
+4. 하위 클래스에서 나눠진 메서드들을 구현한다.
+
+### 알고리즘을 여러 단계로 나눈다.
+
+```java
+abstract class Airplane {
+
+}
+```
+
+- 단계 1: 합을 구한다
+- 단계 2: 합의 평균을 구한다.a
+- 단계 3: 평균을 출력한다.
+
+### 나눠진 단계를 메서드로 선언한다.
+
+```java
+abstract class Calculate {
+  int getSum(); // 합을 구한다.
+  int getAverage(int sum); // 합의 평균을 구한다.
+  void printResult(int average); // 평균을 출력한다.
+}
+```
+
+### 알고리즘을 수행할 템플릿 메서드를 만든다.
+
+```java
+abstract class Calculate {
+  void getSum();
+  void getMinMaax();
+  void getAverage();
+}
+```
+
+### 하위 클래스에서 나눠진 메서드들을 구현한다.
+
+```java
+abstract class Calculate {
+  void getSum();
+  void getMinMaax();
+  void getAverage();
+}
+```
