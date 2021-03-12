@@ -1,0 +1,13 @@
+# 중복
+
+- 지난 테스트에서 `basePrice`가 0원일 때, 이상일 때 `maxPrice`가 0원일 때, 이상일 때, `location`이 있을 때, 없을 때에 따라서 값이 달라지는데, 각각의 경우에 따라서 테스트를 작성해야 하므로 테스트 코드 길이가 늘어남
+  - 중복 많이 생김
+- `JUnitParams` 를 사용함
+
+# JUnitParams
+
+Junit5 에서는 `@ParameterizedTest` 가 있음
+
+1. 테스트할 메서드 위에 `@ParameterizedTest` 를 붙혀줌
+2. 테스트할 값의 Stream 을 반환하는 메서드 생서 `paramsForTestOffline()`
+3. `@MethodSource("paramsForTestOffline")` 를 이용하여 Stream을 반환하는 메서드 이름을 추가해줌

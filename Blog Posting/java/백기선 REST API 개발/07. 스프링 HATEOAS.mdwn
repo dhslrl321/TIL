@@ -1,0 +1,37 @@
+# HATEOAS
+
+- 하이퍼미디어를 이용하여 application 서버 정보를 동적으로 주고받는 방법
+  - 예를 들어서 `account/1` 이라는 요청이 있다면 응답을 해당 요청에서 전이될 수 있는 리소스들을 url과 함께 전달함
+
+# Spring HATEOAS
+
+HATEOAS를 만족하는 REST API를 만들 때 사용되는 라이브러리
+
+- Spring HATEOAS 에서 가장 중요한 3가지 기능 존재
+  - 링크를 만드는 기능
+    - 전이 가능한 링크 정보
+  - 리소스를 만드는 기능
+    - 원래 전달하고자 하는 데이터
+  - 링크를 찾아주는 기능 (이번 강좌에서는 안 함)
+    - Traversion
+    - LinkDiscovers
+- 링크에 존재하는 필드
+  - href : 전이 가능한 링크
+  - rel : 해당 링크와의 관계
+    - self
+    - profile : 응답 본문에 대한 문서
+
+# 프로젝트에 적용
+
+- REST API 에 HATEOAS 가 잘 적용 되었다면 `link` 정보를 받을 수 있어야함
+- `RepresentationModel` 를 상속받은 `EventResource` 클래스 생성
+  - 이렇게 Resource 클래스로 만드는 이유는 링크 정보를 추가하기 위함임
+  - `RepresentationModel` 를 상속받은 클래스는 컨트롤러에서 `add()` 라는 메서드를 호출할 수 있는데, 해당 메서드를 호출하면 링크 정보를 추가할 수 있음
+    - 근데 `RepresentationModel`를 사용할 경우에는 불편한 점들이 있으므로 `EntityModel` 을 extends 해서 사용
+      - 정확히는 ObjectMapper 가 Resource 모델을 Serialization 할 때 객체로 인식해서 Event 라는 필드로 감싸서 반환함
+      - `@JsonUnwrapped` 를 붙혀서 보낼 수 있지만 EntityModel 에는 `@JsonUnwrapped` 가 붙어있기 음
+- `EventResource.add()` 로 링크를 추가
+  - self
+  - query-event
+  - update-event
+- `withRel()` 을 통해서 href rel 을 지정할 수 있음

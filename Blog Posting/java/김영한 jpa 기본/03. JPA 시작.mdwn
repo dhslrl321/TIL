@@ -1,0 +1,29 @@
+- H2 DB
+- Maven
+- Java8
+
+# 의존성
+
+- JPA Hibernate
+  - JPA는 인터페이스고 실제 구현체는 Hibernate 임
+- H2 Databse
+  - h2database.com 에서 다운받은 드라이버와 같은 버전으로 maven 의존성을 넣어야 함. 가끔 오류날 때가 있음
+
+# JPA 설정하기
+
+- persistence.xml 파일 생성
+- `main/resources/META-INF/` 에 `persisence.xml` 파일을 만들고 넣어야 함
+  - 꼭 위의 디렉토리여야 함
+
+# JPA 구동 방식
+
+1. Persistence 에서 설정 정보를 읽는다.
+2. EntityManagerFactory 라는 클래스를 만든다
+3. EntityManagerFactory로 EntityManger 객체를 생성한다.
+4. entityManager 객체로 데이터베이스 프로그래밍을 한다.
+
+# EntityManagerFactory
+
+`EntityManagerFactory` 는 Application 실행 시점에 딱 하나만 생성
+`EntityManagerFactory` 에서 생성된 매니저는 쓰레드간 공유 x
+JPA 모든 데이터 변경은 트랜잭션 안에서 실행해야함
