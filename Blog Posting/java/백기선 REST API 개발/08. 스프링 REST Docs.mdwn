@@ -8,4 +8,7 @@
 
 - 테스트 코드 위에 `@AutoConfigureRestDocs` 를 추가하면 됨
 - 사용할 때는 `andDo(document())` 로 어떤 이름으로 만들지 만들지를 정한다.
-  - `document("문서의 이름")`
+  - `document(문서의 이름, 여러 개의 스니펫)`
+  - `target/generated-snippets` 에 adoc 파일이 나오는데, 파일 포맷팅이 안됐음
+  - `test/common` 아래에 `RestDocsConfiguration` 을 생성하고 `RestDocsMockMvcConfigurationCustomizer` 빈을 등록
+  - `customize` 재정의
