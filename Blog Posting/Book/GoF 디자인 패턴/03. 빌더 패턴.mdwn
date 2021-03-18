@@ -31,8 +31,7 @@
   - 원래 ConcreteBuilder 를 이용해서 Builder를 실제 Product의 스펙에 맞게 구현해야 함
   - 하지만 그냥 Product 내부에서 inner class를 정의해서 Builder를 사용하는 형태로 구현
   - 개인적으로 더 깔끔함
-- Director : `AirplaneDirector`
-- Product : `Airplane` 인터페이스
+- Product : `Airplane`
 
 # 개인적으로
 
