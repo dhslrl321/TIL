@@ -1,0 +1,126 @@
+# REST API
+
+- API
+  - Application Programming Interface
+- REST
+  - **RE**presentational **S**tate **T**ransfer
+  - 인터넷 상의 시스템 간의 상호 운용성을 제공하는 방법 중 하나
+  - 시스템 제각각의 독립적인 진화를 보장하기 위한 방법
+    - Client는 따로
+    - Server 도 따로
+  - REST API : REST 아키텍처 스타일을 따르는 API
+
+# REST API 아키텍처 스타일
+
+- REST API가 되기 위한 제약조건의 집합
+  - 즉 이 제약조건을 다 따라야 REST라고 할 수 있다.
+    - 제약 조건들
+      - Client-Server
+      - Stateless
+      - Cache
+      - Uniform Interface
+      - Layered System
+  - 왠만해서는 HTTP API를 사용하더라도 아래에 제약 조건들은 달성할 수 있는데 하나만 빼고
+  - Uniform Interface 는 달성하기 어렵다
+    - Uniform Interface에는 4가지 제약조건이 존재한다.
+      - Resource-Based
+        - URI 로 지정한 리소스에 대한 조직을 통일화 한다.
+        - HTTP Method를 통해서 특정 조작을 식별한다.
+      - Manipluation Of Resources Through Representations
+        - Resource의 표현에 따라서 표현의 범위가 달라진다.
+    - self-descriptive message
+      - 메시지 스스로 메시지에 대한 설명이 가능해야 한다.
+      - 서버가 변해서 메시지가 변해도 클라이언트는 그 메시지를 보고 해석이 가능하다.
+    - hypermedia as the engine of application state
+      - 하이퍼미디어(링크)를 통해서 애플리케이션 상태 변화가 가능해야 한다.
+      - 링크 정보를 동적으로 바꿀 수 있다.
+      - versioning 할 필요 없다
+
+# Uniform Interface 를 달성하기 위해서는?
+
+- Self-descriptive message
+  - profile 링크 헤더를 추가한다.
+- HATEOAS
+  - HAL 을 이용한다
+
+# HAL
+
+- 정의
+  - Hypertext Application Language
+  - JSON, XML 코드 내의 외부 리소스에 대한 링크와 같은 하이퍼 미디어를 정의하기 위한 규칙
+  - REST API의 HATEOAS 특성을 만족시키기 위한 방법
+- 특성
+  - 리소스와 링크라는 두 가지 개념을 기반으로 한 데이터 표현
+  - 리소스
+    - 일반적으로 우리가 사용하는, 응답, 요청하는 JSON 데이터 Body
+  - 링크
+    - 타겟 URI
+    - relation
+- HAL 이 갖는 데이터 타입
+  - `application/hal+json`
+  - `application/hal+xml`
+- 장점
+  - API 응답에서 해당 API의 정보를 알 수 있음
+    - 보통 API 문서를 링크시킴
+
+```json
+{
+  "data": {
+    "id": 1000,
+    "name": "게시글 1",
+    "content": "HAL JSON을 이용한 예시 JSON"
+  },
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/api/article/1000" // 현재 api 주소
+    },
+    "profile": {
+      "href": "http://localhost:8080/docs#query-article" // 해당 api의 문서
+    },
+    "next": {
+      "href": "http://localhost:8080/api/article/1001" // article 의 다음 api 주소
+    },
+    "prev": {
+      "href": "http://localhost:8080/api/article/999" // article의 이전 api 주소
+    }
+  }
+}
+```
+
+만약 여러분들이 어떤 서버를 구성하고 다음과 같은 API를 만들었다고 하자.
+
+```json
+// 사용자 정보 조회 HTTP Method: GET /user/{id}
+REQUSET(url query): user/1
+
+RESPONSE
+{
+  "user": {
+    "name": "jang",
+    "age": 13
+  }
+}
+
+// 사용자 정보 등록 HTTP Method: POST /user
+REQUSET
+{
+  "user": {
+    "name": "jang",
+    "age": 13
+  }
+}
+
+RESPONSE
+{
+  "user": {
+    "name": "jang",
+    "age": 13
+  }
+}
+
+// 사용자 정보 수정 HTTP Method: PUT /user
+...생략
+
+// 사용자 정보 삭제 HTTP Method: DELETE /user
+...생략
+```
