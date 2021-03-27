@@ -1,0 +1,59 @@
+# 알고리즘 문제 풀이에서 아스키코드표 이용하기
+
+알고리즘 문제 풀이에서 아스키코드 표는 굉장히 많은 곳에서 유용하게 사용될 수 있다.
+
+이를테면 **알파벳의 순서를 숫자로 변환**할 때, **시저 암호, 카이사르 암호 를 구현**할 때, 등등 많은 곳에서 사용될 수 있다.
+
+# 아스키 코드
+
+ASCII (**A**merican **S**tandard **C**ode **f**or **I**nformation **I**nterchange, 미국 정보 교환 표준 부호) 이다.
+
+7비트 부호 체계로 영문 키보드로 입력할 수 있는 모든 기호들이 할당되어 있는 부호 체계로 **우리가 입력하는 숫자, 영문자, 기호**들은 아스키코드로 변환되어 컴퓨터에게 전달된다.
+
+#### 그 말은 즉, 우리가 아스키 코드를 잘 이용하면 컴퓨터에게 **숫자를 전달 하더라도 문자로 읽히게** 할 수 있고 그 역도 그러하다는 소리이다.
+
+알고리즘에서 이런 방법이 아주 유용하게 사용된다.
+
+## 아스키 코드 전환 방법
+
+- 숫자를 char 형으로 타입 전환을 해준다면 해당 아스키 코드의 **문자가 출력**되고,
+- 문자를 int 형으로 타입 전환을 해준다면 해당 아스키 코드의 **숫자가 출력**된다.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        System.out.println((char)97);
+        System.out.println((char)98);
+        System.out.println((char)99);
+        System.out.println((char)100);
+
+        System.out.println((int)'A');
+        System.out.println((int)'B');
+        System.out.println((int)'C');
+        System.out.println((int)'D');
+
+    }
+}
+```
+
+우리는 주로 이런 성질을 이용해서 문제를 풀게 된다.
+
+# 자주 사용하는 아스키 코드의 범위
+
+우리는 알고리즘에서 주로 3가지 문자의 범위를 주로 사용한다.
+
+이 3가지를 외워둔다면 아주 많은 문제에서 유리할 수 있다.
+
+#### 1. 숫자 0 ~ 9 까지의 범위 10개
+
+#### 2. 알파벳 대문자 **A ~ Z** 까지의 범위 **23개**
+
+#### 3. 알파벳 소문자 **a ~ z** 까지의 범위 **23개**
+
+# 관련 PS 문제
+
+- 백준 10820번 [문자열 분석](https://www.acmicpc.net/problem/10820)
+  - [정답 링크](https://www.acmicpc.net/source/25977796)
+- 백준 11654번 [아스키 코드](https://www.acmicpc.net/problem/11654)
+  - [정답 링크](https://www.acmicpc.net/source/17372236)

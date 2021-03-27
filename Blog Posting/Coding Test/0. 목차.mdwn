@@ -17,6 +17,8 @@
     4. 자바 동등과 동일 (equals vs `==`)
     5. 알파벳 개수 (백준 문제까지)
     6. [숫자 자리수 출력하기](https://wonit.tistory.com/418)
+    7. [알고리즘에서 아스키 코드 표 이용하기](https://wonit.tistory.com/455)
+    8. 문자열과 숫자, 문자를 다루는 다양한 방법 (`int <-> char`, `char <-> String`, `char <-> String`)
 
   - 문제풀이 스킬
     1. Scanner와 System.out.println으로 기본적인 입출력 처리하기
