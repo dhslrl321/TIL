@@ -1,0 +1,33 @@
+# Links
+
+- 리소스의 표현을 하이퍼미디어로 한다면 더 좋은 리소스가 되는데, 이런 표현을 HATEOAS 에서는 Link로 함
+- Link로 표현한다면 특정 리소스를 더 잘 이용할 수 있게 됨
+- 이들은 Link Relation 으로 정의되고 불려짐
+  - 별거 없고 우리는 이미 Link Relation 을 앎
+
+```html
+<link href="index.css" rel="stylesheet> />
+```
+
+- 이걸 보면 우리는 index.css 가 stylesheet로 사용된다는 것을 알 수 있음
+- 이걸 Spring 에서는 다음과 같이 사용함
+  - 3가지 방법이 존재
+    1. 링크 정보만 넣기
+    2. 링크 정보와 릴레이션 같이 넣기
+    3. 링크 정보에 릴레이션 추가 메서드 이용
+
+```java
+Link link = Link.of("링크 정보");
+// 혹은
+Link link = Link.of("링크 정보", "릴레이션");
+// 혹은
+Link link = Link.of("링크 정보").withRel("릴레이션");
+```
+
+# Representation Models
+
+- DTO 를 리소스로 반환할 기본 리소스 모델 클래스
+- 아래 애들의 상위 클래스
+  - PagedModel : 페이징이 가능한 컬렉션의 바인딩된 Model을 구현
+  - CollectionEntity : collection 엔티티를 바인딩할 모델
+  - EntityModel : 링크할 엔티티 모델

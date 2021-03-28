@@ -26,7 +26,7 @@
     3. 입력 유형에 따른 전처리 방법
     4. Int to Char, Char to Int, Char to String, String to Char
     5. 자바에서 EOF 처리하기
-    6. StringBuilder() 사용법
+    6. StringBuilder() 사용법 (sb 쓰고 flush 하는 방법)
 
 # 자료 구조
 
