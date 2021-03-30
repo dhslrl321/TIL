@@ -1,0 +1,45 @@
+# 람다식
+
+- 자바에는 2번의 큰 변화가 있었음
+  1. 제네릭의 등장
+  2. 람다의 등장
+- 이 변화로 인해서 자바는 더 이상 예전의 자바가 아님
+  - 람다는 메서드를 하나의 함수 식으로 바꿀 수 있는 것인데, 이를 통해서 기존의 코드를 쉽게 변경할 수 있게됨
+- 람다식
+  - Lambda Expression
+  -
+  - 익명 클래스의 익명 함수로 동작
+  - 메서드의 이름과 반환 값이 없어짐
+
+```java
+// 기존의 메서드
+ReturnType methodName(Parameter p1, Parameter p2) {
+  return expression;
+}
+
+// 람다식 1 (기본)
+(Parameter p1, Parameter p2) -> {
+  return expression;
+}
+
+// 람다식 2 (반환 생략) : 반환 값이 있는 경우 return 제거
+(Parameter p1, Parameter p2) -> {
+  expression;
+}
+
+// 람다식 3 (파라미터 타입 생략) : 파라미터 타입이 유추 가능한 경우 타입 생략
+(p1, p2) -> {
+  expression;
+}
+```
+
+# 함수형 인터페이스
+
+- 함수형 인터페이스 (Functional Interface) 는 1개의 추상 메서드만 갖고있는 인터페이스
+- SAM Single Abstract Method 라고도 함
+
+```java
+public interface SAM {
+  public abstract void absMethod(String parameter);
+}
+```
