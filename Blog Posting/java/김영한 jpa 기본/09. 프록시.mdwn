@@ -1,1 +1,36 @@
+- 아래와 같은 코드가 존재할 때,
+  - `printMemberAndTeam()` : 멤버랑 팀을 조회해야하는 경우
+  - `printMember()` : 멤버만 조회해야하는 경우
+
+```java
+public void main() {
+  Member member = em.find(Member.class, 1L);
+  printMember(member);
+}
+
+void printMember(Member member) {
+  System.out.println(member.getUsername());
+}
+
+void printMemberAndTeam(Member member) {
+  System.out.println(member.getUsername());
+  System.out.println(member.getTeam().getName());
+}
+```
+
+- 비효율이 발생함
+  - 첫 번째 메서드는 멤버만 있으면 되는데 팀까지 조회한다는게 비효율임
+- 이 비효율일 해결하기 위해서 **프록시가 나옴**
+
 # 프록시
+
+- `EntityManager.find()` vs `EntityManager.getRefarence()`
+  - `find()`
+    - 실제 데이터베이스에서 값을 조회
+    - 진짜 객체를 반환
+  - `getReference()`
+    - 데이터베이스 조회를 미루는 가짜(Proxy) 엔티티 객체 조회
+    - Proxy 객체를 반환
+    - Proxy 객체는 우리의 Entity 객체를 상속함
+- FetchType.EAGER, FetchType.LAZY
+-

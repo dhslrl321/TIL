@@ -1,27 +1,131 @@
 # 문제
 
-> 해당 포스팅은 백준의 [문제 이름](#) 의 접근과 해결 방법을 설명한 글 입니다.  
-> 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
+> 해당 포스팅은 백준의 [문제 이름](https://www.acmicpc.net/problem/1063) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/27777232) 에서 확인 가능합니다.
 
 이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
 
 # 문제 접근
 
+이 문제는 `8 * 8` 체스판에서 하나의 체스 (King)이 있는데, 해당 체스가 두 가지 제약 조건에 따라 움직일 때를 구현하는 것이다.
+
+제약 조건에는 2가지가 있다.
+
+1. 킹과 돌은 8 by 8 체스판을 벗어날 수 없다. 둘 중 하나라도 벗어난다면 아예 움직이지 않는다.
+2. 킹이 움직일 곳에 돌이 위치한다면 킹이 돌의 위치로 위치하게 되고 돌이 킹이 가려고 했던 위치만큼 이동한다.
+
 ## 해결법
 
+그럼 우선 어떤 것들이 필요할 지를 생각해보자.
+
+- 움직이려는 곳이 체스 판 내부인가, 즉 유효한 움직임인가?
+  - `mapValidation()`
+- 사용자는 어떤 명령을 주고 있으며 얼만큼 움직일 것인가?
+  - `getMovement()`
+- A1, G2, D5 와 같은 체스 맵을 어떻게 배열로 표시할 것인가?
+  - `updatePositioin()`
+
 ## 오답 후보
+
+나에게 이번 문제에서 가장 큰 어려움은 영문과 숫자의 조합으로 된 x, y 좌표를 숫자 좌표로 바꾸는 것이었다.
+
+그래서 다소 복잡한 아스키 코드를 이용하여 풀이를 했는데, 이 점에 유의하면 될 것 같다.
 
 ## 정답 코드
 
 ```java
 public class Main {
-  public static void main(String[] args) throws IOException{
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+  private static int[][] movements = {
+            {1, 0}, // 0 : R 오른쪽으로
+            {-1, 0}, // 1 : L 왼쪽으로
+            {0, 1}, // 2 : B 아래로
+            {0, -1}, // 3: T 위로
+            {1, -1}, // 4 : RT 오른쪽 대각선 위로
+            {-1, -1}, // 5 : LT 왼쪽 대각선 위로
+            {1, 1}, // 6 : RB 오른쪽 아래 대각
+            {-1, 1} // 7 : LB 왼쪽 아래 대각
+    };
 
-    bw.flush();
-    bw.close();
-  }
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        String[] inputs = br.readLine().split(" ");
+
+        String[] kingPosition = inputs[0].split("");
+        String[] stonePosition = inputs[1].split("");
+
+        int loop = Integer.parseInt(inputs[2]);
+
+        while(loop-- > 0) {
+
+            String move = br.readLine();
+
+            int kingX = kingPosition[0].charAt(0) - 65; // A = 0 B = 1    x
+            int kingY = Math.abs(Integer.parseInt(kingPosition[1]) - 8); // 1 = 7 2 = 6    y
+
+            int stoneX = stonePosition[0].charAt(0) - 65;
+            int stoneY = Math.abs(Integer.parseInt(stonePosition[1]) - 8);
+
+            int movementIndex = getMovement(move);
+            boolean flag = false;
+            if(mapValidator(movements[movementIndex], kingX, kingY)) {
+
+                int xx = kingX + movements[movementIndex][0];
+                int yy = kingY + movements[movementIndex][1];
+
+                if(xx == stoneX && yy == stoneY) {
+
+                    if(mapValidator(movements[movementIndex], stoneX, stoneY)) {
+                        kingX = stoneX; kingY = stoneY;
+                        stoneX += movements[movementIndex][0]; stoneY += movements[movementIndex][1];
+                    }
+                    flag = true;
+                }
+                if(!flag) {
+                    kingX += movements[movementIndex][0];
+                    kingY += movements[movementIndex][1];
+                }
+            }
+
+            updatePosition(kingPosition, kingX, kingY);
+            updatePosition(stonePosition, stoneX, stoneY);
+        }
+
+        System.out.println(kingPosition[0] + kingPosition[1] +"\n" + stonePosition[0] + stonePosition[1]);
+    }
+
+    private static void updatePosition(String[] position, int x, int y) {
+        position[0] = String.valueOf((char) (x + 65));
+        position[1] = String.valueOf(Math.abs(y - 8));
+    }
+
+    private static boolean mapValidator(int[] movement, int x, int y) {
+        int xx = movement[0] + x;
+        int yy = movement[1] + y;
+
+        return 0 <= xx && xx < 8 && yy >= 0 && yy < 8;
+    }
+
+    private static int getMovement(String move) {
+        if(move.equals("R")) {
+            return 0;
+        }else if(move.equals("L")) {
+            return 1;
+        }else if(move.equals("B")) {
+            return 2;
+        }else if(move.equals("T")) {
+            return 3;
+        }else if(move.equals("RT")) {
+            return 4;
+        }else if(move.equals("LT")) {
+            return 5;
+        }else if(move.equals("RB")) {
+            return 6;
+        }else if(move.equals("LB")) {
+            return 7;
+        }
+        else return Integer.MAX_VALUE;
+    }
 }
 ```
 
@@ -29,6 +133,9 @@ public class Main {
 
 ## 문제 회고
 
-> 회고
+> 이번 문제는 실버 5인데 엄청 오래 걸린 문제이다.
+> 아마 아주 오랜만에 다시 시작하는 알고리즘이라 String to Char 도 기억도 안 났으며 아스키 코드까지 까먹고 시작을 해서 다시 찾아보느라 더 오래 걸린 것 같기도 하다.
+> 시간이 오래 걸린 가장 근본적인 이유는 내 개발 피지컬 때문이 아닐까 싶다.
+> 대충 어떻게 해야 한다라는 것은 알겠지만 이를 직접 구현하는게 참 까다롭다.
 
-#### 정답 소스 코드를 확인하시려면 [solve url](#) 에서 확인 가능합니다.
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/27777232) 에서 확인 가능합니다.
