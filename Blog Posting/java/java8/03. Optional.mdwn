@@ -1,0 +1,30 @@
+# Optional
+
+- 스트림의 특정 연산을 수행한 뒤에 `Optional<T>` 타입으로 반환하는 것들이 몇개 존재함
+- 최종 연산의 결과를 그냥 반환하면 NullPointerException 에 위험이 있음
+- 그래서 Optional 객체에 감싸서 반환
+- 매번 Null 체크를 하기 위해 if 문으로 하지 않고 Optional 에 있는 정의된 메서드를 사용하면 됨
+
+```java
+public static void main(String[] args) {
+  String str = "hello";
+  String nullStr = null;
+
+  Optional<String> optional = Optional.of(str); // 만약 str 이 null 이면 NullPointerException이 발생
+  Optional<String> optional = Optional.ofNullable(nullStr);
+
+  // 바로 Optional 값 가져오기
+  // get으로 가져오는 값이 null 이면 NoSuchElementException 발생
+  optional.get();
+
+  // NoSuchElementException 이 발생했을 때를 대체할 값 지정
+  optional.orElse(String replaceStr);
+
+  // NoSuchElementException 이 발생했을 때를 대체할 람다식 지정
+  optional.orElseGet();
+
+  // 해당 Optional에 값이 존재하는지 확인, 즉 null인지 아닌지,
+  // null 이라면 false
+  optional.isPresent();
+}
+```
