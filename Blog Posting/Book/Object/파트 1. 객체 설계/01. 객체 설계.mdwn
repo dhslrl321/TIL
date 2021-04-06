@@ -226,3 +226,221 @@ public class Theater {
 그럼 Theater 클래스의 내부가 변경되어야 한다는 **변경 취약성**을 안고 가는 것이다.
 
 #### 결국 이 코드는 변경에 취약하고 객체간의 의존성이 높아 결합도가 높은 코드이다.
+
+# 설계 개선하기
+
+그럼 위의 코드의 설계를 개선해보자.
+어떻게 개선할까?
+
+Theater가 Audience 와 TicketSeller 에 관해서 너무 많은 것을 알고 있다.
+그럼 TicketOffice와 Bag은 어떨까?
+그럼 Ticket은?
+문제는 서로 의존 관계가 너무 많기 때문에 각자의 책임과 행동에는 각자가 수행하도록 결합도를 낮춰야 한다.
+
+#### 각각의 역할에 맞는 책임을 스스로에게 부여하여 의존도를 낮춰 결합도를 낮추고 응집도를 높혀보자.
+
+어떻게 할까?
+
+Theater 는 TicketSeller 의 인터페이스에만 의존하도록 하면 된다.
+
+> 참고로 java interface가 아닌 구현과 기능의 인터페이스다.
+> 인터페이스를 통해서 구현에 접근하도록 하는 것이다.
+> 이렇게 함으로써 객체 사이의 결합도를 낮추고 변경하기 쉬운 코드가 작성된다.
+> **결국 우리는 구현이 아닌 인터페이스에만 의존하도록 만들어야 한다.**
+
+Audience 도 TicketSeller 에게 의존되고 있으므로 Audience 코드도 변경할 수 있다.
+
+### Audience
+
+```java
+/**
+ * 관람객
+ * 소지품을 보관하기 위해 가방을 소지할 수 있다.
+ */
+public class Audience {
+    private Bag bag;
+
+    public Audience(Bag bag) {
+        this.bag = bag;
+    }
+
+    /**
+     * Bag 객체의 getter
+     * @return Bag
+     */
+    public Bag getBag() {
+        return bag;
+    }
+
+    /**
+     * @param ticket-구매하려는 티켓
+     * @return
+     * 티켓을 받고 티켓의 금액만큼 가방에 있는 금액을 차감시키는 메서드
+     */
+    Long buy(Ticket ticket) {
+        return this.bag.hold(ticket);
+    }
+}
+```
+
+### Bag
+
+```java
+/**
+ * 소지품을 보관할 용도인 가방
+ */
+public class Bag {
+
+    private Long amount; // 현금
+    private Invitation invitation; // 초대장
+    private Ticket ticket; // 티켓
+
+    public Bag(Long amount) {
+        this.amount = amount;
+    }
+
+    public Bag(Long amount, Invitation invitation) {
+        this.amount = amount;
+        this.invitation = invitation;
+    }
+
+    public Long hold(Ticket ticket) {
+        if(this.hasInvitation()) {
+            setTicket(ticket);
+            return 0L;
+        }else {
+            setTicket(ticket);
+            minusAmount(ticket.getFee());
+            return ticket.getFee();
+        }
+    }
+
+    /**
+     * 초대장이 있는지 없는지 확인하는 메서드
+     * @return 초대장이 있는지 true
+     */
+    private boolean hasInvitation() {
+        return invitation != null;
+    }
+
+    /**
+     * 티켓이 있는지 없는지 확인하는 메서드
+     * @return 초대장이 있으면 true
+     */
+    private boolean hasTicket() {
+        return ticket != null;
+    }
+
+    /**
+     * 티켓을 매개변수로 받고 Bag 객체의 ticket 멤버 변수에 세팅
+     * @param ticket-티켁 객체
+     */
+    private void setTicket(Ticket ticket) {
+        this.ticket = ticket;
+    }
+
+    /**
+     * 현금을 감소시키는 메서드
+     * @param amount-금액
+     */
+    private void minusAmount(Long amount) {
+        this.amount -= amount;
+    }
+}
+```
+
+### Theater
+
+```java
+/**
+ * 영화관 클래스
+ */
+public class Theater {
+    private TicketSeller ticketSeller;
+
+    public Theater(TicketSeller ticketSeller) {
+        this.ticketSeller = ticketSeller;
+    }
+
+    /**
+     * @param audience-티켓을 구매하려는 Audience 객체
+     * @see TicketSeller
+     * ticketSeller 의 sellTo 메서드 호출
+     */
+    public void enter(Audience audience) {
+       ticketSeller.sellTo(audience);
+    }
+}
+```
+
+### TicketOffice
+
+```java
+/**
+ * 극장에 입장하기 위해서
+ */
+public class TicketOffice {
+    private Long amount;
+    private List<Ticket> tickets = new ArrayList<>();
+
+    public TicketOffice(Long amount, Ticket... tickets) {
+        this.amount = amount;
+        this.tickets.addAll(Arrays.asList(tickets));
+    }
+
+    /**
+     * @param audience-티켓을 구매하려는 사용자 객체
+     * @see Audience
+     * audience 객체의 buy 메서드를 호출하고 buy 메서드에서 반환되는 amount로
+     * 멤버 변수로 있는 amount 를 증가시킨다.
+     */
+    public void sellTicketTo(Audience audience) {
+        plusAmount(audience.buy(getTicket()));
+    }
+
+    /**
+     * 티켓을 교환해죽거나 티켓을 판매해줄 때 tickets 컬렉션에 있는 첫 번째 요소륿 반환
+     * @return 티켓 하나
+     */
+    private Ticket getTicket() {
+        return tickets.remove(0);
+    }
+
+    /**
+     * 티켓을 판매할 때 증가하는 수익을 지정하는 메서드
+     * @param amount-매표소에 있는 총 금액
+     */
+    private void plusAmount(Long amount) {
+        this.amount += amount;
+    }
+}
+```
+
+### TicketSeller
+
+```java
+/**
+ * 티켓을 판매하기 위한 판매원 클래스
+ * 초대장을 티켓으로 교환,
+ * 티켓을 판매 하는 역할을 수행한다.
+ */
+public class TicketSeller {
+    private TicketOffice ticketOffice;
+
+    public TicketSeller(TicketOffice ticketOffice) {
+        this.ticketOffice = ticketOffice;
+    }
+
+    /**
+     * @param audience-티켓을 구매하려는 Audience 객체
+     * audience 가 가지고 있는 bag 객체에서 각각을 조회
+     * 초대장이 있을 떄 : 초대장이 있으면 금액 차감 없이 티켓을 줌
+     * 초대장이 없을 떄 : audience 의 금액을 차감하여 티켓을 줌
+     */
+    public void sellTo(Audience audience) {
+        ticketOffice.sellTicketTo(audience);
+    }
+}
+```
+
+#### 이렇게 되면 모든 객체가 독립성을 갖게 되는 것이다.

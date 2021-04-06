@@ -1,0 +1,102 @@
+# JUnit
+
+- 자바 개발자가 가장 많이 사용하는 프레임워크
+- 자바 8 을 이상으로 필요로 함
+- Junit 4는 Junit4가 다른 라이브러리를 참조했는데, 5는 3가지의 세부 모듈로 나눠서 하나의 라이브러리로 커버함
+- Platform
+  - 테스트를 실행해주는 런처 TestEngine API 제공
+- Jupiter
+  - TestEngine API 구현체로 JUnit5를 제공
+- Vintage
+  - JUnit 4와 3을 지원하는 Test Engine 구현체
+
+# Junit 4 vs Junit 5
+
+- JUnit 4
+  - 클래스와 메서드가 public 이어야만 함
+- Junit 5
+  - 클래스와 메서드가 public 이 아니어도 됨
+
+# 기본 어노테이션
+
+- `@Test`
+  - 테스트를 실행시키려는 메서드, 내용
+- `@BeforeAll`
+  - 테스트가 모두 실행될 때 반드시 한 번만 호출이 되게 하고싶을 때
+  - static 메서드를 사용해야 함
+  - 메서드 이름은 노상관
+- `@AfterAll`
+  - 모든 테스트가 실행된 이후에 한 번만 실행됨
+  - static 메서드를 사용해야 함
+- `@BeforeEach`
+  - 각각의 테스트를 실행하기 이전에 한 번만 호출이 되게 함
+  - static 메서드일 필요 없음
+- `@AfterEach`
+  - 각각의 테스트를 실행한 이후에 한 번만 호출하게 됨
+- `@Disabled`
+  - 해당 테스트는 테스트 코드라고 인식하지 않게 하고 싶을 때
+  - 깨진 테스트를 잠깐 뺄 때 사용
+
+# 테스트 이름 표시하기
+
+- `@DisplayNameGeneration`
+  - Method와 Class 레퍼런스를 사용해서 테스트 이름을 표기하는 방법 설정
+  - ReplaceUnderscores 사용
+    - 빈 공백 문자를 치환함
+  - 잘 안 쓸것 같음
+- `@DisplayName`
+  - 우리가 지정하는 이름으로 테스트 이름이 정해짐
+  - `@DisplayNameGeneration` 보다 우선순위가 높다.
+
+# 반증문 Assertion
+
+### assertEquals
+
+- 실제 값이 기대한 값과 같은지 확인
+- Assertions 세 번째 인자에서 message 를 지정할 수 있음
+- `assertEqulas(expected, actual)`
+
+### assertTrue
+
+- 다음 조건이 참인지 확인
+- `assertTrue(boolean)`
+
+### assertNotNull
+
+- 값이 null이 아닌지 확인
+- `assertNotNull(actual)`
+
+### assertAll
+
+- 모든 확인 구문
+- `assertAll(executables...)`
+
+### assertThrows
+
+- 예외 발생 확인
+- `assertThrows(expectedType, executable)`
+
+### assertTimeout
+
+- 특정 시간 안에 실행이 완료되는지 확인
+- `assertTimeout(duration, executable)`
+  - `assertTimeout(Duration.ofSecond(10), () -> {})
+
+# AssertJ 와 Hamcrest
+
+- 추가 요망
+
+# 테스트 반복하기
+
+- 여러 번 반복하는 테스트
+- `RepeatedTest(10)`
+
+# 서로 다른 파라미터로 테스트하기
+
+- `@ParameterizedTest`
+- Junit4 에서는 서드파티 라이브러리를 가져와서 사용해야 했음
+- Junit5 에서는 그냥 사용 가능
+- `@ValueString` 로 각각 파라미터를 지정할 수 있음
+- `@NullAndEmptySource` 를 이용하면 Null 일 때와 Empty 일 때도 테스트할 수 있음
+  - `@NullSource` : null 일 때만
+  - `@EmptySource` : empty 일 때만
