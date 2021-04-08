@@ -1,0 +1,96 @@
+# JPA 란?
+
+- ORM 표준
+- JPA 등장 배경
+  - SQL과 객체 지향 사이의 임피던스 불일치 해결
+  - SQL에 의존적인 프로그래밍
+    - 엔티티의 필드를 하나만 추가해도 CRUD에 관련된 SQL 결과 매핑 JDBC API를 모두 수정
+- JPA의 해결 방법
+  - ORM 으로 객체와 RDB를 매핑
+  - 자바 컬렉션에 저장하듯 ORM 프레임워크에 저장
+  - ORM 프레임워크가 쿼리문을 생성해서 DB에 접근
+- JPA 이점
+  - 생산성
+    - 비슷하지만 다른 여러 SQL을 직접 작성하지 않아도 됨
+  - 유지보수
+    - SQL 의존적인 프로그래밍의 문제 해결
+
+# Spring Data JPA 란?
+
+- 스프링 프레임워크에서 JPA를 편리하게 사용할 수 있도록 지원하는 공식 프로젝트
+- JPA와 Spring Data JPA는 다른 분야
+- 인터페이스만 작성하면 실행 시점에 Spring Data JPA 가 구현 객체를 동적으로 생성 후 주입
+  - 즉, 구현 클래스 없이 인터페이스만 작성해도 개발 가능
+    - `extends JPARepository` 보여주기
+- Spring Data 시리즈 보여주기
+  - JPA는 그 중에 하나임
+
+# Spring Data JPA 설정
+
+- [MVNRepository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa/2.4.4) 에 접속하면 버전에 따른 의존성 확인 가능
+
+**maven**
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+    <version>2.4.4</version>
+</dependency>
+```
+
+**gradle**
+
+```yml
+implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.4.4'
+```
+
+# Spring Data JPA 와 DB 설정
+
+- Springboot 에서 Data JPA를 이용하여 데이터베이스에 저장하기 위해서는 DB 설치와 연결이 필요
+  - DB 설치 : h2, 블로그 추천
+  - DB 연결 :
+- `application.properties` 파일 대신 `application.yml` 파일로 대체
+
+```yml
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/dbname
+    username: name
+    password: pw
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      show_sql: true
+      format_sql: true
+```
+
+- `datasource`
+  - 데이터베이스 엔진 정보
+- `jpa`
+  - jpa 정보
+- `hibernate`
+  - jpa 의 구현체인 hibernate를 사용할 것이므로 hibernate 설정을 바꿀 수 있음
+  - `ddl-auto`
+    - 데이터베이스 초기화 전략
+    - 4 가지 전략
+      1. none : 아무것도 실행하지 않음
+      2. create : SessionFactory가 시작될 때 기존의 테이블 삭제 후 재생성
+      3. create-drop : SessionFactory 가 종료된다면 drop
+      4. update : 변경된 스키마만 적용
+      5. validate : 엔티티와 테이블이 정상 매핑 되었는지만 확인
+  - `properties`
+    - hibernate 기본 설정
+    - `show_sql`
+      - jpa 가 생성하는 쿼리를 콘솔로 출력
+    - `format_sql`
+      - 콘솔로 쿼리가 출력될 때 이쁘게 포매팅
+- `loging.level`
+- 자세한 사항은 [hibernate](https://docs.jboss.org/hibernate/orm/3.3/reference/en-US/html/session-configuration.html#configuration-optional) 참조
+
+# 테스팅
+
+- 간단하게 테스팅

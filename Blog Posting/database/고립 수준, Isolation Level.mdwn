@@ -1,0 +1,58 @@
+# 고립 수준
+
+- 트랜잭션들 끼리 일관성있는 데이터를 얼마나 허용할 것인지 정하는 수준
+- Transaction 에 5가지 상태와 연관이 있음
+- 4개의 Level 이 존재
+  1. **Level 0** Read Uncommitted
+  2. **Level 1** Read Committed
+  3. **Level 2** Repeatable Read
+  4. **Level 3** Serializable
+- 고립이 높을 수록 **일관성** 보장
+- 고립이 높을 수록 **동시성** 하락
+
+# Isolation Level, 고립 레벨
+
+## Level 0. Read Uncommitted
+
+- Uncommitted 결과를 확인할 수 있음
+- 데이터베이스 결과의 일관성을 유지하기 힘듦
+  - transaction 1 이 수행 중에 transaction 2 가 값을 변경하면 변경된 값을 읽을 수 있음
+- 최대한 사용하지 않아야 함
+  - Dirty Read 때문에
+- 이상 현상 발생 가능
+  - Dirty Read : Uncommitted 결과를 확인하는 경우
+  - Non Repeatable Read : 동일한 쿼리를 2번 실행할 때 **다른 트랜잭션이 수정/삭제**하는 경우
+  - Phantom Read : 동일한 쿼리를 2번 실행할 때 **다른 트랜잭션이 업데이트**하는 경우
+
+## Level 1. Read Committed
+
+- DBMS의 기본적인 Isolation Level
+  - MySql 은 Repeatable Read Level 을 default
+- 트랜잭션이 **처리하는 시점**에 Lock
+  - Lock 을 거는 주체 : 처리하는 세션 (INSERT, UPDATE)
+  - 쿼리하는 세션(SELECT) 이 대기
+- 이상 현상 발생 가능
+  - Non Repeatable Read : 동일한 쿼리를 2번 실행할 때 **다른 트랜잭션이 수정/삭제**하는 경우
+  - Phantom Read : 동일한 쿼리를 2번 실행할 때 **다른 트랜잭션이 업데이트**하는 경우
+
+## Level 2. Repeatable Read
+
+- MySql 의 Default Isolation Level
+- 트랜잭션이 **처리하는 시점**에 Lock
+  - Lock 을 거는 주체 : 쿼리하는 세션 (SELECT)
+  - 처리하는 세션 (INSERT, UPDATE)이 대기
+- 이상 현상 발생 가능
+  - Phantom Read : 동일한 쿼리를 2번 실행할 때 **다른 트랜잭션이 업데이트**하는 경우
+
+## Level 3. Serializable
+
+# 고립 수준에 따른 이상 현상의 허용 범위
+
+- 최상위 Isolation Level
+- 모든 동작이 직렬화 하게 작동
+- 읽는 모든 row 에 락을 검
+- 데이터의 안정성이 매우 중요한 특수한 상황이 아닌 이상 거의 사용하지 않음
+
+# Isolation Level 이 허용하는 데이터베이스 이상 현상
+
+<table style="border-collapse: collapse; width: 89.41860465116278%; height: 95px;" border="1" data-ke-style="style12"><tbody><tr style="height: 19px;"><td style="width: 26.560468140442133%; height: 19px; text-align: center;"><b>Isolation Level</b></td><td style="width: 23.439531859557867%; height: 19px; text-align: center;"><b>Dirty Read</b></td><td style="width: 25%; height: 19px; text-align: center;"><b>Non-Repeatable Read</b></td><td style="width: 25%; height: 19px; text-align: center;"><b>Phantom Read</b></td></tr><tr style="height: 19px;"><td style="width: 26.560468140442133%; height: 19px; text-align: left;">Level 0, <b>Read Uncommitted</b></td><td style="width: 23.439531859557867%; height: 19px; text-align: center;">허용</td><td style="width: 25%; height: 19px; text-align: center;">허용</td><td style="width: 25%; height: 19px; text-align: center;">허용</td></tr><tr style="height: 19px;"><td style="width: 26.560468140442133%; height: 19px; text-align: left;">Level 1, <b>Read Committed</b></td><td style="width: 23.439531859557867%; height: 19px; text-align: center;">x</td><td style="width: 25%; height: 19px; text-align: center;">허용</td><td style="width: 25%; height: 19px; text-align: center;">허용</td></tr><tr style="height: 19px;"><td style="width: 26.560468140442133%; height: 19px; text-align: left;">Level 2, <b>Repeatable Read</b></td><td style="width: 23.439531859557867%; height: 19px; text-align: center;">x</td><td style="width: 25%; height: 19px; text-align: center;">x</td><td style="width: 25%; height: 19px; text-align: center;">허용</td></tr><tr style="height: 19px;"><td style="width: 26.560468140442133%; height: 19px; text-align: left;">Level 3, <b>Serializable</b></td><td style="width: 23.439531859557867%; height: 19px; text-align: center;">x</td><td style="width: 25%; height: 19px; text-align: center;">x</td><td style="width: 25%; height: 19px; text-align: center;">x</td></tr></tbody></table>

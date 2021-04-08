@@ -1,0 +1,350 @@
+테이블 연관관계는 RDB에 있어 중요한 개념 중 하나라고 생각한다.  
+이런 테이블 연관관계를 알기 위해서는 **외래 키**에 대한 개념과 **매핑 테이블**에 대한 개념을 이해해야 한다.
+
+# 외래 키와 매핑 테이블
+
+외래 키란?
+
+> 관계형 데이터베이스에서 외래 키는 한 테이블의 필드 중 다른 테이블의 행을 식별할 수 있는 키를 말한다.
+
+이런 외래 키를 사용하는 곳은 주로 다음과 같은 곳일 것이다.
+
+쇼핑몰에서 사용자와 주문 목록을 예로 들어보자.
+
+**만약 사용자 J가 이 칫솔을 구매했다고 가정해보자.**
+
+그럼 테이블이 어떻게 될까?
+
+[##_Image|kage@JWvqx/btq18oEHtle/0jwecPM53nV74EvBHBrqa0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]~정규화를 잘 했다면 이런 식으로 구성할 일은 없겠지만 우선 이렇게 했다고 가정해보자.~
+
+그럼 사용자 A가 어떤 물품을 샀는지를 확인하는 쿼리는 아마 다음과 같을 것이다.
+
+```
+SELECT order_item
+FROM user
+WHERE username = "J"
+```
+
+그럼 이렇게 가정해보자.  
+만약 **칫솔과 치약을 함께 구매했다면? 칫솔, 치약, 비누, 샴푸 를 같이 구매했다면?**
+
+어떻게 해야할까?
+
+지금 DB에는 Item을 저장할 공간인 order_item은 하나만 있는 상태라 구매가 불가능하다.  
+그럼 order_item1, order_item2 이런 식으로 계속 늘려야 해야 하나?
+
+이럴 때 바로 **외래 키와 매핑 테이블이 등장**한다.
+
+# 매핑 테이블
+
+> 매핑 테이블은 각 테이블의 PK를 외래 키로 참조하는 테이블로 값 집합을 저장할 때 주로 사용된다.
+
+말이 어렵지 막상 보면 쉽다.
+
+[##_Image|kage@xjUmi/btq11z9cbJk/CvAkQyIjWqOfhq4ZJqwXo0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+Order_item 테이블
+
+Order_Item 테이블에서는 item_id와 user_Id 가 존재한다.
+
+이런 식으로 테이블을 나눈다면 어떤 이점이 있을까?
+
+- user_id는 User 테이블의 PK로 식별하는 외래키로 order_item 이 어떤 사용자에게 구매되었는지를 식별할 수 있고,
+- item_id는 Item 테이블의 PK로 식별하는 외래키로 order_item이 어떤 아이템을 갖는지를 식별할 수 있게 된다.
+
+그럼 위에서 말 하는 문제, 만약**칫솔과 치약을 함께 구매했다면? 칫솔, 치약, 비누, 샴푸 를 같이 구매했다면?** 의 문제를 해결할 수 있다.
+
+어떻게?
+
+item이 늘어날 수록 Order_Item 테이블에 데이터를 추가하기만 하고, SELECT 할 때, user_id 가 특정 회원인 로우만 잡아오면 되기 때문에!
+
+# 테이블 연관 관계
+
+그럼 내친김에 쪼금만 더 생각해보자.
+
+이러한 매핑 테이블에는 **관계**가 아주 중요한 존재인데, 관계란 **일반 테이블**과 **매핑 테이블이 어떤 **형태로 연결되었는지를 뜻하는 것이다.
+
+- User 테이블 입장에서 **한 명의 User**는 **여러 Order_Item**을 가질 수 있다.
+- Item 테이블 입장에서 **하나의 Item**은 **여러 Order_item**을 가질 수 있다.
+
+우리는 이 것들을 **테이블 연관 관계**라고 표현하고, 이 관계를 크게 3가지로 나눌 수 있다.
+
+1.  1:1
+2.  1:N
+3.  N:1
+
+~원래 N:M 관계도 존재하지만 사용하지 않아야 하므로 생략한다.~
+
+# 다시 Java로 돌아와서 생각해보자.
+
+우리는 지금 객체지향 패러다임에서 SQL 패러다임을 이용하려고 하고 있다.
+
+이는 전에 말 했던 **패러다임, 임피던스 불일치**의 문제를 안고 있는 것인데, 궁극적으로 우리가 하려고 하는 것은 **객체 그래프 탐색**을 하는 것이다.
+즉, 이러한 SQL 쿼리를
+
+```sql
+SELECT name
+FROM item I
+	JOIN order_item OI ON U.id = I.id
+WHERE OI.user_id = 10;
+```
+
+이러한 자바의 코드로 바꾸고 싶은 것이다.
+이를 **객체 그래프 탐색**이라고도 한다.
+
+```
+OrderItem orderItem = user.getOrderItem();
+Item item = orderItem.getItem();
+
+item.getName();
+```
+
+# 연관관계 어노테이션
+
+이런 연관 관계를 JPA 에서 혹은 자바에서 이용하기 위해서는 다음 어노테이션을 알아야 한다.
+
+1.  `@OneToOne` : 일대일 매핑
+2.  `@OneToMany` : 일대다 매핑 (사용자, 1) : (주문 목록, N)
+3.  `@ManyToOne` : 다대일 매핑 (주문 목록, N) : (사용자, 1)
+
+## 실제 코드로 먼저 봐보자.
+
+#### OrderItem 클래스
+
+```java
+@Entity
+public class OrderItem {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY) // 1
+    @JoinColumn(name = "userId") // 2
+    private User userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "itemId")
+    private Item itemId;
+}
+```
+
+#### User 클래스
+
+```java
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+
+    @OneToMany(mappedBy = "user")
+    private List<OrderItem> orderItems = new ArrayList<>();
+}
+```
+
+> Item 클래스도 `List<>` 를 선언해야 하는게 아닌가? 라는 생각이 들 때, 비즈니스 로직을 한 번 생각해보면 된다.
+> Item 입장에서는 어떤 주문이 되었는지 알아야 할 필요가 있을까?
+
+지난 시간에 확인했던 **엔티티 매핑**에서 보지 못했던 어노테이션들이 존재한다.
+
+- `@ManyToOne(fetch = FetchType.LAZY)`
+- `@JoinColumn(name = "")`
+- `@OneToMany(mappedBy = "")`
+
+## @ManyToOne, 다대일 매핑
+
+이름 그대로 **다대일 관계에서 사용한다.**
+
+> `OrderItem` 입장에서는 하나의 아이템은 한 명의 **User** 에게 매핑되어야 하고
+> 그럼 `(OrderItem) 다 : 일 (User)` 의 관계가 성립한다.
+
+보통 **참조 하는 엔티티** 에서 사용을 하는데, 외래 키를 가지고 있는 엔티티라고 생각하면 편하다.
+
+`@ManyToOne` 어노테이션에서 보면 뒤에 `fetch = FetchType.LAZY` 가 붙어있다.
+
+#### FetchType
+
+FetchType 을 이해하기 위해서는 **JPA 프록시**라는 개념을 이해해야 한다.
+현재 목적은 JPA를 분석하는게 아니기 때문에 일단 넘어가도록 하고, 두 가지만 기억하자.
+
+- 즉시 로딩 (`FecthType.EAGER`)
+  - 엔티티를 조회할 때, 연관된 엔티티를 즉시 한 번에 조회한다.
+  - 즉, 실제 객체가 사용되지 않더라도 조회를 해온다.
+- 지연 로딩 (`FetchType.LAZY`)
+  - 엔티티를 조회할 때, 연관된 엔티티는 **실제 사용 시점에 조회**한다.
+  - 즉, 실제 객체가 사용되는 시점까지 조회를 미룬다.
+
+##### 가급적이면 FetchType.LAZY 를 궎장한다.
+
+## @OneToMany, 일대다 매핑
+
+이름 그대로 **일대다 관계 에서 사용한다.**
+
+> , `User` 입장에서 하나의 사용자는 여러 **주문 아이템**을 가질 수 있다.
+> 그럼 `(User) 일 : 다 (OrderItem)` 의 관계가 성립한다.
+
+보통 **참조 당하는 엔티티** 에서 사용하는데, `List` 컬렉션을 참조변수로 한다.
+
+`@OneToMany` 어노테이션에 보면 뒤에 `mappedBy = ""` 가 붙어있다.
+
+#### mappedBy
+
+`mappedBy`는 양방향 매핑에서 사용되는 개념이다.
+양방향으로 참조될 때 **참조 당하는 엔티티**에서 사용한다.
+
+형식은 `@OneToMany(mappedBy = "참조하는 엔티티에 있는 변수 이름")` 으로 작성할 수 있다.
+
+mappedBy를 사용하는 이유는, 현재 자신의 참조가 해당 엔티티에 **어떤 변수**로 지정되었는지 JPA 에게 알려주기 위함 쯤이라고 생각하자.
+
+## 양방향과 단방향
+
+`@ManyToOne` 만 존재한다면, 즉 OrderItem 클래스만 User의 정보를 갖고 있다면, 이는 **단방향 연관관계**라고 한다.
+
+단방향 연관관계가 **객체지향적으로 봐도, 관심사로 봐도** 훨씬 이득이 많다.
+
+그래도 우리는 양방향을 사용해야 하는 어쩔 수 없는 상황들이 생기게 된다.
+
+그럼 다음을 기억하자
+
+- **양방향 연관관계가 될 때 *외래 키*를 관리하고 있을 주체를 확실히 할 것**
+  - 외래 키를 갖는 주체는 DB 테이블에 외래 키가 있는 쪽으로 한다.
+  - 외래 키를 갖는 쪽에서만 UPDATE와 INSERT 를 수행하고, 없는 쪽은 SELECT 만 수행할 것
+- **양방향 연관관계에서 상호 참조를 주의할 것**
+  - Lombok 의 `@ToString`
+    - `@ToString(exclude = "")` 를 이용하여 해결
+  - MVC 에서 JSON Converting 될 때
+    - 엔티티를 통신에서 그대로 사용하지 말고 **DTO 객체를 만들어서 사용할 것**
+
+# 테스트
+
+여기 까지 잘 되고 있는지를 확인하기 위해서 지난 시간과 동일하게 위의 개념들을 코드로 증명해보자.
+
+**우리가 증명할 것은, 하나의 사용자가 여러 아이템을 가졌을 때, 해당 주문 목록에서 주문한 사용자 이름이 해당 사용자의 이름과 동일한지를 테스트할 것이다.**
+
+- Entity
+  - `User`.class
+  - `Item`.class
+  - `OrderItem`.class
+- Repository
+  - `UserRepository`.interface
+  - `ItemRepository`.interface
+  - `OrderItemRepository`.interface
+- Test
+  - `OrderItemRepository`.class
+
+의 클래스를 생성한다.
+
+[##_Image|kage@dvmSCz/btq169IiGi5/QY0HoUbqCEIZNLH2xfnYW1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+### User, Item, OrderItem
+
+```java
+
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder @Getter
+public class User {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+
+    @OneToMany(mappedBy = "user")
+    private List<OrderItem> orderItems = new ArrayList<>();
+}
+
+// 어노테이션 생략
+public class Item {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+}
+
+// 어노테이션 생략
+public class OrderItem {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item item;
+}
+```
+
+### UserRepository, ItemRepository, OrderItemRepository
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {}
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {}
+public interface ItemRepository extends JpaRepository<Item, Long> {}
+```
+
+### OrderItemRepository
+
+```java
+@SpringBootTest
+@Transactional
+@Rollback(false)
+class OrderItemRepositoryTest {
+
+    @Autowired ItemRepository itemRepository;
+    @Autowired UserRepository userRepository;
+    @Autowired OrderItemRepository orderItemRepository;
+
+    @Test
+    void createTest() {
+
+        // given
+        String username = "James";
+        User user = User.builder()
+                .username(username)
+                .build();
+
+        userRepository.save(user);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (int i = 1; i <= 2; i++) {
+            Item item = itemRepository.save(Item.builder()
+                    .name("item " + i)
+                    .build());
+            OrderItem orderItem = OrderItem.builder()
+                    .item(item)
+                    .user(user)
+                    .build();
+
+            orderItems.add(orderItem);
+        }
+
+        // when
+        List<OrderItem> savedOrderItems = orderItemRepository.saveAll(orderItems);
+
+        //then
+        assertEquals(username, savedOrderItems.get(0).getUser().getUsername());
+        assertEquals(username, savedOrderItems.get(1).getUser().getUsername());
+    }
+
+}
+```
+
+여기서 테스트 클래스 상단에 `@Transactional`과 `@Rollback` 어노테이션은 뭘까?
+
+- `@Trasacntional`
+  - JPA의 모든 작업은 하나의 트랜잭션 내에서 일어나게 된다.
+  - 해당 클래스의 트랜잭션 바운더리를 걸어주는 것이다.
+- `@Rollback`
+  - 트랜잭션의 Rollback 개념과 동일하다.
+  - false 로 설정한다면 실행 시에 DB에 저장한다. : rollback 을 수행하지 않는다.
+  - true 로 설정한다면 실행 시에 DB에 저장되지 않는다. : rollback을 수행한다.
+
+> 트랜잭션과 Rollback에 대해서는 데이터베이스 이론
+> [Transaction, 트랜잭션 이란?](https://wonit.tistory.com/462) 과 [Isolation Level, 고립 수준이란?](https://wonit.tistory.com/463) 을 참고하는 것도 좋을 것 같다.

@@ -1,0 +1,140 @@
+JPA 에서는 엔티티와 매핑하기, 연관관계 매핑하기, 다양한 기능을 제공하기 위해서 여러 **어노테이션을 제공**한다.
+
+지금 이야기할 내용들은 Spring Data JPA 와는 별개로 **순수 JPA Framework**에 대한 내용이다.
+
+# JPA 기본 어노테이션
+
+JPA는 ORM, 즉 객체와 테이블을 매핑하는 프레임워크이다.
+그러므로 객체와 테이블을 정확하게 매핑하는 것이 중요한데, JPA 에서는 이런 매핑을 다음과 같은 어노테이션들을 이용한다.
+
+- **객체와 테이블 매핑하기**
+  - `@Entity`
+  - `@Table`
+- **기본 키 매핑하기**
+  - `@Id`
+- **필드와 컬럼 매핑하기**
+  - `@GeneratedValue`
+  - `@Column`
+  - `@Enumerated`
+- 연관관계 매핑하기
+  - `@OneToOne`
+  - `@OneToMany`
+  - `@ManyToOne`
+  - `@ManyToMany`
+
+어렵지 않으니 같이 하나씩 알아보자.
+
+# 어떤 형태로 쓰는지 알아보자.
+
+```java
+@Entity // 1
+@Table(name = "Member_tb") // 2
+public class Member {
+
+    @Id // 3
+    @GeneratedValue(stretagy = GenerationType.IDENTITY) // 4
+    @Column(name = "member_id", nullable = false) // 5
+    private Long id;
+    private String username;
+    private int age;
+    @Enumerated(EnumType.STRING) // 6
+    private RoleType role = RoleType.USER;
+}
+```
+
+## @Entity, JPA 관리 클래스
+
+`@Entity` 어노테이션은 JPA의 시작이라고 생각한다.
+
+테이블과 매핑할 클래스에 `@Entity` 어노테이션을 붙혀주는 것으로 JPA에게 해당 클래스는 **데이터베이스와 매핑할 객체다**를 알려주는 것이다.
+
+이런 Entity 에는 중요한 3가지 원칙이 있다.
+
+1. 기본 생성자를 꼭 가지고 있을 것,
+2. final class, interface, enum, inner 클래스가 아닌 기본 클래스일 것
+3. 저장할 필드에 final 을 사용하지 않을 것
+
+이 세 가지만 만족하면 Entity로서 사용할 수 있게 된다.
+
+## @Table, 테이블과 매핑
+
+Table은 앤티티와 매핑할 테이블을 **이름으로 직접** 지정한다.
+위에서 보면 `@Table(name = "")` 과 같은 형태로 테이블의 이름을 지정할 수 있다.
+
+사실 `@Entity(name = "")` 으로도 테이블의 이름을 지정할 수 있는데, `@Table` 어노테이션에는 몇 가지 추가 기능들이 더 있다.
+
+1. DDL 유니크 제약 조건 추가.
+2. 스키마 매핑
+3. Catalog 매핑
+
+위의 사항들은 현재로써는 필요하지 않으니 넘어가도록 하자.
+
+## @Id, 기본키 매핑하기
+
+기본키란?
+
+> 기본 키는 주 키 또는 프라이머리 키라고 하며, 관계형 데이터베이스에서 조의 식별자로 이용하기에 가장 적합한 것을 관계 마다 단 한 설계자에 의해 선택, 정의된 후보 키를 말한다.
+
+`@Id` 어노테이션을 이용하면 Primary Key, 기본키 를 지정할 수 있다.
+
+이러한 기본키에는 다양한 전략이 존재하는데, 이를테면 MySql 의 **AUTO_INCREAMENT** 와 같이 자동 증가하게 할 수 있고, 아니면 직접 기본 키를 지정할 수 있다.
+
+## @GeneratedValue, 기본 키 생성 전략
+
+앞서 말 한 기본 키의 다양한 생성 전략을 명시할 수 있다.
+
+기본 키를 생성하는 데에는 **직접 할당**과 **자동 생성** 이 나뉜다.
+
+우리는 **자동 생성**에 초점을 맞춰보자.
+
+JPA에서 자동 생성에는 3가지 전략이 있다.
+
+그 중에 IDENTITY 를 가장 많이 사용하니 IDENTITY에 집중하자.
+
+1. **IDENTITY** : 기본 키 생성을 데이터베이스에게 위임한다.
+2. SEQUENCE : 데이터베이스 시퀀스를 이용해서 기본 키를 할당한다.
+3. TABLE : 키 생성 테이블을 사용한다.
+
+JPA 에서는 `strategy = GenerationType.IDENTITY` 로 지정한다.
+
+## @Column, 필드 매핑하기
+
+기본적으로 JPA 에서 `@Column`을 명시하지 않으면 **해당 필드의 이름으로 매핑** 하는데, 만약 그렇지 않을 경우도 왕왕 발생한다.
+
+예를 들어 테이블에서는 Member의 기본 키가 `member_id` 이며, 자바 클래스에서는 `id` 로 쓰이는 경우가 이에 해당된다.
+
+이 경우 `@Column(name = "")` 속성을 이용하면 해결할 수 있다.
+
+또한 DDL 생성 기능으로 `@Column(nullable = true)` 과 `@Column(length = 400)` 이 대표적이다.
+
+예상했다 싶이 nullable은 null 제약 조건과 length 은 길이 제약 조건이다.
+
+## @Enumerated, ENUM 타입 매핑하기
+
+Enum 타입 이란?
+
+> 컴퓨터 프로그래밍에서 열거형, 이넘, 팩터는 요소, 멤버라 불리는 명명된 값의 집합을 이루는 자료형이다. 열거자 이름들은 일반적으로 해당 언어의 상수 역할을 하는 식별자이다. 일부 열거자 자료형은 언어에 기본 소속되어 있을 수 있다.
+
+이러한 Enum 타입을 주로 사용하는데, Enum 타입을 위한 어노테이션도 존재한다.
+
+`@Enumerated`
+
+```java
+enum RoleType {
+  ADMIN, USER
+}
+```
+
+과 같은 Enum 이 존재한다고 해보자.
+그럼 위와 같이 `@Enumerated` 어노테이션을 이용하면 된다.
+
+`@Enumerated` 에는 2가지 타입이 존재한다.
+
+1. `EnumType.ORDINAL`
+2. `EnumType.STRING`
+
+ORDINAL은 Enum 에 정의된 순서대로 JPA가 이용하는데, 만약 순서가 변경된다면 꼬이게 되는데, 무조건적으로 STRING 타입을 이용하자.
+
+STRING 타입은 문자로 데이터베이스에 저장된다.
+
+> 약간의 성능상 ORDINAL이 이점이 있으나 안정성을 택하도록 하자

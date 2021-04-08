@@ -1,0 +1,13 @@
+# Spring Data JPA의 공통 인터페이스 기능
+
+Spring Data JPA 는 간단한 CRUD 기능을 공통으로 처리하는 **인터페이스**를 제공한다.
+
+이를 **JPA 공통 인터페이스**라고 하는데, 정말 정말 간편하고, Jpa와 Spring Data JPA를 구분짓는 첫 걸음이라 해도 무방하다.
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+
+}
+```
+
+이런 형태로 생겨 먹었다.
