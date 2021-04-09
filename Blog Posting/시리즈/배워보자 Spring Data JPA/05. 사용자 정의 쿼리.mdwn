@@ -7,3 +7,303 @@
 그럼 어쩔 수 없이 **사용자 정의 쿼리**를 사용해야 한다.
 
 # 사용자 정의 쿼리
+
+사용자 정의 쿼리란? 말 그대로 JPA가 자동으로 생성하는 쿼리를 사용하는게 아닌 **사용자가 정의한 대로 쿼리가 생성** 혹은 **데이터베이스에 종속적인 Native Query** 가 생성 되는 것을 말 한다.
+
+JPA 에서 **사용자 정의 쿼리**를 사용하는 방법에는 여러 방법이 존재한다.
+
+1. Named Query
+2. 쿼리 메서드
+3. @Query 어노테이션
+
+가 존재한다.
+
+네임드 쿼리는 **말 그대로 쿼리에 이름을 부여**하는 방법인데, 컴파일시 타입체크, 가독성과 같은 부분에서 문제가 조금 있기 때문에 `@Query` 어노테이션을 사용할 우리에게는 당장 필요하지는 않다.
+그러므로 우리는 2번 3번, 쿼리 메서드와 @Query 에 더 집중하면 된다.
+
+# 쿼리 메서드
+
+쿼리 메서드는 내가 생각하는 **JPA에서 가장 신기한 기술?** 이다.
+
+나는 Intellij 를 사용하는데, Intellij 에서 `Repository` 인터페이스 에 메서드를 정의해보자.
+
+`Optional<User> find` 까지만 쳐도 아래와 같은 snippet 이 등장한다.
+
+[##_Image|kage@cg33wd/btq2iq3AARJ/0KFAyBDWmtEYeR4GEc2d11/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+뭘까..?
+대충 감이 잡히지 않는가?
+
+#### 그렇다. 메서드 이름으로 우리가 원하는 기능을 수행할 쿼리가 자동으로 생성되게 할 수 있다.
+
+쿼리 메서드 기능은 **Spring Data JPA 에서 정해놓은 네이밍 컨벤션**을 지키면 JPA가 해당 메서드 이름을 분석해서 적절한 JPQL 을 구성한다.
+
+[##_Image|kage@rZcfz/btq2iEgmWRD/2dtfXTqqHyINnPMoz2k1yk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="665" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+대표적인 키워드에 대해서 알아보자면 다음과 같다.
+
+- And
+- Or
+- Is, Equals
+- Between
+- LessThen
+- After, Before
+- IsNull
+- OrderBy
+- Not
+
+자세한 사항은 [Spring Data JPA-Query Method 공식 문서](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation) 를 참고함면 어떤 키워드로 네이밍을 했을 때, 적절한지 확인할 수 있다.
+
+# 쿼리 메서드 Test
+
+- `User`.class
+- `UserRepository`.interface
+- `UserRepositoryTest`.class
+
+#### User 클래스
+
+```java
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+    private String address;
+    private int age;
+    private LocalDateTime registeredDate;
+}
+```
+
+교육 편의를 위해 롬복과 관련된 어노테이션은 제거하였다.
+
+#### UserRepository 인터페이스
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsernameAndAddress(String username, String address);
+}
+```
+
+이번 테스트의 핵심인 `UserRepository`의 Query Method 기능을 사용한 레포지토리이다.
+인텔리제이를 쓴다면 snippet 을 이용할 수 있다.
+
+#### UserRepositoryTest 클래스
+
+```java
+@SpringBootTest
+@Transactional
+@Rollback(false)
+class UserRepositoryTest {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Test
+    @DisplayName("사용자 이름과 주소로 조회")
+    void findUsernameAndAddressTest() {
+
+        // given
+        String username = "James";
+        String address = "seoul";
+
+        User user = User.builder()
+                .username(username)
+                .address(address)
+                .age(25)
+                .registeredDate(LocalDateTime.now())
+                .build();
+        userRepository.save(user);
+
+        // when
+        Optional<User> selectedUser = userRepository.findByUsernameAndAddress(username, address);
+
+        // then
+        selectedUser.ifPresentOrElse(
+                userOptional -> assertEquals(userOptional.getUsername(), username),
+                Assertions::fail
+        );
+
+        // then 람다를 쓰지 않은 경우
+        if(selectedUser.isEmpty()) {
+            fail();
+        }else {
+            User userOptional = selectedUser.get();
+            assertEquals(userOptional.getUsername(), username);
+        }
+    }
+}
+```
+
+정말 멋지다..
+
+하지만 위의 쿼리메서드 기능이 워낙 강력하다고 해도 **모든 사용자의 니즈**를 파악하긴 힘들다.
+
+어떤 프로젝트에서는 **Native Query**를 사용해야하는 곳도 필요할 것이고, 다양한 조합으로 쿼리를 짜야하는 상황이 올 때는 어떻게 할까?
+
+# @Query
+
+그런 상황, 개발자가 원하는 쿼리를 직접 짜야 하는 그런 상황이 올 때 `@Query` 는 아주 강력하다.
+
+어떻게 사용할까?
+
+#### @Query는 **실행할 메서드 위에 정적 쿼리를 작성** 한다.
+
+여기 들어가는 쿼리는 **JPQL** 이라는 쿼리가 들어가야 한다.
+
+## JQPL
+
+Java Persistence Query Language 인 JPQL은 객체지향 쿼리로 **JPA가 지원하는 다양한 쿼리 방법 중 하나**이다.
+
+기존에 SQL 중심적 개발에 익숙한 우리에게는 어떻게 보면 가장 단순한 방법이기도 하다.
+
+SQL과 JPQL의 차이점이 있다고 한다면
+
+- SQL
+  - 테이블을 대상으로 쿼리
+- JPQL
+  - 엔티티 객체를 대상으로 쿼리
+
+를 하게 된다.
+
+이는 JPA가 탄생한 이유인 **임피던스 불일치**를 해결하려는 노력의 일환 같다.
+
+쿼리문 내부에 다음과 같이 `참조변수.필드` 와 같은 형태로 사용된다.
+
+```sql
+select
+    m.username,
+    m.address
+from
+    Member m
+where
+    m.age>18
+```
+
+JPQL 에 대해서는 모든 것을 설명하기 보다 간단하게 컨셉만 이야기하려 한다.
+
+SQL을 모두 안다고 가정해야 하니 일단은 넘어가도록 하지만 꼭 SQL 에 대해서 알아보고 JPQL을 알아보는 것을 추천한다.
+
+> 만약 본인이 SQL에 대해서 하나도 모른다면 해당 블로그의 시리즈인 [초보자도 준비하는 SQL 코딩테스트](https://wonit.tistory.com/448)에서 학습할 수 있다.
+> 코딩 테스트에 자주 나오는 SELECT를 위주로 설명하고 있으나, 예제와 문제들도 있어서 SQL 입문자에게는 좋을 것 같다.
+
+# 다시 @Query 로 돌아와서!
+
+@Query는 JpaRepository 를 상속하는 인터페이스에서 사용한다.
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    @Query("쿼리문")
+    List<User> methodName();
+```
+
+이와 같은 형태로 주로 사용된다.
+
+만약 age가 20살 이상인 사람을 조회한다고 해보면 JPQL은 다음과 같이 사용될 것이다.
+
+```java
+Sring jpql = "select u from User u where u.age > 20";
+```
+
+#### 중요한 것은 우리는 **테이블을 대상으로 쿼리를 날리는게 아니라 엔티티를 대상으로 날린다**는 것이다.
+
+## 파라미터 바인딩 시키기
+
+우리가 이걸 하는 이유는 뭘까?
+바로 사용자 정의 쿼리를 하는 것이다.
+즉, 아래의 `methodName()` 에 들어갈 파라미터를 우리의 쿼리문에 넣는 것이다.
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    @Query("쿼리문")
+    List<User> methodName();
+```
+
+이를 **파리미터 바인딩**이라고 한다.
+
+파라미터 바인딩에는 두 가지 방법이 있다.
+
+1. 위치 기반
+2. 이름 기반
+
+위치 기반은 쓰지말자, 이름 기반을 쓰자
+
+위치 기반은 JDBC 프로그래밍을 할 때의 ResultSet 을 생각하면 쉬울 것 같다.
+
+이름 기반을 쓰라고 하는 이유는 JPA 의 선구자? 김영한 개발자님도 **가독성을 위해 이름 기반을 써라!** 라고 했기 때문이다.
+
+나도 100% 동의한다.
+
+그러니 우리도 이름 기반으로 사용하도록 하자 ㅎㅎ
+
+이름 기반으로 파라미터 바인딩을 하고 파라미터에 `@Param("")` 어노테이션으로 메서드에 들어오는 파라미터가 어떤 이름으로 지정될 지 정할 수 있다.
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    @Query("select u from User u where u.username = :name")
+    List<User> methodName(@Param("name") String username);
+```
+
+이제 `@Query` 에 대해서 어느 정도 배운 것 같으니 테스트를 마지막으로 글을 마치려 한다.
+
+# @Query 테스트
+
+- `User`.class
+- `UserRepository`.interface
+- `UserRepositoryTest`.class
+
+#### User
+
+#### UserRepository
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    @Query("SELECT u FROM User u WHERE u.username LIKE %:char% and u.age > :maxAge")
+    List<User> findByLetterWithConditions(@Param("char") char letter,
+                                          @Param("maxAge") int age);
+}
+```
+
+JPQL 로 **이름 기반** 파라미터 바인딩을 한 것을 볼 수 있다.
+
+#### UserRepositoryTest
+
+```java
+@SpringBootTest
+@Transactional
+@Rollback(false)
+class UserRepositoryTest {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Test
+    void findUsernameAndAddressTest() {
+
+        // given
+        String jamesUsername = "James";
+        String maryUsername = "Mary";
+
+        User james = User.builder()
+                .username(jamesUsername)
+                .age(25)
+                .build();
+
+        User mary = User.builder()
+                .username(maryUsername)
+                .age(30)
+                .build();
+
+        userRepository.save(james);
+        userRepository.save(mary);
+
+        // when
+        List<User> optionalUsers = userRepository.findByLetterWithConditions('a', 23);
+
+        // then
+        assertEquals(optionalUsers.get(0).getUsername(), jamesUsername);
+        assertEquals(optionalUsers.get(1).getUsername(), maryUsername);
+    }
+}
+```

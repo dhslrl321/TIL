@@ -17,7 +17,7 @@
 [배워보자 Spring Data JPA] JPA 의 기본 어노테이션들
 [배워보자 Spring Data JPA] 매핑 테이블과 연관관계 매핑하기
 [배워보자 Spring Data JPA] JPA의 공통 인터페이스, JpaRepository 의 기능과 구조
-[배워보자 Spring Data JPA] @Query를 이용한 사용자 정의 쿼리
+[배워보자 Spring Data JPA] 쿼리 메서드와 @Query를 이용한 사용자 정의 쿼리
 [배워보자 Spring Data JPA] JPA의 페이징과 정렬
 [배워보자 Spring Data JPA] JPA 의 Auditing
 
