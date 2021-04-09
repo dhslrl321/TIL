@@ -1,13 +1,257 @@
-# Spring Data JPA의 공통 인터페이스 기능
+# 순수 JPA를 이용한 JPA 프로그래밍의 한계
+
+자! 우리는 이제 JPA의 기본 어노테이션들에 대해서 이제 배웠다.  
+만약 우리가 순수 JPA를 이용하여 프로그래밍을 한다고 가정해보자.  
+JPA는 기본적으로 **하나의 트랜잭션** 안에서 기능을 수행하기 때문에 다음과 같이 트랜잭션을 선언해줘야 한다.
+
+> 코드를 보고 겁먹지 말자!  
+> 이런 무서운 코드들에게 쓸 신경을 다른 곳에서 쓰기 위해서 **Spring Data JPA**가 등장한 것이니 아래에 나올 코드들은 단지 JPA를 사용하려는 목적에서는 사용하지 않는다.
+
+```java
+public static void main(String[] args) {
+  EntityManagerFactory factory = Persistence.createEntityManagerFactory("Factory");
+
+  // db connection
+  EntityManager manager = factory.createEntityManager();
+
+  EntityTransaction transaction = manager.getTransaction();
+  // 트랜잭션 시작
+  transaction.begin();
+
+  try {
+    Member member = new Member();
+
+    member.setUsername("Steven Gerrard");
+    manager.persist(member); // db 저장
+
+    Member findMember = manager.find(Member.class, member.getId()); // select 쿼리
+
+    System.out.println(findTeam.getName());
+
+    transaction.commit();
+  } catch (Exception e) {
+      transaction.rollback();
+  } finally {
+      manager.close();
+      factory.close();
+  }
+}
+```
+
+이런 형태의 개발을 해야 한다.  
+이걸 Spring 에서 사용할 수 있을까?  
+음.. 하려면 하겠지만 보통은 순수 JPA를 이용한 경우에 다음과 같이 Repository를 선언해주고 특정 기능을 Repository 에서 구현하여 사용한다.
+
+### Repository
+
+우리가 CRUD를 수행하여 실제 데이터베이스에 접근하기 위해서는 **데이터 접근 계층**인 Repository 를 만들어야 한다.
+
+위에서는 member의 기본 키인 id로 조회를 하므로 `em.find` 를 사용할 수 있는데, 사용자 이름으로 조회한다고 하면 우리는 새로운 메서드를 만들어야 한다.
+
+```java
+@Repository
+public class MemberRepository {
+  @PersistenceContext;
+  EntityManager em;
+
+  public void save(Member member) {
+    em.persist(member);
+  }
+
+  public void findByName(String name) {
+    return em.createQuery("SELECT m FROM Member m WHERE m.name = :name", Member.class)
+            .setParameter("name", name)
+            .getResult();
+  }
+}
+```
+
+그럼 **중복 회원 검사**가 추가되려면 어떻게 해야할까?
+
+```java
+@Repository
+public class MemberRepository {
+  @PersistenceContext;
+  EntityManager em;
+
+  public void save(Member member) {
+    em.persist(member);
+  }
+
+  public void findByUsername(String name) {
+    return em.createQuery("SELECT m FROM Member m WHERE m.name = :name", Member.class)
+            .setParameter("name", name)
+            .getResult();
+  }
+
+  public void validateUsername(Member member) {
+    List<Member> findMembers = memberRepository.findByUsername(member.getUsername());
+
+    if(!findMembers.isEmpty()) {
+      throw new IllegalStateException("이미 존재하는 회원");
+    }
+  }
+}
+```
+
+이런 형태가 된다.
+물론 JpaRepository를 사용하더라도 특수한 기능을 위해서 추가적인 작업을 해야 하니 메서드가 더 많아질 것인데, 위의 코드는 어쩌면 가독성이 안 좋아 보이기도 한다.
+뭐지? 도통 처음 보는 문자들이 있다.
+SQL도 아닌것 같은데 형태는 SQL 이고.. 정확히는 JPQL 이라고 하는데, 사용자 정의 쿼리를 써야할 때 사용한다. 이는 다음에 배우니 걱정말자.
+
+**본론으로 돌아와서.**
+
+앞서 계속 언급하였듯, JPA는 Spring에 종속적인 것이 아니다.
+
+그래서 앞서 본 코드들에는 Spring과 JPA 사이의 차이가 존재하는데, 이를 해결하려고 등장한 것이 바로 **Spring Data JPA** 인 것이다.
+
+# Spring Data JPA의 공통 인터페이스
 
 Spring Data JPA 는 간단한 CRUD 기능을 공통으로 처리하는 **인터페이스**를 제공한다.
 
 이를 **JPA 공통 인터페이스**라고 하는데, 정말 정말 간편하고, Jpa와 Spring Data JPA를 구분짓는 첫 걸음이라 해도 무방하다.
 
 ```java
-public interface UserRepository extends JpaRepository<User, Long> {
-
+public interface UserRepository extends JpaRepository<User, Long>{
 }
 ```
 
-이런 형태로 생겨 먹었다.
+이런 형태로 **인터페이스를 상속!**만 받으면 어떤 일이 생길까?
+
+#### findByUsername, save, update 등과 같이 **간단하지만 단순 반복** 작업들을 Spring Data JPA 구현체인 Hibernate가 애플리케이션 실행 시점에 동적으로 자주 사용되는 쿼리 집합을 만들어 우리의 UserRepository 인터페이스를 구현해준다.
+
+그럼 우리가 자주 사용하는 CRUD를 굳이 JPQL로 작성하지 않더라도 **인터페이스 하나만 상속**받으면 사용할 수 있게 된다.
+
+# 다양한 기능의 JPA 인터페이스
+
+`JpaRepository` 인터페이스를 상속 받으면 어떤 기능들을 편하게 사용할 수 있을까?
+
+다음과 같은 기능들이 존재한다.
+
+- `findAll()` : 해당 엔티티 테이블에 있는 모든 데이터를 조회한다.
+- `save()` : 대상 엔티티를 DB에 저장한다.
+- `saveAll()` : `Iterable` 가능한 객체를 저장한다.
+- `delete()` : 데이터베이스에서 대상 엔티티를 삭제한다.
+
+이외에도 더 많은 기능들이 존재하는데, `JpaRepository` 는 아래와 같이 다양한 기능이 정의된 인터페이스를 상속 받게 되는데, 이 인터페이스들 덕분에 우리는 단순 CRUD 외에 다양한 기능(Paging, Sorting)을 수행할 수 있다.
+
+#### JpaRepository 인터페이스의 계층 구조
+
+[##_Image|kage@xiNVd/btq2gDWJObx/TBjD0SzDEDZkRohpR2nCb0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="480" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+# JpaRepository 를 사용하는 방법
+
+이제 JpaRepository가 대충 무엇인지 알았을 것이라고 생각하고, 지난 시간과 위에서 나온 Repository의 상속에 대해서 잠시 봐보자.
+
+```java
+public interface UserRepository extends JpaRepository<User, Long>{
+}
+```
+
+> 저기 JpaRepository에 있는 `<>`는 **제네릭** 이라고 하는데, 제네릭에 대해서 모른다면 [Generic을 핵심만 쉽게 이해하자](https://wonit.tistory.com/257)를 확인하길 바란다.
+
+자.
+JpaRepository 에는 제네릭으로 타입을 지정할 수 있는데, 순서는 다음과 같다.
+
+1. 엔티티
+2. 엔티티에서 사용할 PK 데이터 타입
+
+UserRepository 를 우리는 User 엔티티에 실제로 접근하려고 하니 `User`과 User 테이블, User 엔티티의 PK 데이터 타입인 `Long`을 넣어준 것이다.
+
+# 사용해보자!
+
+여러 데이터를 생성하고 앞으로 우리가 자주 사용하게 될 **조회**를 해보자.
+
+- `User`.class
+  - 엔티티 클래스
+- `UserRepository`.interface
+  - 데이터 접근 계층인 Repository 인터페이스
+  - SpringDataJpa 의 힘을 빌리기 위해 JpaRepository를 상속 받는다.
+- `UserRepositoryTest`.class
+  - 조회 쿼리를 테스트할 테스트 클래스
+
+#### User
+
+```java
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+}
+```
+
+가독성을 위해 롬복의 어노테이션들은 제거했다.
+
+롬복 어노테이션을 쓰던 setter/ getter, consructor를 만들던 개인 취향것!
+
+#### UserRepository
+
+```java
+public interface UserRepository extends JpaRepository<User, Long{}
+```
+
+위에서 계속 말한 JpaRepository 를 상속 받자.
+
+#### UserRepositoryTest
+
+```java
+@SpringBootTest
+@Transactional
+@Rollback(false)
+class UserRepositoryTest {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Test
+    void querySingleRowTest() {
+        // given
+        List<User> generatedUsers = generateUsersForTest();
+        userRepository.saveAll(generatedUsers);
+
+        // when
+        Optional<User> selectedUser = userRepository.findById(1L);
+
+        // then
+        assertEquals(selectedUser.get().getId(), 1L);
+    }
+
+    @Test
+    void queriesMultipleRowTest() {
+
+        // given
+        List<User> generatedUsers = generateUsersForTest();
+        userRepository.saveAll(generatedUsers);
+
+        // when
+        List<User> selectedAllUsers = userRepository.findAll();
+
+        // then
+        selectedAllUsers.forEach(selectedUser -> {
+            System.out.println(selectedUser.toString());
+        });
+
+        // then 혹은
+        assertAll(
+                () -> assertEquals(selectedAllUsers.get(0).getId(), 1L),
+                () -> assertEquals(selectedAllUsers.get(1).getId(), 2L),
+                () -> assertEquals(selectedAllUsers.get(10).getId(), 11L)
+        );
+    }
+
+    List<User> generateUsersForTest() {
+
+        List<User> users = new ArrayList<>();
+
+        for (long i = 1; i < 40; i++) {
+            User user = User.builder().id(i).username("사용자 " + i).build();
+            users.add(user);
+        }
+        return users;
+    }
+}
+```
+
+이와 같이 테스트할 수 있겠다.

@@ -16,4 +16,5 @@
   - [Decorator 패턴]() - 데코레이터
   - [Facade 패턴]() - 퍼사드
   - [Proxy 패턴]() - 프록시
-- [전략 패턴]()
+- [행동 패턴]()
+  - [Chain Of Responsibility]() - 책임 연쇄

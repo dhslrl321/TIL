@@ -16,7 +16,7 @@
 [배워보자 Spring Data JPA] Spring Data JPA 의 기본과 프로젝트 생성
 [배워보자 Spring Data JPA] JPA 의 기본 어노테이션들
 [배워보자 Spring Data JPA] 매핑 테이블과 연관관계 매핑하기
-[배워보자 Spring Data JPA] JpaRepository의 공통 인터페이스 기능
+[배워보자 Spring Data JPA] JPA의 공통 인터페이스, JpaRepository 의 기능과 구조
 [배워보자 Spring Data JPA] @Query를 이용한 사용자 정의 쿼리
 [배워보자 Spring Data JPA] JPA의 페이징과 정렬
 [배워보자 Spring Data JPA] JPA 의 Auditing
@@ -32,7 +32,7 @@
 - [JPA의 기본 어노테이션](https://wonit.tistory.com/465) :: **JPA의 시작과 동시에 끝**
   - 엔티티와 테이블 매핑
   - 필드와 컬럼 매핑
-- [매핑 테이블과 연관관계 매핑하기](https://wonit.tistory.com/466) :: **RDB의 꽃**
+- [매핑 테이블과 연관관계 매핑하기](https://wonit.tistory.com/466) :: **RDB의 꽃, 연관 관계**
   - 연관관계란?, 외래 키란?, 매핑 테이블이란?
   - 일대일, 일대다, 다대일 연관관계
 - [공통 인터페이스 기능]() :: **어떻게 Data JPA 는 동작할까?**

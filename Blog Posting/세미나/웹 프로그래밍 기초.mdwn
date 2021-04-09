@@ -60,3 +60,10 @@
 
 - css 기초
 - 선택자
+- 속성 검색하는 방법
+- display 속성
+  - inline
+  - block
+  - flex
+- flex로 배치하기
+- navigation bar 구성하기

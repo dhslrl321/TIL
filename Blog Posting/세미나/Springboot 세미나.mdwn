@@ -1,0 +1,20 @@
+# 순서
+
+- 웹 통신의 구조
+  - 서버사이드 템플릿
+  - Front
+  - Back
+- API 서버의 기본
+  - JSON API 서버 와 Front의 통신
+- Springboot 기본
+  - IoC/DI
+  - AOP
+- 레이어드 아키텍처
+  - domain
+    - entity
+    - repository
+      - jpa
+  - service
+  - controller
+    - RestController vs Controller
+- 서비스 배포 하기

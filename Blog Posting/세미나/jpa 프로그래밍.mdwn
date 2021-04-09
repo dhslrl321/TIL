@@ -1,3 +1,7 @@
 # 순서
 
 - jpa란
+- jpa 등장 배경
+  - sql 의존적인 개발
+  - 패러다임 불일치
+- jpa vs spring data jpa
