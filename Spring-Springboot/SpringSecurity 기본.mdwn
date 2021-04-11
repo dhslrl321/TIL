@@ -1,2 +1,0 @@
-- WebMvcConfigurer
-  > 자동 구성된 스프링 MVC 구성에 Formatter, MessageConverter등을 추가 등록할 수 있게 함.
