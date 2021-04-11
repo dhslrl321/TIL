@@ -1,0 +1,267 @@
+서비스를 운영할 때 **사용자의 기본적인 로그**를 DB에 남겨야 할 때가 있다.
+
+이를테면 **마지막 로그인 시간**이라던지 **엔티티 생성 시간**, **변경된 시간과 변경한 사람의 이름**등등.
+
+예를 들어보자.
+
+```java
+public class User {
+  private Long id;
+  private String name;
+  private String address;
+}
+
+public class OrderItem {
+  private Long id;
+  private User userId;
+  private Item itemId;
+}
+
+public class Item {
+  private Long id;
+  private String name;
+  private String description;
+}
+```
+
+이와 같은 엔티티가 존재한다고 해보자.
+
+예를 들어 각각의 생성 시간을 추가해야 한다고 해보자.
+
+```java
+public class User {
+  private Long id;
+  private String name;
+  private String address;
+  private LocalDateTime createdAt;
+  private String createdBy;
+}
+
+public class OrderItem {
+  private Long id;
+  private User userId;
+  private Item itemId;
+  private LocalDateTime createdAt;
+  private String createdBy;
+}
+
+public class Item {
+  private Long id;
+  private String name;
+  private String description;
+  private LocalDateTime createdAt;
+  private String createdBy;
+}
+```
+
+이럴 경우 모든 엔티티가 `LocalDateTime createdAt`, `String createdBy` 에 대한 연산을 수행해야 한다.
+
+#### 근데 생각 한 번 해보자. 모든 엔티티가 동일한 연산을 수행해야 한다면 연산을 처리하는 기본 엔티티를 만들고 모든 데이터 요청시에 엔티티가 업데이트된다면 되지 않을까?
+
+이 때 즉, 생성일/수정일/생성자를 자동화할 때 사용하는게 바로 **JPA Auditing** 이다.
+
+# Spring Data JPA 에서의 Auditing
+
+Spring Data JPA 에서는 위의 Auditing 기능을 제공한다.
+
+Auditing은 Spring Data JPA 에서만 사용할 수 있는 개념은 아니다.
+
+JPA 자체적으로도 Auditing 기능을 사용할 수 있지만 Spring Data JPA 에서는 더 깔끔하고 쉽게 제공한다.
+
+> 현재 시리즈의 목적은 Spring Data JPA를 학습하는 것이므로 JPA 에서의 Auditing 에 대해서는 생략하겠다.
+> 만약 궁금하다면 `@PrePersist`, `@PostPersist`, `@PreUpdate`, `@PostUpdate` 키워드로 찾아볼 것을 추천한다.
+
+# @EnableJpaAuditing 사용하기
+
+Spring Data JPA 에서 JPA 를 사용하기 위해서는 SpringBoot 설정 클래스에 `@EnableJpaAuditing` 을 적어줘야한다.
+
+보통 Springboot 를 실행시키는 클래스 상단에 많이 사용하고는 한다.
+
+```java
+@EnableJpaAuditing
+@SpringBootApplication
+public class DatajpaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DatajpaApplication.class, args);
+    }
+
+}
+```
+
+그리고 우리가 Auditing을 할 필드를 갖는 **기본 엔티티**를 생성하자.
+
+#### 처음 보는 코드들이 나오더라도 걱정하지 말자! 하나씩 같이 알아볼 것이니
+
+```java
+@EntityListeners(AuditingEntityListener.class) // 1
+@MappedSuperClass // 2
+@Getter // 3
+public BaseEntity {
+  @CreatedDate // 4
+  @Column(updatable = false) // 5
+  private LocalDateTime createdDate;
+}
+```
+
+이렇게 작성하면 해당 엔티티 클래스가 JPA 이벤트가 발생한다면 Auditing 을 수행하여 값을 업데이트 한다.
+자! 무슨 새로운 어노테이션들이 존재한다. 하나씩 알아보자.
+
+1. `@EntityListeners(AuditingEntityListener.class)`
+2. `@MappedSuperClass`
+3. `@Getter`
+4. `@CreatedDate`
+5. `@Column(updatable = false)`
+
+### @EntityListeners
+
+`@EntityListeners` 는 엔티티를 DB에 적용하기 전, 이후에 **커스텀 콜백**을 요청할 수 있는 어노테이션이다.
+
+`@EntityListeners` 의 인자로 **커스텀 콜백**을 요청할 클래스를 지정해주면 되는데, Auditing 을 수행할 때는 JPA 에서 제공하는 `AuditingEntityListener.class` 를 인자로 넘기면 된다.
+
+[##_Image|kage@t6HsS/btq2gYgULS6/S9qW3WkZcFGggMH0QCX190/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="671" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+그럼 위에 보는바와 같이@PrePersist 어노테이션으로 JPA 의 Auditing 기능을 Spring Data JPA 가 사용하게 되는 것이다.
+
+### @MappedSuperClass
+
+`@MappedSuperClass` 은 엔티티의 공통 매핑 정보가 필요할 때 주로 사용한다.
+
+#### 즉, **부모 클래스(엔티티)에 필드를 선언하고 단순히 속성만 받아서 사용**하고싶을 때 사용하는 방법이다.
+
+우리는 `BaseEntity`를 생성하고 Auditing 기능이 필요한 엔티티 클래스에서 사용할 것이기 때문에 `@MappedSuperClass` 어노테이션을 사용하는 것이다.
+
+### @CreatedDate
+
+`@CreatedDate` 어노테이션은 Spring Data JPA의 Auditing 에서 가장 흥미로운 어노테이션이다.
+
+사실 이 어노테이션도 Spring Data JPA 의 고유 기능은 아니고 Spring Data 에 있는 어노테이션으로 Spring Data 에서 추상화 해놓은 것이다.
+
+CreatedDate의 javadoc 에 나온 설명을 참고해보자.
+
+[##_Image|kage@cyPZlo/btq2hX9jHbC/IGuzHXi9ZWXWBzIfpFEOfk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="637" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+> Declares a field as the one representing the date the entity containing the field was created.
+> 번) 필드를 포함하는 엔티티가 작성된 날짜를 나타내는 필드라고 선언한다.
+
+javadoc 에 나온 내용을 보면 **우리가 해당 필드를 선언하면 엔티티가 작성된 날짜, created 된 날짜를 사용할 수 있**게 된다는 것이다.
+
+이와 비슷한 어노테이션이 몇 개 더 존재한다.
+
+- `CreatedDate`
+  - 해당 엔티티가 생성될 때, 생성하는 시각을 자동으로 삽입해준다.
+- `CreatedBy`
+  - 해당 엔티티가 생성될 때, 생성하는 사람이 누구인지 자동으로 삽입해준다.
+  - 생성하는 주체를 지정하기 위해서 `AuditorAware<T>` 를 지정해야 한다.
+    - ~이는 Spring Security 와 함께 다뤄야 하는 내용이므로 추후 업로드 예정~
+- `LastModifiedDate`
+  - 해당 엔티티가 **수정될 때**, 수정하는 시각을 자동으로 삽입해준다.
+- `LastModifiedBy`
+  - 해당 엔티티가 **수정될 때**, 수정하는 주체가 누구인지 자동으로 삽입해준다.
+    - 생성하는 주체를 지정하기 위해서 `AuditorAware<T>` 를 지정해야 한다.
+      - ~이는 Spring Security 와 함께 다뤄야 하는 내용이므로 추후 업로드 예정~
+
+> 위에서 언급하였듯 `CreatedBy` 와 `LastModifiedBy` 어노테이션은 추후 Spring Security 시리즈와 함께 이야기 해보려 한다.
+> 만약 궁금하다면 `AuditorAware 적용` 키워드로 검색해볼 것을 추천한다.
+
+### @Column(updatable = false)
+
+이는 [JPA의 기본 어노테이션](https://wonit.tistory.com/465) 에서 나온 @Column과 동일하다.
+
+updatable 을 왜 false 로 했을까?
+
+혹시 모를 상황을 대비해서이다.
+
+#### 우리는 해당 BaseEntity를 JPA가 테이블에 접근하는 시점에만 JPA가 사용하도록 하고 싶은데 만약 개발자에 의해 수정되면 안되기 때문에 updatable을 false로 해주는 것을 권장한다.
+
+# 테스트
+
+자 이제 테스트를 해보자.
+
+우리는 User 엔티티를 생성할 때 createdBy 와 updatedBy 를 Auditing 하게 할 것이다.
+
+- `BaseEntity`.class
+  - Auditing 을 수행할 기본 엔티티이다.
+- `User`.class
+  - BaseEntity 를 상속받아 BaseEntity의 Auditing 을 이용할 객체이다.
+- `UserRepository`.interface
+  - 기본 `JpaRepository` 를 상속받을 인터페이스이다.
+- `UserRepositoryTest`.class
+  - 테스트를 위한 테스트 클래스이다.
+
+#### BaseEntity.class
+
+```java
+@EntityListeners(AuditingEntityListener.class)
+@MappedSuperclass
+@Getter
+public class BaseEntity {
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(updatable = false)
+    private LocalDateTime updatedAt;
+}
+```
+
+우리의 소중한 Auditor 엔티티이다.
+
+앞서 말 했던 4가지 어노테이션을 추가해주면 된다.
+
+#### User.class
+
+```java
+@Entity
+public class User extends BaseEntity{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String username;
+    private String address;
+    private int age;
+}
+```
+
+중요한 것은 BaseEntity 를 extends 해야 한다는 것이다.
+역시 롬복 관련된 어노테이션은 삭제했다.
+
+#### UserRepository.interface
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+}
+```
+
+#### UserRepositoryTest.class
+
+```java
+@SpringBootTest
+@Transactional
+@Rollback(false)
+class UserRepositoryTest {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Test
+    @DisplayName("Auditing 기능 적용")
+    void findUser() {
+        // given
+        User user = User.builder()
+                .username("user ")
+                .age(20)
+                .address("Korfea")
+                .build();
+
+        // when
+        User savedUser = userRepository.save(user);
+
+        // then
+        assertNotNull(savedUser.getCreatedAt());
+        assertNotNull(savedUser.getUpdatedAt());
+    }
+}
+```
+
+테스트가 통과하는 것을 볼 수 있다.

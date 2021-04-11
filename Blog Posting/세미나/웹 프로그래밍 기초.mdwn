@@ -20,7 +20,9 @@
       - mysql, oracle
 - 웹 통신
   - http 통신
-  - REST API 통신
+    - Request
+    - Response
+  - API 통신
   - 통신 규격
     - ajax
     - xml

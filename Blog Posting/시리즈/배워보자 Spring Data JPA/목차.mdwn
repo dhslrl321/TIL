@@ -1,25 +1,10 @@
-- 공통 인터페이스 기능
-  - 유연한 반환 타입
-    - 단건 조회
-    - 컬렉션 조회
-- 사용자 정의 쿼리
-  - 메서드 이름으로 쿼리 생성
-    - 공식 문서에 네이밍 컨벤션 있음
-  - `@Query` 메서드에 정적 쿼리 작성 기능
-    - 네이티브 SQL 지원
-  - 파라미터 바인딩 기능
-- 페이징과 정렬
-  - 기본 페이징과 정렬
-  - MVC 에서 사용하는 페이징과 정렬
-- Auditing
-
 [배워보자 Spring Data JPA] Spring Data JPA 의 기본과 프로젝트 생성
 [배워보자 Spring Data JPA] JPA 의 기본 어노테이션들
 [배워보자 Spring Data JPA] 매핑 테이블과 연관관계 매핑하기
 [배워보자 Spring Data JPA] JPA의 공통 인터페이스, JpaRepository 의 기능과 구조
 [배워보자 Spring Data JPA] 쿼리 메서드와 @Query를 이용한 사용자 정의 쿼리
-[배워보자 Spring Data JPA] JPA의 페이징과 정렬
-[배워보자 Spring Data JPA] JPA 의 Auditing
+[배워보자 Spring Data JPA] JPA 에서 Pageable 을 이용한 페이징과 정렬
+[배워보자 Spring Data JPA] JPA Auditing 기능을 사용해서 생성, 수정 일자 자동화하기
 
 [##_Image|kage@blCqko/btq17HY6Z1X/BKhgLuQVX2JKOlYyjqAAq1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
 
@@ -29,7 +14,7 @@
 - [Spring Data JPA의 기본과 프로젝트 생성](https://wonit.tistory.com/464) :: **시리즈 학습 환경 준비**
   - JPA의 기본과 Spring Data JPA
   - Springboot project 에서 JPA 설정하기
-- [JPA의 기본 어노테이션](https://wonit.tistory.com/465) :: **JPA의 시작과 동시에 끝**
+- [JPA의 기본 어노테이션들](https://wonit.tistory.com/465) :: **JPA의 시작과 동시에 끝**
   - 엔티티와 테이블 매핑
   - 필드와 컬럼 매핑
 - [매핑 테이블과 연관관계 매핑하기](https://wonit.tistory.com/466) :: **RDB의 꽃, 연관 관계**
@@ -38,7 +23,7 @@
 - [공통 인터페이스 기능]() :: **어떻게 Data JPA 는 동작할까?**
   - 단건 조회 반환 타입
   - 컬렉션 조회 반환 타입
-- [사용자 정의 쿼리 생성]() :: **내가 원하는 쿼리를 JPA 에서 만들어보자!**
+- [사용자 정의 쿼리 이용하는 방법]() :: **내가 원하는 쿼리를 JPA 에서 만들어보자!**
   - 메서드 이름으로 쿼리 생성하기
   - `@Query` 를 이용하여 메서드에 정적 쿼리 작성하기
 - [페이징과 정렬]() :: **게시판과 같은 페이지가 있는 서비스에서 빛을 발하는 JPA 페이징!**

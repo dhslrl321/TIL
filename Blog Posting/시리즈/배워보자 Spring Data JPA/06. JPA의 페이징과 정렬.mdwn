@@ -1,0 +1,305 @@
+게시판이나 댓글, 블로그를 개발할 때 **페이징은 아주 중요한 역할을 한다.**
+
+페이징은 많은 정보, 이를테면 게시판에 존재하는 수백 수천개의 게시글과 같은 정보들을 **페이지로 나눠** 효과적으로 정보를 제공하게 하는 역할을 한다.
+
+[##_Image|kage@PXWdF/btq2gDKoqLU/SL7BUCM0nawi8PlkGV4BNk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="507" height="NaN" data-ke-mobilestyle="widthContent"|페이징||_##]
+
+이러한 페이징을 개발하기 위해서는 page 관련 쿼리를 파라미터로 받아서 직접 처리하는 방법이 있었지만 JPA 에서 또 Spring Data 프로젝트에서는 효과적으로 페이징을 처리할 수 있게 방법을 제공한다.
+
+# Spring Data JPA 에서의 페이징과 정렬
+
+Spring Data JPA 에서는 앞서 말 했듯 페이징과 정렬에 아주 강력한 방법을 제공한다.
+
+지난 시간에 봤던 `JpaRepository` 인터페이스의 상속 다이어그램을 살펴보자.
+
+[##_Image|kage@w6awy/btq2iWIyfVg/kKTnSwBBaO4yczWLZnqkr0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+`JpaRepository` 의 부모 인터페이스인 **PagingAndSortingRepository** 에서 페이징과 소팅이라는 기능을 제공한다.
+
+[##_Image|kage@b0CRr5/btq2ic5W00c/nt31mlbmUN7ALQWkzsKCRK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="629" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+`findAll()` 메서드의 반환 타입과 파라미터를 보면 다음과 같은 것들이 존재한다.
+
+- `org.springframework.data.domain.Pageable`
+  - 페이징을 제공하는 중요한 인터페이스이다.
+- `org.springframework.data.domain.Page`
+  - 페이징의 findAll() 의 기본적인 반환 메서드로 여러 반환 타입 중 하나이다.
+
+결국 우리는 `JpaRepository<>` 를 사용할 때, `findAll()` 메서드를 `Pageable` 인터페이스로 파라미터를 넘기면 **페이징을 사용할 수 있게**된다.
+
+한 번 사용해보자.
+
+이번에는 controller 를 만들어서 사용해보자.
+
+```java
+@RestController
+public class UserController {
+
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @GetMapping("/users")
+    public Page<User> getAllUsers() {
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        return userRepository.findAll(pageRequest);
+    }
+
+    @PostConstruct
+    public void initializing() {
+        for (int i = 0; i < 100; i++) {
+            User user = User.builder()
+                    .username("User " + i)
+                    .address("Korea")
+                    .age(i)
+                    .build();
+            userRepository.save(user);
+        }
+    }
+}
+```
+
+`getAllUsers()` 메서드에 보면 `PageRequest` 객체가 존재한다.
+
+`PageRequest` 객체는 `Pageable` 인터페이스를 상속받는다.
+
+[##_Image|kage@A2Yer/btq2hYNEBGt/KyKYSxdjDKyc8qCOPSo6bk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+쉽게 Paging 을 위한 정보를 넘길 수 있는데, 이 정보에는 **정렬 정보, 페이지 offset, page**와 같은 정보가 담겨있다.
+
+> 원래라면 기본적으로 데이터가 DB에 저장되어 있어야한다.
+> 하지만 우리는 hibernate 전략을 create 로 잡았기 때문에 DB에 저장하는 것이 힘들다.
+> 물론 hibernate.ddl-auto 전략을 update 로 잡는다면 DB에 저장할 수 있지만 페이징을 테스트할 100개의 데이터를 다 넣는 것 보다 Spring 에서 제공하는 **초기화 메서드**를 이용해서 초기화를 할 것이다.
+
+initializing() 을 이용해서 100명의 데이터를 추가해주고 api 호출을 해보자.
+
+> api 호출을 브라우저에서 직접 url 로 해도 좋고 curl 을 해도 좋지만 나는 Postman을 이용할 것이다.
+
+### 결과를 봐보자.
+
+```json
+"content":[
+{
+    "content": [
+        {"id": 1, "username": "User 0", "address": "Korea", "age": 0},
+        // 중간 생략
+        {"id": 5, "username": "User 4", "address": "Korea", "age": 4}
+    ],
+    "pageable": {
+        "sort": {
+            "sorted": false, // 정렬 상태
+            "unsorted": true,
+            "empty": true
+        },
+        "pageSize": 5, // 한 페이지에서 나타내는 원소의 수 (게시글 수)
+        "pageNumber": 0, // 페이지 번호 (0번 부터 시작)
+        "offset": 0, // 해당 페이지에 첫 번째 원소의 수
+        "paged": true,
+        "unpaged": false
+    },
+    "totalPages": 20, // 페이지로 제공되는 총 페이지 수
+    "totalElements": 100, // 모든 페이지에 존재하는 총 원소 수
+    "last": false,
+    "number": 0,
+    "sort": {
+        "sorted": false,
+        "unsorted": true,
+        "empty": true
+    },
+    "size": 5,
+    "numberOfElements": 5,
+    "first": true,
+    "empty": false
+}
+```
+
+이와 같이 Paging 이 적용된 응답을 받을 수 있다.
+
+`content` 아래에 있는 데이터들이 `paging` 과 관련된 정보들이다.
+
+멋지다.
+
+#### 하지만 더 멋진 것은 **쿼리 메서드 기능**에서도 제공한다는 것이다.
+
+# 쿼리 메서드에서 페이징 사용하기
+
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+    Page<User> findByAddress(String address, Pageable pageable);
+}
+```
+
+이렇게 사용자의 주소로 조회하는 **쿼리 메서드**를 만들고 두 번째 파라미터로 `Pageable` 을 넘겨주면 된다.
+
+그리고 컨트롤러에 가서 다시 `PageRequest` 를 만들어주자.
+
+#### 이번에는 더 나아가 **쿼리 파라미터로 넘어온 값을 페이지 정보로** 만들어 볼 것이다.
+
+```java
+@RestController
+public class UserController {
+
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @GetMapping("/users")
+    public Page<User> getAllUserWithPageByQueryMethod(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return userRepository.findByAddress("Korea", pageRequest);
+    }
+
+
+    @PostConstruct
+    public void initializing() {
+        for (int i = 0; i < 100; i++) {
+            User user = User.builder()
+                    .username("User " + i)
+                    .address("Korea")
+                    .age(i)
+                    .build();
+            userRepository.save(user);
+        }
+    }
+}
+```
+
+이렇게 만들고 `http://localhost:8080/users/?page=3&size=4` 로 요청을 보내면 다음과 같은 결과가 출력된다.
+
+```json
+{
+  "content": [
+    { "id": 13, "username": "User 12", "address": "Korea", "age": 12 },
+    { "id": 14, "username": "User 13", "address": "Korea", "age": 13 },
+    { "id": 15, "username": "User 14", "address": "Korea", "age": 14 },
+    { "id": 16, "username": "User 15", "address": "Korea", "age": 15 }
+  ],
+  "pageable": {
+    "sort": { "sorted": false, "unsorted": true, "empty": true },
+    "pageNumber": 3,
+    "pageSize": 4,
+    "offset": 12,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 25,
+  "totalElements": 100,
+  "last": false,
+  "numberOfElements": 4,
+  "number": 3,
+  "sort": { "sorted": false, "unsorted": true, "empty": true },
+  "size": 4,
+  "first": false,
+  "empty": false
+}
+```
+
+# 반환 타입에 따른 페이징 결과
+
+Spring Data JPA 에는 반환 타입에 따라서 각기 다른 결과를 제공한다.
+
+1. `Page<T>` 타입
+2. `Slice<T>` 타입
+3. `List<T>` 타입
+
+각자 다른 결과를 반환해준다.
+
+## `Page<T>` 타입
+
+`Page<T>` 타입을 반환 타입으로 받게 된다면 offset과 totalPage 를 이용하여 서비스를 제공할 수 있게된다.
+
+`Page<T>` 는 일반적인 **게시판 형태의 페이징**에서 사용된다.
+
+[##_Image|kage@mtn8w/btq2gEQa7Hq/bC5skfEAFRJ3F5rBLfDpW1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+여기서 중요한 정보는 **총 페이지 수** 이다.
+
+그 정보를 포함하여 반환한다.
+
+#### `Page<T>` 타입은 count 쿼리를 포함하는 페이징으로 카운트 쿼리가 자동으로 생성되어 함께 나간다.
+
+## `Slice<T>` 타입
+
+`Slice<T>` 타입을 반환 타입으로 받게 된다면 **더보기 형태의 페이징**에서 사용된다.
+
+[##_Image|kage@6RNYg/btq2ieCHGiH/EqncoN0p4eq9LHnhEfvTB1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+응답을 살펴보자.
+
+```json
+{
+  "content": [
+    { "id": 13, "username": "User 12", "address": "Korea", "age": 12 },
+    { "id": 14, "username": "User 13", "address": "Korea", "age": 13 },
+    { "id": 15, "username": "User 14", "address": "Korea", "age": 14 },
+    { "id": 16, "username": "User 15", "address": "Korea", "age": 15 }
+  ],
+  "pageable": {
+    "sort": { "sorted": false, "unsorted": true, "empty": true },
+    "pageNumber": 3,
+    "pageSize": 4,
+    "offset": 12,
+    "paged": true,
+    "unpaged": false
+  },
+  "number": 3,
+  "numberOfElements": 4,
+  "first": false,
+  "last": false,
+  "size": 4,
+  "sort": { "sorted": false, "unsorted": true, "empty": true },
+  "empty": false
+}
+```
+
+`Page<T>` 타입의 반환에 없는 것들이 존재한다.
+number과 numberOfElements 그리고 `Page<T>` 에 존재하던 totalPages, totalElements 가 없어졌다.
+
+#### `Slice<T>` 타입은 추가 count 쿼리 없이 다음 페이지 확인 가능하다. 내부적으로 limit + 1 조회를 해서 totalCount 쿼리가 나가지 않아서 성능상 조금 이점을 볼 수도 있다.
+
+## `List<T>` 타입
+
+```java
+@GetMapping("/users")
+public List<User> getAllUsers(Pageable pageable) {
+  return userRepository.findAll(pageable);
+}
+```
+
+List 반환 타입은 가장 기본적인 방법으로 **count 쿼리 없이 결과만 반환한다**.
+
+# Spring Web MVC 에서 더 편하게 페이징하기
+
+Spring Data JPA의 페이징과 정렬 기능보다 훨씬 간편하게 MVC 에서 사용할 수 있게 한다.
+즉, 다음과 같이 사용자가 정의한 파라미터에 따라서도 페이징이 가능하다는 소리이다.
+
+```java
+@GetMapping("/users")
+public Page<User> getAllUsers(Pageable pageable) {
+    return userRepository.findAll(pageable);
+}
+```
+
+컨트롤러에서 `@GetMapping` 에 파리미터로 `Pageable` 을 추가하면 된다.
+
+그럼 페이징 관련 쿼리가 나온다.
+
+Springboot 내부에서 url 파라미터가 컨트롤러에 바인딩이 될 때, Pageable이 존재하면 PageRequest 객체를 생성한다.
+
+해당 객체에서 역시 정렬도 제공하는데, url을 다음과 같이 치면 정렬과 페이징이 동시에 수행되게 할 수 있다.
+
+- `http://localhost:8080/members?page=0`
+  - 0번 페이지 부터 20개 조회한다.
+    - default 가 20개로 default를 수정하는 방법도 존재한다.
+- `http://localhost:8080/members?page=0&size=5`
+  - 0번 페이지부터 5개 조회한다.
+- `http://localhost:8080/members?page=0&size=5&sort=id.desc`
+  - 0번 페이지부터 5개 조회 하는데, id의 역순으로 조회한다.
+
+이렇게 오늘은 JPA 페이징에 대한 기본을 알아보았다.
+
+내일은 우리의 마지막 여정인 JPA Auditing 에 대해서 알아볼 것이다!
