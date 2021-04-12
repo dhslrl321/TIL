@@ -1,0 +1,59 @@
+# 로그인 하기
+
+- 스프링 시큐리티에서 로그인을 한다는 것은 authenticated 가 true 인 Authentication 객체를 SecurityContext 에 갖고 있는 상태
+  - 단, Authentication 이 AnomymousAuthenticationToken 만 아니면 됨
+
+# Authentication 의 기본 구조
+
+- 필터들 중 일부 필터는 인증 정보에 관여
+- 이 필터들은 AuthenticationManager 를 통해서 Authentication 을 인증하고 그 결과를 SecurityContextHolder 에 넣는 일
+- **인증 토큰을 제공하는 필터들**
+  - `UsernamePasswordAuthenticationFilter` : 폼 로그인
+    - 반환 : `UsernamePasswordAuthenticationToken`
+  - `RememberMeAuthenticationFilter` : rememer-me 쿠키 로그인
+    - 반환 : ``
+  - `AnonymousAuthenticationFilter` : 로그인을 하지 않은 사용자
+    - 반환 : `AnonymousAuthenticationToken`
+  - `SecurityContextPersistenceFilter` : 기존 로그인을 유지
+    - 기본적으로 session 을 사용
+  - `BearerTokenAuthenticationFilter` : JWT 로그인
+  - `BasicAuthenticationFilter` : ajax 로그인
+    - 반환 : `UsernamePasswordAuthenticationToken`
+  - `OAuth2LoginAuthenticationFilter` : 소셜 로그인
+    - 반환 : `OAuth2LoginAuthenticationToken`
+    - 반환 : `OAuth2AuthenticationToken`
+  - `OpenIDAuthenticationFilter` : OpenID 로그인
+- **Authentication 인터페이스는 아래와 같은 정보들을 가짐**
+  - `Set<GrantedAuthority> authorities` : 인증된 권한 정보
+  - `principal` : 인증 대상에 관한 정보. 주로 UserDetails 객체가 옴
+  - `credentials` : 인증 확인을 위한 정보. 주로 비밀번호가 오지만, 인증 후에는 보안을 위해 삭제함.
+  - `details` : 그 밖에 필요한 정보. IP, 세션정보, 기타 인증요청에서 사용했던 정보들.
+  - `boolean` authenticated : 인증이 되었는지를 체크함.
+
+# DefaultLoginPageGeneratingFilter & DefaultLogoutPageGeneratingFilter
+
+- DefaultLoginPageGeneratingFilter
+  - GET /login 을 처리
+  - 별도의 로그인 페이지를 설정하지 않으면 기본으로 제공되는 필터
+  - 기본 로그인 폼을 제공
+  - OAuth2 / OpenID / Saml2 로그인과도 같이 사용 가능
+- DefaultLogoutPageGeneratingFilter
+  - GET /logout 을 처리
+  - POST /logout 을 요청할 수 있는 UI 제공
+  - DefaultLoginPageGeneratingFilter 를 사용하면 같이 제공됨
+
+# UsernamePasswordAuthenticationFilter
+
+- POST /login 을 처리
+- form 인증을 처리하는 필터로 스프링 시큐리티에서 가장 일반적으로 쓰임
+- 주요 설정 정보
+  - filterProcessingUrl: 로그인을 처리할 URL
+  - username parameter: username 에 대한 값을 넘겨줄 인자 이름
+  - password parameter: password 에 대한 값을 넘겨줄 인자 이름
+- 로그인 성공 시
+  - defaultSuccessUrl : alwaysUse 옵션 설정 중요
+  - succssHandler
+- 로그인 실패 시
+  - failureUrl
+  - failureHandler
+- authenticationDetailSource: Authentication 객체의 details 에 들어갈 정보를 직접 생성

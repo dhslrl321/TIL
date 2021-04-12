@@ -1,0 +1,30 @@
+# Spring Cloud
+
+- Spring Cloud 버전과 Spring Boot 버전은 서로 호환 되고 안되고가 있어서 버전이 중요함
+- 우리가 사용할 Spring Cloud 프로젝트
+  - Spring Cloud Config
+  - Spring Cloud Netflix
+  - Spring Cloud Security
+  - Spring Cloud Sleuth
+  - Spring Cloud Starters
+  - Spring Cloud Gateway
+  - Spring Cloud OpenFeign
+- 서비스에 따른 분류
+  - 중앙 집중식 설정 관리
+    - Spring Cloud Config
+      - 다양한 인스턴스에서 사용할 수 있는 정보를 `CloudConfigServer` 를 통해서 외부 저장소(Git)에 환경 설정 정보를 넣을 수 있음
+      - ex) gate api, 서버가 가져야할 token 정보 등등
+  - 위치 정보 파악
+    - Spring Cloud Netflix Eureka
+  - 분산 부하
+    - Spring Cloud Ribbon (Client Side)
+    - Spring Cloud Gateway
+  - REST 클라이언트
+    - FeignClient
+    - RestTemplate
+      - 각각의 외부 서비스와 통신을 위한 방법
+  - 시각화 및 모니터링
+    - Zipkin Distributed Tracing
+    - Netflix API Gateway
+  - 장애 발생에 대응
+    - Hystrix

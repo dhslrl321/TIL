@@ -9,7 +9,18 @@
   - git
   - github repository
 - 웹이란?
+  - 간단한 로그인 과정
+    1. html 에서 사용자 입력 값 입력
+    2. 해당 입력 값이 서버로 전달 (Request)
+    3. 서버에서 데이터페이스와 연결
+    4. 데이터베이스에서 응답과 인증 정보를 html로 전달 (Response)
   - 웹의 역사
+    - 서버 사이드 렌더링
+      - 서버 사이드 템플릿 엔진
+        - jsp, php
+    - Front vs Back
+      - 클라이언트 사이드 렌더링
+    - MSA : Front End+ Aggregation Layer + Back End
   - 웹의 구성요소
     - 클라이언트 (브라우저) 와 서버 (컴퓨터 프로그램)
     - front

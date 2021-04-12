@@ -1,0 +1,197 @@
+# MSA와 Spring Cloud
+
+# Antifragile
+
+- 특징 4가지
+  - Auto Scaling
+    - Auto Scaling 그룹
+    - 사용량에 따라서 자동으로 인스턴스를 넓힘
+  - Microservice
+    - 복잡하게 연결된 서비스와 서비스 사이의 구성
+    - Spring 재단에 Cloud netflix 를 기부
+    - 전체 서비스를 구동하기 필요한 모듈들을 독립적으로 구성하고 연결
+  - Chaos Engineering
+    - 시스템이 급격하게 변경되거나 예측되기 힘들 때도 견고하게 구축
+    - 예견되지 않은 불확실성에 대응할 수 있도록 구축
+  - Continuous Deployments
+    - 배포 파이프라인
+    - 서비스의 빌드를 자동화
+
+# Cloud Native Architecture
+
+- 클라우드 네이티브 아키텍처의 기본 3가지
+  - 확장 가능한 아키텍처
+    - 시스템의 수평적 확장에 유연
+      - _더 많은 사용자를 수용할 수 있게 됨_
+    - 확장된(Scale-up, Scale-out) 서버로 시스템의 부하 분산(로드밸런싱), 가용성 보장
+      - _스캐일 업: 시스템의 스펙을 높임_
+      - _스케일 아웃: 서버의 인스턴스를 늘려 더 많은 사용자의 요청을 처리할 수 있음_
+    - 시스템, 서비스 단위의 패키지 (컨테이너 기반)
+    - 모니터링
+      - _현재 사용중인 리소스의 사용량을 알 수 있음_
+  - 탄력적 아키텍쳐
+    - 서비스 생성-통합-배포, 비즈니스 환경 변화에 대응 시간 단축
+      - _CI,CD를 통해서 시간을 단축시킴_
+    - 분할된 서비스 구조
+    - stateless 통신 프로토콜
+      - _각각의 서비스는 종속성을 최소화해야 하고 상태를 갖지 않도록 노력해야 함_
+    - 서비스의 추가와 삭제를 자동으로 감시
+      - _각각의 서비스는 자신의 위치와 정보를 한 곳에 등록해야 함_
+    - 변경된 서비스 요청에 따라 사용자 요청 처리
+  - 장애 격리
+    - 특정 서비스에 오류가 발생하더라도 다른 서비스에 영향을 주지 않음
+
+# Cloud Native Application
+
+- 클라우드 네이티브 아키텍처를 이용한 애플리케이션 개발한 서비스
+  - Microservices
+  - CI/CD
+  - DevOps
+    - 시스템이 배포되고 테스트되는 과정을 자동화
+  - Containers
+    - 인스턴스를 가상화하여 운영
+
+# CI/CD
+
+- 지속 통합과 지속 배포
+  - 지속적 통합 (Continous Integration)
+    - 통합 서버, 형상 관리, 빌드 도구, 테스트 도구의 의미로 사용될 수 있음
+    - ex) jenkins, Team CI, Travis CI
+  - 지속 배포 CD (Continous Deployment, Delivery)
+    - 패키지화 한 서비스를 어떻게 배포하는지에 대한 pipe line
+    - Continous Delivery
+      - 실행 파일을 운영 서버로 지속 전달
+    - Continous Deployment
+      - Continous Delivery 뿐만 아니라 운영에 자동 반영되게 하는 것
+    - 목적은 System의 Downtime을 최소화하는 것
+    - 배포 전략
+      - 카나리 배포
+      - 블루 그린 배포
+
+# DevOps
+
+- DevOps = Development + Operations + QA
+- 빠른 통합으로 고객에게 빠른 서비스 제공을 목적으로 함
+
+# Container 가상화
+
+- 가상화: 클라우드 네이티브 아키텍쳐의 핵심
+- 컨테이너 가상화 : 하드웨어 가상화보다 더 적은 리소스와 비용으로 가상화를 하여 빠르게 운영할 수 있게 함
+  - 컨테이너 런타임 위에서 컨테이너들이 돌아가게 하는 기술
+
+# 12 Factors
+
+- 클라우드 네이티브 아키텍처를 구성하기 위해서 고려해봐야할 12가지 항목
+- 12 Factors - heroku 에서 제시한 개념 + 3
+  1. 코드 통합
+  2. 종속성의 배제
+  3. 환경 설정의 외부 관리
+  4. 백업 서비스의 분리
+  5. 개발 환경과 테스트 운영 환경의 분리
+  6. 상태 관리
+  7. 포트 바인딩
+  8. 동시성
+  9. 서비스의 올바른 상태유지
+  10. 개발과 운영 환경의 통일
+  11. 로그의 분리
+  12. 관리 프로세스
+  13. **API First**
+  14. **Telemetry**
+  15. **Authentication and authorization**
+
+# Monolithic vs MSA
+
+- Monolith
+  - 애플리케이션을 개발함에 있어 모든 리소스를 하나의 소프트웨어 안에서 관리
+    - DB, View, Controller 가 모두 하나의 서비스에서 관리
+    - 하나의 공통된 DB를 사용
+  - 배포되기 위해 서로 의존성을 가지고 배포됨
+  - 문제점
+    - 시스템의 일부만 수정하더라도 전체 애플리케이션을 다시 build, test, packaging
+- Microservices
+  - Martin Fowler 가 창시함
+  - 함께 작동하는 작은 규모의 서비스들
+    - 서비스들은 비즈니스 단위로 나뉘어져야 함
+    - 서비스들은 최소한의 중앙 집중식 구성이 되어야 함
+    - 서비스들은 서로 다른 언어와 DB로 이루어질 수 있음
+      - 각각의 서비스가 맡은 임무에 특성화된 언어로 구성될 수 있음
+  - 애플리케이션을 구성하는 서비스 구성 요소들이 각각 컨테이너에 의해 나뉘어지고 컨테이너를 관리
+  - 분리된 서비스가 다른 서비스에 영향을 주지 않거나 독립적으로 배포가 됨
+    - application 전체에 대한 downtime 이 사라지게 하는 것
+  - 모든 서비스는 배포 자동화가 이루어져야 함
+  - MAS 에서는 Front와 Back 사이에 Aggregation Layer 가 존재
+
+# MSA 특징
+
+1. Challenges
+2. Small Well Chosen Deployable Units
+3. Bounded Context
+4. RESTful
+5. Configuration Management
+6. Cloud Enabled
+7. Dynamic Scale Up And Scale Down
+8. CI/CD
+9. Visibility
+
+# SOA vs MSA
+
+- SOA
+  - 공통의 서비스를 ESB (Service Bus)에 모아 사업 측면에서 공통 서비스 형식으로 서비스 제공
+  - 재사용을 통한 비용 절감
+  - 하나의 DB 사용
+- MSA
+  - 각 독립된 서비스(비즈니스 레이어 + DB)가 노출된 REST API를 사용
+  - 서비스 간의 결합도를 낮추어 변화에 능동적 대응
+  - 각각의 다른 데이터베이스의 데이터를 동기화하기 위해 **이벤트 스트림**(Kafka)을 이용
+
+# REST API
+
+- Level 0
+- Level 1
+- Level 2
+
+# RESTful Web Service
+
+- API 소비자를 먼저 생각하라
+- HTTP를 잘 활용하라
+  - Request Method
+  - Response Status
+- `user/10` 보다는 `/users/10`을 사용해라
+- 명사를 사용해라
+
+# MSA 표준 구성 요소 (CNCF-Cloud Native Computing Foundation)
+
+- 마이크로서비스를 지원하고 관리하기 위한 구성 요소들이 존재 (가트너 기업이 제작)
+  - API Gateway
+    - 사용자의 모든 요청은 API Gateway 로 들어가게 된다.
+      - nginx, kong, netflex oss zuul, apigee
+  - service mesh
+    - Service Router
+      - API Gateway 를 거친 요청들이 ServiceRouter로 들어가게 된다.
+    - Service Discovery
+      - 요청에 따라 필요한 Service 를 알려준다.
+    - Load Balancer
+      - 로드 밸런서가 어떤 서비스로 보낼 것인지 결정하고 보내준다.
+      - 일반적으로 Service Router와 LoadBalancer 를 하나로 합친다.
+    - emboy, zookeeper, netflix oss
+  - Service Instance
+    - 컨테이너 가상화 기술이 적용된 서비스이다.
+    - spring boot
+  - runtime
+    - docker, kubernetes
+  - Config Store
+    - 서버들의 설정 정보를 담는다.
+  - CI CD
+    - 배포를 위한 automation
+    - jenkins, gradle
+  - Telemetry
+    - MSA 의 진단과 모니터링
+    - netflix oss atlas, elk, elastic
+
+# Service Mesh
+
+- Service Router, Load Balancer, Service Discover를 합친 **미들웨어**
+- MSA 아키텍처 인스턴스들의 서비스의 내부 통신
+- 서비스 메시를 통해서 서비스간의 통신을 추상화 하여 안전하고 빠르며 신뢰성 있게 구성
+- 추상적인 개념
+- 해당 계층에서 다양한

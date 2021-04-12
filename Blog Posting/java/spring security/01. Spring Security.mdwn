@@ -1,0 +1,35 @@
+# Spring Security 란(1)
+
+- 웹 사이트는 각종 서비스를 운영하는데 필요한 리소스와 사용자의 개인 정보를 보호해야 함
+  - 서버 리소스
+  - 유저들의 개인 정보
+- 스프링 시큐리티가 위의 리소스와 정보를 보호하기 위해서 2가지를 고려함
+  1. 인증
+  2. 권한
+- 인증
+  - 리소스와 정보를 보호 하기 위해서 사용자가 누구인지 시스템이 알아야 함
+  - 인증 방법
+    - Username & password 인증
+      - session 관리
+      - Token 관리 (sessionless)
+    - SNS 소셜 로그인
+      - 인증을 소설 미디어로 위임
+- 권한
+  - 사용자가 인증을 통해서 식별되었을 때, 사용자가 어떠한 리소스까지 접근이 가능한 지
+  - 특정 페이지에 대한 접근, 특정 리소스에 대한 접근
+    - 개발자는 이 권한을 이용해서 사용자를 식별해야 함
+  - 스프링 시큐리티가 제공하는 권한
+    - 비즈니스가 복잡해질 수록 다양한 방법이 적용됨
+    - 3가지는 Spring Security 에서 사용할 수 있는 Authorization 방법들
+      1. Secured: (deprecated)
+      2. PrePostAuthorize (잘 안 함) : 어노테이션 기반
+      3. AOP (잘 사용함)
+
+# Spring Security 란? (2)
+
+- 메모리 사용자 인증
+  - 간단하게 테스트를 하기 위해서 사용되는 용도
+    - 기본 사용자 로그인
+    - application.yml
+    - UserDetailService
+    - WebSecurityConfigurerAdapter

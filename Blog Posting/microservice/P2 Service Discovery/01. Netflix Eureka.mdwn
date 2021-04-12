@@ -1,0 +1,162 @@
+# Spring Cloud Netflix Eureka
+
+- Service Discovery
+- 각각의 서비스가 등록되어 있는 위치 정보를 Eureka 서버에 등록하면 서비스 디스커버리가 가능
+- Key : value 로 저장
+- 순서
+  1. 클라이언트가 특정 리소스에 대한 요청을 한다.
+  2. 해당 요청이 API Gateway(로드 밸런서)를 통해 들어온다.
+  3. 로드 밸런서가 Eureka 에게 클라이언트의 요청을 토대로 해당 요청을 수행할 인스턴스의 위치를 요청한다.
+  4. 유레카가 반환을 한다.
+  5. 로드 밸런서가 해당 인스턴스로 요청을 수행한다.
+  6. 요청을 수행하고 응답한다.
+
+# Eureka 서버 등록하기
+
+## application.yml
+
+```yml
+server:
+  port: 8761 # 서버 포트 번호
+
+spring:
+  application:
+    name: discoveryservice # 서비스의 고유한 이름
+
+eureka:
+  client:
+    register-with-eureka: false # 현재 작업하는 역할을 client 로 역할
+    fetch-register: false # 자신의 정보를 자신에게 등록하는 일, 즉 필요 없는 정보라 자신은 등록하지 않음, 단지 서버로서 기동만 되면 됨
+```
+
+## DiscoveryserviceApplication.java
+
+```java
+@SpringBootApplication
+@EnableEurekaServer
+public class DiscoverserviceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DiscoverserviceApplication.class, args);
+    }
+}
+```
+
+## Eureka Dashboard
+
+- 현재 해당 유레카에 등록된 인스턴스들의 정보를 확인할 수 있음
+
+# Eureka Client(UserService) 등록하기
+
+```yml
+server:
+  port: 8761 # 서버 포트 번호
+
+spring:
+  application:
+    name: user-service # 서비스의 고유한 이름
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-register: true
+    service-url: # 유레카 서버의 위치 정보
+      defaultZone: http://127.0.0.1:8761/eureka # 서버가 있는 위치 값
+```
+
+## UserApplication.java
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class UserServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+}
+```
+
+# Eureka Client(UserService) 등록하기 2
+
+- IntelliJ 로 동일한 서버 두 개 실행하기
+  - Edit Configuration 에서 UserServiceApplication 2 copy 하기
+  - Environment VM Option 으로 `-Dserver.port=9002` 로 환경 변수 추가하기
+
+# Eureka Client(UserService) 등록하기 3
+
+- maven 으로 jvm 환경 변수를 추가해서 띄우기
+  - `mvn spring-boot:run -Dspring-boot.run.jvmArguments='-Dserver.port=9003'`
+
+# Eureka Client(UserService) 등록하기 4
+
+- maven 으로 빌드해서 jar로 띄우기
+  - 빌드하기
+    - `mvn clean` 으로 메이븐 다시 초기화 (안 해도 됨)
+    - `mvn compile package` 로 빌드하기
+    - target 디렉토리 아래로 들어가기
+    - `java -jar -Dserver.port=9004 ./target/user-service-0.0.1-SNAPSHOT.jar`
+  -
+
+# 문제 : 계속 포트를 직접 지정해야 함
+
+- 문제는 계속해서 수동으로 인스턴스를 켜야 함
+- Springboot 에서 지원하는 `Random Port` 기능을 사용할 것임
+
+```yml
+server:
+  port: 0
+```
+
+- port 를 0으로 하면 랜덤으로 포트가 열림
+
+## 랜덤 포트로 Eureka Client 등록하기 1
+
+```yml
+server:
+  port: 0 # 서버 포트 번호
+
+spring:
+  application:
+    name: user-service # 서비스의 고유한 이름
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-register: true
+    service-url: # 유레카 서버의 위치 정보
+      defaultZone: http://127.0.0.1:8761/eureka # 서버가 있는 위치 값
+```
+
+## 랜덤 포트로 Eureka Client 등록하기 2
+
+- 환경변수 없이 띄우기
+  - `mvn spring-boot:run` 입력하기
+- 그러면 eureka dashboard 에는 application 의 이름이 http://localhost:0 으로 겹쳐서 한 개의 인스턴스 정보만 뜸
+- 이를 해결하기 위해서 instance id를 워야 함
+
+# 문제 : application 이름이 동일해서 인스턴스가 여러 개여도 겹침
+
+- application.yml 에서 인스턴스 id를 지정하면 됨
+
+```yml
+server:
+  port: 0
+
+spring:
+  application:
+    name: user-service
+
+eureka:
+  client:
+    register-with-eureka: true # 인스턴스 등록
+    fetch-registry: true # 외부 검색 가능
+    service-url: # 유레카 서버의 위치를 지정
+      defaultZone: http://127.0.0.1:8761/eureka # 서버가 있는 위치 값
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+```
+
+- 이렇게 되면 eureka dashboard 에 `172.20.10.5:0` 에서 `172.20.10.5:bbf07ebb58f7ce38293de468e8ef6cf7` 로 표시됨
+
+#### 이렇게 하면 새롭게 인스턴스가 늘어나더라도 인스턴스가 겹치지 않고 로드밸런싱이 되더라도 문제가 되지 않음
