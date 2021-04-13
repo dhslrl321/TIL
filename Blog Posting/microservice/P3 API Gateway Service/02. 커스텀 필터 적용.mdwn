@@ -1,0 +1,93 @@
+# 사용자 정의 커스텀 필터
+
+- 인증이나 다른 특정한 요청을 수행할 수 있음
+- default filter 는 `@Configuration` 어노테이션을 이용했지만 커스텀 필터는 `@AbstractGatewayFilterFactory<CustomFilter.Config>` 추상 클래스를 상속(extends) 해야 함
+
+```java
+@Component
+@Slf4j
+public class CustomFilter extends AbstractGatewayFilterFactory<CustomFilter.Config> {
+
+  public CustomFilter() {
+      super(Config.class);
+  }
+
+  @Override
+  public GatewayFilter apply(Config config) {
+    // Custom Pre Filter
+    return (exchange, chain) -> {
+      ServerHttpRequest request = exchange.getRequest();
+      ServerHttpResponse response = exchange.getResponse();
+
+      log.info("Custom PRE Filter: request id -> {}", request.getId());
+
+      // Custom Post Filter
+      return chain.filter(exchange).then(Mono.fromRunnable(() -> { // 비동기 방식의 반환 타입
+        log.info("Custom PRE Filter: response code -> {}", response.getStatusCode());
+      }));
+    };
+  }
+
+  public static class Config {
+      // 제너릭 때문에
+  }
+}
+```
+
+- `exchange` 객체를 통해서 Request 와 Response 정보를 가져올 수 있음
+- Spring Cloud Gateway는 Netty를 이용하기 때문에 요청과 응답을 받는 객체가 좀 다름
+  - Request = `ServerHttpRequest`
+  - Response = `ServerHttpResponse`
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: first-service # 어떠한 라우트인지 에 대한 이름
+          uri: http://localhost:8081 # 해당 정보를 어디로 포워딩 시킬 것인지
+          predicates: # 조건
+            - Path=/first-service/** # 클라이언트가 first-service 로 요청을 하면 8081로 연결
+          filters:
+            - CustomFilter
+        - id: second-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/second-service/**
+          filters:
+            - CustomFilter
+```
+
+# 글로벌 필터 Global Filter
+
+- 각 서비스의 라우팅마다 필요한 필터는 따로 적용하는게 커스텀 필터
+- 모든 서비스가 필터가 필요한 경우는 글로벌 필터
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter 출력할거임
+            preLogger: true
+            postLogger: true
+      routes:
+        - id: first-service # 어떠한 라우트인지 에 대한 이름
+          uri: http://localhost:8081 # 해당 정보를 어디로 포워딩 시킬 것인지
+          predicates: # 조건
+            - Path=/first-service/** # 클라이언트가 first-service 로 요청을 하면 8081로 연결
+          filters:
+            - CustomFilter
+        - id: second-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/second-service/**
+          filters:
+            - CustomFilter
+```

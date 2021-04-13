@@ -1,0 +1,118 @@
+# API Gateway
+
+- 사용자가 설정한 라우팅 설정에 따라서 각각의 엔드 포인트로 클라이언트 대신 요청을 보내는 일종의 프록시
+- 서비스에 대한 검색을 통합
+- 인증 및 권한 부여
+- ELK 와 같은 서비스를 사용하지 않더라도 API Gateway 만으로도 로깅, 추적 가능
+- 헤더, 쿼리 문자열 처리(변환 가능)
+
+# Spring Cloud 에서 서비스간의 통신
+
+- `RestTemplate`
+  - 서버 주소를 직접 입력
+- `Feign Client`
+  - 인터페이스를 만들고 `@FeignClient()` 를 이용해서 서버 주소 대신 인스턴스 이름으로 호출 가능
+- Ribbon
+  - Client Side Load Balancer
+  - 서비스 이름으로 호출
+  - 헬스 체킹 가능
+  - 비동기 처리가 잘 되지 않아서
+
+# Spring Cloud Gateway
+
+- Zuul 대신 Gateway 서비스와 Routing 서비스를 제공
+- 유레카에 연동시킴
+- 가장 큰 목적은 **비동기 처리가 가능해진다**
+- 필요 의존성
+  - spring cloud gateway
+  - eureka discovery client
+
+## application.yml
+
+```yml
+server:
+  port: 8000
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: first-service # 어떠한 라우트인지 에 대한 이름
+          uri: http://localhost:8081 # 해당 정보를 어디로 포워딩 시킬 것인지
+          predicates: # 조건
+            - Path=/first-service/** # 클라이언트가 first-service로 요청을 하면 8081로 연결
+        - id: second-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/second-service/**
+```
+
+# Spring Cloud Gateway 내부
+
+- Gateway Handler Mapping
+- Spring Cloud Gateway 안에 있는 정보
+  - Gateway 가 클라이언트로부터 어떤 요청이 왔는지
+- Predicate
+  - 사전 조건
+  - 요청이 어떤 조건으로 왔는지를 확인
+- Filter
+  - Pre Filter
+    - 특정 작업이 일어나기 전에 지정
+  - Post Filter
+    - 특정 작업이 끝난 후에 지정
+  - yml 파일에 정의할 수 있고 java code 에서도 정의 가능
+
+### 코드 설정
+
+```java
+@Configuration
+public class FilterConfig {
+  @Bean
+  public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
+    return builder.routes()
+        .route(r -> r.path("/first-service/**")
+                        .filters(f -> f.addRequestHeader("first-request-header", "first-request-header-value")
+                            .addResponseHeader("first-response-header", "first-response-header-value"))
+                        .uri("http://localhost:8081"))
+        .route(r -> r.path("/second-service/**")
+                .filters(f -> f.addRequestHeader("second-request-header", "second-request-header-value")
+                        .addResponseHeader("second-response-header", "second-response-header-value"))
+                .uri("http://localhost:8082"))
+        .build();
+}
+}
+```
+
+### yml 설정 파일로 설정
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: first-service # 어떠한 라우트인지 에 대한 이름
+          uri: http://localhost:8081 # 해당 정보를 어디로 포워딩 시킬 것인지
+          predicates: # 조건
+            - Path=/first-service/** # 클라이언트가 first-service로 요청을 하면 8081로 연결
+          filters:
+            - AddRequestHeader=first-request-header, first-request-header2
+            - AddResponseHeader=first-response-header, first-response-header2
+        - id: second-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/second-service/**
+          filters:
+            - AddRequestHeader=second-request-header, second-request-header2
+            - AddResponseHeader=second-response-header, second-response-header2
+```
