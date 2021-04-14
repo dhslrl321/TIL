@@ -1,0 +1,115 @@
+마이크로서비스를 구성하기 위해서는 **기술적으로 많은 어려움이 수반된다.**
+
+아래의 사진만 보더라도 **하나의 서비스를 구축하기 위해서 알야아 할 기술들이 굉장히 많다.**
+
+[##_Image|kage@cpoo8F/btq2z0YKgQ1/vBxVPKrzJO1dDNE57OqTKk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="500" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+오늘은 여기에 나온 기술들의 특징과 어떤 역할을 수행하는지에 대해서 알아보려 한다.
+
+### CNCF가 제시한 **표준 MSA 구성 요소**
+
+CNCF는 지난 [Cloud Native Architecture](https://wonit.tistory.com/486?category=854727) 에서도 잠깐 언급한 Cloud Native Computing Foundation 단체이다.
+
+CNCF 에서 마이크로서비스를 지원하고 관리하기 위한 구성 요소들을 다음과 같이 나눈다.
+
+- [API Gateway 패턴](https://wonit.tistory.com/489) 블로그 설명 바로가기
+- [Service Mesh](https://wonit.tistory.com/490) 블로그 설명 바로가기
+- [Container Runtime](https://wonit.tistory.com/328?category=807010) 블로그 설명 바로가기
+- [CI / CD](https://wonit.tistory.com/352) 블로그 설명 바로가기
+- [Backing Server-Messaging](https://wonit.tistory.com/491) 블로그 설명 바로가기
+- [Logging, Monitoring-Telemetry](https://wonit.tistory.com/492) 블로그 설명 바로가기
+- [RESTful API](https://wonit.tistory.com/454) 블로그 설명 바로가기
+
+# **API Gateway**
+
+[##_Image|kage@sjIkh/btq2x93djtb/rjHxNZM8IKXquIttp1WZKk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+> API Gateway는 RESTful 하게 작성된 모든 서비스의 API를 손쉽게 관리하여 인증을 통한 자원의 효율적인 분배를 수행하는 기능이다.
+
+MSA는 서비스를 여러 개의 프로젝트를 분리한다고 했다.
+
+그럼 사용자 즉, 웹 브라우저에서 요청된 사용자의 정보는 어떤 서비스가 맡아야 적절할까?
+
+답은 당연하게도 **적절한 서비스**이다.
+
+> **문제는 해당 요청이 어떻게 적절한지 판단을 할까?**
+
+또한 모든 서비스의 요청에는 공통된 **인증 과정**을 수행해야 하는데, 어디서 인증을 수행해야 할까?
+
+> **따로 인증 서버를 둬야하나?**
+
+그리고 또 API의 모든 요청에 대한 로그 파일을 작성하고 싶다면 어떻게 해야할까?
+
+> **각각의 서비스마다 로깅 서버를 둬야 하나?**
+
+#### 여기서 등장하는 것이 바로 API Gateway 이다.
+
+만약 API Gateway가 존재하지 않았다면 위와 같은 공통된 과정과 비효율적인 작업을 수행해야 한다.
+
+하지만 API Gateway라는 개념이 등장한다면 이를 **하나의 프로젝트**에서 관리하게 할 수 있다.
+
+# API Gateway 의 동작 방식
+
+[##_Image|kage@cOMmF3/btq2ya2b5RT/F4BbSblKvvKLJBlxWiYZtK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+이는 Spring Cloud Gateway 의 플로우인데, 아마 이 그림으로 설명할 수 있을듯 하다.
+
+API Gateway는 하나의 모든 클라이언트의 요청이 하나의 서버로 들어와 해당 서버에서 요청이 정제되거나 조작되어 각자 목적에 맞는 서비스를 찾아가도록 도와주는 방식이다.
+
+또한 각 서버에서 적절한 로직을 수행한 뒤 발생하는 응답 데이터를 모아 사용자에게 분배해주는 역할을 한다.
+
+### API Gateway의 역할
+
+API Gateway에는 대표적으로 다음과 같은 역할이 존재한다.
+
+1. 프록시의 역할과 로드밸런싱
+2. 인증 서버로서의 기능
+3. 로깅 서버로서의 기능
+
+위의 동작 과정에서 **모든 데이터가 하나의 서버로 전송**되므로 해당 서버에서는 **인증을 수행하기도 하고 로깅**을 수행하기도 한다.
+
+또한 해당 구조는 **리버스 프록시**와 매우 닮아있으며 실제로도 그 역할을 수행한다.
+
+그래서 로드밸런싱과 라우팅을 가능하게 한다.
+
+# API Gateway의 고려사항
+
+API Gateway는 위와 같이 좋은 점들만 있는 것이 아니다.
+
+여러 단점들과 고려해야할 사항들이 있는데 함께 알아보자.
+
+- 병목현상
+- 네트워크 Latency
+
+## 병목 현상
+
+> 병목 현상이란? 병목 현상은 전체 시스템의 성능이나 용량이 하나의 구성 요소로 인해 제한을 받는 현상을 말한다.
+
+위의 구조를 본다면 만약 서비스가 100개가 존재한다고 해보자.
+
+그럼 API Gateway는 가장 앞단에서 100개의 서비스가 요청될 수 있는 트래픽을 감당해야 한다.
+
+그럼 자연스럽게 **병목 현상**이 발생할 수 있으면서, 전체적인 서비스의 통신에 문제가될 수 있다.
+
+#### 그래서 API Gateway는 적절한 Scale-Out 을 수행하지 않으면 많은 위험이 발생한다.
+
+## 네트워크 Latency
+
+> 네트워크 Latency란? 하나의 데이터 패킷을 한 지점에서 다른 지점으로 보내는데 소요되는 시간을 표현한 것이다.
+
+당연하게 API Gateway 은 네트워크를 한 번 더 타게 되어 네트워크 지연 현상이 발생할 수 있다.
+
+이런 문제점들은 적절한 Telemetry 도구를 통해서 확인하고 이 해결 방법에 대해서 많은 고민을 해야 한다.
+
+# 이를 지원하는 도구 및 기술
+
+현재 많은 Gateway 기술들이 존재한다.
+
+이는 [CNCF](https://landscape.cncf.io) 에 CNCF Cloud Native Interactive Landscape 에서 더 자세히 확인할 수 있다.
+
+- Nginx
+- Kong
+- Apigee
+- Spring Cloud Gateway
+- Spring Cloud Zuul
+- AWS API Gateway

@@ -1,0 +1,146 @@
+# 클라우드 네이티브 아키텍처
+
+클라우드의 중심에는 **AWS, Heroku, Azure, Naver Cloud Platform** 등과 같은 클라우드 컴퓨팅, Cloud Computing 기술이 존재한다.
+
+[##_Image|kage@pXxRx/btq2C301xnt/mrk8k5aCz4qtLxDcqFqeV1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="638" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+#### 그럼 왜 우리는 클라우드 시스템을 이용할까?
+
+그 이유는 바로 **효율적인 비용**과 연관이 있다.
+
+_만약 우리가 카카오톡을 운영하는 운영자 입장이라고 생각해보자._
+평균적으로 약 10만명이 매분 서비스를 이용한다고 가정하면 우리의 서버 컴퓨터는 10만명을 거뜬히 수용할 수 있는 수준이어야 한다.
+그리고 10만명을 수용할 수 있는 수준의 컴퓨터가 1억이라고 가정해보자.
+하지만 **연말, 연초**에 새해 인사 혹은 문안 인사를 보내는 사용자들의 수가 1000만명이라면 어떨까?
+그럼 1000만명을 수용할 수 있는 컴퓨터는 10만명의 수용 보다 약 100만배가 더 필요하니 구축 비용은 약 100억이 들 것이다.
+정리해보자.
+
+- 평균적인 트래픽
+  - 10만
+  - 서버 PC 가격
+    - 1억
+- 연말, 연초의 트래픽
+  - 1000만
+  - 서버 PC 가격
+    - 100억
+
+그럼 우리는 어쩔 수 없이 연말, 연초 약 3일을 위해서 100억이라는 서버를 구매해야 할까?
+
+여기서 바로 클라우드 컴퓨팅 시스템이 이에 대한 적절한 해답을 준다.
+
+### 클라우드 컴퓨터
+
+클라우드 컴퓨터는 **서버의 증설이 민첩하다.**
+무슨 말이냐면 우리의 서비스, 즉 서버가 필요에 의해서 **자동으로 확장 Auto Scaling**되고 폐기된다는 소리다.
+또한 대부분의 클라우드 컴퓨팅 시스템 제공은 ondemand 형식이라 사용한 만큼만 비용을 지불하면 되기 때문에 훨씬 가볍고 경제적이다.
+
+클라우드 네이티브 아키텍처란 그럼 뭘까?
+
+# 클라우드 네이티브 아키텍처
+
+클라우드 네이티브 아키텍처, Cloud Native Architecture 는 클라우드 네이티브를 처음으로 사용하고 정의한 CNCF (**Cloud Native Computing Foundation**) 은 다음과 같이 정의하고 있다.
+
+> Cloud native technologies empower organizations to build and run scalable applications in modern, dynamic environments such as public, private, and hybrid clouds. Containers, service meshes, microservices, immutable infrastructure, and declarative APIs exemplify this approach.
+
+클라우드 네이티브 기술을 통해서 조직은 현대적인 동적 환경에서 확장 가능한애플리케이션을 구축하고 실행할 수 있게 되며 **컨테이너, 서비스 매쉬, 마이크로 서비스, 불면 인프라 및 선언적 API**가 이를 해결한다고 한다.
+
+#### 즉, 쉽게 말 하자면 위에서 본 클라우드 컴퓨팅 시스템의 장점을 100% 활용하도록 하는 애플리케이션 구축 방법이다.
+
+이렇게 클라우드 컴퓨팅의 장점을 이용한다면 **자동화된 빌드와 테스트 그리고 배포**가 가능해지고 **단단한 서비스의 구성 요소**와 **변화에 민첩한 시스템**을 구축할 수 있게 된다.
+
+물론 이런 시스템을 도입한다는 것은 기존의 서비스가 하루 아침에 바뀔 수 있는 것은 아니다.
+
+## 클라우드 네이티브를 위한 4가지 핵심 요소
+
+CNCF 에서 제시한 클라우드 네이티브는 4가지의 핵심 요소들을 포함하고 있다.
+
+1. DevOps
+2. CI/CD
+3. Containers
+4. Microservices
+
+## 1. DevOps
+
+DevOps는 Developement와 Operations 를 합친 용어로 소프트웨어를 개발하는 개발자와 이를 운영하는 운영 전문가와의 소통, 협업을 강조하는 문화에서 생겨난 용어이다.
+
+> 이런 DevOps 전문가들이 있기 때문에 소프트웨어 개발자는 소프트웨어 개발에 집중할 수 있고 서비스의 운영에 대해서는 이에 특화된 전문가인 그들이 해결함으로 관심사와 업무를 나눌 수 있게 되었다.
+
+이런 DevOps 전문가들의 등장으로 아래의 개념들이 탄생한 것이라고 해도 과언이 아닌듯 하다.
+
+## 2. CI/CD
+
+CI/CD는 해당 블로그의 [AWS의 CD 도구, CodeDeploy에 대해서 알아보자.](https://wonit.tistory.com/352) 에서 확인할 수 있다.
+
+- 지속 통합과 지속 배포
+  - 지속적 통합 (Continous Integration)
+    - 통합 서버, 형상 관리, 빌드 도구, 테스트 도구의 의미로 사용될 수 있음
+    - ex) jenkins, Team CI, Travis CI
+- 지속 배포 CD (Continous Deployment, Delivery)
+  - 패키지화 한 서비스를 어떻게 배포하는지에 대한 pipe line
+  - Continous Delivery
+    - 실행 파일을 운영 서버로 지속 전달
+  - Continous Deployment
+    - Continous Delivery 뿐만 아니라 운영에 자동 반영되게 하는 것
+    - 목적은 System의 Downtime을 최소화하는 것
+    - 배포 전략
+      - [Rolling Update](https://wonit.tistory.com/330)
+      - Canary Update
+      - [Blue Green Update](https://wonit.tistory.com/330)
+
+[##_Image|kage@GOdbT/btq2CX0WR6x/ZG5jOVxTzRLjltBQbi0a70/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="611" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+> 서비스의 생성-통합-배포 의 과정을 **자동화**하여 비즈니스 환경 변화 즉, 새로운 기능에 대한 배포와 테스트 시간을 단축하여 많은 사용자들이 양질의 서비스를 받을 수 있게 하는 것이 목적인 개념이다.
+
+우리는 CI/CD를 통해서 새로운 기능에 대한 테스트를 자동화하고 쉽게 배포할 수 있게 된 것이다.
+
+## 3. Containers
+
+컨테이너는 가장 유명하게 **Docker** 가 있다.
+
+[##_Image|kage@Luu6r/btq2CDn6rJA/AbZWF0eHICg0tnoFr1UFy1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+자세한 내용은 [배포의 관점에서 도커가 필요한 이유](https://wonit.tistory.com/328?category=807010) 에 대해 나와 있으니 참고하기 바란다.
+
+간략하게 설명하자면 도커는 아주 경량화된 리눅스 컴퓨터이다.
+
+하나의 도커 컨테이너를 띄운다면 해당 컨테이너는 하나의 개념적으로 독립된 PC로 이용할 수 있게 되어 탄력적인 서비스를 구성할 수 있게 된다.
+
+> 결국 컨테이너의 존재는 아래에 나올 **서비스의 관심사에 따라 분리된 마이크로서비스**를 운영하는데 큰 역할을 기여할 수 있게 된다.
+
+## 4. Microservices
+
+이번에 내가 이야기하고자 하는 것의 핵심인 마이크로서비스는 클라우드 네이티브에서 가장 중요한 핵심이다.
+
+[##_Image|kage@R2vza/btq2xcFALfy/BpDD7vWh4FHGKoh52A4XZk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="726" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+> 마이크로서비스는 각각의 서비스에 대한 관심사에 따라 하나의 서버는 하나의 관심사를 갖고 서비스들이 모여 하나의 커다란 궁극적 서비스를 이루는 아키텍처이다.
+
+이렇게 서비스 구조가 된다면 새로운 기능에 대한 확장도 쉽게 이루어질 수 있게 된다.
+
+# 클라우드 네이티브 아키텍처의 기본 3가지
+
+이런 클라우드 네이티브 아키텍처는 3가지의 기본 핵심이 존재한다.
+
+1. 확장 가능한 아키텍처
+2. 탄력적 아키텍처
+3. 장애 격리
+
+### 확장 가능한 아키텍처
+
+확장 가능한 아키텍처란 **시스템의 수평적 확장에 유연**한 구성을 말한다.
+
+즉, 많은 사용자들이 몰리더라도 확장된 서버로 시스템을 부하 분산하고 가용성을 보장할 수 있게 한다.
+
+### 탄력적 아키텍처
+
+탄력적 아키텍처는 어떻게 본다면 확장 가능한 아키텍처의 개념과도 닮아 있는데, 서비스의 통합, 배포, 생성의 시간을 단축 시키는 것을 뜻한다.
+
+이에 대한 방법으로는 위에서 본 **CI/CD**를 이용하기도 한다.
+
+이런 분할된 서비스 구조에서 각각의 서비스는 stateless한 특성을 이용해서 서비스간의 종속성을 줄인다.
+
+### 장애 격리
+
+특정 서비스가 오류가 발생하더라도 앞서 본 탄력적 아키텍처 덕분에 **다른 서비스에 영향을 주지 않**는다.
+
+이렇게 장애를 격리하고 장애를 쉽게 대응할 수 있도록 하는게 바로 클라우드 네이티브 아키텍처의 장점이라고 할 수 있다.

@@ -1,0 +1,98 @@
+오늘은 MSA와 다양한 아키텍처들을 비교해보는 시간을 가져보도록 하겠다.
+
+MSA 아키텍처 즉 Microservice Architecture는 기존에 존재하던 아키텍처와는 새로운 아키텍처 방식으로 다양한 아키텍처들과 비교되곤 하는데, 기존에 존재하던 아키텍처의 대표적인 2가지를 이야기 해보려 한다.
+
+1.  Monolithic Architecture
+2.  Service Oriented Architecture
+3.  Microservice Architecture
+
+# Monolichic, 모놀리스 아키텍처
+
+[##_Image|kage@cedxzC/btq2BBYs01j/TnInZZYnP3HdC47948vZp0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="682" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+모놀리스 아키텍처는 그림에서 보다싶이 **하나의 서버에 다양한 기능이 위치해**있는 아키텍처이다.
+
+#### 즉, 하나의 프로젝트에 코드가 모여있고 하나의 파일로 구성된다.
+
+보통 **DB, View, Controller**로 구성된 컴포넌트들이 **하나의 프로젝트에서 관리**되고 **하나의 공통된 DB**를 바라보고 있다는 특징이 있다.
+
+이들은 배포되기 위해서 서로 **의존성**을 가지고 배포된다.
+
+### 장점
+
+대표적인 장점으로는 **과거에 대부분의 서비스는 모놀리스 구조**이기 때문에 다양한 레퍼런스가 존재한다는 점과 인프라의 구성과 운용이 간편하다는 장점이 있다.
+
+또한 테스트 및 배포 파이프라인 구성이 쉽다.
+
+### 문제점
+
+모놀리스 아키텍처의 서비스들은 **서비스간에 서로 의존성이 존재**하기 때문에 시스템의 일부만 수정하더라도 전체 애플리케이션의 Build, Test, Packaging 과정을 거쳐야 한다.
+
+그래서 간단한 수정에 오랜 down time이 존재하기 때문에 쉬운 수정이 불가능하다는 단점이 있다.
+
+# Service Oriented Architecture, SOA
+
+[##_Image|kage@cyjR59/btq2yanhK0f/ozE6ls4KvMj81uTjljgsuk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="760" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+SOA 아키텍처는 공통된 서비스를 **ESB**에 모아 사업 측면에서 공통 기능의 집합을 통해 서비스를 제공한다.
+
+> ESB란? Enterprise Service Bus로 서비스들을 컴포넌트화된 논리적 집합으로 묶는 미들웨어로 이벤트 및 서비스에 대한 요청과 처리를 중개하여 인프라 전체 스트럭처에 분포되게한다.
+
+여기서는 서비스가 아주 중요한 개념인데 서비스는 뭘까?
+
+### Service
+
+서비스는 기업의 업무에 따라 나뉘어진 하나의 소프트웨어를 뜻한다.  
+현대의 SOA에서 서비스가 의미하는 바는 **기업의 업무 중 하나**를 뜻한다.
+
+### 장점
+
+ESB를 이용한 SOA는 **서비스 단위로 모듈을 분리**하다 보니 자연스럽게 **결합도가 낮아지는** Loosly Coupled 된 아키텍처가 된다.  
+이런 특징은 서비스를 지향하여 각각의 모듈의 재사용성을 높임과 동시에 **버스 형태에 연결만 가능하다면 확장성과 유연성이 증가**한다는 특징이 있다.
+
+### 문제점
+
+하지만 ESB도 어쩔 수 없이 **하나의 DB**를 사용한다는 점에서 끊어질 수 없는 의존성이 존재하기 마련이다.
+
+또한 구체적이지 않은 특성 덕분에 **비즈니스에서의 실 성공 사례**가 드물다는 특징이 있다.
+
+# Microservice Architecture, MSA
+
+MSA 아키텍처는 다음과 같은 구성요소들을 가지고 있다.
+
+[##_Image|kage@czniRo/btq2Clg03Yh/53AcikcUkrjmaaz5sxZKXK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="818" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+한 눈에 보더라도 Monolithic과 SOA와는 다르게 **복잡해 보일 수 있다.**
+
+이런 MSA는 **리팩토링의 저자 마틴 파울러 Martin Fowler**가 처음으로 사용한 용어로 핵심은 **SOA 에서 더 발전해 함께 작동하는 작은 규모의 서비스**의 집합을 말한다.
+
+이런 MSA에는 몇 가지 특징이 존재한다.
+
+1.  서비스들은 비즈니스 단위로 나뉘어져야 한다.
+2.  서비스들은 최소한의 중앙 집중식 구성이 되어야 한다.
+3.  서비스들은 서로 다른 언어와 DB로 구성될 수 있다.
+
+### 장점
+
+애플리케이션을 구성하는 서비스 구성요소들이 모두 컨테이너에 의해서 나눠지기 때문에 **최소한의 의존성**을 가지게될 수 있다.  
+그에 따라서 자연스럽게 **새로운 모듈에 대한 추가**가 자유로워진다.
+
+### 문제점
+
+그림을 보더라도 알 수 있지만 MSA를 구축하는 일은 **쉬운 일이 아니다.**
+
+모놀리틱 서비스는 하나의 프로젝트에서 서로 내부적으로 통신을 하였지만 마이크로서비스는 **여러 프로젝트**로 나뉘어 해당 프로젝트끼리 통신을 해야하는 구조라 설정에 대한 서버를 따로 둘 정도로 복잡하게 구성되어 있다.
+
+# Monolithic vs SOA vs MSA
+
+이제 최종적으로 이들을 하나의 표로 정리해서 비교해보자.
+
+<table style="border-collapse: collapse; width: 100%; height: 76px;" border="1" data-ke-style="style12"><tbody><tr style="height: 19px;"><td style="width: 14.285714285714286%; text-align: center; height: 19px;">아키텍처</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">특징</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">결합도</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">확장성</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">성공 사례</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">기술적 난이도</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">비용</td></tr><tr style="height: 19px;"><td style="width: 14.285714285714286%; height: 19px;"><b>Monolithic</b></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><b>하나</b>의 프로젝트</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">매우 높음</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">매우 낮음</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><b><u>매우 많음</u></b></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><b><u>쉬움</u></b></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><b><u>낮음</u></b></td></tr><tr style="height: 19px;"><td style="width: 14.285714285714286%; height: 19px;"><b>SOA</b></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><b>여러</b> 서비스, <b>하나</b>의 버스</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">낮음</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">높음</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">적음</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">어려움</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">중간</td></tr><tr style="height: 19px;"><td style="width: 14.285714285714286%; height: 19px;"><b>Microservice</b></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><b>독립된 여러</b> 서비스</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><u><b>매우 낮음</b></u></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;"><u><b>매우</b> <b>높음</b></u></td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">많음</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">어려움</td><td style="width: 14.285714285714286%; text-align: center; height: 19px;">매우 높음</td></tr></tbody></table>
+
+Monolithic 이라고 해서 좋지 않은 서비스냐? 아니다.
+
+Microservice라고 해서 좋은 서비스냐? 아니다.
+
+이 특징들은 이들의 수준을 높고 낮음을 평가할 수 없다.
+
+#### 가장 중요한 것은 현재 내가 속해있는 집단에서 가장 필요한 기술이 무엇이냐와 비용이 아키텍처를 결정하는 가장 중요한 지표가 된다고 생각한다.

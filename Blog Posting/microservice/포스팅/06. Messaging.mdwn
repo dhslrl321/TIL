@@ -1,0 +1,99 @@
+마이크로서비스를 구성하기 위해서는 **기술적으로 많은 어려움이 수반된다.**
+
+아래의 사진만 보더라도 **하나의 서비스를 구축하기 위해서 알야아 할 기술들이 굉장히 많다.**
+
+[##_Image|kage@cpoo8F/btq2z0YKgQ1/vBxVPKrzJO1dDNE57OqTKk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="500" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+오늘은 여기에 나온 기술들의 특징과 어떤 역할을 수행하는지에 대해서 알아보려 한다.
+
+### CNCF가 제시한 **표준 MSA 구성 요소**
+
+CNCF는 지난 [Cloud Native Architecture](https://wonit.tistory.com/486?category=854727) 에서도 잠깐 언급한 Cloud Native Computing Foundation 단체이다.
+
+CNCF 에서 마이크로서비스를 지원하고 관리하기 위한 구성 요소들을 다음과 같이 나눈다.
+
+- [API Gateway 패턴](https://wonit.tistory.com/489) 블로그 설명 바로가기
+- [Service Mesh](https://wonit.tistory.com/490) 블로그 설명 바로가기
+- [Container Runtime](https://wonit.tistory.com/328?category=807010) 블로그 설명 바로가기
+- [CI / CD](https://wonit.tistory.com/352) 블로그 설명 바로가기
+- [Backing Server-Messaging](https://wonit.tistory.com/491) 블로그 설명 바로가기
+- [Logging, Monitoring-Telemetry](https://wonit.tistory.com/492) 블로그 설명 바로가기
+- [RESTful API](https://wonit.tistory.com/454) 블로그 설명 바로가기
+
+# **Data Sync by Messaging**
+
+[##_Image|kage@WPXze/btq2zdYl12s/tiGIThKh99FO5fxW9c3RWk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+대부분의 마이크로서비스에서는 **메시지 큐를 활용한 비동기 패턴**을 사용하는 것을 볼 수 있다.
+
+이 메시지 큐는 왜 사용되는 것일까?
+
+## 메시지 큐를 지정하지 않는다면?
+
+예를들어 다음과 같은 상황이 있다고 가정해보자.
+User 서비스가 존재한다.
+
+[##_Image|kage@HSZQI/btq2C5yrRae/O1omqwm80KWXM6yk36p2AK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+하지만 이 서비스가 사용자들이 많아진다고 해보자.
+
+그럼 우리의 컨테이너 오케스트레이션 툴에 의해서 Scale-out 을 하게 되고 다음과 같이 두 개의 컨테이너가 생성되었다.
+
+[##_Image|kage@dmNHJm/btq2CEOE5mE/SfUnPGHTOmwNNhCksALFok/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+여기서 발생할 수 있는 의문이 존재한다.
+
+#### 그럼 동일한 서비스의 데이터가 분산되어 저장되지 않을까? **그럼 동기화는 어떻게 시키지?**
+
+실제로 분산되어 저장된다.
+
+결국 사용자는 **API Gateway**가 보내는 요청에 따라서 **다른 데이터를, 무결하지 않은 데이터를 가져올 가능성이 존재하게 된다**.
+
+이 방식에는 여러 해결 방식이 존재하는데, 하나씩 알아보자.
+
+1. 하나의 서비스 인스턴스가 Scale-Out 된다 하더라도 동일한 데이터베이스를 사용하기
+2. Message Queue를 이용하기
+
+### 하나의 서비스 인스턴스가 Scale-Out 된다 하더라도 동일한 데이터베이스를 사용하기
+
+여러 인스턴스가 Scale-Out 되더라도 궁극적으로 해결하고자 하는 문제는 동일한 서비스이므로 하나의 데이터베이스를 사용하는 것은 큰 문제가 되지 않는다.
+
+하지만 여러 인스턴스가 동일한 DB를 보고 작업을 하게 된다면 **트랜잭션과 Isolation Level**에 관한 문제가 발생하게 된다.
+
+> [트랜잭션](https://wonit.tistory.com/462?category=790502)과 [Isonlation Level](https://wonit.tistory.com/463?category=790502) 에 대해서는 해당 링크를 통해 확인할 수 있다.
+
+결국 이 문제보다 더 간단한 문제를 찾아야 한다.
+
+### Message Queue 사용하기
+
+앞선 방식의 문제에서 **트랜잭션과 고립 수준**을 관리하는 것 보다 훨씬 간단한 방식인 **데이터베이스 동기화**를 수행하면 쉽게 해결할 수 있다.
+
+# Message Queue
+
+[##_Image|kage@cCir14/btq2C3HoR5C/t53j7Y60QyJX6wCHkjhC4k/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+메시지 큐잉 서비스를 한 줄로 정리하자면 다음과 같다.
+
+> 마이크로서비스 구조에서 인스턴스가 확장되더라도 분산 시스템 및 데이터의 동기화 문제를 간단하게 해결할 수 있도록 하는 메시지 대기열 미들웨어이다.
+
+주로 아파치 카프카 kafka나 래빗엠큐 Rabbit MQ와 같은 **메시지 브로커**를 사용해서 메시지를 구현한다.
+
+이런 Message Queuing Server 를 구성하는 방법에는 크게 2가지가 존재한다.
+
+1. 인스턴스 각각의 데이터베이스를 운영하여 큐잉 서버에 구독
+2. 하나의 데이터베이스를 운영하며 중간에 큐잉 서버를 두는 방식
+
+[##_Image|kage@caQIJQ/btq2CIcqVKu/f8f6sJb1vNjZJ9h3irezqk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+# 이를 지원하는 도구 및 기술
+
+현재 많은 Messaging 기술들이 존재한다.
+
+이는 [CNCF](https://landscape.cncf.io) 에 CNCF Cloud Native Interactive Landscape 에서 더 자세히 확인할 수 있다.
+
+- Apache Kafka
+- RabbitMQ
+- Spring Cloud Bus
+- Amazon SNS (Simple Notification Service)
+- Amazon SQS (Simple Queue Server)
+- Active Queue
