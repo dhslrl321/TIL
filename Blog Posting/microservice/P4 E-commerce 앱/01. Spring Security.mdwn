@@ -1,0 +1,62 @@
+# Spring Security
+
+- Authentication + Authorization
+- 순서
+  1. **의존성으로 spring securyt 추가**
+  2. **WebSecurityConfigurerAdapter를 상속 받는 Security Configuration 클래스 생성**
+  3. **Security Configuration 클래스에 @EnableWebSecurity 추가**
+  4. **Authentication -> configure(AuthenticationManagerBuilder auth) 메서드 재정의** : 인증을 위한 작업
+  5. **Password Encode 를 위한 BCryptPasswordEncoder 빈 정의**
+  6. **Authorization -> configure(HttpSecurity http) 정의** : 권한을 위한 작업
+
+# WebSecurity, 권한 작업하기
+
+```java
+@Configuration
+public class WebSecurity extends WebSecurityConfigurationAdaptor {
+  @Overried
+  protected void configure(HttpSecurity http) throws Exception{
+    http.csrf().disable();
+    http.authorizeRequests().antMatchers("/users/**").permitAll();
+    http.headers().frameOptions().disable();
+  }
+}
+```
+
+- `@Configuration` 어노테이션 추가하고 설정 파일임을 알려줘야 함
+- 권한 작업을 위해서 `HttpSecurity` 를 매개변수로 받는 `configure` 메서드 재정의
+- h2 db 이용하기 위해서 `http.headers().frameOptions().disable();` 추가
+
+# BCryptPasswordEncoder
+
+- Password 를 해싱하기 위해 Bcrypt 알고리즘 이용
+- 랜덤 Salt 를 부여하여 여러번 hash 를 적용한 암호화 방식
+
+```java
+public class UserServiceImpl {
+
+  private final BCryptPasswordEncoder passwordEncoder;
+
+  public UserServiceImpl(BcryptPasswordEncoder passwordEncoder) {
+    this.passwordEncoder = passswordEncoder;
+  }
+
+  public UserDto createUser(UserDto userDto) {
+    userDto.setUserId(UUID.randomUUID().toString());
+    userDto.setEncryptedPassword(passwordEncoder.encode(userDto.getPassword()));
+  }
+}
+```
+
+```java
+public class UserServiceApplication {
+  public static void main(String[] args) { return Springboot.appliction.run}
+
+  @Bean
+  public BCryptPasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+}
+```
+
+- 루트 애플리케이션에 가서 `BCryptPasswordEncoder` 의존성을 `@Bean` 으로 주입해야 함
