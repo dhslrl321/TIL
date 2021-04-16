@@ -1,0 +1,32 @@
+# Gateway yml 파일 설정 변경
+
+- 기존 `application.yml` 을 변경해야함
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/**
+        - id: catalog-service
+          uri: lb://CATALOG-SERVICE
+          predicates:
+            - Path=/catalog-service/**
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order-service/**
+```
+
+- 새로운 `application.yml` 변경
+  - Request Header 값을 초기화
+    - `RemoveRequestHeader=Cookie`
+    - 만약 안 해주면 Cookie 값에 session_id 가 들어있게 되어서 정상 동작을 안 할 수도 있음
+  - 사용자가 요청한 url path 를 변경
+    - `RewitePath=/user-service/(?<segment>.*), /$\{segment}`
+      - `RewitePath=/사용자 요청 경로, /새로운 경로` : 사용자가 첫 번째 인자로 요청하면 두 번째 인자로 변경함

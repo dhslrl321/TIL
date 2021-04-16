@@ -21,3 +21,27 @@
   - 사용자 요청에 대해서 `AuthenticationFilter` 를 거치도록 수정
 - UserService 에서 UserDetailsService 상속
   - UserServiceImpl 에서 `loadByUsername` 재정의
+
+# 순서
+
+- `RequestLogin` 생성
+  - 사용자의 로그인 요청이 들어올 dto 클래스
+  - `emali`, `password` 필드 추가
+- `AuthenticationFilter` 클래스 추가
+  - `UsernamePasswordAuthenticationFilter` 상속
+    - 2개 재정의
+      1. `attemptAuthentication(HttpServletRequest, HttpServletResponse)` : 로그인에 관한 요청 정보를 보냈을 때 이를 처리하는 메서드, 인증 정보 생성
+      2. `successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)` : 로그인이 성공 되었을 때의 처리
+  - 1번:
+    - 인증 정보를 생성하면 UsernamePasswordAuthenticationFilter로 전달
+    - 전달하기 위해서는 UsernamePasswordAuthenticationToken 형태로 전달해야 함
+    - 이 이유는 스프링 시큐리티가 사용하기 위해서임
+    - 결국 입력했단 사용자의 이메일과 비번을 토큰으로 만드러야 함
+- `WebSecurity` 에 가서 url 관련 처리 수정
+  - 인가
+  - `configure(HttpSecurity http)` 에서 우리가 정의한 `AuthenticationFilter` 클래스를 필터로 추가해야함
+    - `addFilter` 로 추가
+  - 인증
+    - `configure(AuthenticationManagerBuilder auth)` 로 사용자가 로그인 요청을 보낸 정보를 db에서 꺼내와서 작업해야함
+      - `UserService` 에서 `UserDetailsService` 상속박아야 함
+      - `loadByUsername` 로 db에서 가져오고 userdetail 반환
