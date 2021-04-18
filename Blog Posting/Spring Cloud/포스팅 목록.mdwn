@@ -1,0 +1,10 @@
+- Spring Cloud Eureka
+- Spring Cloud Gateway
+  - yml 작성 방법
+    - id, uri, predicates
+  - 필터
+    - 커스텀 필터
+      - 클래스 파일
+      - yml 설정 추가
+    - 글로벌 필터
+  - RewritePath, RemoveRequestHeader, Segment

@@ -30,3 +30,38 @@ spring:
   - 사용자가 요청한 url path 를 변경
     - `RewitePath=/user-service/(?<segment>.*), /$\{segment}`
       - `RewitePath=/사용자 요청 경로, /새로운 경로` : 사용자가 첫 번째 인자로 요청하면 두 번째 인자로 변경함
+  - 이렇게 하면 `localhost:8000/user-service/login` 이런식으로 하지 않고 `localhost:8000/login` 이렇게 해도 알아듣게 됨
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/login # 로그인
+            - Method=POST
+          filters:
+            - RemoveRequestHeader: Cookie # POST 로 전달되는 값은 매번 새롭게 초기화 하기 위해서
+            - RewitePath: /user-service/(?<segment>.*), /$\{segment}
+        - id: user-service
+            uri: lb://USER-SERVICE
+            predicates:
+              - Path=/user-service/users # 회원가입
+              - Method=POST
+            filters:
+              - RemoveRequestHeader: Cookie # POST 로 전달되는 값은 매번 새롭게 초기화 하기 위해서
+              - RewitePath: /user-service/(?<segment>.*), /$\{segment}
+        - id: user-service
+            uri: lb://USER-SERVICE
+            predicates:
+              - Path=/user-service/** # 모든 서비스
+              - Method=GET
+            filters:
+              - RemoveRequestHeader: Cookie # POST 로 전달되는 값은 매번 새롭게 초기화 하기 위해서
+              - RewitePath: /user-service/(?<segment>.*), /$\{segment}
+
+```

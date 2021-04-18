@@ -1,0 +1,13 @@
+# 로그인 성공
+
+- 회원가입이랑 로그인 정상적으로 성공
+- `successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)` 에 내용 구현
+  - 로그인 후 어떤 절차를 밟을 것인지에 대한 처리
+  - `Authentication` 객체를 통해서 우리는 로그인한 사용자의 email로 db에 검색을 할거임
+  - UUID를 가져오고 해당 uuid를 이용해서 토큰을 생성할 것임
+  - 그리고 response로 header에 token과 uuid 필드에 각각 토큰 값과 uuid를 반환시킬 것
+    - 이렣거 2개를 헤더로 반환하는 이유는 클라이언트에서 보낸 요청의 위변조가 없는지 확인하기 위해서
+- 의존성 추가
+- yml 에 jwt 관련 정보 추가
+  - token.expiration_time
+  - token.secret

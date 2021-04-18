@@ -1,0 +1,12 @@
+# API Gateway
+
+- 2가지 의존성 추가
+  - Spring Security 의존성 추가
+    - `AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config>` 를 상속받은 `AuthorizationHeaderFilter` 를 이용해서 토큰 값 검증하기 위해
+  - JWT Token 의존성 추가
+    - 토큰이 잘 생성 되었는지 검증하기 위해서
+- yml 파일 수정
+  - 로그인과 회원가입은 permit
+  - 그 외의 서비스는 모두 앞에서 만든 AuthorizationHeaderFilter를 적용시켜야함
+  - yml 파일에 있는 값을 쓸 때 jaxb 의존성 추가해야됨
+    - springboot에는 기본적으로 있는듯
