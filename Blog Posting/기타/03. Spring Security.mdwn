@@ -5,7 +5,15 @@
   - `SessionResponse`
 - **Config**
   - `SecurityJavaConfig`
-    - WebSecurityConfigurerAdapter
+    - WebSecurityConfigurerAdapter : 사용자 자체 보안 구성을 할 때 사용됨
+    - 구현
+      - Filter들을 등록
+      - 연결 session 관리, (최대 사용자 연결 수 지정 가능 등)
+      - SessionCreationPolicy.STATELESS 로 설정해서 세션 쿠키 인증 방식을 하지 않겠다고 지정
+      - csrf()는 토큰 기반 인증에서 방지가 됨
+      - exceptionHandling() 으로 예외 처리 기능이 작동하게 함
+      - authenticationEntryPoint() 로 인증 실패시 처리
+        - 여기에 HttpStatus.UNAUTHROIZED 면 실패로 봄
   - ## 구현
 - **Filter**
   - `JwtAuthenticationFilter`
@@ -19,7 +27,10 @@
       - SecurityContextHolder에 Authentication 저장
       - 다른 서블릿 필터들이 동작하도록 doFilter 호출
   - `AuthenticationErrorFilter`
-    - HttpFilter
+    - HttpFilter : Filter 인터페이스의 기본 구현체
+    - 구현
+      - JwtAuthenticationFilter 앞에 위치
+      - InvalidTokenException이 발생하면 HttpStatus.UNAUTHORIZED 응답
 - **Security**
   - `UserAuthentication`
     - AbstractAuthenticationToken
@@ -33,6 +44,12 @@
   - `JwtUtils`
 - **MVC**
   - `AuthenticationService`
+    - login() 로그인 수행: encoded된 토큰 String 반환
+      - findByEmail로 User 엔티티 받아오기
+      - 사용자 이메일이 없으면 LoginFailException 발생
+      - 비밀번호가 맞지 않으면 LoginFailException 발생
+    - parseToken() accessToken 매개변수로 받아서 토큰을 발급받은 사용자 id 반환
+    - roles()
   - `SessionController`
 
 # WebSecurityConfigurerAdapter
