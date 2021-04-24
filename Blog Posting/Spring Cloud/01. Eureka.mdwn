@@ -1,0 +1,384 @@
+# Spring Cloud Netflix
+
+스프링 클라우드 넷플릭스는 Spring Boot Application 에 대한 통합 환경 구성을 지원하는 Netflix의 OSS 서비스이다.
+
+> Netflix는 2007년 심각한 DB손상으로 3일간 서비스 장애를 겼었는데, 이에 운영진들과 기술 리더들은 **신뢰성 높고 수평확장이 가능한 Cloud System으로** 이전을 해야 함을 느꼈었다고 한다. 그리고 결국 MSA를 7년만에 완벽하게 이전하게 되었는데, 이 때 쌓은 경험치를 바탕으로 MSA 기술을 Spring에게 오픈소스로 풀게 되었다.
+
+# Netflix OSS 와 Spring Cloud Netflix
+
+Netflix OSS 에는 다양한 서비스들이 존재한다.
+
+- **Eureka : Discovery Server**
+  - 각각의 서비스 인스턴스들이 동적으로 확장, 축소 되더라도 인스턴스의 상태를 하나의 서비스로 관리할 수 있는 서비스
+- Ribbon : Client Side Load Balancer
+  - 부하 분산을 위한 모놀리스의 L4 스위치와 같이 트래픽을 분산시키는 기능
+- Zuul : API Gateway
+  - 각각의 마이크로서비스의 종단점을 연결하는 리버스 프록시
+- Hystrix : Circuit Breaker
+  - 특정 서비스가 과부하가 걸려 서비스 장애를 전파하는 특성을 해결하려는 기능
+- EvCache
+- Spectator
+- Archaius
+
+이런 서비스들이 모두 Spring Cloud 에서 사용되는 것은 아니다.
+
+Spring 은 Spring Cloud 와 잘 맞는 몇몇 제품들을 가져다가 Spring Cloud에 맞게 재구성하여 제공하는 서비스들이 존재한다.
+
+최초에는 모든 서비스가 Spring Cloud 에 의해서 관리되었지면 현재는 몇몇 기술들을 재구성 혹은 발전시키거나 독립적인 서비스로 진화시켜 기존의 서비스들은 Maintenance 모드로 들어간 것들이 존재한다.
+
+[##_Image|kage@yFdGp/btq3mZ5qFNW/1VXTWXHWR6mwA2RoQL3N41/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="570" height="NaN" data-ke-mobilestyle="widthContent"|spring cloud netflix Maintenance Mode -&gt; replacement||_##]
+
+**What is Maintenance Mode?**
+
+> Placing a module in maintenance mode means that the Spring Cloud team will no longer be adding new features to the module. We will fix blocker bugs and security issues, and we will also consider and review small pull requests from the community.
+
+> 모듈을 유지 보수 모드로 전환하면 Spring Cloud 팀이 더 이상 모듈에 새 기능을 추가하지 않게 됩니다. 차단 버그와 보안 문제를 해결하고, 커뮤니티의 작은 꺼내기 요청도 고려하고 검토할 것입니다.
+
+# Spring Cloud Netflix - Eureka
+
+위에 있는 Maintenance Mode 로 들어간 프로젝트를 대체할 몇몇의 프로젝트는 이번 주제에서 이야기하지 않으려 한다.
+
+많은 Netflix 서비스가 Maintenance 되었지만 그 중에서도 가장 자주 애용하는 **Eureka**에 대해서 알아보자.
+
+> 우선 Eureka 의 역할에 대해서 알기 위해서는 **Service Discover Pattern**에 대해서 알아야 한다.  
+> Service Discover 패턴에 대해서 잘 모른다면 [MSA의 Service Mesh 패턴](https://wonit.tistory.com/490)을 참고하면 도움이 될듯 하다.
+
+# Netflix-Eureka
+
+[##_Image|kage@beGepN/btq3iMmaxPw/4wdcEkTCqPAKgEeTnZV5j1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+간단하게 말하자면 Service Discovery는 MSA 핵심 요소 중 하나다.
+
+각 클라이언트의 설정 및 위치 정보 (IP)를 수동으로 구성한다면 CI CD, 혹은 Scaling 에 매우 많은 제약사항이 따른다.
+
+하지만 Netlfix- Eureka는 서버를 구성 및 배포하여 가용성이 높도록 할 수 있으며, 각 서버는 등록된 서비스에 대한 상태를 다른 서버로 복제할 수 있게 하는 역할을 한다.
+
+**이러한 Eureka의 개념에는 2가지 구성 요소들이 존재하는데,**
+
+- Service Discovery
+  - 각각의 서비스의 위치가 등록된 서버에서 특정 작업을 위한 서버의 위치를 파악하는 작업을 뜻한다.  
+    우리는 Service Discovery를 위해서 **Spring Cloud Netflix - Eureka Server**를 사용한다.
+- Service Registry
+  - 각각의 서비스가 자신의 위치(IP) 정보를 특정 서버에 등록 **Registry** 하는 작업을 말한다.  
+    우리는 Service Registry를 위해서 **Spring Cloud Netflix - Eureka Client**를 사용한다.
+
+이들은 각각 어떤 일을 수행하고 어떤 일을 거치면서 동작할까?
+
+# Service Discover 과정
+
+[##_Image|kage@lJl55/btq3n81OOgh/63e5BBU79R8DNDAvYAcB5k/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="684" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+Spring Cloud Eureka는 아래와 같은 순서로 동작하게 된다.
+
+1.  Service Registry 기능을 할 Eureka Server 가 최초에 기동된다.
+2.  Service Registry 서버인 Eureka Server 에 등록될 서비스들이 기동된다. 여기서 등록된 서비스는 Eureka Client 라고 한다.
+3.  Eureka 서버는 자신에게 등록된 Eureka Client 에게 30초마다 Ping을 보내며 Health Checking을 수행한다.
+4.  만약 30초마다 보내는 Heart Heat가 일정 횟수 이상으로 동작되지 않으면 Eureka Server는 해당 Client를 삭제한다.
+
+Eureka는 단지 서비스의 위치만을 표현하는 역할로 보통 **Spring Cloud Gateway**나 Netflix Zuul 과 같은 Gateway 서비스나 Ribbon 과 같은 클라이언트 사이드 로드밸런서와 함께 동작한다.
+
+[##_Image|kage@4KnWa/btq3ncqedLw/kKIbHpAIAbuppS3Ayrz270/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="747" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+# 실습하기
+
+이제 대충 개념에 대한 부분은 파악했으니 실제 Spring Boot를 이용해서 Eureka 서버와 클라이언트를 이용한 구성을 해보자.
+
+우리는 2개의 서비스와 1개의 Service Discovery 서버를 가용할 것이다.
+
+- **Service Discovery Server**
+  - Discovery Application
+    - `Spring Cloud Eureka-Server`
+- **Microservices**
+  - UserService
+    - `Spring Cloud Eureka-Client`
+  - OrderService
+    - `Spring Cloud Eureka-Client`
+
+# Spring Cloud Eureka Server
+
+- 프로젝트 생성
+- 의존성 추가
+- application.yml 작성
+- DiscoveryApplication 에 `@EnableEurekaServer` 등록
+- Eureka Dashboard
+
+기본적으로 실습 IDE는 IntelliJ를 이용할 것이다.
+
+만약 본인이 IntelliJ 라이센스가 없고 학생이다면 1년 무료 이용 라이센스가 존재하니 이용하는 것도 나쁘지 않다.
+
+## 실습 프로젝트 생성
+
+우선 실습을 위한 디렉토리를 생성하자.
+
+나는 my-msa 라는 디렉토리를 생성했다.
+
+그리고 해당 디렉토리 아래에 **Discovery-Server** 를 생성하자.
+
+[##_Image|kage@w7Vi3/btq3nTKsRro/kZts1tOBtIffv03LXsHtIk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+## 의존성 추가
+
+필요한 의존성은 Spring Cloud Eureka Server 이다.
+
+```
+ext {
+    set('springCloudVersion', "2020.0.2")
+}
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+```
+
+> 여기서 Spring Boot의 버전과 Spring Cloud 의 버전은 매우 중요하다. 각각 호환이 되는 버전이 따로 있으니 충분히 조사해보도록 하자. 일단 현재 2021년 4월 기준으로는 Spring Boot 2.4 대 버전과 Spring Cloud 2020 버전이 권장되고 있다.
+
+## application.yml 작성
+
+Springboot 프로젝트를 생성하면 기본적으로 설정을 위한 파일로 `application.properties` 파일이 생성되는데, 해당 프로퍼티 파일은 중복되는 코드가 많이 나올 수 있으므로 `aaplication.yml` 파일로 대체하여 작성한다.
+
+```
+server:
+  port: 8761 # 1번
+
+spring:
+  application:
+    name: discovery-service # 2번
+
+eureka:
+  client:
+    register-with-eureka: false # 3번
+    fetch-registry: false  # 4번
+```
+
+application.yml 파일이 해당 프로젝트에서 **가장 가장 가장** 중요한 파일이다.
+
+1.  **server.port** : 해당 유레카 서버가 동작되는 서버의 포트를 지정한다. 보통 8761 포트를 많이 사용한다.
+2.  **spring.application.name** : Application 이름을 지정할 수 있는데, 앞으로 모든 서비스를 application.name 으로 식별한다.
+3.  **eureka.client.register-with-eureka** : 해당 서버를 **클라이언트로 동작**시키겠냐는 설정을 false 로 설정해야 한다.
+4.  **eureka.client.fetch-registry** : 위와 동일한 false로 지정해야 하는데, 그렇지 않으면 자신을 디스커버리에 등록하게 된다.
+
+## DiscoveryApplication 에 `@EnableEurekaServer` 등록
+
+프로젝트의 Application이 돌아가는 루트 디렉토리로 가서 DiscoveryApplication.java를 클릭한다.
+
+그럼 `@SpringBootApplication` 이라는 어노테이션이 붙어있는데, 해당 어노테이션 아래에 `@EnableEurekaServer` 어노테이션을 추가해준다.
+
+그럼 해당 서버는 EurekaServer 로 동작하게 되는 것이다.
+
+```
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaApplication.class, args);
+    }
+
+}
+```
+
+그리고 App을 실행시켜보자.
+
+그럼 정상적으로 잘 실행이 되는 것을 볼 수 있다.
+
+[##_Image|kage@Otvm1/btq3lTkSZ8E/x4rk6Lzm0h1XlIZwLgHZI1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그리고 localhost:8761 로 접속하면 Eureka Dashboard를 확인할 수 있는데 앞으로 자주 보게될 대쉬보드이다.
+
+[##_Image|kage@bpBY2x/btq3nbSpjTr/OgZN2b62KOTw0NsyigxgIK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+# Spring Cloud Eureka Client
+
+- 프로젝트 생성
+- 의존성 추가
+- application.yml 작성
+- UserApplication와 OrderService 에 `@EnableDiscoveryClient` 어노테이션 추가
+- 각각 서버의 Controller 생성
+
+우리는 마이크로서비스로 2개의 마이크로서비스를 구성한다고 했다.
+
+1.  User 서비스 `user-service`
+2.  Order 서비스 `order-service`
+
+프로젝트 2개를 각각 생성하고 이름을 위와 같이 해보자.
+
+## 프로젝트 생성
+
+프로젝트를 각각 `user-service`와 `order-service` 로 각각 생성하자
+
+[##_Image|kage@W0NZv/btq3lUc2r8G/oPkkkQkH8r2Ve2GerYyItk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##][##_image|kage@cu9c3z/btq3n8oinut/0qtgiwcfbc6gkfogojmrnk/img.png|aligncenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthcontent"|||_##]
+
+## 의존성 추가
+
+프로젝트를 각각 `user-service`와 `order-service` 로 각각 생성하고 다음 어노테이션을 추가해주자!
+
+- Lombok
+- Spring Web
+- **Eureka Discovery Client**
+
+해당 서버는 Springboot 의 일반적인 서버로서 동작할 것이기 때문에 Spring Web 의존성과 Lombok 의존성을 추가로 받아야 한다.
+
+```
+plugins {
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2020.0.2")
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+```
+
+## application.yml 작성
+
+#### UserService
+
+```
+server:
+  port: 64412
+
+spring:
+  application:
+    name: user-service
+
+eureka:
+  instance:
+    instance-id: user-microservice-instance
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+```
+
+#### OrderService
+
+```
+server:
+  port: 54412
+
+spring:
+  application:
+    name: order-service
+
+eureka:
+  instance:
+    instance-id: order-microservice-instance
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+```
+
+뭐가 많아보인다. 하나씩 알아보자.
+
+- **server.port** : 서버의 포트 번호, 위와 동일하다
+- **spring.application.name** : 애플리케이션 서버의 이름 , 위와 동일하다
+- **eureka.instance.instance-id** 유레카가 인식할 instance id 인데 대쉬보드에서 식별하는 용도로 사용된다.
+- **eureka.client.register-with-eureka & fetch-registry** 이번에는 해당 서비스가 클라이언트로 인식되어야 하므로 true로 해주자
+- **eureka.client.service-url.defaultZone** : eureka server 가 위치하고 있는 기본 주소를 적어줄 수 있다.
+
+defaultZone 같은 경우는 꼭 Camel Case 로 적어야 한다고 Spring Cloud Eureka에 나와있다.
+
+> The defaultZone property is case sensitive and requires camel case because the serviceUrl property is a Map<String, String>. Therefore, the defaultZone property does not follow the normal Spring Boot snake-case convention of default-zone.
+
+## Application에 `@EnableDiscoveryClient` 어노테이션 추가 & Controller 추가
+
+해당 서비스가 Eureka Client 임을 알려주는 어노테이션과 더불어 각각의 서비스를 식별하기 위해서 컨트롤러를 추가해보자.
+
+```
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class UserServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @GetMapping("/info")
+    public String info(@Value("${}") String port) {
+        return "User 서비스의 기본 동작 Port: {" + port + "}";
+    }
+
+}
+
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class OrderServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @GetMapping("/info")
+    public String info(@Value("${server.port}") String port) {
+        return "Order 서비스의 기본 동작 Port: {" + port + "}";
+    }
+
+}
+```
+
+그리고 다시 유레카 대쉬보드로 가면 앞서 등록했던 2개의 서비스가 올라온 것을 확인할 수 있다.
+
+[##_Image|kage@c2dKeg/btq3mqJhnji/I7zb6RjgTy6FcHm6K1jgm1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+각각 URL에 들어가서 /info 주소로 향한다면 잘 동작하는 것을 볼 수 있다.
+
+[##_Image|kage@0opeR/btq3nUWVSr5/BLtLCrShOKoWUN4M8QKvsk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+---
+
+이렇게 오늘은 아주아주 기본적인 Spring Cloud Eureka에 대해서 알아보았다.
+
+Spring Cloud Eureka는 Default 설정이 아주 기가막혀서 따로 설정을 하지 않더라도 사용할 수 있는 수준이라고 한다.
+
+하지만 어쩔 수 없는 몇몇 상황이 존재하는데, 그런 상황에서 도움될 수 있는 몇가지 Eureka 고급 설정 기법들을 다음시간에 알아보도록하자.
+
+---
+
+- `AddRequestHeader`
