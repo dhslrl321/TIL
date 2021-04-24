@@ -1,0 +1,107 @@
+# Configuration
+
+- 서버 정보 변경했을 때 변경된 정보를 적용하는 방법
+  - Actuator refresh
+  - Spring Cloud Bus 사용
+- 각각의 서버가 가져야할 Configuration 정보들, application.yml 파일에 있는 정보들을 관리하는 서버
+  - 각각의 서비스가 application.yml 파일을 외부 서버에서 관리
+  - 만약 Configuration Server 가 없다면 각각의 서버의 정보를 수정하면 application 자체가 다시 빌드가 되어야 하고 다시 배포가 되는 과정을 거쳐야 함
+- 구성 정보
+
+# Spring Cloud Config
+
+- 분산 시스템에서 서버, 클라이언트 구성에 필요한 정보 (application.yml) 을 외부 시스템에서 관리
+- 하나의 중앙화 된 저장소에서 구성 요소를 관리
+- 각 서비스를 다시 빌드하지 않고 바로 적용 가능
+- 애플리케이션 배포 파이프라인을 통해서 DEV-UAT-PROD 환경에 맞는 구성 정보 사용
+  - DEV : 개발 과정 (db : h2)
+  - UAT : 테스트 환경 (db : mysql)
+  - PROD : 프로덕션 환경 (db : maria)
+
+# 순서
+
+- 디렉토리 하나 생성
+- git init
+- yml 파일 하나 생성
+- git add & commit
+- git com
+- 의존성 추가
+  - spring-cloud-config-server
+- Application.java 에 `@EnableConfigServer` 어노테이션 추가
+- 해당 플젝의 application.yml 파일이
+
+# 우선순위
+
+- config 서버의 application.yml 의 우선순위 설정 가능
+  - application.yml
+  - application-name.yml
+  - application-name-profile.yml
+- 각각의 서버의 application.yml
+
+# UserMicroservice
+
+- Dependencies 추가
+  - spring-cloud-starter-config
+  - spring-cloud-starter-bootstrap
+    - 혹은 spring.cloud.bootstrap.enabled=true 속성을 추가해야함
+- bootstrap.yml 추가
+  - application.yml 보다 우선순위가 높은 설정파일
+  - configuration server 의 정보를 지정
+
+```yml
+spring:
+  cloud:
+    config:
+      uri: http://127.0.0.1:8888
+      name: ecommerce
+```
+
+# SPring boot actuator 사용하기
+
+- 서버를 재기동하지 않고 새로운 설정 정보를 반영하는 방법
+- 의존성 추가
+  - spring-boot-actuator
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+- security 설정 변경
+
+```java
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http.csrf().disable();
+    http.authorizeRequests().antMatchers("/actuator/**").permitAll();
+    http.authorizeRequests().antMatchers("/**")
+            .hasIpAddress("172.20.10.5") // 허가할 IP 정보
+            .and()
+            .addFilter(getAuthenticationFilter()); // 우리가 정의한 AuthenticationFilter 추가
+    http.headers().frameOptions().disable(); // h2 console
+}
+```
+
+- application.yml 파일 변경
+  - refresh: 현재 config 서버에 있는 설정 정보를 refresh 하겠다.
+  - health
+  - beans
+
+```yml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,beans
+```
+
+- refresh 는 POST 로 보내야 함 `http://localhost/actuator/refresh` 주소로 `spring.cloud.bootstrap.enabled` 을 치면 리프레시됨
+- 이걸 이용해서 상태 정보 값을 갱신할 때 서버를 끄지 않는 방향으로 설정 가능
+
+# Gateway 에도 추가
+
+- yml 에 include 에서 httptrace 도 추가
+- bean 으로 HttpTraceRepository 를 등록행햐함
+- User-Service 의 actuator 정보 추가

@@ -1,0 +1,105 @@
+# Spring Cloud Netflix
+
+스프링 클라우드 넷플릭스는 Spring Boot Application 에 대한 통합 환경 구성을 지원하는 Netflix의 OSS 서비스이다.
+
+> Netflix는 2007년 심각한 DB손상으로 3일간 서비스 장애를 겼었는데, 이에 운영진들과 기술 리더들은 **신뢰성 높고 수평확장이 가능한 Cloud System으로** 이전을 해야 함을 느꼈었다고 한다. 그리고 결국 MSA를 7년만에 완벽하게 이전하게 되었는데, 이 때 쌓은 경험치를 바탕으로 MSA 기술을 Spring에게 오픈소스로 풀게 되었다.
+
+# Netflix OSS 와 Spring Cloud Netflix
+
+Netflix OSS 에는 다양한 서비스들이 존재한다.
+
+- **Eureka : Discovery Server**
+  - 각각의 서비스 인스턴스들이 동적으로 확장, 축소 되더라도 인스턴스의 상태를 하나의 서비스로 관리할 수 있는 서비스
+- Ribbon : Client Side Load Balancer
+  - 부하 분산을 위한 모놀리스의 L4 스위치와 같이 트래픽을 분산시키는 기능
+- Zuul : API Gateway
+  - 각각의 마이크로서비스의 종단점을 연결하는 리버스 프록시
+- Hystrix : Circuit Breaker
+  - 특정 서비스가 과부하가 걸려 서비스 장애를 전파하는 특성을 해결하려는 기능
+- EvCache
+- Spectator
+- Archaius
+
+이런 서비스들이 모두 Spring Cloud 에서 사용되는 것은 아니다.
+
+Spring 은 Spring Cloud 와 잘 맞는 몇몇 제품들을 가져다가 Spring Cloud에 맞게 재구성하여 제공하는 서비스들이 존재한다.
+최초에는 모든 서비스가 Spring Cloud 에 의해서 관리되었지면 현재는 몇몇 기술들을 재구성 혹은 발전시키거나 독립적인 서비스로 진화시켜 기존의 서비스들은 Maintenance 모드로 들어간 것들이 존재한다.
+
+[##_Image|kage@yFdGp/btq3mZ5qFNW/1VXTWXHWR6mwA2RoQL3N41/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="570" height="NaN" data-ke-mobilestyle="widthContent"|spring cloud netflix Maintenance Mode -&gt; replacement||_##]
+
+**What is Maintenance Mode?**
+
+> Placing a module in maintenance mode means that the Spring Cloud team will no longer be adding new features to the module. We will fix blocker bugs and security issues, and we will also consider and review small pull requests from the community.
+
+> 모듈을 유지 보수 모드로 전환하면 Spring Cloud 팀이 더 이상 모듈에 새 기능을 추가하지 않게 됩니다. 차단 버그와 보안 문제를 해결하고, 커뮤니티의 작은 꺼내기 요청도 고려하고 검토할 것입니다.
+
+# Spring Cloud Netflix - Eureka
+
+위에 있는 Maintenance Mode 로 들어간 프로젝트를 대체할 몇몇의 프로젝트는 이번 주제에서 이야기하지 않으려 한다.
+많은 Netflix 서비스가 Maintenance 되었지만 그 중에서도 가장 자주 애용하는 **Eureka**에 대해서 알아보자.
+
+> 우선 Eureka 의 역할에 대해서 알기 위해서는 **Service Discover Pattern**에 대해서 알아야 한다.
+> Service Discover 패턴에 대해서 잘 모른다면 [MSA의 Service Mesh 패턴](https://wonit.tistory.com/490)을 참고하면 도움이 될듯 하다.
+
+# Netflix-Eureka
+
+[##_Image|kage@beGepN/btq3iMmaxPw/4wdcEkTCqPAKgEeTnZV5j1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+간단하게 말하자면 Service Discovery는 MSA 핵심 요소 중 하나다.
+각 클라이언트의 설정 및 위치 정보 (IP)를 수동으로 구성한다면 CI CD, 혹은 Scaling 에 매우 많은 제약사항이 따른다.
+하지만 Netlfix- Eureka는 서버를 구성 및 배포하여 가용성이 높도록 할 수 있으며, 각 서버는 등록된 서비스에 대한 상태를 다른 서버로 복제할 수 있게 하는 역할을 한다.
+
+**이러한 Eureka의 개념에는 2가지 구성 요소들이 존재하는데,**
+
+- Service Discovery
+  - 각각의 서비스의 위치가 등록된 서버에서 특정 작업을 위한 서버의 위치를 파악하는 작업을 뜻한다.
+    우리는 Service Discovery를 위해서 **Spring Cloud Netflix - Eureka Server**를 사용한다.
+- Service Registry
+  - 각각의 서비스가 자신의 위치(IP) 정보를 특정 서버에 등록 **Registry** 하는 작업을 말한다.
+    우리는 Service Registry를 위해서 **Spring Cloud Netflix - Eureka Client**를 사용한다.
+
+이들은 각각 어떤 일을 수행하고 어떤 일을 거치면서 동작할까?
+
+# Service Discover 과정
+
+[##_Image|kage@lJl55/btq3n81OOgh/63e5BBU79R8DNDAvYAcB5k/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="684" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+Spring Cloud Eureka는 아래와 같은 순서로 동작하게 된다.
+
+1. Service Registry 기능을 할 Eureka Server 가 최초에 기동된다.
+2. Service Registry 서버인 Eureka Server 에 등록될 서비스들이 기동된다. 여기서 등록된 서비스는 Eureka Client 라고 한다.
+3. Eureka 서버는 자신에게 등록된 Eureka Client 에게 30초마다 Ping을 보내며 Health Checking을 수행한다.
+4. 만약 30초마다 보내는 Heart Heat가 일정 횟수 이상으로 동작되지 않으면 Eureka Server는 해당 Client를 삭제한다.
+
+Eureka는 단지 서비스의 위치만을 표현하는 역할로 보통 **Spring Cloud Gateway**나 Netflix Zuul 과 같은 Gateway 서비스나 Ribbon 과 같은 클라이언트 사이드 로드밸런서와 함께 동작한다.
+
+[##_Image|kage@4KnWa/btq3ncqedLw/kKIbHpAIAbuppS3Ayrz270/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="747" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+# 실습하기
+
+이제 대충 개념에 대한 부분은 파악했으니 실제 Spring Boot를 이용해서 Eureka 서버와 클라이언트를 이용한 구성을 해보자.
+
+우리는 2개의 서비스와 1개의 Service Discovery 서버를 가용할 것이다.
+
+- **Service Discovery Server**
+  - Discovery Application
+    - `Spring Cloud Eureka-Server`
+- **Microservices**
+  - UserService
+    - `Spring Cloud Eureka-Client`
+  - OrderService
+    - `Spring Cloud Eureka-Client`
+
+# Spring Cloud Eureka Server
+
+- 프로젝트 생성
+- 의존성 추가
+- application.yml 작성
+- DiscoveryApplication 에 `@EnableEurekaServer` 등록
+
+# Spring Cloud Eureka Client
+
+- 프로젝트 생성
+- 의존성 추가
+- application.yml 작성
+- DiscoveryApplication 에 `@EnableEurekaServer` 등록
