@@ -1,8 +1,39 @@
 # Encryption
 
 - Symmetric Encryption
+  - 암호화와 복호화의 키가 동일
   - 대칭키 공유
 - Asymmetric Encryption
+  - 암호화 키와 복호화 키가 다름
   - RSA Keypair
-  - Public Key와 Private 키
+  - Public Key와 Private Key
   - Using Java keytool
+
+# config.yml
+
+- bootstrap 의존성 추가
+- bootstrap.yml 에 키 값을 저장
+- user-service.yml 파일 생성
+- `localhost:8888/encrypt` POST Body:string 하면 암호화 작업
+- `localhost:8888/decrypt` POST Body:string 하면 암호화 작업
+
+# Symmetric Encryption
+
+### User Service
+
+- bootstrap.yml 에 키 값 저장
+
+---
+
+- 우리가 팀원을 뽑는 이유
+  - 대회 + 학과 홈페이지 (8월까지)
+  - Front-Back + DevOps 까지 완벽한 업무 분담
+- 기술 질문
+  - 전에 했던 도커 구성 질문
+  - 도커 볼륨, 브리지 네트워크
+  - 컨테이너 오케스트레이션에 대해서 아는지
+  - 쿠버네티스에 대해서 아는지
+  - CI / CD에 대해서 아는지
+- 우리가 하는 일
+  - CI / CD
+  - 드림핵 처럼 Auto Scaling
