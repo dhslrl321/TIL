@@ -1,0 +1,226 @@
+#### 해당 글은 [Spring Cloud Gateway 의 Built-in Route로 Predicates와 Filter 조작하기)](https://wonit.tistory.com/499) 에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글을 확인하시길 바랍니다.
+
+> 현재 글에서는 **모든 인증 과정** (jwt 토큰을 발급하고 payload 에 값을 넣는 **실제 구현**)은 하지 않습니다. 이번 글의 목적은 Gateway 에서 Custom Filter 만들어서 **토큰 검증을 수행하는 전체적인 큰 그림만 보여주려 하기 때문에** 실제 인증을 구현하려 한다면 참고만 하시길 바랍니다.
+
+### 목차
+
+- **Custom Filter**
+- **Global Filter**
+  - Built-in Factories
+
+# Custom Filter
+
+지난 시간까지 우리는 Spring Cloud Gateway가 기본적으로 제공하는 Built-in Predicates와 Filters를 알아보았다.
+
+이번 시간에는 **우리가 원하는 기능을 수행하는** Custom Filter를 만들고 Gateway Filters에 등록해보자.
+
+# 무엇을 만들 것인가?
+
+간단하게 말 하면 **JWT 토큰 파싱을 하는 Filter를 만들 것이다**.
+
+Microservice 에서 인증은 Stateless 한 방식을 적용하는 것이 불가피하다.
+만약 그렇지 않은 Session-Cookie 기반 인증을 사용하게 된다면 모든 서버가 하나의 DB를 바라보고 사용자의 Session과 Cookie를 관리하거나 모든 서버에서 Session을 따로 관리해야 한다.
+
+하지만 **Request Header**에 Token String을 담아 stateless한 인증을 사용하면 위의 문제를 쉽게 해결할 수 있다.
+
+그렇기에 우리는 토큰을 이용한 인증 방식을 위해 Gateway를 사용한다.
+
+왜 인증을 Gateway에서 할까?
+
+그 이유는 바로 Gateway의 흐름을 보면 알 수 있다.
+
+[##_Image|kage@bHYuNv/btq3miE76Nn/UjAhrnJN3leuXXB1hjukZK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+위에서 본다면 당연하게 모든 요청이 Gateway로 몰리게 된다.
+
+그럼 각각의 서버에서 인증을 할 필요 없이 Gateway 에서 한 번만 인증을 수행하고, 다른 서버들은 요청이 오면 **인증된 순수 요청**이라고 하면 어떨까?
+물론 어떠한 상황에서도 모든 공격을 막을 수는 없겠지만 당장으로서는 **해당 방법이 좋은것 같고 충분히 이를 구현할만 하다**.
+
+그럼 지금부터 커스텀 필터를 만들고 인증을 수행하는 과정을 추가해보자.
+
+> 앞서 말했지만 현재 글에서는 **모든 인증 과정**, jwt 토큰을 발급하고 payload 에 값을 넣는 **실제 구현**은 하지 않으려 한다. 이번 글의 목적은 커스텀 필터를 만들어서 **토큰 검증을 수행하는 전체적인 큰 그림만 보여주려 하기 때문에** 실제 인증을 구현하려 한다면 참고만 하길 바란다.
+
+# CustomAuthFilter로 인증 구현하기
+
+Spring Cloud Gateway는 **Zuul 에 비동기 통신 기능이 추가된 버전**이라고 생각하면 쉽다.
+그래서 Blocking 구조가 아닌 Non-Blocking 구조인 **Spring WebFlux** 로 구현되어 있기 때문에 Filter들을 모두 Flux로 구현해야 한다.
+
+## CustomFilter.class 생성하기
+
+우선 사용자 정의 필터를 만들기 위해서는 **Spring Cloud Gateway 가 추상화해 놓은** `AbstractGatewayFilterFactory` 를 상속받는다.
+
+그리고 GatewayFilterFactory 를 구현할 때 우리의 로직을 넣으면 되는데, 해당 추상화 메서드를 `GatewayFilter apply(Config config)` override 한다.
+
+```java
+@Component
+public class CustomAuthFilter extends AbstractGatewayFilterFactory<CustomAuthFilter.Config> {
+    public CustomAuthFilter() {
+        super(Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+        return null;
+    }
+
+    public static class Config {
+
+    }
+}
+```
+
+Config class 에서는 Configuration 속성들을 넣어주면 되는데, 다음에 있을 Global Filter에서 자세하게 이야기해보려 한다.
+현재는 그냥 비어있는 클래스로 넣어주자.
+
+## 토큰 검증 로직 추가하기
+
+이제 토큰 검증을 할 로직을 apply 메서드에 추가하면 된다.
+
+```java
+@Component
+public class CustomAuthFilter extends AbstractGatewayFilterFactory<CustomAuthFilter.Config> {
+    public CustomAuthFilter() {
+        super(Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+        return ((exchange, chain) -> {
+
+        });
+    }
+
+    public static class Config {
+
+    }
+}
+```
+
+apply 메서드 안에서 **첫 번째 매개변수는** ServerWebExchange 형태고 **두 번째 파라미터가** GatewayFilterChain 람다 함수이다.
+
+```java
+ServerHttpRequest request = exchange.getRequest(); // Pre Filter
+
+ServerHttpResponse response = exchange.getResponse(); // Post Filter
+```
+
+exchange 의 Request를 받아오면 Pre Filter로 적용되고 Post Filter는 Response로 받아오며 된다.
+
+주의해야할 점이 ServletReqeust, Response가 아닌 Spring Reactive 의 Response, Requset여야 한다.
+
+## 토큰 검증 로직 완성하기
+
+```java
+@Component
+public class CustomAuthFilter extends AbstractGatewayFilterFactory<CustomAuthFilter.Config> {
+    public CustomAuthFilter() {
+        super(Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+        return ((exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
+
+            // Request Header 에 token 이 존재하지 않을 때
+            if(!request.getHeaders().containsKey("token")){
+                return handleUnAuthorized(exchange); // 401 Error
+            }
+
+            // Request Header 에서 token 문자열 받아오기
+            List<String> token = request.getHeaders().get("token");
+            String tokenString = Objects.requireNonNull(token).get(0);
+
+            // 토큰 검증
+            if(!tokenString.equals("A.B.C")) {
+                return handleUnAuthorized(exchange); // 토큰이 일치하지 않을 때
+            }
+
+            return chain.filter(exchange); // 토큰이 일치할 때
+
+        });
+    }
+
+    private Mono<Void> handleUnAuthorized(ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        return response.setComplete();
+    }
+
+    public static class Config {
+
+    }
+}
+```
+
+## application.yml에 우리가 정의한 CustomFilter 등록하기
+
+```yml
+server:
+  port: 8000
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+          filters:
+            - RewritePath=/user/?(?<segment>.*), /$\{segment}
+            - CustomAuthFilter
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+          filters:
+            - RewritePath=/user/?(?<segment>.*), /$\{segment}
+```
+
+user-serivce 에 CustomAuthFilter 를 추가시켜주면 우리의 필터가 드디어 Gateway 에 들어가게 되는 것이다.
+
+# 검증하기
+
+우리의 필터가 잘 동작하는지 검증하기 위해서 기존에 구성하던 Service Mesh와 Microservices 를 실행시켜보자.
+
+- Eureka Server
+- Gateway Service
+- User Service
+- Order Service
+
+그리고 Gateway로 user service에 GET /info 요청을 보내보자.
+
+### 토큰 없이 요청 보내기
+
+[##_Image|kage@DRF5X/btq3mNx3rsN/l9M6XYZIUYxwZTZia2Gl9K/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+현재 요청에는 Request Header 에 token 필드가 존재하지 않기 때문에 **401 에러**가 발생하게 된다.
+
+### invalid 한 토큰을 포함한 요청 보내기
+
+토큰 검증 로직에서 **A.B.C** 라는 토큰이 와야지만 정상 요청을 보내게 하는데, 잘못된 토큰을 보내보자.
+
+[##_Image|kage@whLSp/btq3sucsCI8/K8P54aAqoHl1VqweEDVwk1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+역시 401 에러로 접근하지 못하게 된다.
+
+### valid 한 토큰을 포함한 요청 보내기
+
+이번에는 Valid 한 토큰, **A.B.C** 값을 헤더에 포함시켜 요청을 보내보자.
+
+[##_Image|kage@cuSYOz/btq3mid0tQj/h6Qy1DvZGQl4tCbPgNY8Z1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그럼 위와같이 200 OK로 정상적으로 우리의 요청이 로드밸런싱 된 User-Service로 도착하게 된다.
+
+---
+
+오늘은 이렇게 Spring Cloug Gateway를 이용해서 간단한 인증 필터를 구현해보았다.
+
+이런 인증은 그 어떤 서비스에서도 사용하지 않겠지만 **인증을 위한 토큰 검증 흐름**은 크게 다르지 않을 것이다.
+
+해당 글을 보고 흐름을 파악한 뒤 각자의 프로젝트에 성공적인 결과를 기대한다.

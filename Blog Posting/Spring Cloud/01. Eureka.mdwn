@@ -380,5 +380,3 @@ Spring Cloud Eureka는 Default 설정이 아주 기가막혀서 따로 설정을
 하지만 어쩔 수 없는 몇몇 상황이 존재하는데, 그런 상황에서 도움될 수 있는 몇가지 Eureka 고급 설정 기법들을 다음시간에 알아보도록하자.
 
 ---
-
-- `AddRequestHeader`

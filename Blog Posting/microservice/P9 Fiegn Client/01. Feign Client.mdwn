@@ -1,0 +1,27 @@
+# Feign Client
+
+- REST API 호출을 추상화 한 Spring Cloud Netflix 라이브러리
+- 사용 방법
+  - 호출하려는 HTTP Endpoint에 대한 Interface 생성
+  - @FeignClient 선언
+- LoadBalanced 어노테이션 지원
+- 순서
+  1. Application 에서 @EnableFeignClient 선언
+  2. OrderServiceClient 인터페이스 생성
+  3. OrderService 에 FeignClient(name = "order-service") 어노테이션 추가
+  4. UserService 에서 FeignClient 인터페이스 의존성으로 받기
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClient
+public class UserApplication {
+
+}
+
+@FeignClient(name = "order-service")
+public interface OrderServiceClient {
+  @GetMapping("/order-service/{userId}/orders")
+  List<ResponseOrder> getOrders(@PathVariable("userId") String userId);
+}
+```

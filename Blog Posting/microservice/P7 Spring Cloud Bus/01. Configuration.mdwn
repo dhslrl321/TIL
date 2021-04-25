@@ -1,0 +1,56 @@
+# Configuration 값 변경
+
+- **Configuration 값들을 변경할 때 반영하는 방법**
+  1. 서버 재기동 : 이건 생각하면 안됨 의미가 없어짐
+  2. Actuator refresh : 서버가 많아지면 Actuator 를 다 달아야해서 무거워지고 refresh 명령을 일일이 해줘야함
+  3. Spring Cloud Bus 사용 : 좋음
+- **Spring Cloud Bus**
+  - 분산 시스템의 노드(microservices)들에게 경량 메시지 브로커인 RabbitMQ 를 연결시킴
+  - 상태 구성에 대한 변경 사항을 미들웨어 (RabbitMQ)에게 전송하고 해당 메시지 수신을 대기하는 서버들이 이를 사용하는 방식
+  - AMQP 프로토콜로 연결됨
+- **AMQP 프로토콜**
+  - Advanced Message Queuing Protocol, 메시지 지향 미들웨어를 위한 개방형 표준 응용 계층 프로토콜
+  - Erlang, RabbitMQ 에서 사용
+  - 메시지 지향, 큐잉, 라우팅(p2p, publisher-subcriber), 신뢰성, 보안
+- **Kafka 프로젝트**
+  - Apache Software Foundation이 Scalar 언어로 개발한 오픈소스 메시지 브로커 프로젝트
+  - 분산형 스트리밍 플랫폼도 지원함
+  - 대용량의 데이터 처리가 가능한 메시징 시스템 지원
+- **RabbitMQ vs Kafka**
+  - RabbitMQ
+    - 초당 20개 이상의 메시지를 소비자(메시지를 받겠다는 시스템)에게 전달
+    - 시스템간 메시지 전달
+    - 브로커, 소비자 중심
+  - Kafka
+    - 초당 10만개 이상의 이벤트 처리
+    - Pub/Sub, Topic에 메시지 전달
+      - pub가 데이터를 토픽으로 전달
+      - 토픽에 관심있는 서비스 서브스크라이버가 가져가는 구조
+    - Ack를 기다리지 않고 가능
+    - 생산자 중심
+
+# RabbitMQ 설치
+
+```bash
+brew update
+brew install rabbitmq
+brew services start rabbitmq // 서비스로 등록시킴
+rabbitmq-server // 개별 서버로 실행
+```
+
+- export PATH=\$PATH:/usr/local/sbin : 환경변수
+
+# 의존성 설치
+
+- config server
+  - actuator
+  - bus-amqp
+  - cloud bootstrap
+- user, gateway
+  - actuator
+  - bus-amqp
+  - cloud bootstrap
+
+# rabbitmq dashboard
+
+- localhost:15672

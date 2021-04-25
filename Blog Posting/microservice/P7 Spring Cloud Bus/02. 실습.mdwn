@@ -1,0 +1,91 @@
+# config server 에서 application.yml
+
+```yml
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-service
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///Users/jangwonik/Desktop/spring cloud/git-config
+
+management: # Actuator
+  endpoints:
+    web:
+      exposure:
+        include: health, busrefresh
+```
+
+# gateway 에서 applicatyiom.yml
+
+- application.yml
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, health, beans, httptrace, busrefresh
+```
+
+- bootstrap.yml
+
+```yml
+spring:
+  cloud:
+    config:
+      uri: http://127.0.0.1:8888
+```
+
+# user 에서 application.yml
+
+```yml
+spring:
+  application:
+    name: gateway-service
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,beans,busrefresh # 사실상 busrefresh만 있ㄸ어도 댐
+```
+
+# user 에서 bootstrap.yml
+
+```yml
+spring:
+  cloud:
+    config:
+      uri: http://127.0.0.1:8888 # config 서버 위치
+      name: config-service # configuration 서버에서 staging 하는 yml 파일의 이름
+```
+
+# 순서
+
+1. 공통 설정 정보 변경 application.yml 만약 특정 yml 파일로 할거면 config 서버에서 지정해야함
+2. localhost:user-port/actuator/busrefresh
+3. localhost:gateway-port/actuator/busrefresh

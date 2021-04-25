@@ -1,0 +1,360 @@
+#### 해당 글은 [SGC를 이용해 API Gateway를 구성하고 Eureka Server 를 이용해 Load Balancing 하기)](https://wonit.tistory.com/497?category=854728) 에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글을 확인하시길 바랍니다.
+
+### 목차
+
+- **Spring Cloud Gateway**
+  - **Routes, Predicates, Filters**
+- **Route Predicates**
+  - Built-in Factories 사용하기
+    - After
+    - Cookie
+    - Method
+    - Path
+- **Route Filters**
+  - AddRequestHeader, AddResponseHeader
+  - AddRequestParameter
+  - RewritePath
+
+Spring Cloud Gateway 에서는 Predicates와 Filter를 조작하는 방법은 **application.yml** 을 이용한 shortcut 방법과 **java code**를 이용한 방법이 존재한다.
+
+**오늘은 application.yml을 이용한 shorcut 방법을 이용해서 predicate와 filter를 조작해보는 방법에 대해서 알아보려 한다.**
+
+# Spring Cloud Gateway
+
+지난 시간 알아보았던 Spring Cloud Gateway, SCG에 대해서 간략하게 다시 짚어보자.
+
+[##_Image|kage@VjA8G/btq3os0DeSc/bURc0XGYvv5RjWh36iodY1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="732" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+Spring Cloud Gateway는 API Gateway 를 수행하는 Spring Cloud의 공식 프로젝트이다.
+
+Netflix Zuul 과 같은 기능을 수행하지만 **비동기 수행을 위해** Spring WebFlux 로 Netty 위에서 돌아가는 Spring boot application이다.
+
+우리는 다양한 마이크로서비스들을 Gateway에 연결시켜 모든 서비스들의 진입점으로 만들 수 있고 Gateway 내에서 HTTP 요청에 대한 다양한 조작을 할 수 있다.
+
+### Routes, Predicates, Filters
+
+Spring Cloud Gateway에서는 이 3가지 개념이 가장 중요하다.
+
+1. Routes
+2. Predicates
+3. Filters
+
+Spring Cloud Gateway 로 요청이 들어오면 **Gateway Handler Mapping** 이 동작한다.
+
+#### **Gateway Handler Mapping** 에서는 내부에 Predicates(조건)이 맞다면 Filter들을 거치게 하고 Route 한다.
+
+[##_Image|kage@buuQdq/btq3qgyRI7W/8wkqSLMC5KXaeSFjjkPgn0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="702" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+우리는 이 3가지 구성 요소들을 application.yml 에서 지정하고 있다.
+
+```yml
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+```
+
+#### 해당 글은 [SGC를 이용해 API Gateway를 구성하고 Eureka Server 를 이용해 Load Balancing 하기)](https://wonit.tistory.com/497?category=854728) 에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글을 확인하시길 바랍니다.
+
+---
+
+# yml shortcut으로 Route Predicate 조작하기
+
+앞서 이야기했듯 Spring Cloud Gateway는 HandlerMapping 에서 Predicate가 일치할 때만 라우팅을 수행한다.
+Spring Cloud Gateway 는 많은 built-in Predicate Factory 들을 제공한다.
+
+- After
+- Cookie
+- Method
+- Path
+
+## After & Before & Between
+
+After & Before & Between는 시간과 관련된 Predicates를 제공한다.
+
+말 그대로 After는 특정 시간 **이후**, Before는 특정 시간 **이전**, Between은 특정 시간 **사이**를 의미한다.
+
+`application.yml` 로 가서 predicates 아래에 After과 Before 그리고 Between을 각각 지정해보자.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+            - After=2017-01-20T17:42:47.789-07:00
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+            - Before=2017-01-20T17:42:47.789-07:00
+```
+
+위의 조건을 보면 **user-service**는 After 로 2017년 **이후** 요청만 받고있고 **order-service**는 2017년 **이전** 요청만 받고있다.
+
+#### **예상해보자**
+
+- 현재 2021년도는 2017년 이후(After) 이므로 User-Service는 잘 동작할 것이다.
+- 현재 2021년도는 2017년 이전(Before) 이 아니므로 Order-Service는 동작하지 않을 것이다.
+
+Postman 으로 테스트하면?
+
+[##_Image|kage@cz9JFx/btq3oTqfoi7/7gDkx5Imnd6V0nVb0unPZ0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+우리의 예상대로 나온 것을 확인할 수 있다.
+
+Between 또한 비슷한 맥락으로 동작하는데, 다음과 같은 형식으로 지정할 수 있다.
+`- Between=2017-01-20T17:42:47.789-07:00[America/Denver], 2017-01-21T17:42:47.789-07:00[America/Denver]`
+
+## Cookie
+
+Cookie Predicate 는 요청에 Cookie 값이 지정된 **정규표현식**을 만족하는지 조건을 추가한다.
+
+```yml
+predicates:
+  - Cookie=name, regexp
+```
+
+형태로 사용되는데, 직접 사용해보자.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+            - Cookie=valid, kakao
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+            - Cookie=valid, naver
+```
+
+#### **예상해보자**
+
+- User-Service 의 **valid** 필드에 kakao 를 넣으면 잘 동작할 것이다.
+- Order-Service 의 **valid** 필드에 kakao 를 넣으면 동작하지 않을 것이다.
+
+[##_Image|kage@kPRjg/btq3qgezEia/dui21BjlaqNUEDyF1h2rQk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+## Method
+
+Method Predicates 는 HTTP Method 가 일치하는지 확인하는 조건을 추가한다.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+            - Method=GET
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+            - Method=POST
+```
+
+#### **예상해보자**
+
+- User-Service 로 **GET 요청** 을 보내면 잘 동작할 것이다.
+- Order-Service 의 **GET 요청** 을 보내면 동작하지 않을 것이다.
+
+[##_Image|kage@GlDk7/btq3njpEuX2/oxUrmZzfkggy6kWrjKiBK0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+# yml shortcut으로 Route Filters 조작하기
+
+Route Filter는 Gateway로 들어오는 HTTP Request나 나가는 Response 를 조작할 수 있게 한다.
+Spring Cloud Gateway 는 많은 built-in GatewayFilter Factory 들을 제공한다.
+
+- AddRequestHeader, AddResponseHeader
+- AddRequestParameter
+- RewritePath
+
+이런 Filter 기능으로 인증과 인가를 커버할 수 있고 다음에 배울 Circuit Breaker 도 추가할 수 있다.
+
+## AddRequestHeader, AddResponseHeader
+
+AddRequestHeader과 AddResponseHader는 **name과 value** 파라미터를 받는다.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+          filters:
+            - AddRequestHeader=token, 123456
+            - AddResponseHeader=authenticated, yes
+```
+
+그리고 User-Service로 돌아가서 다음과 같이 작성해보자.
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class UserServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @GetMapping("/user/info")
+    public String info(@Value("${server.port}") String port) {
+        return "User 서비스의 기본 동작 Port: {" + port + "}";
+    }
+
+    @GetMapping("/user/auth")
+    public String auth(@RequestHeader(value = "token") String token) {
+        return "token is " + token;
+    }
+
+}
+```
+
+**예상해보자**
+
+- HTTP Request 에 **token = 123456** 이라는 Request Header가 추가될 것이다.
+- 응답 헤더에 authenticated = yes 가 출력될 것이다.
+
+[##_Image|kage@cwg5fR/btq3oalsf9t/qKMfd0Z5aRCPkkkEZoz7qK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+이와 더불어서 `RemoveRequestHeader`과 `RemoveResponseHeader` 도 사용할 수 있다.
+또한 파라미터를 추가할 수 있는데, `AddRequestParameter` 로 추가할 수있다.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: add_request_parameter_route
+          uri: https://example.org
+          filters:
+            - AddRequestParameter=red, blue
+```
+
+## RewritePath
+
+RewritePath는 정규표현식을 이용해서 **replacement** 파라미터로 변경할 수 있다.
+
+이 기능은 조금 중요한데, 우리가 구성한 서비스에는 아주 사소한 문제가 존재한다.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+```
+
+predicates 에서 `/user/**` 로 지정하고 있고 우리의 User-Service 에서도 `/user/info` 로 받고 있다.
+
+그럼 이런 생각을 할 수 있다.
+
+#### 어차피 User-Service 입장에서는 들어오는 모든 요청이 `/user` 로 시작할 걸 아는데, User-Service 안에서라도 `/user` 라는 prefix를 빼면 안될까?
+
+충분히 가능하다.
+
+지난 시간 RewritePath 를 이용할 것이라 예고한 것이 바로 이거다.
+
+다음과 같이 **RewritePath** 필터를 추가해주자.
+
+```yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+          filters:
+            - RewritePath=/user/?(?<segment>.*), /$\{segment}
+
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+          filters:
+            - RewritePath=/order/?(?<segment>.*), /$\{segment}
+```
+
+그리고 각각의 User, Order 서비스로 돌아가서 RequestMapping 부분에 `/user`, `/order`을 빼고 요청을 보내보자.
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class UserServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @GetMapping("/info")
+    public String info(@Value("${server.port}") String port) {
+        return "User 서비스의 기본 동작 Port: {" + port + "}";
+    }
+}
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class OrderServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @GetMapping("/info")
+    public String info(@Value("${server.port}") String port) {
+        return "User 서비스의 기본 동작 Port: {" + port + "}";
+    }
+}
+```
+
+> **대신 요청은 /user, /order 로 보내야 한다**! 단지 내부적으로 RequestMapping 의 중복된 부분을 Replacement 한 것 뿐이다.
+
+[##_Image|kage@d3kt9k/btq3n883j99/QjHYWWpMTtEyktKqm2kOt0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+---
+
+이렇게 오늘은 Spring Cloud Gateway 의 Built-in Routes 를 이용했다.
+다음 시간에는 **Global Filter**과 **Custom Filter**를 구성하는 방법에 대해서 알아볼 것이다.
