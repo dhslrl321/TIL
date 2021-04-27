@@ -1,6 +1,4 @@
-#### 해당 글은 [Spring Cloud Config 로 Application의 설정 정보를 중앙에서 관리하기](https://wonit.tistory.com/502)에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글에 나온 실습을 따라하시길 권고드립니다.
-
-### 목차
+Spring Cloud Config 와 Github 를 연동해서 설정 파일 관리하기
 
 - **Spring Cloud Config 와 Github 를 연동해서 설정 파일 관리하기**
   - application.yml 과 profile
@@ -26,3 +24,35 @@
     - RabbitMQ 등록
       - Config, Gateway, User
     - Cloud Bus 등록
+
+#### 해당 글은 [Spring Cloud Config 로 Application의 설정 정보를 중앙에서 관리하기](https://wonit.tistory.com/502)에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글에 나온 실습을 따라하시길 권고드립니다.
+
+### 목차
+
+- application.yml과 profile
+- 각기 다른 설정 정보 가져오기
+- Config 서버와 Git Remote Repository 연동하기
+
+# 스프링 부트의 외부 설정 관리 방법
+
+Spring Boot Application 에서 외부 설정에 값을 주입할 때는 잘 알다싶이 **application.properties**나 **application.yml**로 구성하곤 한다.
+
+Spring boot application 이 빌드되고 실행될 시점에 가장 먼저 **application.yml 이나 application.properties** 파일을 찾고, 해당 파일에 기술된 내용을 토대로 외부 설정을 주입하게 된다.
+
+- 외부 설정 관리 방법
+  - 기본
+  - 만약 설정 파일이 여러 개라면? 게다가 각각 단계별로 구성해야 하는 파일이 다르다면?
+  - 이럴 때 profiles 가 등장
+- profiles
+- 각기 다른 설정 정보 가져오기
+  - naming 전략
+  - config 서버 url 에 따른 설정 profile
+- Config 서버와 Git Remote Repository 연동하여 설정 파일 관리하기
+  - Git Repository 생성
+  - Git 저장소 생성
+    - init
+    - remote add origin
+    - add, commit, push
+  - Config 서버에서 git url 연결
+    - new yml push with diffrent profiles
+  - User service fetch from config server
