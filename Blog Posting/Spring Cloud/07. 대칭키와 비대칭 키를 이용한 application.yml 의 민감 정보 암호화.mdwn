@@ -1,0 +1,94 @@
+- **Spring Cloud Config 에서 대칭키와 비대칭 키를 이용한 application.yml 의 민감 정보 암호화 하기**
+
+#### 해당 글은 [Spring Cloud Config의 name, profiles 그리고 Github 를 연동해서 설정 파일 관리하기](https://wonit.tistory.com/503)에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글에 나온 실습을 따라하시길 권고드립니다.
+
+### 목차
+
+- **기존 Config Server의 문제점**
+  - 암호화를 하지 않은 정보의 탈취 가능성
+- **암호화 종류**
+  - 대칭키
+  - 비대칭키
+- **Spring Cloud Config 서버의 encrypt, decrypt 기능을 이용한 암호화**
+  - 대칭키 이용하기
+  - 비대칭키 이용하기
+    - java key jen 이용하기
+
+# 기존 Config Server의 문제점
+
+[지난 시간](https://wonit.tistory.com/503) 우리는 github를 이용해서 원격 저장소에 설정 파일들을 저장해놓고 **Config 서버에서 가져다가** 다른 마이크로서비스로 뿌려주는 과정을 알아보고 이를 구현하였었다.
+
+우리의 원격 레포지토리로 다시 들어가보자.
+
+[##_Image|kage@cDm4PM/btq3ySzvMdS/3tNiwNFFrcSSsuQ8ultKk1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그럼 이렇게 파일 내부에 있는 **민감한 정보**가 바로 노출된다.
+
+[##_Image|kage@wTbHU/btq3DKGHDqx/ACWaDdrDBnIHyAYO9jybM1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+물론 해당 레포지토리는 public repository라서 그렇다! 라고 할 수 있겠지만 그럼 private 으로 repository 를 변경한다고 해서 보안 위협이 사라지는걸까?
+
+악의적인 공격자가 우리 서버에 들어와서 혹은 분산 구조 어딘가에 들어가서 Wireshark와 같은 패킷 분석 프로그램을 돌리면 어떻게될까?
+
+[##_Image|kage@oMWzs/btq3ywDq13s/chlrXKvi2kU1HKlIxQ8jK1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" width="565" height="NaN" data-ke-mobilestyle="widthContent"|||_##]
+
+이는 github와 상관 없이 네트워크 패킷 내부의 데이터가 그대로 보이기 때문에 우리의 **민감 정보**가 그대로 노출되는 것이다.
+
+그럼 이 문제는 어떻게 해결해야 할까?
+
+#### 바로 yml에 들어갈 민감 정보를 암호화 한다면 해결될 것 같다.
+
+# 암호화 종류
+
+암호화 종류에는 **크게 3가지**가 존재한다.
+
+1. 대칭키 암호
+2. 비대칭키 암호
+3. 단방향 암호
+
+여기서 단방향 암호는 **비밀번호를 저장할 때** 해싱을 하여 암호화를 하는 것으로 단지 평문을 **해독하지 못하도록**하는 것이라 복호화가 사실상 불가능하다는 점으로 일단 우리 논점에서 빠지게 되고 **대칭키와 비대칭키**에 대해서만 이야기를 해보자.
+
+#### **대칭키 암호**
+
+대칭키 암호는 **암호화 키와 복호화 키가 같은** 점으로 간편하다.
+게다가 널리 쓰이는 AES는 128 ~ 256 비트의 키를 적용할 수 있어서 보안성이 뛰어남과 동시에 공개된 알고리즘이라 누구나 사용할 수 있지만 가장 치명적인 단점이 존재한다.
+
+바로 키를 **어떻게 배송**할 것인지에 대한 논의이다.
+
+아무리 훌륭한 방식으로 암호화가 되었다고 하더라도 **암호화와 복호화의 키가 동일**하므로 복호화하는 쪽에 키를 전달해야 하는데, 이 과정에서 키가 누출될 가능성이 있다.
+
+그럼 결국 암호화를 하지 않는 것과 같으므로 보안성이 매우 뛰어나다고는 할 수 없다.
+
+**정리**
+
+- 암호화 키와 복호화키가 **같다**
+- 키 배송에 문제가 존재한다.
+- AES, DES, ARIA
+
+#### **비대칭키 암호**
+
+비대칭키 암호는 **암호화 키와 복호화 키가 다른** 방식이다.
+
+비대칭키는 모두에게 공개된 **공개키**와 개인만 소지하는 **개인키**로 구성되어 있는데, 암호화를 수행할 때 **공개키나 비밀키** 중 하나의 키로 암호화를 수행하고 복호화는 반드시 그의 반대 키를 이용해야 한다.
+
+그럼 앞서 말한 대칭키의 문제점인 **키배송** 문제를 해결할 수 있게 되지만 **상대적으로 느린 단점**도 존재한다.
+
+그래서 몇몇의 솔루션에서는 비대칭 암호를 이용해서 **대칭 키를 배송**하고 실제 암호문은 대칭키 암호를 사용하는 식으로 운영하기도 한다.
+
+**정리**
+
+- 암호화 키와 복화화키가 **다른 공개키** 방식이다.
+- 암복호에 시간이 소요된다.
+- RSA, DSS, Rabin
+
+# Spring Cloud Config 서버의 encrypt, decrypt 기능을 이용한 암호화
+
+그럼 우리는 Config 서버에 존재하는 설정 파일의 데이터를 어떻게 각각 암호할까?
+
+#### 대칭키와 비대칭키 방식으로 나눠서 생각해보자.
+
+우선 우리는 지난 시간동안 user-service 에게 2개의 설정 정보를 넘겼다.
+
+> 앞서 이야기했듯, 해당 실습은 지난 시간 [Spring Cloud Config의 name, profiles 그리고 Github 를 연동해서 설정 파일 관리하기](https://wonit.tistory.com/503)에 의존하고 있습니다. 만약 실습을 따라하시길 원하신다면 지난 시간의 글을 참고해주세요
+
+user-service 에서는 `http://config-servcer.com/user-service/test` 를 호출하여 yml 데이터를 받아올 것인데, 어떤 데이터가 넘어오는지 확인해보자.

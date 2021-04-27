@@ -1,0 +1,9 @@
+- **Spring Cloud Bus와 RabbitMQ 를 이용한 Config 정보 반영하기**
+  - 지난 방법, Spring Boot Actuator 를 이용한 방법의 문제점과 해결 방법
+    - 문제점: 서버 재기동
+    - 해결 : RabbitMQ를 이용해서 메시지 브로커만 재기동
+  - RabbitMQ란?
+  - Spring Cloud Bus 실습하기
+    - RabbitMQ 등록
+      - Config, Gateway, User
+    - Cloud Bus 등록

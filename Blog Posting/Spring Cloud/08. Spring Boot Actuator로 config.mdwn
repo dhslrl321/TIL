@@ -1,0 +1,4 @@
+- **서비스 인스턴스에서 Spring Boot Actuator 를 이용한 Config 정보 반영하기**
+  - 설정 정보를 반영하는 이유
+  - Spring Boot Actuator란?
+  - Spring Boot Actuator 실습하기
