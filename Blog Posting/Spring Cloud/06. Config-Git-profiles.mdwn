@@ -1,0 +1,28 @@
+#### 해당 글은 [Spring Cloud Config 로 Application의 설정 정보를 중앙에서 관리하기](https://wonit.tistory.com/502)에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글에 나온 실습을 따라하시길 권고드립니다.
+
+### 목차
+
+- **Spring Cloud Config 와 Github 를 연동해서 설정 파일 관리하기**
+  - application.yml 과 profile
+  - Config 서버와 Git Remote Repository 연동하기
+  - 각기 다른 설정 정보 가져오기
+- **대칭키와 비대칭 키를 이용한 application.yml 의 민감 정보 암호화 하기**
+  - 기존 구조의 문제
+    - 암호화 하지 않은 정보 탈취 가능성
+  - 암호화 종류
+    - 대칭키
+    - 비대칭키
+  - Spring Cloud Config 서버의 encrypt, decrypt 기능을 이용한 암호화
+- **서비스 인스턴스에서 Spring Boot Actuator 를 이용한 Config 정보 반영하기**
+  - 설정 정보를 반영하는 이유
+  - Spring Boot Actuator란?
+  - Spring Boot Actuator 실습하기
+- **Spring Cloud Bus와 RabbitMQ 를 이용한 Config 정보 반영하기**
+  - 지난 방법, Spring Boot Actuator 를 이용한 방법의 문제점과 해결 방법
+    - 문제점: 서버 재기동
+    - 해결 : RabbitMQ를 이용해서 메시지 브로커만 재기동
+  - RabbitMQ란?
+  - Spring Cloud Bus 실습하기
+    - RabbitMQ 등록
+      - Config, Gateway, User
+    - Cloud Bus 등록

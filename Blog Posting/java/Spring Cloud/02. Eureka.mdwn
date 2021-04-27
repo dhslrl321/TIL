@@ -1,5 +1,0 @@
-오늘은 Service Mesh 의 추상적인 개념을 실체화 하는 Spring Cloud Eureka
-
-# Service Registry & Discover
-
-Service Registry와 Service Discovery 에 대해서 알아보자.

@@ -14,4 +14,8 @@
     - 글로벌 필터
   - RewritePath, RemoveRequestHeader, Segment
 - Spring Cloud Gateway 에서 JWT 인증
+- Spring Cloud Config
+  - Spring Cloud Config 로 Application의 설정 정보를 중앙에서 관리하기 (native repository)
+  - Spring Cloud Config 에 github 를 연동하여 다양한 profile로 파일 구분하기
+  - Spring Cloud Config 에서 민감 정보 암호화, 복호화 하기
 - Spring Cloud Bus

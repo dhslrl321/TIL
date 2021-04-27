@@ -1,0 +1,151 @@
+# application.properties 파일
+
+우리는 application.yml 이나 application.properties 파일을 이용해서 설정 정보를 추가하곤 한다.
+
+```yml
+server:
+  port: 56237
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: 232.221.123.33
+    driver: h2.Driver
+    username: ffowidl123
+    password: "{cipher}ff01fjosdifj02034j5;jasdj5rq239y48f"
+```
+
+우리가 개발하는 application은 다양한 환경에서 개발되어진다.
+이를테면 기능 개발을 위한 **dev** 환경, 기능 테스트를 위한 **test** 환경, 기능 배포를 위한 **production** 환경 등등
+
+#### 각각에 맞는 환경과 각각에 맞는 설정을 지정해줘야 한다.
+
+예를 들어 각각의 환경은 다음과 같은 데이터베이스를 사용한다고 가정해보자.
+
+- dev : h2
+- test : MySQL
+- prod : PostgresQL
+
+그럴 때 우리는 각각 환경 정보를 어떻게 바꿔줘야 할까?
+
+바로 **profile** 정보를 수정하여 각각에 환경에 맞는 정보를 넣어줄 수 있다.
+
+# profile
+
+Spring Boot 의 profile이란 각각의 환경 정보들을 의미한다.
+
+기본적인 profile 정보는
+
+- `application.properties`
+- `application.yml`
+
+인데, 여기서 특정 규칙에 만족하게 설정 파일을 만들면 Spring boot가 읽어올 수 있게 된다.
+
+- `application.{프로필 네임 키워드}.properties`
+  - **ex)** `application-test.properties`
+- `application.{프로필 네임 키워드}.yml`
+  - **ex)** `application-prod.properties`
+
+# 실습하기
+
+각각의 환경에 따른 설정 파일들을 만들어서 보자.
+
+### 각각 프로파일 파일 만들기
+
+[##_Image|kage@MWjBN/btq3oSM6rGT/vZCKekHKwnLlhyXa7oZI20/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+위와 같이 application.yml 과 같은 depth 로 여러 설정 파일들을 불러온다.
+
+# 실행하기
+
+설정 정보를 바꿔서 실행하기 위해서는 다양한 방법이 존재한다.
+
+하지만 크게 2가지 방법을 이야기해보려 한다.
+
+1. application.yml 에 profile.active 지정하기
+2. java -jar 에 옵션을 줘서 특정 profile 로드하기
+
+## 1. application.yml 에 profile.active 지정하기
+
+yml이나 properties 파일에서 직접 설정 정보를 변경할 수있는데, **profile.active** 을 지정하면 된다.
+
+```yml
+spring:
+  profiles:
+    active: test
+
+spring:
+  profiles:
+    active: test
+```
+
+만약 아무것도 지정하지 않는다면 application.yml 이나 application.properties 파일을 불러오게 된다.
+
+## 2. java -jar 에 옵션을 줘서 특정 profile 로드하기
+
+java jar 파일로 빌드를 하고 jar 파일을 실행시키는 시점에 환경변수를 추가하여 profile 을 변경시킬 수 있다.
+
+```bash
+java -jar -Dspring.profiles.active=dev ./my-app-0.0.1-SNAPSHOT.jar
+
+java -jar -Dspring.profiles.active=test ./my-app-0.0.1-SNAPSHOT.jar
+
+java -jar -Dspring.profiles.active=prod ./my-app-0.0.1-SNAPSHOT.jar
+```
+
+# 테스트
+
+#### **application.yml**
+
+```yml
+server:
+  port: 8080
+
+spring:
+  application:
+    name: user-service
+
+  profiles:
+    active: test # 만약 application-prod.yml 파일을 로딩하고 싶다면, prod
+
+greeting:
+  message: this is main application.yml
+```
+
+#### **application-test.yml**
+
+```yml
+greeting:
+  message: this is TEST application.yml
+```
+
+#### **application-prod.yml**
+
+```yml
+greeting:
+  message: this is PRODUCTION application.yml
+```
+
+#### UserServiceApplication.java
+
+```java
+@SpringBootApplication
+@RestController
+public class UserServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @GetMapping
+    public String string(@Value("${greeting.message}") String message) {
+        return message;
+    }
+}
+```
+
+그리고 각각 환경에서 수행하면 다음과 같은 결과가 나온다.
+
+[##_Image|kage@vpQcO/btq3ywWbzEl/bM6KrDioYKFoHONAuGCXk1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
