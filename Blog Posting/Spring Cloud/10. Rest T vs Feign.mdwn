@@ -1,0 +1,545 @@
+마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 (Rest Template vs Feign Client)
+
+---
+
+> 해당 글에서 나오는 실습 내용은 **Spring Cloud를 이용한 MSA 구성의 전반적인 이해**가 필요한 내용입니다.
+> 실습은 Eureka + Gateway + Microservices (2)를 이용한 환경으로 해당 글에서는 **Eureka와 Gateway 설정**에 대해서는 언급하지 지만 만약 Eureka나 Gateway의 이해가 부족하신 분들이나 더 알아보고 **실습 환경을 따라 해보고싶은 사람**은 아래의 링크에서 확인하실 수 있습니다.
+
+- **Spring Cloud Netflix Eureka**
+  - [Service Discover Server로 Netflix Eureka 이용하기](https://wonit.tistory.com/495?category=854728)
+- **Spring Cloud Gateway**
+  - [Spring Cloud Gateway 를 이용해 API Gateway를 구성하고 실습해보자 ](https://wonit.tistory.com/497?category=854728)
+  - [Spring Cloud Gateway 에서 Built-in Route로 Predicates와 Filter 조작하기](https://wonit.tistory.com/499?category=854728)
+
+### 목차
+
+- **서비스간 통신**
+  - 서비스 구조
+  - 통신 과정
+- **서비스 구현**
+  - 서비스 구성
+  - Rest Template 으로 통신하기
+  - Spring Cloud OpenFeign 으로 통신하기
+- 두 통신 방법의 차이
+  - 선언 방식과 코드 가독성
+  - 예외 처리
+  - 유지보수
+  - 테스트 코드
+- 종합 정리 및 결론
+  - 표로 정리
+  - rest template deprecated
+
+# Microservices 에서 서비스간의 통신
+
+마이크로서비스에서는 하나의 기능을 수행하기 위해서 각각의 마이크로서비스 인스턴스들이 **유기적으로 상호작용**을 해서 적절한 데이터를 사용자에게 내려주는 방식을 취한다.
+
+보통의 MSA 에서 각각의 서비스는 RESTful 한 API를 제공하는데, 이 때 각각의 서비스는 **특정 서비스가 노출하는 Endpoint 에 API 호출을 통해서 데이터를 조작한다.**
+
+대표적으로 MSA 에서 사용하는 2가지 통신 방식이 존재한다.
+
+1. Rest Template
+2. Spring Cloud OpenFeign
+
+오늘은 **직접 서비스를 만들면**서 각각의 방식의 차이점에 대해서 알아보고 어떤 서비스가 어디에 효과적인지 정리를 해보는 시간을 가져보도록 하겠다.
+
+이번 글은 실습이 핵심인 내용이므로 서비스 구성에 조금 신경을 써보자.
+
+# 서비스 구현
+
+우리는 **축구 팀 관리 서비스**에서 사용자 id 를 받으면 팀에 저장하는 메서드를 구현해볼 것이다.
+
+[##_Image|kage@kWs1m/btq3I5YnEpe/A0Y7fSxCmVH5zk3r0qtay0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+#### **무엇을 만들 것인가?**
+
+- 축구 팀 관리 서비스의 팀 저장 서비스
+
+#### **어떻게 만들 것인가?**
+
+- 2개의 Service Mesh와 2 개의 Microservices
+  - Service Mesh
+    - `Discovery Service`
+    - `Gateway Service`
+  - Microservices
+    - `User Service` : 사용자 서비스
+    - `Team Service` : 팀 서비스
+
+#### **어떠한 End Point를 노출할 것인가**
+
+- Discovery Service
+  - `http://localhost:8761/eureka`
+- Gateway Service
+  - `http://localhost:8000/`
+- User Service
+  - **유저 생성** : `http://localhost:50010/users` **POST**
+  - **유저 조회** : `http://localhost:50010/users/{userId}` **GET**
+- Team Service
+  - **팀 생성** : `http://localhost:60010/teams` **POST**
+  - **팀원 추가** : `http://localhost:60010/{userId}/teams` **POST**
+  - **사용자 번호로 팀 검색** : `http://localhost:60010/{userId}/teams` **GET**
+
+#### **각 Endpoint는 어떠한 API 응답을 반환할 것인가**
+
+```json
+// 유저 생성 : http://localhost:50010/users POST
+
+REQUEST
+{
+  "username": "장원익",
+}
+
+RESPONSE
+{
+  "userId": "1",
+  "username": "장원익",
+}
+
+
+// 유저 조회 : http://localhost:50010/users/{userId} GET
+
+RESPONSE
+{
+  "userId": "1",
+  "username": "장원익",
+  "name": [null, "리버풀"]
+}
+
+
+// 팀 생성 : http://localhost:60010/teams POST
+
+REQUEST
+{
+  "name": "리버풀",
+  "address": "영국 머지사이드"
+}
+
+RESPONSE
+{
+  "teamId": "1",
+  "name": "리버풀",
+  "address": "영국 머지사이드"
+}
+
+
+// 팀원 추가 : http://localhost:60010/{userId}/teams POST
+REQUEST
+{
+  "teamname": "리버풀"
+}
+
+RESPONSE : 204 No Content
+
+// 사용자 이름으로 팀 검색 : http://localhost:60010/{userId}/teams GET
+
+RESPONSE
+{
+  "teamId": "1",
+  "name": "리버풀",
+  "address": "영국 머지사이드"
+}
+```
+
+### 구현 순서
+
+1. Eureka Server 기동
+2. Gateway Server 기동
+3. User Service 구현 (API 호출 제외)
+4. Order Service 구현
+5. User Service 에서 Order Service로 API 호출 (Rest Template vs Feign)
+
+# Eureka Server
+
+유레카 서버는 Service Discovery를 위해서 사용된다.
+기본 설정만으로도 우리가 하려는 검증을 위한 준비가 충분하니 다음과 같이 Application.java.와 application.yml 만 수정해도록 하자.
+자세한 의존성과 설정은 [Service Discover Server로 Netflix Eureka 이용하기](https://wonit.tistory.com/495?category=854728) 에서 확인할 수있다.
+
+#### EurekaServerApplication.java
+
+```java
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaApplication.class, args);
+    }
+
+}
+```
+
+yml 에는 자기 스스로를 eureka instance 로 등록하지 말라는 2개의 설정을 false 로 지정한다.
+
+```yml
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discovery-service
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+```
+
+# Gateway Server
+
+Gateway 서버는 마이크로서비스들의 Endpoint를 하나로 모아주는 용도 현재 사용된다.
+API Gateway 패턴에서 사용되는 Gateway는 다양한 기능 (로드밸런싱, 인증, 로깅)이 있지만 현재로써는 Endpoint를 단일화 하는 용도로만 사용할 것이다.
+마찬가지로 Spring Cloud Gateway 는 다음 링크들에서 확인할 수 있다.
+
+- [Spring Cloud Gateway 를 이용해 API Gateway를 구성하고 실습해보자](https://wonit.tistory.com/497?category=854728)
+- [Spring Cloud Gateway 에서 Built-in Route로 Predicates와 Filter 조작하기](https://wonit.tistory.com/499?category=854728)
+- [Custom Filter 로 간단한 Authentiction 필터 만들고 인증 처리하기](https://wonit.tistory.com/500?category=854728)
+
+#### GatewayServiceApplication.java
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+public class GatewayServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayServiceApplication.class, args);
+    }
+
+}
+```
+
+Gateway 에 대한 설정 파일에서 고려해야할 사항은 2가지이다.
+
+1. Eureka Instance 등록
+2. Gateway Route 정보 수정
+
+Route 정보 수정에서는 `/user` 로 호출되는 모든 url 을 USER-SERVICE 로 바인딩 시키고 `/team` 으로 호출되는 url 을 TEAM-SERVICE 로 바인딩 시켜주자
+
+#### application.yml
+
+```yml
+server:
+  port: 8000
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**
+          filters:
+            - RewritePath=/user/?(?<segment>.*), /$\{segment}
+
+        - id: team-service
+          uri: lb://TEAM-SERVICE
+          predicates:
+            - Path=/team/**
+          filters:
+            - RewritePath=/team/?(?<segment>.*), /$\{segment}
+```
+
+# User Service 구현 (API 호출 제외)
+
+User Service 에서는 API 호출을 수행하는 **유저 조회** 만 빼고 작성해보자.
+
+간단하게 다음과 같은 Layered Architecture 로 구성을 하려 한다.
+
+- **의존성 추가** & **application.yml**
+- **Controller**
+  - UserController
+- **Domain**
+  - Entity
+    - User
+  - Repository
+    - UserRepository
+  - dto
+    - UserRegisterRequestData
+    - UserResponseData
+- **Service**
+  - UserService
+
+## application.yml
+
+## 의존성 추가 & application.yml
+
+build.gradle 에 다음과 같이 의존성을 추가해주도록 하자.
+
+```java
+ext {
+    set('springCloudVersion', "2020.0.2")
+}
+
+dependencies {
+
+     // web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // h2 database
+    runtimeOnly 'org.h2database:h2'
+
+    // eureka
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+```
+
+그리고 이제 해당 서비스를 Eureka 클라이언트로 등록시키기 위한 작업과 데이터베이스 연동 작업을 위해서 applicaton.yml 에 다음과 같이 작성한다.
+
+```yml
+server:
+  port: 50010
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:h2:mem:userdb
+    username: sa
+    password:
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+```
+
+## Domain 작성하기
+
+Domain 에는 3개의 클래스가 위치할 것이다.
+
+1. 영속성 컨텍스트에 등록시킬 Entity 객체
+2. Data Jpa 에서 제공하는 JpaRepository 인터페이스를 상속받는 커스텀 Repository
+3. 데이터 전송을 위한 데이터 객체
+
+각각의 클래스를 다음과 같이 구현해주자.
+
+```java
+// lombok 어노테이션 생략
+public class UserResponseData {
+    private Long userId;
+    private String username;
+    private TeamResponseData team;
+}
+
+// lombok 어노테이션 생략
+public class UserCreateData {
+    private String username;
+}
+
+// lombok 어노테이션 생략
+public class TeamResponseData {
+    private Long teamId;
+    private String name;
+    private String address;
+}
+
+@Entity(name = "users")
+// lombok 어노테이션 생략
+public class User {
+
+    @Id @GeneratedValue
+    private Long id;
+    private String username;
+}
+
+public interface UserRepository extends JpaRepository<User, Long> {
+}
+```
+
+## UserService.class
+
+User-Service 의 비즈니스 로직을 담당할 클래스이다.
+해당 부분에 Rest Template나 Feign Client 가 포함될 예정이다.
+
+```java
+@Service
+@Transcational
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * 사용자를 저장한다
+     *
+     * @param userCreateData 저장하려는 사용자 이름
+     * @return 저장된 사용자
+     */
+    public UserResponseData save(UserCreateData userCreateData) {
+
+        User user = User.builder()
+                .username(userCreateData.getUsername())
+                .build();
+
+        user = userRepository.save(user);
+
+        // Rest Template or Feign Client 작업 처리
+
+        return  UserResponseData.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .team(null) // Rest Template or Feign Client
+                .build();
+    }
+
+    /**
+     * 사용자를 조회한다.
+     *
+     * @param id 사용자 id
+     * @return 저장된 사용자와 팀 정보
+     * @throws RuntimeException
+     */
+    public UserResponseData getUserById(Long id) {
+        User userOptional = userRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        // Rest Template or Feign Client 작업 처리
+
+        return UserResponseData.builder()
+                .userId(userOptional.getId())
+                .username(userOptional.getUsername())
+                .team(null)
+                .build();
+    }
+}
+```
+
+Service 어노테이션과 함꼐 Transaction Boundary를 걸어준다.
+
+위에 존재하는 `.team(null)` 에 우리가 다른 서버로 부터 받아온 데이터를 넣어줄 것이다.
+
+## UserController.class
+
+외부로 노출시킬 User-Service 의 API Endpoint를 작성해준다.
+
+```java
+@RestController
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/users")
+    public UserResponseData createUser(@RequestBody UserCreateData userCreateData) {
+        return userService.save(userCreateData);
+    }
+
+    @GetMapping("/users/{userId}")
+    public UserResponseData getUser(@PathVariable("userId") Long id) {
+        return userService.getUserById(id);
+    }
+}
+```
+
+이제 Eureka, Gateway 와 함께 User-Service 도 실행시켜서 각각의 Endpoint 가 잘 작동하는지 브라우저나 Api Tester 로 테스트해보자.
+
+[##_Image|kage@VnUzh/btq3EuyiYn6/WTPAo1gFbu3cLtpYFKPYqk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+# Team Service 구현
+
+- **의존성 추가** & **application.yml**
+- **Controller**
+  - TeamController
+- **Domain**
+  - Entity
+    - Team
+  - Repository
+    - TeamRepository
+  - dto
+    - TeamCreateData
+- **Service**
+  - TeamService
+
+## 의존성 추가와 application.yml 작성
+
+User-Service와 동일하게 build.gradle 에 다음과 같이 의존성을 추가해주도록 하자.
+
+```java
+ext {
+    set('springCloudVersion', "2020.0.2")
+}
+
+dependencies {
+
+     // web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // h2 database
+    runtimeOnly 'org.h2database:h2'
+
+    // eureka
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+```
+
+앞의 User-Service와 동일하게 서비스를 Eureka 클라이언트로 등록시키기 위한 작업과 데이터베이스 연동 작업을 위해서 applicaton.yml 에 다음과 같이 작성한다.
+
+```yml
+server:
+  port: 60010
+
+spring:
+  application:
+    name: team-service
+  datasource:
+    url: jdbc:h2:mem:teamdb
+    username: sa
+    password:
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+```
+
+## Domain 작성하기
+
+## TeamService.class
+
+## TeamController.class

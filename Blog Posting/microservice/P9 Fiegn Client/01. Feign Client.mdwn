@@ -7,8 +7,8 @@
 - LoadBalanced 어노테이션 지원
 - 순서
   1. Application 에서 @EnableFeignClient 선언
-  2. OrderServiceClient 인터페이스 생성
-  3. OrderService 에 FeignClient(name = "order-service") 어노테이션 추가
+  2. 호출하려는 서버의 HTTP Endpoint에 대한 인터페이스 생성
+  3. 호출하려는 서버에 `@FeignClient(name = "order-service")` 어노테이션 추가
   4. UserService 에서 FeignClient 인터페이스 의존성으로 받기
 
 ```java
