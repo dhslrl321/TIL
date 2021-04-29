@@ -1,25 +1,36 @@
-마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 (Rest Template vs Feign Client)
+마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 (1) [OpenFeign vs Rest Template] - 서비스 구현
+마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 (2) [OpenFeign vs Rest Template] - 각각의 비교
 
 ---
 
-> 해당 글에서 나오는 실습 내용은 **Spring Cloud를 이용한 MSA 구성의 전반적인 이해**가 필요한 내용입니다.
-> 실습은 Eureka + Gateway + Microservices (2)를 이용한 환경으로 해당 글에서는 **Eureka와 Gateway 설정**에 대해서는 언급하지 지만 만약 Eureka나 Gateway의 이해가 부족하신 분들이나 더 알아보고 **실습 환경을 따라 해보고싶은 사람**은 아래의 링크에서 확인하실 수 있습니다.
+이 글은 2개의 글로 나누어져 있습니다.
 
-- **Spring Cloud Netflix Eureka**
-  - [Service Discover Server로 Netflix Eureka 이용하기](https://wonit.tistory.com/495?category=854728)
-- **Spring Cloud Gateway**
-  - [Spring Cloud Gateway 를 이용해 API Gateway를 구성하고 실습해보자 ](https://wonit.tistory.com/497?category=854728)
-  - [Spring Cloud Gateway 에서 Built-in Route로 Predicates와 Filter 조작하기](https://wonit.tistory.com/499?category=854728)
+1. [마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 [OpenFeign vs Rest Template] - 서비스 구현]()
+2. [마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 [OpenFeign vs Rest Template] - 각각의 비교]()
+
+> 해당 글에서 나오는 실습 내용은 **Spring Cloud를 이용한 MSA 구성의 전반적인 이해**가 필요한 내용입니다.
+> 실습은 Eureka + Gateway + Microservices (2)를 이용한 환경으로 해당 글에서는 **Eureka와 Gateway 설정**에 대해서는 언급하지 지만 만약 Eureka나 Gateway의 이해가 부족하신 분들이나 더 알아보고 **실습 환경을 따라 해보고싶은 사람**은 아래의 실습 과정에 존재하는 URL에서 확인하실 수 있습니다.
 
 ### 목차
 
+이번 시간
+
 - **서비스간 통신**
-  - 서비스 구조
-  - 통신 과정
+  - **서비스 구조**
+  - **통신 과정**
 - **서비스 구현**
-  - 서비스 구성
-  - Rest Template 으로 통신하기
-  - Spring Cloud OpenFeign 으로 통신하기
+  - **서비스 구성**
+    - **Eureka Service**
+    - **Gateway Service**
+    - **User Service**
+    - **Team Service**
+
+---
+
+다음 시간
+
+- Rest Template 으로 통신하기
+- Spring Cloud OpenFeign 으로 통신하기
 - 두 통신 방법의 차이
   - 선언 방식과 코드 가독성
   - 예외 처리
@@ -78,6 +89,8 @@
   - **팀원 추가** : `http://localhost:60010/{userId}/teams` **POST**
   - **사용자 번호로 팀 검색** : `http://localhost:60010/{userId}/teams` **GET**
 
+실질적인 서버의 포트는 50010과 60010번이지만 우리는 **Gateway**를 이용해서 8000 번으로 Endpoint를 합쳐보자
+
 #### **각 Endpoint는 어떠한 API 응답을 반환할 것인가**
 
 ```json
@@ -129,7 +142,7 @@ REQUEST
 
 RESPONSE : 204 No Content
 
-// 사용자 이름으로 팀 검색 : http://localhost:60010/{userId}/teams GET
+// 사용자 로 팀 검색 : http://localhost:60010/{userId}/teams GET
 
 RESPONSE
 {
@@ -253,6 +266,8 @@ User Service 에서는 API 호출을 수행하는 **유저 조회** 만 빼고 �
 
 간단하게 다음과 같은 Layered Architecture 로 구성을 하려 한다.
 
+[##_Image|kage@VvntD/btq3NIV5WFH/7cfddg0CsP94MlEhlfeSx0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
 - **의존성 추가** & **application.yml**
 - **Controller**
   - UserController
@@ -272,6 +287,8 @@ User Service 에서는 API 호출을 수행하는 **유저 조회** 만 빼고 �
 ## 의존성 추가 & application.yml
 
 build.gradle 에 다음과 같이 의존성을 추가해주도록 하자.
+
+#### 이 설정은 Team Service 나 User Service 나 동일하므로 Team Service 에서는 생략하도록 하겠다. port 만 다르게 지정하자
 
 ```java
 ext {
@@ -318,6 +335,12 @@ spring:
     url: jdbc:h2:mem:userdb
     username: sa
     password:
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
 
 eureka:
   client:
@@ -326,6 +349,8 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 ```
+
+또한 데이터베이스를 h2로 사용하고 인메모리에서만 동작하게 하기 위한 설정도 추가하였다.
 
 ## Domain 작성하기
 
@@ -467,7 +492,10 @@ public class UserController {
 
 # Team Service 구현
 
-- **의존성 추가** & **application.yml**
+[##_Image|kage@dcJ1ek/btq3OdhcAiQ/1TrayXrwS75kcVFazGSTok/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+Team Service 도 역시 Layered 로 구성하고 **팀을 생성, 팀에 사용자 추가, 팀 조회** 비즈니스만 있다고 가정해보자.
+
 - **Controller**
   - TeamController
 - **Domain**
@@ -480,66 +508,181 @@ public class UserController {
 - **Service**
   - TeamService
 
-## 의존성 추가와 application.yml 작성
+## Domain 작성하기
 
-User-Service와 동일하게 build.gradle 에 다음과 같이 의존성을 추가해주도록 하자.
+#### DTO classes
 
 ```java
-ext {
-    set('springCloudVersion', "2020.0.2")
+public class TeamCreateData {
+  private String name;
+  private String address;
 }
 
-dependencies {
-
-     // web
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    // jpa
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // h2 database
-    runtimeOnly 'org.h2database:h2'
-
-    // eureka
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
-    // lombok
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+public class TeamMemberAddData {
+  private String name;
 }
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+public class TeamResponseData {
+  private Long teamId;
+  private String name;
+  private String address;
+}
+```
+
+#### Entity & Jpa Repository class and interface
+
+```java
+public class Team {
+    @Id @GeneratedValue
+    private Long id;
+    private String name;
+    private String address;
+}
+
+public class TeamMember {
+    @Id @GeneratedValue
+    private Long id;
+    private Long userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teamId")
+    private Team team;
+}
+
+public interface TeamRepository extends JpaRepository<Team, Long> {
+    Team findByName(String name);
+}
+
+public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
+    TeamMember findByUserId(Long userId);
+}
+```
+
+## TeamService.class
+
+Team 의 비즈니스 로직을 담당할 클래스이다.
+User-Service 가 API 호출을 할 엔드포인트는 `getTeamByUserId` 이다.
+
+```java
+@Service
+@Transactional
+public class TeamService {
+
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
+
+    public TeamService(TeamRepository teamRepository, TeamMemberRepository teamMemberRepository) {
+        this.teamRepository = teamRepository;
+        this.teamMemberRepository = teamMemberRepository;
+    }
+
+    /**
+     * 팀을 생성한다.
+     *
+     * @param teamCreateData 팀 생성에 필요한 정보가 담긴 객체
+     * @return TeamResponseData (teamId, name, address)
+     */
+    public TeamResponseData save(TeamCreateData teamCreateData) {
+        Team team = Team.builder()
+                .name(teamCreateData.getName())
+                .address(teamCreateData.getAddress())
+                .build();
+
+        team = teamRepository.save(team);
+
+        return TeamResponseData.builder()
+                .teamId(team.getId())
+                .name(team.getName())
+                .address(team.getAddress())
+                .build();
+    }
+
+    /**
+     * 팀 이름과 사용자 Id를 받아 팀에 선수로 등록한다.
+     *
+     * @param userId 사용자 Id
+     * @param teamName 팀 이름
+     */
+    public void addTeamMember(Long userId, String teamName) {
+        Team selectedTeam = teamRepository.findByName(teamName);
+
+        TeamMember teamMember = TeamMember.builder()
+                .team(selectedTeam)
+                .userId(userId)
+                .build();
+
+        teamMemberRepository.save(teamMember);
+    }
+
+    /**
+     * 사용자 번호로 팀을 반환한다.
+     *
+     * @param userId 조회하려는 사용자 번호
+     * @return 반환할 팀 객체
+     */
+    public TeamResponseData getTeamByUserId(Long userId) {
+        TeamMember teamMember = teamMemberRepository.findByUserId(userId);
+
+        Team team = teamMember.getTeam();
+
+        return TeamResponseData.builder()
+                .teamId(team.getId())
+                .name(team.getName())
+                .address(team.getAddress())
+                .build();
     }
 }
 ```
 
-앞의 User-Service와 동일하게 서비스를 Eureka 클라이언트로 등록시키기 위한 작업과 데이터베이스 연동 작업을 위해서 applicaton.yml 에 다음과 같이 작성한다.
+## TeamController.class
 
-```yml
-server:
-  port: 60010
+```java
+@RestController
+public class TeamController {
 
-spring:
-  application:
-    name: team-service
-  datasource:
-    url: jdbc:h2:mem:teamdb
-    username: sa
-    password:
+    private final TeamService teamService;
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+    public TeamController(TeamService teamService) {
+        this.teamService = teamService;
+    }
+
+    @PostMapping("/teams")
+    public TeamResponseData create(@RequestBody TeamCreateData teamCreateData) {
+        return teamService.save(teamCreateData);
+    }
+
+    @PostMapping("/{userId}/teams")
+    public ResponseEntity addTeamMember(@PathVariable("userId") Long id,
+                                        @RequestBody TeamMemberAddData requestData) {
+        teamService.addTeamMember(id, requestData.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}/teams")
+    public TeamResponseData getTeamByUserId(@PathVariable("userId") Long userId) {
+        return teamService.getTeamByUserId(userId);
+    }
+
+}
 ```
 
-## Domain 작성하기
+# API Test
 
-## TeamService.class
+이제 모든 준비는 끝났다.
 
-## TeamController.class
+마지막으로 각각의 서비스의 Endpoint 에 요청을 보내 우리가 원하는 응답이 잘 오는지 확인해보자.
+API Tester 로 Postman 을 이용한다.
+
+[##_Image|kage@cAMTA3/btq3IRtHWCx/uhHcXWKNGKERA6aKZ2vofK/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+## User-Service
+
+[##_Image|kage@NCFkO/btq3NE7c1fA/8HXhETOofIDp6obO0jJQVk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+## Team-Service
+
+[##_Image|kage@bun1jy/btq3LUQgNOG/fkx3zVJMlihKc03sEGpPM0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+---
+
+이제 다음 시간부터 본격적으로 Feign 과 RestTemplate 을 비교해보도록 하자!

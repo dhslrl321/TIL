@@ -1,0 +1,204 @@
+마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 (1) [OpenFeign vs Rest Template] - 서비스 구현
+마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 (2) [OpenFeign vs Rest Template] - 각각의 비교
+
+---
+
+이 글은 2개의 글로 나누어져 있습니다.
+
+1.  [마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 \[OpenFeign vs Rest Template\] - 서비스 구현](https://wonit.tistory.com/506)
+2.  [마이크로서비스에서 서비스간 통신을 위한 2가지 방법 비교 \[OpenFeign vs Rest Template\] - 각각의 비교](https://wonit.tistory.com/507)
+
+> 해당 글에서 나오는 실습 내용은 **Spring Cloud를 이용한 MSA 구성의 전반적인 이해**가 필요한 내용입니다.
+> 실습은 Eureka + Gateway + Microservices (2)를 이용한 환경으로 해당 글에서는 **Eureka와 Gateway 설정**에 대해서는 언급하지 지만 만약 Eureka나 Gateway의 이해가 부족하신 분들이나 더 알아보고 **실습 환경을 따라 해보고싶은 사람**은 아래의 실습 과정에 존재하는 URL에서 확인하실 수 있습니다.
+
+### 목차
+
+이전 시간
+
+- 서비스간 통신
+  - 서비스 구조
+  - 통신 과정
+- 서비스 구현
+  - 서비스 구성
+    - Eureka Service
+    - Gateway Service
+    - User Service
+    - Team Service
+
+---
+
+이번 시간
+
+- **지난 시간의 정리**
+- **Rest Template 으로 API 호출하기**
+- **Spring Cloud OpenFeign 으로 API 호출하기**
+- **두 통신 방법의 차이**
+  - **선언 방식과 코드 가독성**
+  - **예외 처리**
+  - **유지보수**
+  - **테스트 코드**
+- **종합 정리 및 결론**
+  - **표로 정리**
+  - **rest template deprecated**
+
+# 지난 시간의 정리
+
+지난 시간 우리는 User-Service와 Team-Service 를 구현하였었다.
+
+[##_Image|kage@bFLr5W/btq3LUW2Lup/yXkk8FQErXIyfBsKeGMD7k/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+그리고 다음과 같은 API Endpoint 를 만들었다.
+
+- Discovery Service
+  - `http://localhost:8761/eureka`
+- Gateway Service
+  - `http://localhost:8000/`
+- User Service
+  - **유저 생성** : `http://localhost:50010/users` **POST**
+  - **유저 조회** : `http://localhost:50010/users/{userId}` **GET**
+- Team Service
+  - **팀 생성** : `http://localhost:60010/teams` **POST**
+  - **팀원 추가** : `http://localhost:60010/{userId}/teams` **POST**
+  - **사용자 번호로 팀 검색** : `http://localhost:60010/{userId}/teams` **GET**
+
+우리는 API Gateway 패턴을 이용할 것이기 때문에 Gateway Service의 포트인 8000 포트로 요청을 보내고 Gateway 가 각각의 서비스에 요청을 분산시켜 응답을 전하고 결과를 반환해준다.
+
+위의 엔드포인트에서 핵심은 **유저 조회**이다.
+
+#### 유저를 조회할 때 **해당되는 사용자의 Team 정보를 함께 출력**하기 위해서 User-Service 에서 Team-Service 로 API 요청을 보내게 된다.
+
+그럼 Team-Service 에서는 요청의 Path Variable 로 넘어온 사용자의 ID 에 따라서 Team 을 조회하고, Team 의 정보를 반환해준다.
+
+해당 코드를 잠시 참고해보자.
+
+[##_Image|kage@yFDl6/btq3Oco7Tsa/XQLMq4uZjgajqxh3Kf1rQ1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+- **User-Service** 에서는 사용자 정보를 가져올 때 Team 정보를 함께 받아와서 반환해줘야 한다.
+- **Team-Service** 에서는 사용자 Id 를 받아서 Team 정보를 반환해준다.
+
+> 자세한 코드는 이전 글, [OpenFeign vs Rest Template - 서비스 구현](https://wonit.tistory.com/507) 에서 확인하실 수 있습니다.
+
+우리가 관심가져야 할 코드는 User-Service의 `getUserById()` 메서드이고, 해당 메서드에서 Team-Service의 `getTeamByUserId()` 를 호출한다.
+
+각각의 서비스는 Controller 에서 Endpoint 를 처리하고 있는데, 다음과 같다.
+
+```java
+
+// User-Service-Application
+@RestController
+public class UserController {
+
+    // 생략
+
+    @GetMapping("/users/{userId}")
+    public UserResponseData getUser(@PathVariable("userId") Long id) {
+        return userService.getUserById(id);
+    }
+}
+
+// Team-Service-Application
+@RestController
+public class TeamController {
+
+    // 생략
+
+    @GetMapping("/{userId}/teams")
+    public TeamResponseData getTeamByUserId(@PathVariable("userId") Long userId) {
+        return teamService.getTeamByUserId(userId);
+    }
+}
+```
+
+#### 이제 해당 서비스에서 API 호출을 위해 **RestTemplate과 OpenFeign**을 이용해보자.
+
+# RestTemplate 으로 API 호출하기
+
+- 사용법
+  - Bean 추가
+  - UserService.class 에서 RestTemplate 의존성 주입
+  - 서비스에서 RestTemplate으로 호출
+
+## Bean 등록
+
+Rest Template 를 사용하기 위해서 UserServiceApplication.java 에서 Bean으로 RestTemplate 을 등록해주자.
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class UserServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(UserServiceApplication.class, args);
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+
+```
+
+## RestTemplate 의존성 주입
+
+Bean으로 RestTemplate 을 등록시켰으니 Service.class에서 RestTemplate 에 대한 의존성을 주입해주자
+
+[##_Image|kage@cg1HeM/btq3OcQew0X/F49AUxAsXSkBBMv6S9qZV1/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+## 서비스에서 RestTemplate으로 호출
+
+이제 RestTemplate 을 이용해서 Team-Service의 `getTeamByUserId()` 를 호출할 것이다.
+
+```java
+@Service
+@Transactional
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
+
+    public UserService(UserRepository userRepository, RestTemplate restTemplate) {
+        this.userRepository = userRepository;
+        this.restTemplate = restTemplate;
+    }
+
+
+    /**
+     * 사용자를 조회한다.
+     *
+     * @param id 사용자 id
+     * @return 저장된 사용자와 팀 정보
+     */
+    public UserResponseData getUserById(Long id) {
+        User userOptional = userRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        // Team team = GET team-service/{userId}/teams
+        String url = String.format("http://localhost:8000/%s/teams", id);
+        ResponseEntity<TeamResponseData> responseData = restTemplate.exchange(url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<TeamResponseData>() {}
+                );
+
+        TeamResponseData team = responseData.getBody();
+
+
+        return UserResponseData.builder()
+                .userId(userOptional.getId())
+                .username(userOptional.getUsername())
+                .team(team) // Team-Service 로 조회한 Team 정보를 담아서 반환
+                .build();
+    }
+}
+```
+
+RestTemplate 에서는 `exchange` 메서드를 호출하여 통신을 수행한다.
+
+# Spring Cloud Netflix OpenFeign 으로 API 호출하기
+
+- 사용법
+  - 의존성 추가
+  - Client 인터페이스 생성
+- 호출
