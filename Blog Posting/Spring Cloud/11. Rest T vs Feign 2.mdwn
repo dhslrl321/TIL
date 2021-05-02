@@ -35,11 +35,9 @@
 - **두 통신 방법의 차이**
   - **선언 방식과 코드 가독성**
   - **예외 처리**
-  - **유지보수**
   - **테스트 코드**
 - **종합 정리 및 결론**
   - **표로 정리**
-  - **rest template deprecated**
 
 # 지난 시간의 정리
 
@@ -111,6 +109,21 @@ public class TeamController {
 
 #### 이제 해당 서비스에서 API 호출을 위해 **RestTemplate과 OpenFeign**을 이용해보자.
 
+그리고 각각의 실습을 위해서 먼저 **데이터를 준비**해놓자.
+
+## 실습 세팅
+
+실습 환경을 위해서 미리 요청을 보내서 **사용자 정보와 Team 을 세팅해주자.**
+
+요청 순서
+
+- **사용자 생성** : `http://localhost:8000/user/users` POST
+  - Request Body 에 `{"username":"장원익"}` 을 담아서 사용자를 생성한다.
+- **팀 생성** : `http://localhost:8000/team/teams` : POST
+  - Request Body 에 `{ "name": "리버풀", "address": "영국 머지사이드"}` 을 담아서 팀을 생성한다.
+- **팀 멤버 추가** : `http://localhost:8000/team/1/teams` : POST
+  - Request Body 에 `{ "name": "리버풀" }` 을 담아서 회원을 팀에 저장한다.
+
 # RestTemplate 으로 API 호출하기
 
 - 사용법
@@ -133,12 +146,14 @@ public class UserServiceApplication {
     }
 
     @Bean
+    @LoadBalanced
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 }
-
 ```
+
+위에서 @LoadBalanced 어노테이션은 RestTemplate 로 직접 URL을 호출하지 않고 Eureka 에 있는 인스턴스를 discovery 하여 포트 번호와 uri 를 자동으로 매핑해준다.
 
 ## RestTemplate 의존성 주입
 
@@ -175,14 +190,113 @@ public class UserService {
                 .orElseThrow(RuntimeException::new);
 
         // Team team = GET team-service/{userId}/teams
-        String url = String.format("http://localhost:8000/%s/teams", id);
+        String url = String.format("http://team-service/%s/teams", id);
+
         ResponseEntity<TeamResponseData> responseData = restTemplate.exchange(url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<TeamResponseData>() {}
-                );
+                TeamResponseData.class);
 
         TeamResponseData team = responseData.getBody();
+
+        return UserResponseData.builder()
+                .userId(userOptional.getId())
+                .username(userOptional.getUsername())
+                .team(team) // Team-Service 로 조회한 Team 정보를 담아서 반환
+                .build();
+    }
+}
+```
+
+위에서 RestTemplate 를 bean 으로 주입할 때, `@LoadBalanced` 어노테이션을 추가하였기 때문에 직접적인 team-service의 주소 체계를 이용하지 않고 Microservice의 이름 체계를 이용한다.
+
+RestTemplate 에서는 `exchange` 메서드를 호출하여 통신을 수행한다.
+
+해당 메서드에서는 4개의 매개변수를 받는다.
+
+1. url
+2. HTTP Method
+3. Request Body
+4. Response Data Type Reference
+
+## 결과 확인하기
+
+결과를 확인하면 잘 동작하는 것을 볼 수 있다.
+
+[##_Image|kage@bmRaQP/btq3JePzYoD/NKOiSAJDCpKMdxQaqL6d4K/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+지금은 RestTemplate의 가장 기본적인 사용법을 이용해서 API를 호출하고 그 결과를 받아왔다.
+
+이제 이와 비슷한 API로 Spring Cloud의 Netflix OpenFeign 을 이용해보도록 하자.
+
+# Spring Cloud Netflix OpenFeign 으로 API 호출하기
+
+Feign Client 는 REST 호출을 추상화 한 Spring Cloud Netflix 의 라이브러리이다.
+
+자세한 이야기는 아래 **비교 에서 하도록 하고** 지금은 사용 먼저 해보자.
+
+- 사용법
+  - 의존성 추가
+  - HTTP Endpoint에 대한 Client 인터페이스 생성
+  - 호출
+
+## 의존성 추가
+
+FeigntClient 를 사용하기 위해서는 OpenFeing 의존성을 추가해줘야 한다.
+build.gradle에 가서 다음과 같이 의존성을 추가시켜보자.
+
+**build.gradle**
+
+```js
+implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+```
+
+그리고 Application.java 로 가서 `@EnableFeignClients` 어노테이션을 추가시켜주자.
+
+## Http Endpint 에 대한 Client 인터페이스 생성
+
+User-Service가 호출해야할 Http Endpoint 는 Team-Service의 `http://localhost:8000/team/{userId}/teams` 이다.
+
+이를 호출할 인터페이스를 생성해보자.
+
+```java
+@FeignClient(name = "team")
+public interface TeamServiceClient {
+    @GetMapping("/{userId}/teams")
+    TeamResponseData getTeam(@PathVariable("userId") Long id);
+}
+```
+
+FeignClient 라는 어노테이션을 이용하면 직접 해당 URL을 명시하지 않더라도 Eureka 에 register한 Instance 이름을 찾아서 URL을 매핑해준다.
+
+## 호출
+
+이제 서비스 클래스로 돌아가서 Feign 을 이용해 호출을 보내보자.
+
+UserService.class 에는 아까 Feign 인터페이스를 생성자로 의존성을 넣어준다.
+
+```java
+@Service
+@Transactional
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
+    private final TeamServiceClient teamServiceClient;
+
+    public UserService(UserRepository userRepository,
+                       RestTemplate restTemplate,
+                       TeamServiceClient teamServiceClient) {
+        this.userRepository = userRepository;
+        this.restTemplate = restTemplate;
+        this.teamServiceClient = teamServiceClient;
+    }
+
+    public UserResponseData getUserById(Long id) {
+        User userOptional = userRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        TeamResponseData team = teamServiceClient.getTeam(id);
 
 
         return UserResponseData.builder()
@@ -194,11 +308,227 @@ public class UserService {
 }
 ```
 
-RestTemplate 에서는 `exchange` 메서드를 호출하여 통신을 수행한다.
+## 결과 확인하기
 
-# Spring Cloud Netflix OpenFeign 으로 API 호출하기
+결과를 확인하면 잘 동작하는 것을 볼 수 있다.
 
-- 사용법
-  - 의존성 추가
-  - Client 인터페이스 생성
-- 호출
+[##_Image|kage@bSPIUf/btq3NIWi0Kx/nTee1BlySqimczycftx8Dk/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+이제 이 둘을 실질적으로 비교해보도록 하자.
+
+---
+
+# 선언 방식과 가독성
+
+두 방식의 선언을 봐보자.
+
+**RestTemplate**나 **Feign** 모두 위에서 본 바와 같이 URL을 직접 명시해줘야 한다.
+하지만 다른 점이 있다면 바로 **관심사의 분리**이다.
+
+코드를 봐보자.
+
+```java
+@Service
+@Transactional
+public class UserService {
+
+    // 생략
+
+    public UserResponseData getUserById(Long id) {
+        User userOptional = userRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        TeamResponseData team = teamServiceClient.getTeam(id);
+
+        return // 생략
+    }
+
+    public UserResponseData getUserById(Long id) {
+        User userOptional = userRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+
+        // Team team = GET team-service/{userId}/teams
+        String url = String.format("http://team-service/%s/teams", id);
+        ResponseEntity<TeamResponseData> responseData = restTemplate.exchange(url,
+                HttpMethod.GET,
+                null,
+                TeamResponseData.class);
+
+        TeamResponseData team = responseData.getBody();
+
+
+        return // 생략
+    }
+}
+```
+
+Service 의 행동에 대한 관심사는 **Team-Service**에게 호출을 보내는 것으로 Feign 이나 RestTemplate이나 동일하다.
+
+하지만 Uri 에 대한 직접적인 **설정 정보**는 UserService가 가져야 하는게 맞을까?
+
+책임의 관심사로 본다면 어떻게 될까?
+
+만약 Team-Service의 호출 경로가 달라졌다면 그에 대한 책임은 `UserService` 가 아니라 호출을 하는 로직 자체에 존재한다.
+하지만 **RestTemplate** 에서는 설정 정보가 UserService.class 내에 있기 때문에 **UserService**가 그 책임을 지고 있다.
+그에 반해서 Feign은 어떨까?
+아예 Feign을 사용하기 위해서는 호출에 관한 설정을 다 FeignClient.interface 에서 수행하도록 **강제화**되어 있기 때문에 관심사가 분리되어있다.
+
+결국 이를 가져다 쓰는 `UserService` 에서는 반환에 대한 결과만을 책임으로 갖고 있는 것으로 적절하다고 할 수 있다.
+
+**가독성은 이야기 하지 않더라도 Feign 이 좋다고 생각한다.**
+
+# 예외 처리
+
+이 상황을 봐보자.
+
+만약 User-Service 에서 Team-Service 의 **존재하지 않는 사용자 요청**을 보낸다고 가정해보자.
+
+그럼 응답으로 500 에러가 나오게 된다.
+
+[##_Image|kage@LBtFC/btq3KdwiuA1/yyjDyNQTI8WKQSmv10t5d0/img.png|alignCenter|data-origin-width="0" data-origin-height="0" data-ke-mobilestyle="widthContent"|||_##]
+
+사실 500 에러는 Team-Service 에서 제대로된 값을 반환받지 못해서 발생하는 User-Service의 에러이다.
+Team-Service 에서는 실제로 404 Not Found 가 발생했고 그 결과를 처리하지 못하니 User-Service 에서 500 에러로 반환하고 있다.
+
+#### 그럼 User-Service 에서는 500 에러가 아닌 호출하는 Team-Service 에 404 에러가 발생한 그 상태를 반환해야 한다.
+
+이럴 때 RestTemplate과 Feign은 각각을 어떻게 처리할까?
+
+RestTemplate은 try-catch 를 이용하여 처리를 해야 한다.
+
+```java
+public UserResponseData getUserById(Long id) {
+    User userOptional = userRepository.findById(id)
+            .orElseThrow(RuntimeException::new);
+
+    // Team team = GET team-service/{userId}/teams
+    String url = String.format("http://team-service/%s/teams", id);
+
+    try {
+
+      ResponseEntity<TeamResponseData> responseData = restTemplate.exchange(url,
+            HttpMethod.GET,
+            null,
+            TeamResponseData.class);
+
+      TeamResponseData team = responseData.getBody();
+
+    }catch (Excepotion e) {
+        return new UserNotEnrolledTeamException("사용자는 팀에 가입되어있지 않습니다.");
+    }
+    return UserResponseData.builder()
+            .userId(userOptional.getId())
+            .username(userOptional.getUsername())
+            .team(team) // Team-Service 로 조회한 Team 정보를 담아서 반환
+            .build();
+}
+```
+
+Feign 의 장점 중 하나는 Microservice 에서 내부적으로 API 호출을 수행했을 때, 예외 처리를 핸들링하는 방법을 **ErrorDecoder**로 제공한다.
+
+자세한 ErrorDecoder에 대해서는 **다음 시간**에 깊게 알아보도록 하고 현재는 코드만 보도록 하자
+
+각각의 통신에서 에러를 변환시켜줄 ErrorDecoder 인터페이스를 상속받는 Concrete 클레스를 하나 생성하면 된다.
+
+```java
+public class FeignError implements ErrorDecoder {
+    @Override
+    public Exception decode(String methodKey, Response response) {
+
+        switch(response.status()) {
+            case 404:
+                if(methodKey.contains("getOrders")) {
+                    return new UserNotEnrolledTeamException("사용자는 팀에 가입되어있지 않습니다.");
+                }
+        }
+
+        return null;
+    }
+}
+```
+
+그리고 service 에서의 사용은 코드 변화 없이 사용하다가 만약 문제가 생기면 해당 에러를 반환시키게 된다.
+
+```java
+public UserResponseData getUserById(Long id) {
+    User userOptional = userRepository.findById(id)
+            .orElseThrow(RuntimeException::new);
+
+    // without try - catch
+    TeamResponseData team = teamServiceClient.getTeam(id);
+
+    return UserResponseData.builder()
+            .userId(userOptional.getId())
+            .username(userOptional.getUsername())
+            .team(team) // Team-Service 로 조회한 Team 정보를 담아서 반환
+            .build();
+}
+```
+
+# 테스트 코드
+
+테스트 코드는 정말 중요하다.
+사실 이거 하나 만으로 위의 모든 장점과 단점들을 무시할 수 있는 것인데, UnitTest 에서는 **외부 모듈과의 의존 관계**를 끊어 확실한 **고립**이 중요하다.
+보통 하나의 Unit 을 테스트하기 위해서 다른 의존 관계를 끊고 mock 객체를 stubbing 하여 사용한다.
+
+그럼 UserService 에서 RestTemplate 을 주입받게 된다면 RestTemplate 의 exchange 는 어떻게 stubbing 해야할까?
+
+간단하게 stubbing 하는 코드를 비교해보자.
+
+```java
+class UserServiceTest {
+
+    private UserService userService;
+
+    private final UserRepository userRepository = mock(UserRepository.class);
+    private final TeamServiceClient teamServiceClient = mock(TeamServiceClient.class);
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @BeforeEach
+    void setUp() {
+        userService = new UserService(userRepository, restTemplate, teamServiceClient);
+
+        User user = User.builder()
+                .id(1L)
+                .username("name")
+                .build();
+
+        TeamResponseData responseData = TeamResponseData.builder()
+                .id(1L)
+                .name("team name")
+                .address("address")
+                .build();
+
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+
+        // Feign Test
+        given(teamServiceClient.getTeam(anyLong())).willReturn(responseData);
+
+
+        // RestTemplate Test
+        given(restTemplate.exchange(eq("http://localhost:8000/team/1L/teams"),
+                HttpMethod.GET, null, UserResponseData.class))
+                .will(invocation ->
+                    ResponseEntity.status(HttpStatus.OK).body(responseData)
+                );
+    }
+}
+```
+
+만약 여기서 RestTemplate 이 호출하는 URL이 두 개라면 어떻게 될까?
+
+그럼 `RestTemplateBuilder` 를 이용해서 하나 하나 매핑을 해야한다.
+
+우리는 Eureka 를 이용해서 API 호출 Endpoint 를 MSA 인스턴스 이름으로 지정했는데, 이렇게 테스트 코드에서는 일일이 적어줘야 하고, 만약 해당 URI가 변경된다면 이와 관련된 **모든 API 를 호출하는 테스트를 변경**해야 한다.
+
+그에 반해 Feign 은 인터페이스의 **반환 객체만 매핑**해준다는 점에서 아주 매력적이다.
+
+# 종합 정리 및 추가 사항
+
+지금까지 아주 많은 이야기를 했었다.
+
+이제 위에서 내용한 이야기들을 정리해보자면 다음과 같다.
+
+<table style="border-collapse: collapse; width: 100%;" border="1" data-ke-style="style12"><tbody><tr><td style="width: 20%; text-align: center;"><b>이름</b></td><td style="width: 20%; text-align: center;"><b>코드 가독성, 직관성</b></td><td style="width: 20%; text-align: center;"><b>예외 처리</b></td><td style="width: 20%; text-align: center;"><b>테스트 용이성</b></td><td style="width: 20%; text-align: center;"><b>러닝 커브</b></td></tr><tr><td style="width: 20%;"><b>Open Feign</b></td><td style="width: 20%;">가독성 좋음&nbsp;</td><td style="width: 20%;">ErrorDecoder 제공</td><td style="width: 20%;">일반적인 인터페이스의 <b>간편한</b> stubbing</td><td style="width: 20%;">높음</td></tr><tr><td style="width: 20%;"><b>Rest Template</b></td><td style="width: 20%;">가독성이 좋게 되기 위해 다른 작업 필요</td><td style="width: 20%;">try-catch</td><td style="width: 20%;">Spring 이 구현해놓은 객체의 <b>복잡한</b> stubbing</td><td style="width: 20%;">낮음</td></tr></tbody></table>

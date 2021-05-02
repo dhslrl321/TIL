@@ -1,0 +1,61 @@
+# Circuit Breaker
+
+- 장애가 발생하는 서비스에 반복적인 호출이 되지 못하게 차단
+  - 대부분 timeout 이 발생하면 장애로 판단
+- 특정 서비스가 정상적으로 동작하지 않을 경우 다른 기능으로 대체 수행 -> 장애 회피
+- Circuit Breaker 2가지
+  - Cicuit Breaker - Closed
+    - 정상적으로 동작한다
+  - Cicuit Breaker - Open
+    - 장애가 발생했다
+    - 해당 서버로 요청을 하지 않겠다.
+    - 그럼 서킷브레이커 자체적인 로직을 통해서 우회나 특정 값을 반환
+- Spring Cloud 에서는 Hystrix 에서 Resilience4j 대체됨
+  - resilience4j-circuitbreaker
+  - resilience4j-ratelimiter: Rate limiting
+  - resilience4j-bulkhead: Bulkheading
+  - resilience4j-retry: Automatic retrying
+  - resilience4j-timelimiter: Timeout handling
+  - resilience4j-cache: Result Caching
+
+# Customize CircuitBreakerFactory
+
+- Resilience4jCircuitBreakerFactory 로 커스텀 할 수 있음
+
+```java
+
+@Configuration
+public class Resilience4JConfiguration {
+  @Bean
+  public Customizer<Resilience4JCircuitBreakerFactory> globalCustomConfiguration() {
+
+  }
+}
+```
+
+으로 커스텀 가능
+
+```java
+
+@Configuration
+public class Resilience4JConfiguration {
+  @Bean
+  public Customizer<Resilience4JCircuitBreakerFactory> globalCustomConfiguration() {
+      CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom()
+          .failureRateThreshold(4) // Circuit Breaker 를 열지 결정하는 failure rate로 default는 50으로 50%의 요청이 실패하면 open
+          .waitDurationInOpenState(Duration.ofMillis(1000)) // CB 가 Open 한 상태를 유지하는 지속 시간을 의미하고 이후에는 half-open 상태가 됨. default로는 60초로 해당 코드는 1초 뒤에 다시 연결을 시도하겠다.
+          .slidingWindowType(CircuitBreakerCOnfig.SlidingWindowType.COUNT_BASED) // CircuitBreaker가 닫힐 때 통화 결과를 기록하는데 사용되는 슬라이딩 윈도우 유형을 구성하는데, 카운트 기반이나 시간 기반으로 할 수 있음
+          .slidingWindowSize(2) // CB가 닫힐 때 호출 결과를 기록하는데 사용되는 슬라이딩 윈도우의 크기를 구성 default 100
+          .build():
+
+      TimeLimiterConfig timeLimiterConfig = TimeLimiterConfig.custom()
+          .timeoutDuration(Duration.ofSecond(4)) // suplier(api 호출을 당하는 쪽) 가 어느정도까지 문제가 생겼을 때 문제로 삼을 것인지를 지정 가능 (default는 1초)
+          .build();
+
+
+          .timeLimiterConfig(timeLimiterConfig) //
+          .circuitBreakerCOnfig(circuitBreakerConfig)
+          .build():
+  }
+}
+```
