@@ -23,6 +23,14 @@
 - Resilience4jCircuitBreakerFactory 로 커스텀 할 수 있음
 
 ```java
+ CircuitBreaker circuitbreaker = circuitBreakerFactory.create("circuitbreaker");
+
+List<ResponseOrder> orderList = circuitbreaker.run(
+        () -> orderServiceClient.getOrders(userId),
+        throwable -> new ArrayList<>());
+```
+
+```java
 
 @Configuration
 public class Resilience4JConfiguration {

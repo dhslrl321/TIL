@@ -1,0 +1,19 @@
+# Zipkin
+
+- MSA 에서 분산 환경의 시스템 병목 현상을 파악
+- 트위터에서 사용하는 분산 환경의 Timing 데이터 수집, 추적 시스템
+  - Google 의 Drapper 에서 발전하였고 분산환경의 시스템 병목 현상을 파악
+- 오픈소스임
+- 구성 요소
+  - Collector
+  - Query Service
+  - Database
+  - web ui
+- 단위
+  - Span과 Trace가 존재
+  - Span
+    - 하나의 요청에 사용되는 작업의 단위
+    - 64 비트의 unique id
+  - Trace
+    - 트리 구조로 이루어진 span 셋
+    - 하나의 요청에 대한 같은 trace id 를 발급

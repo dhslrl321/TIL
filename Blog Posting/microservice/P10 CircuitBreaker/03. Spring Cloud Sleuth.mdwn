@@ -1,0 +1,10 @@
+# Spring Cloud Sleuth
+
+- 스프링 부트 애플리케이션을 zipkin과 연동
+- 요청 값에 따른 Trace ID, Span ID 부여
+- 로그에 추가 가능
+  - servlet filter
+  - feign client
+  - message channels
+  - scheduled actions
+- CircuitBreaker 로 MSA 호출에 대한 실패를 우회 했다면 Sleuth와 Zipkin 을 이용해서 해당 실패를 기록하고 정보를 시각화 하는 용도로 사용됨
