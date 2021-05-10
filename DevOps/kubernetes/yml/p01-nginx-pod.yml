@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: my-nginx-container
-      image: nginx
+      image: nginx:latest
       ports:
         - containerPort: 80
           protocol: TCP

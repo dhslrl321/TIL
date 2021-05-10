@@ -1,7 +1,31 @@
 # 오브젝트 목록 확인하기.
 
 - `kubectl get <오브젝트 이름>`
+  - `kubectl get pods`
+
+# 생성하기
+
+- `kubectl apply -f <yml 파일 명.yml>`
+
+# 삭제하기
+
+- yml 파일에 정의된 오브젝트 삭제하기
+  - `kubectl delete -f <yml 파일 명.yml>`
+- pod 이름으로 오브젝트 삭제하기
+  - `kubectl delete pod <포드 이름>`
 
 # 생성된 리소스의 정보 확인하기
 
-- `kubectl describe pods <포드 이름>`
+- 포드 정보 확인하기
+  - `kubectl describe pods <포드 이름>`
+
+# 컨테이너 내부로 접근하기
+
+- 컨테이너 내부에서 it 옵션으로 bash 쉘 유지하기
+  - `kubectl exec -it <포드 이름> bash`
+- `-c` 옵션을 이용해서 특정 컨테이너에 명령을 수행하게 하는데, 이를 bash 쉘로 유지하기
+  - `kubectl exec -it <포드 이름> -c <컨테이너 이름> bash`
+
+# 표준 출력 로그 확인하기
+
+- `kubectl logs <포드 이름>`
