@@ -1,0 +1,7 @@
+# 오브젝트 목록 확인하기.
+
+- `kubectl get <오브젝트 이름>`
+
+# 생성된 리소스의 정보 확인하기
+
+- `kubectl describe pods <포드 이름>`
