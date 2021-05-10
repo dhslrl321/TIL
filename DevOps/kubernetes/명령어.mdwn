@@ -1,7 +1,12 @@
 # 오브젝트 목록 확인하기.
 
 - `kubectl get <오브젝트 이름>`
+- 포드 확인하기
   - `kubectl get pods`
+  - `kubectl get po`
+- 레플리카 셋 확인하기
+  - `kubectl get replicaset`
+  - `kubectl get rs`
 
 # 생성하기
 
@@ -29,3 +34,10 @@
 # 표준 출력 로그 확인하기
 
 - `kubectl logs <포드 이름>`
+
+# 이미 생성된 리소스의 속성을 삭제 없이 변경하기
+
+- created 된 리소스에 동일하게 실행을 한 번 더 하면 configured로 리소스가 수정됨
+- `kubectl apply -f <yml 파일 이름.yml>`
+- **추가 요망**
+- kubectl edit, patch를 이용함
