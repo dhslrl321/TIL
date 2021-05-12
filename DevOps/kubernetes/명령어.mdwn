@@ -7,6 +7,8 @@
 - 레플리카 셋 확인하기
   - `kubectl get replicaset`
   - `kubectl get rs`
+- `-o wide` 옵션으로 출력되는 모든 정보를 표시하기
+  - `kubectl get po -o wide`
 
 # 생성하기
 
@@ -18,6 +20,10 @@
   - `kubectl delete -f <yml 파일 명.yml>`
 - pod 이름으로 오브젝트 삭제하기
   - `kubectl delete pod <포드 이름>`
+- replicaset 이름으로 오브젝트 삭제하기
+  - `kubectl delete rs <레플리카셋 이름>`
+- 모든 리소스, 포드, 레플리카셋 삭제하기
+  - `kubectl delete deployment, pod, rs --all`
 
 # 생성된 리소스의 정보 확인하기
 

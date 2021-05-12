@@ -1,0 +1,33 @@
+# NodePort
+
+- 서비스를 이용해서 포드를 외부로 노출할 때 사용함
+
+# NodePort yml 파일
+
+```yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hostname-svc-nodeport
+spec:
+  ports:
+    - name: web-port
+      port: 8080
+      targetPort: 80
+  selector:
+    app: webserver
+  type: NodePort
+```
+
+- 기본적으로 NodePort 가 사용할 수 있는 범위는 30000 ~ 32768 인데 API 서버 컴포넌트 실행 옵션을 변경하면 원하는 포트 범위를 설정 가능
+
+# 접근하기
+
+- 클러스터 내부에서 접근
+
+# 실제 환경
+
+- 실제 운영환경에서는 NodePort 를 이용해서 서비스를 외부로 노출하는 일은 많지 않음
+- 인그레스 오브젝트를 이용함
+
+사용자 개인 급증하는 트래픽에도 버틸 수 있는 안정적인 모의 해킹 실습 플랫폼

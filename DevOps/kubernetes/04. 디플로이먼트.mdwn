@@ -7,3 +7,35 @@
 - 레플리카셋보다 상위 오브젝트
   - 만약 디플로이먼트를 생성하면 이에 대응하는 레플리카셋도 자동으로 생성됨
 - 디플로이먼트를 생성하면 포드와 레플리카셋을 직접 생성할 필요가 없음
+
+# 디플로이먼트 yml
+
+```yml
+apiVersion: apps/v1
+kind: Deployment # 해당 yml 이 deployment 로 생성할 것임을 명시
+metadata:
+  name: my-nginx-deployment
+spec:
+  replicas: 3 # 유지할 포드의 개수를 3으로 레플리카셋에 지정
+  selector:
+    matchLabels:
+      app: my-nginx # my-nginx 라는 라벨의 포드를 유지
+
+  template: # 포드에 대한 설정 정보
+    metadata:
+      name: my-nginx-pod
+      labels:
+        app: my-nginx # 포드의 라벨
+    spec: # 포드 생성 스펙
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+```
+
+# 디플로이먼트를 사용하는 이유
+
+- 디플로이먼트를 사용하는 이유는 애플리케이션의 업데이트와 배포를 더욱 편하게 하기 위해서임
+  - 애플리케이션을 업데이트할 때 레플리카셋의 변경 사항을 저장하는 리비전을 남겨 롤백을 가능하게 함
+  - 무중단 배포를 위해서 롤링 업데이트 전략을 지정할 수 있음

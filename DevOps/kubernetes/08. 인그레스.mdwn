@@ -1,0 +1,51 @@
+# 인그레스
+
+- Ingress는 외부에서 내부로 향하는 것을 지칭하는 단어
+- 인그레스 트래픽은 외부에서 서버로 유입되는 트래픽을 말 함
+- 인그레스 네트워크는 인그레스 트래픽을 처리하기 위한 네트워크
+
+# 인그레스 기능
+
+- 외부 요청 라우팅
+- 가상 호스트 기반 요청 처리
+- SSL/TLS 보안 연결 처리
+
+# 인그레스 사용 이유
+
+- NodePort와 LoadBalancer 타입의 서비스를 사용하면 인그레스와 같은 기능을 동작시킬 수 있음
+  - 하지만 각각의 디플로이먼트가 외부에 노출됨
+- 인그레스를 사용하면 URL 엔드포인트를 단 하나만 생성
+
+# 인그레스 사용
+
+```yml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+
+metadata:
+  name: ingress-example
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite/target: /
+    kubernetes.io/ingress.class: "nginx"
+
+spec:
+  rules:
+    - host: alicek106.example.com
+      http:
+        paths:
+          - path: /echo-hostname
+            backend:
+              serviceName: hostname-service
+              servicePort: 80
+```
+
+- host: 해당 도메인 이름으로 접근하는 요청에 대해서 처리
+- path: 해당 경로에 들어온 요청을 어디로 보낼 것인지 정의
+- serviceName, servicePort: path 로 들어온 요청이 전달될 서비스와 포트
+
+# 인그레스 컨트롤러
+
+- 인그레스.yml 에서 정의한 내용은 단지 규칙일 뿐, 실제로 외부 요청을 받아들이지는 않음
+- 실제 외부의 요청을 받아들이는 것은 인그레스 컨트롤러가 하는 것
+  - ingress controller 가 ingress의 rules 를 이용해 사용
+- 결국 인그레스를 사용하려면 인그레스 컨트롤러와 꼭 함께 사용해야 함
