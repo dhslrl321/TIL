@@ -17,13 +17,30 @@
   1. 포드 스토리지
   2. 포트 네트워킹
 
-# 포드 yml 파일
+# 포드 생성하기
+
+- 포드를 생성하는 2가지 경우
+  1. 포드만 생성하는 경우
+  2. 포드 상위 리소스를 생성하여 포드를 생성하는 경우
+- 포드만 생성하는 경우
+  - yml 파일에 kind를 Pod 로 지정하고 spec 에 포드가 실행시킬 컨테이너 설정을 추가
+- 포드 상위 리소스를 생성하여 포드를 생성하는 경우
+  - 상위 리소스 정의 시에 PodTemplate 속성을 추가
+- 직접 포드를 만들어서 쓰는 경우 보다 그 상위 리소스를 만들어서 쓰는 것이 더 일반적임
+  - 상위 리소스
+    - 레플리카셋
+    - 스테이트풀셋
+    - 데몬 셋
+  - 상위 리소스에서 포드를 생성할 때는 포드 템플릿을 생성해서 포드를 관리함
+-
+
+# 포드만 생성하는 경우의 yml 파일
 
 ```yml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: my-service-pod
+  name: my-pod
 spec:
   containers:
     - name: service-container-name
@@ -31,6 +48,33 @@ spec:
       ports:
         - containerPort: 80
           protocol: TCP
+```
+
+# 포드의 상위 리소스를 생성하며 포드를 생성하는 경우
+
+- 다음 글에서 더욱 자세히 알아봄
+
+```yml
+apiVersion: v1
+kind: ReplicaSet # 포드의 상위 리소스인 레플리카 셋
+metadata:
+  name: my-replicaset
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-pod-label
+  template: # Pod Template (포트 속성 정의)
+    metadata:
+      name: my-pod
+      labels:
+        app: my-pod-label
+    spec:
+      containers:
+        - name: nginx-pod
+          image: nginx
+          ports:
+            - containerPort: 80
 ```
 
 - apiVersion
@@ -42,11 +86,16 @@ spec:
 - spec
   - 리소스를 생성하기 위한 자세한 정보를 입력
 
+# 포드 수정 및 교체
+
+- yml 의 포드 템플릿이 변경되면 컨트롤러는 기존의 포드를 업데이트 하지 않고 신규 포드를 생성한다.
+-
+
 # 포드 vs 도커 컨테이너
 
 - 포드가 하는 일은 도커 컨테이너가 하는 일과 동일한데 왜 쿠버네티스틑 포드를 사용하는가
   - 여러 리눅스 네임스페이스를 공유하는 컨테이너들을 추상화된 집합으로 사용하기 위하여
-- 도커는 리눅스 네트워크 네임스페이스를 공유하기 위해서 브릿지 네트워크를 구성해서 사용
+- 도커는 여러 컨테이너들이 리눅스 네트워크 네임스페이스를 공유하기 위해서 브릿지 네트워크를 구성해서 사용
 - 쿠버네티스는 하나의 포드 내에 존재하는 컨테이너들은 같은 리눅스 네임스페이스(네트워크와 같은)를 사용할 수 있음
 
 # 포드

@@ -1,4 +1,5 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
+
 kind: Ingress
 metadata:
   name: pcuss-ingress
@@ -7,10 +8,12 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-    - host: localhost
-      http:
+    - http:
         paths:
-          - path: /api
-        backend:
-          service-name: front-service
-          servicePort: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: front-service
+                port:
+                  number: 80
