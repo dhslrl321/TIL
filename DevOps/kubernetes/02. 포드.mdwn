@@ -1,3 +1,5 @@
+[##_Image|kage@W3gSh/btq4H88YRib/Scyczn2qNCjNZmExlYaOzk/img.jpg|alignCenter|data-origin-width="273" data-origin-height="214" data-ke-mobilestyle="widthContent"|||_##]
+
 # 포드 : 컨테이너의 기본 단위
 
 - 컨테이너 애플리케이션을 구동하기 위해 꼭 필요한 오브젝트
@@ -32,7 +34,6 @@
     - 스테이트풀셋
     - 데몬 셋
   - 상위 리소스에서 포드를 생성할 때는 포드 템플릿을 생성해서 포드를 관리함
--
 
 # 포드만 생성하는 경우의 yml 파일
 
@@ -89,7 +90,6 @@ spec:
 # 포드 수정 및 교체
 
 - yml 의 포드 템플릿이 변경되면 컨트롤러는 기존의 포드를 업데이트 하지 않고 신규 포드를 생성한다.
--
 
 # 포드 vs 도커 컨테이너
 

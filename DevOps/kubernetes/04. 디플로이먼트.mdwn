@@ -2,13 +2,48 @@
 
 - 레플리카셋으로만 MSA 컨테이너를 구성할 수는 없음
 - 실제 운영환경에서는 레플리카셋을 yml 파일에서 사용하지 않음
-- 대부분 레플리카셋과 포드의 정보를 정의하는 디플로이먼트(deployment) 의 오브젝트를 파일에 정의해서 사용함
+  - 대부분 레플리카셋과 포드의 정보를 정의하는 디플로이먼트(deployment) 의 오브젝트를 파일에 정의해서 사용함
 - 포드와 더불어 가장 많이 보게될 오브젝트임
 - 레플리카셋보다 상위 오브젝트
   - 만약 디플로이먼트를 생성하면 이에 대응하는 레플리카셋도 자동으로 생성됨
 - 디플로이먼트를 생성하면 포드와 레플리카셋을 직접 생성할 필요가 없음
 
+# 디플로이먼트를 사용하는 이유
+
+- 디플로이먼트를 사용하는 이유는 애플리케이션의 업데이트와 배포를 더욱 편하게 하기 위해서임
+  - 애플리케이션을 업데이트할 때 레플리카셋의 변경 사항을 저장하는 리비전을 남겨 롤백을 가능하게 함
+  - 무중단 배포를 위해서 롤링 업데이트 전략을 지정할 수 있음
+
+---
+
+[##_Image|kage@W3gSh/btq4H88YRib/Scyczn2qNCjNZmExlYaOzk/img.jpg|alignCenter|data-origin-width="273" data-origin-height="214" data-ke-mobilestyle="widthContent"|||_##]
+
+지난 시간 우리는 Pod 에 대해서 알아보았다.
+
+그리고 지난 시간에 Pod 를 생성하는 2가지 방법 중 **상위 오브젝트를 이용한 포드의 생성**에서 ReplicaSet 에 대해서도 확인했었는데, 오늘은 ReplicaSet 보다 큰 상위 오브젝트인 Deployment 에 대해서 알아보려 한다.
+
+# 디플로이먼트, Deployment
+
+다시 한 번 이야기 하지만 대부분 의 운영 상황에서는 Pod를 직접 생성하는 일은 드물다.
+보통 ReplicaSet과 Pod 정보를 정의하는 상위 오브젝트인 디플로이먼트(deployment)를 yml 파일에 정의해서 사용한다.
+
+이 Deployment는 포드와 더불어서 앞으로 자주 보게 될 오브젝트 중 하나이다.
+
+[##_Image|kage@cBIozC/btq4RNCBfEk/ZBKV3XoeEKBe10GOQKTJGk/img.png|alignCenter|data-origin-width="542" data-origin-height="503" width="444" height="412" data-ke-mobilestyle="widthOrigin"|||_##]
+
+우리가 Deployment 에 대한 설정 상태 정보들을 yml 파일에 정의하면 꼭 필요한 필수 구성 요소들이 3 개 있다.
+
+1. 디플로이먼트의 설정 정보 (apiVersion, kind, metadata)
+2. 레플리카 셋의 설정 정보 (replicas, selector)
+3. 포드의 설정 정보 (template)
+
+> 레플리카 셋(ReplicaSet)은 간단하게 설명하자면 **포드의 개수을 유지 시켜주는 오브젝트**이다. 만약 우리가 replicas를 3으로 지정하면 해당 디플로에먼트는 레플리카셋에 의해서 3개의 포드가 계속해서 운영될 것이다.
+
+이런 구성 요소들로 우리는 **디플로이먼트를 정의하고 생성**하면 포드와 레플리카셋을 함께 정의할 수 있고 그들을 디플로이먼트로 관리할 수 있게 된다.
+
 # 디플로이먼트 yml
+
+백문이 불여일견이라고 가볍게 디플로이먼트 하나를 생성해서 띄워보자.
 
 ```yml
 apiVersion: apps/v1
@@ -34,8 +69,51 @@ spec:
             - containerPort: 80
 ```
 
+그리고 apply 커맨드를 kubectl로 입력해서 디플로이먼트 하나를 띄워보자.
+
+[##_Image|kage@Uxtqp/btq4QRrMvCw/nCV9fp1XKjsIFfPxPJwZe0/img.png|alignCenter|data-origin-width="809" data-origin-height="520" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 위와 같이 `kubectl get deployment`을 수행하여 상태를 확인하면 순차적으로 포드 3개가 올라오게 된다.
+
+clear로 커맨드라인을 더 깔끔하게 하고 **Pod, ReplicaSet, Deployment**의 정보를 순차적으로 출력해보자.
+
+정보를 확인하기 위해서 `kubectl get deployment, replicaset, pod` 명령어를 차례로 실행시켜 볼 것이다.
+
+[##_Image|kage@bdUeip/btq4MBcoUVF/BKSyUaSVCdG2FR3J8dAlN0/img.png|alignCenter|data-origin-width="809" data-origin-height="520" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 위와 같이 잘 동작하는 것을 볼 수 있다.
+
+# 디플로이먼트 업데이트 하기
+
+디플로이먼트가 잘 동작하는데, 만약 **nginx의 특정 버전만 사용하도록 요구사항이 변경**되었다고 가정해보자.
+
+그럼 어떻게 해야할까? 디플로이먼트를 껐다 다시 켜야할까?
+
+아니다. 디플로이먼트는 이런 상황에서 **단계적인 업데이트를 수행한다.**
+
+#### 즉, 기존에 생성된 디플로이먼트의 레플리카셋이 새로운 버전의 레플리카셋을 scalu-up 하고 기존의 버전을 scale-down 한다.
+
+우리의 yml 파일에서 nginx 이미지의 버전 태그를 1.16.1 버전으로 바꿔보자.
+
+[##_Image|kage@dowlrg/btq4MRzlVoV/2ZSJ21GzoBZPoQqqaQRYXk/img.png|alignCenter|data-origin-width="630" data-origin-height="386" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그리고 다시 apply 커맨드를 이용해서 띄우자.
+
+```bash
+❯ kubectl apply -f p04-deployment-nginx.yml
+
+deployment.apps/my-nginx-deployment configured
+```
+
+해당 명령을 출력하면 이번에는 created가 아니라 **configured**가 된 것을 볼 수 있다.
+
+이는 변경 사항을 반영한 것으로 이제 레플리카셋이 단계적으로 scaling 을 수행한다.
+
 # 디플로이먼트를 사용하는 이유
 
-- 디플로이먼트를 사용하는 이유는 애플리케이션의 업데이트와 배포를 더욱 편하게 하기 위해서임
-  - 애플리케이션을 업데이트할 때 레플리카셋의 변경 사항을 저장하는 리비전을 남겨 롤백을 가능하게 함
-  - 무중단 배포를 위해서 롤링 업데이트 전략을 지정할 수 있음
+사실랑 디플로이먼트의 yml 설정 정보들과 레플리카셋의 yml 설정 정보는 차이가 거의 없다.
+그럼에도 불구하고 보통의 운영 상황에서는 레플리카셋을 사용하지 않고 디플로이먼트를 사용하는데, 그 이유는 바로 **배포에 있다.**
+
+#### 디플로이먼트를 사용하면 레플리카셋의 변경 사항을 저장하는 Revision을 남기기 때문에 Rollback 이 가능해지고 여러 무중단 배포 전략을 취할 수 있게 된다.
+
+이 내용은 추후에 더 배울 내용인 카나리 업데이트, 롤링 업데이트, blue-green 업데이트에서 알아보자.
