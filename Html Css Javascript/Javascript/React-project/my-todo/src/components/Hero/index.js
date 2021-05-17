@@ -7,7 +7,7 @@ const HeroSection = () => {
     <S.Container>
       <div>
         this is hello
-    </div>
+      </div>
     </S.Container>
   )
 }
