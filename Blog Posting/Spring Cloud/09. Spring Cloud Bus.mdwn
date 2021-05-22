@@ -1,9 +1,251 @@
-- **Spring Cloud Bus와 RabbitMQ 를 이용한 Config 정보 반영하기**
-  - 지난 방법, Spring Boot Actuator 를 이용한 방법의 문제점과 해결 방법
-    - 문제점: 서버가 너무 많을 때는 모든 서버에 한 번씩 refresh 를 날려줘야 함
-    - 해결 : RabbitMQ를 이용해서 메시지 브로커만 재기동
-  - RabbitMQ란?
-  - Spring Cloud Bus 실습하기
-    - RabbitMQ 등록
-      - Config, Gateway, User
-    - Cloud Bus 등록
+Spring Cloud Bus와 RabbitMQ 를 이용한 Config 정보 반영하기
+
+- 지난 방법, Spring Boot Actuator 를 이용한 방법의 문제점과 해결 방법
+  - 문제점: 서버가 너무 많을 때는 모든 서버에 한 번씩 refresh 를 날려줘야 함
+  - 해결 : RabbitMQ를 이용해서 메시지 브로커만 재기동
+- Spring Cloud Bus란?
+- RabbitMQ란?
+- Spring Cloud Bus 실습하기
+  - RabbitMQ 등록
+    - Config, Gateway, User
+  - Cloud Bus 등록
+
+#### 해당 글은 [Spring Cloud Config 에서 변경된 정보를 마이크로서비스 인스턴스에서 Spring Boot Actuator 를 이용하여 반영하기](https://wonit.tistory.com/505)에 의존하는 글입니다. 실습 환경을 따라하시려면 이전 글에 나온 실습을 따라하시길 권고드립니다.
+
+### 목차
+
+- 지난 시간의 설정 정보 반영 방법
+  - Spring Boot Actuator 를 이용한 설정 정보 반영
+    - 문제점
+    - 해결 방법
+- 메시지 브로커, RabbitMQ
+- Spring Cloud Bus와 RabbitMQ를 연동하여 설정 정보 반영하기
+
+# 지난 시간의 설정 정보 반영 방법
+
+**지난 시간** 우리는 설정 정보를 외부 Repository 로 분리하고, 각각의 마이크로서비스들이 해당 설정 정보를 가져가는 실습을 위해서 다음과 같이 구성을 하였다.
+
+- Spring Cloud Config를 이용해서 Github Repository 와 연동하였다.
+- Spring Boot Actuator 를 이용해서 http Endpoint 로 설정 정보를 반영시켰다.
+
+간단하게 지난 시간을 되짚어보자.
+
+## Config 서버 세팅
+
+지난 시간까지 했던 작업은 다음과 같다.
+
+1. Service Mesh 세팅
+2. User & Team Microservices 구현
+3. 설정 정보를 저장할 Github Repository 설정
+4. Config Server 구현
+
+#### Service Mesh 세팅
+
+[##_Image|kage@3aJIk/btq5ffF9OFx/ZyPlEmeFKKm6O8HqVraZzK/img.png|alignCenter|data-origin-width="553" data-origin-height="457" data-ke-mobilestyle="widthOrigin"|||_##]
+
+Config 서버의 실습 환경을 위해서 우리는 Service Mesh 로 **Spring Cloud Gateway**와 **Spring Cloud Netflix Eureka** 를 각각 기동하여 Service Discovery와 Gateway 를 구현하였다.
+
+> 이에 대해서 궁금한 사항은 [Spring Cloud Gateway 를 이용해 API Gateway 구성하기](https://wonit.tistory.com/497?category=854728)와 [Service Discover Server로 Netflix Eureka 이용하기](https://wonit.tistory.com/495?category=854728) 에서 확인할 수 있습니다.
+
+#### Github Repository 세팅
+
+[##_Image|kage@Ev2yP/btq5aLyTwgm/7PA0IwaH55X0lt5ZhELkt1/img.png|alignCenter|data-origin-width="748" data-origin-height="556" data-ke-mobilestyle="widthOrigin"|||_##]
+
+우선 Github Repository에 Configuration 파일인 application.yml 파일을 올려 Config 서버가 해당 레포지토리의 정보를 받아올 수 있게 세팅하였다.
+
+#### Config Server 세팅
+
+[##_Image|kage@taEsA/btq5bNXA09D/xIlkXUfc5z6aOklwt4yKa0/img.png|alignCenter|data-origin-width="1125" data-origin-height="954" width="750" height="636" data-ke-mobilestyle="widthOrigin"|||_##]
+
+Spring Cloud Config 를 이용해서 Configuration 서버에서 설정 파일들이 있는 github 와 연동시켰다.
+
+#### User & Team Microservices 세팅
+
+[##_Image|kage@csgmeS/btq5bW8bbuk/k32u9libiYo1Dhhaj3okN1/img.png|alignCenter|data-origin-width="1057" data-origin-height="650" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그리고 User Service와 Team Servie 에서 Config 서버와 연결시켜 Config 서버가 Github 에서 가져온 설정 파일들을 각각의 서비스에서 받을 수 있도록 `bootstrap.yml` 파일에 적용하였다.
+
+> 이에 대해서 궁금한 사항은 [서비스를 만들며 OpenFeign 과 RestTemplate 비교하기](https://wonit.tistory.com/506?category=854728) 에서 확인할 수 있습니다.
+
+## 설정 정보 변경하기 및 반영하기
+
+#### 설정 정보 변경하기
+
+위의 세팅을 모두 적용하며 **각각 서비스들과 mesh 를 실행**시켜보자.
+
+그리고 설정 파일 하나를 변경한다면 어떻게 해야할가?
+
+[##_Image|kage@crjH2V/btq5feUNNjL/IYQNOLQkROYCDDTLZbrj7k/img.png|alignCenter|data-origin-width="1698" data-origin-height="544" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 변경 사항 : `test.message: this is version 1` -> `test.message: this is version 2`
+
+#### 설정 정보 반영하기
+
+이제 각각의 마이크로서비스에서 설정 정보를 반영하기 위해서 **Spring Boot Actuator**의 **refresh** 기능을 위해 Postman 에 들어가자
+
+그리고 각각의 마이크로서비스의 주소로 `https://my-service/actuator/refresh` 명령을 보내면 된다.
+
+[##_Image|kage@OY4fF/btq5i4pKgG9/ap2tI1LD5kxMBNELcKsk4K/img.png|alignCenter|data-origin-width="848" data-origin-height="239" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 설정 정보가 반영된다.
+
+## 문제점
+
+그럼 기존의 방식의 문제점이라면 뭐가 있을까?
+
+아마 **설정이 변경되면 모든 서버에서 actuator refresh** 해야 한다는 것이다.
+
+지금은 서비스가 2개밖에 없지만 만약 서비스가 100개 라면? 1000개라면?? 그럼 일일이 해당 서비스들의 actuator를 refresh 해야 한다.
+
+Container Orchestration 이 도입되어 Auto Scaling 된다면 이 문제점은 더 심각해진다.
+
+#### 이런 문제를 해결하기 위해서 Spring Cloud Bus 도입을 고민할 수 있다.
+
+# Spring Cloud Bus란?
+
+Spring Cloud Bus 는 분산 시스템 환경, 마이크로서비스 환경에서 각각의 노드나 서비스를 연결시켜주는 경량 메시지 브로커이다.
+
+Spring Cloud Bus 를 이용한다면 Configuration 들을 Broadcast 하게 변경 사항을 적용시킬 수 있다.
+
+Spring Cloud Bus 는 SpringBoot Application 에 **부착되어** 설정 정보를 지속적으로 반영할 수 있게 한다.
+
+더 쉽게 이해하기 위해서 아래 설정 정보 적용 과정을 함께 따라가보자.
+
+## 설정 정보 적용 과정
+
+설정 정보가 적용되는 과정은 다음과 같다.
+
+[##_Image|kage@mlYnD/btq5ffzu9fk/m831XYoNP2qK8j3jNpYcEk/img.png|alignCenter|data-origin-width="1010" data-origin-height="853" width="729" height="615" data-ke-mobilestyle="widthOrigin"|||_##]
+
+1. 개발자는 configuration file 을 remote repository 에 push 한다.
+2. Spring Cloud Bus 가 Message Broker 로 변경된 설정 정보에 대한 Message 를 발행한다.
+3. Message Broker는 설정 정보를 저장하고 있는다.
+4. 개발자가 설정 정보가 변경되었음을 Config Server 에게 알려준다.
+5. Message Broker 가 해당 메시지를 Subscribing 하고 있는 Application 들 에게 Broadcasting 한다.
+6. 각각의 Application 은 Spring Cloud Bus 가 받은 설정 정보를 반영한다.
+
+여기서 Message Broker 가 무엇인지 모른다면 해당 블로그의 [Message Oriented Middleware과 Message Broker의 차이 및 원리](https://wonit.tistory.com/511) 에서 확인할 수 있다.
+
+현재 다양한 Message Broker 가 존재한다.
+
+우선 어떤 메시지 브로커를 사용할 것인지를 선택해보자
+
+# Message Broker 선택하기
+
+우리에게는 선택지가 2가지가 있다.
+
+[##_Image|kage@4hA0W/btq5c5Rho51/y9pLgOrIwUNfjKmVcKnrSk/img.png|alignCenter|data-origin-width="636" data-origin-height="218" data-ke-mobilestyle="widthOrigin"|||_##]
+
+1. RabbitMQ
+2. Kafka
+
+### RabbitMQ
+
+초당 20개 이상의 메시지를 처리할 수 있는 능력을 가진 오픈소스 메시지 브로커이다.
+Point To Point Message Model와 Pub/Sub Message Model 모두를 지원하지만 Point To Point Message Model 이 가장 적합하며 설정 정보와 같은 가볍고 적은 데이터를 처리하기에 적합하다.
+
+### Kafka
+
+초당 10만개 이상이 메시지, 이벤트를 처리할 수 있는 능력을 가진 오픈소스 메시지 브로커이다.
+Publisher가 Topic 에 메시지를 전달하고 해당 Topic을 구독하는 Subscriber 가 메시지를 가져다 사용하는 형태가 된다.
+Kafka는 대용량 이벤트를 다루기에 적합하기 때문에 보통 Spring Cloud Bus 에서는 RabbitMQ를 사용한다.
+
+#### 선택은 **경량 메시지 브로커**인 RabbitMQ이다!
+
+## RabbitMQ 설치하기
+
+Rabbit MQ를 설치해보자.
+현재 실습 운영체제는 MacOS 이므로 homebrew를 사용한다.
+
+```bash
+$ brew update
+
+$ brew install rabbitmq
+
+$ export PATH=$PATH:/usr/local/sbin
+
+$ rabbitmq-server
+```
+
+만약 RabbitMQ를 정상적으로 실행하였다면 다음과 같은 화면이 터미널에 나오게 된다.
+
+[##_Image|kage@d8gOhC/btq5c7hgYTA/U4sTbcl3GDxwXgOylyjP51/img.png|alignCenter|data-origin-width="697" data-origin-height="534" data-ke-mobilestyle="widthOrigin"|||_##]
+
+# 실습하기
+
+이제 아까 앞에서 구성한 마이크로서비스 구조에서 실제로 Configuration Server와 각각 Application 들이 Spring Cloud Bus를 이용해서 설정 정보를 반영하는 실습을 해보자.
+
+순서는 다음과 같다.
+
+1. 각각의 마이크로서비스에서 Spring Boot actuator와 Spring Cloud Bus 의존성을 추가한다.
+2. application.yml 파일에서 Spring Cloud Bus과 actuator 정보 추가하기
+3. Rabbit MQ -> Config Service -> Microservices 를 차례로 실행시키기
+4. 설정 파일 수정하고 github로 push 하기
+5. Config Server의 Bus Refresh 하기
+6. 테스트
+
+## 각각의 마이크로서비스에서 Spring Boot actuator와 Spring Cloud Bus 의존성 추가하기
+
+Config 서버와 Gateway 를 포함한 각각의 마이크로 서비스에 2개의 의존성을 추가시켜주자.
+
+```gradle
+// Spring Cloud Bus + RabbitMQ
+implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+
+// Spring Boot actuator
+implementation 'org.springframework.boot:spring-boot-starter-actuator'
+```
+
+## 각각의 마이크로서비스에서 application.yml 파일을 수정해서 Spring Cloud Bus 를 연결시켜준다.
+
+Config 서버가 Github로 부터 받은 설정 정보를 RabbitMQ에 push 하고 각각의 서버가 해당 Message를 수신하기 위해서 모든 마이크로서비스 애플리케이션에 대해서 다음과 같은 설정 정보를 application.yml 에 추가한다.
+
+또한 actuator를 이용하기 위해서 endpoint의 busrefresh를 열어주자.
+
+```yml
+spring:
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: busrefresh
+```
+
+## 순서대로 실행시키기
+
+RabbitMQ, Config Server, User, Team MSA 순서로 애플리케이션을 구동시켜주자.
+
+[##_Image|kage@OAOOU/btq5fVm1w2o/ucKKzkQ4CxzDkmjSvrLEo1/img.png|alignCenter|data-origin-width="960" data-origin-height="530" data-ke-mobilestyle="widthOrigin"|||_##]
+
+## 설정 파일 수정하고 github로 push 하기
+
+기존에 연결되어있던 github 의 설정 파일을 수정하자.
+
+```yml
+test:
+  message: this is version 3 update by using ampq-rabbitmq with spring cloud bus
+```
+
+그리고 github로 push를 보내주자.
+
+[##_Image|kage@bHOyr5/btq5hjAJrtL/igGRYhgwdNKYlVKNfAbrek/img.png|alignCenter|data-origin-width="697" data-origin-height="459" data-ke-mobilestyle="widthOrigin"|||_##]
+
+## Config Server의 Bus Refresh 하기
+
+만약 Spring Cloud Bus 를 사용하지 않았더라면 Config Server, User Server, Team Server 등등 모든 서버에게 actuator로 refresh 명령을 보내야 했지만, Spring Cloud Bus의 amqp를 사용하므로 Config 서버에게만 busrefresh 요청을 보내면 모든 서버가 consume 하게 되어 설정 정보를 반영할 수 있게 된다.
+
+[##_Image|kage@AS3h9/btq5fwgKfBT/KR25vv5bk1MT1HMKKwIsA1/img.png|alignCenter|data-origin-width="1392" data-origin-height="789" data-ke-mobilestyle="widthOrigin"|||_##]
+
+요청은 `localhost:8888/actuator/busrefresh` 로 보내주면 된다.
+
+그럼 위와 같이 204 No Content 로 응답을 받게 되고 각각의 서버는 메시지 브로커의 Broadcast에 의해서 설정 정보를 받을 수 있게 된다.
+
+[##_Image|kage@cbYWGH/btq5fDmoywD/y3T4OPfdfEw9zMYfjiDX7k/img.png|alignCenter|data-origin-width="1267" data-origin-height="880" data-ke-mobilestyle="widthOrigin"|||_##]
+
+실제로도 잘 적용된 것을 볼 수 있다.

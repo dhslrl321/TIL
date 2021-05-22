@@ -1,0 +1,3 @@
+Authentication(인증)과 Authorization(인가 및 권한)은 보안에 있어서 기본적인 개념으로 다양한 정보보안 분야에서 사용된다.
+
+하지만 Authentication과 Authorization는 한글 뜻으로도 인증과 인가 라고 하여 발음이 비슷해서 그 의미를 헷갈리는 사람들이 많다.
