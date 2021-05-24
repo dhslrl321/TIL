@@ -14,18 +14,11 @@
     2. 해당 입력 값이 서버로 전달 (Request)
     3. 서버에서 데이터페이스와 연결
     4. 데이터베이스에서 응답과 인증 정보를 html로 전달 (Response)
-  - 웹의 역사
-    - 서버 사이드 렌더링
-      - 서버 사이드 템플릿 엔진
-        - jsp, php
-    - Front vs Back
-      - 클라이언트 사이드 렌더링
-    - MSA : Front End+ Aggregation Layer + Back End
   - 웹의 구성요소
     - 클라이언트 (브라우저) 와 서버 (컴퓨터 프로그램)
     - front
       - html, css, js
-    - back
+    - backㅠ
       - java, python, c++
     - db
       - mysql, oracle
@@ -41,8 +34,13 @@
 - 웹 개발
   - 웹 개발의 기본 3대 요소
     - html
+      - 사용자의 view
     - css
+      - 화면의 스타일
     - js
+      - 다양한 기능
+        - 동적인 view
+        - 서버로 데이터 전송
 
 # html
 
@@ -80,3 +78,8 @@
   - flex
 - flex로 배치하기
 - navigation bar 구성하기
+
+# js
+
+- 변수
+  - 콘솔에 변수 출력
