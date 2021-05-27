@@ -7,7 +7,7 @@
 ## 목차
 
 1. HTTP
-2. Algorith-ps
+2. Algorithm-ps
 3. algorith-이론
 4. jsp
 5. spring springboot
