@@ -1,100 +1,81 @@
-# React redux
+[React-redux] 방명록 서비스를 만들어보며 배우는 리덕스
 
-[공홈](https://react-redux.js.org)
+오늘은 React 에서 Redux 를 사용하는 방법에 대해서 알아보도록 하겠다.
 
-리덕스는 독립적인 라이브러리임
-Vue, Angular, Ember, Vanilla JS 랑도 별개.
+그러기 위해서는 우선 2가지 기술이 선행되어야 한다.
 
-지난 시간에 그냥 리덕스를 썼음
-이런 리덕스를 다른 프레임워크나 라이브러리에서 쓸 때는 UI 바인딩을 해야되는데, 그게 바로 React에서는 React-Redux임.
+1. [React와 React-Hooks](https://wonit.tistory.com/category/🦠%20자바스크립트/--%20React.js)
+2. [Redux 의 기본 Concept](https://wonit.tistory.com/344?category=822790)
 
-각각 UI 라이브러리, 플웍마다의 최적화된 성능 설계가 달라서 쓰는거임 이런걸
+위 내용들을 모른다면 조금 힘들어질 수 있으니 위 링크에서 확인하는 것도 좋은 방법인 것 같다.
 
-그리고 각각 store나 triggering 하는게 재사용될 수 있고 각각마다 달름.
+### 목차
 
-# 구성 요소
+- redux와 react-redux의 차이
+- redux 의 기본 개념
+  - 구성 요소
+  - Provider
+- react-redux 의 Hooks
+  - `<Provider/>`
+  - `createStore()`
+  - `useSelector()`
+  - `useDispatch()`
+- react-redux 로 todo list 만들기
+  - 프로젝트 만들기
+
+# redux와 react-redux의 차이
+
+잘 알다싶이 리덕스는 Vue, Angular, Ember, Vanilla JS 와는 별개로 돌아가는 독립적인 Javascript 라이브러리이다.
+
+리덕스는 다른 프레임워크나 라이브러리에서 쓸 때는 UI 바인딩을 해야되는데, 그게 바로 React에서는 React-Redux 라고 불린다.
+
+react-redux, [공식 홈페이지](https://react-redux.js.org) 에서 자세한 컨셉을 확인할 수 있으니 확인하는 것도 좋은 방법인 것 같다.
+
+# redux의 기본 개념
+
+redux 의 기본 개념과 구성요소에 대해서는 [지난 시간](https://wonit.tistory.com/344?category=822790) 에서 확인할 수 있지만 간단하게 되짚고 넘어가보자.
+
+## 구성 요소
 
 - Provider
-- connect
-- mapStateToProps
-- mapDispatchToProps
+- action
+  - 순수 js 객체
+    - action type
+    - action payload
+- action Creator
+  - action 객체를 반환하는 함수
+- Dispatch
+  - action 을 리듀서에게 전달한다
+- Reducer
+  - action 이 (새로운 state를 반환)
+- Store
+  - 관리하려는 state를 저장하는 곳
 
 ## Provider
 
-우리의 App 컴포넌트가 store를 사용할 수 있게 하기 위해서 `<Provider />` 로 wrapping 해야함.
-리덕스 스토어를 이용가능하게 하는 역할을 수행
-보통 index.js나 index.jsx에서 사용함.
+Provider 는 리덕스의 가장 기본이라고 할 수 있다.
 
-그리고 Provider는 한 개의 props를 받는데, 그게 바로 스토어 프롭스임
+우리는 Redux 를 state 를 관리하고 **Global 하게 사용하기 위해**서 사용하는데, 그러기 위해서는 가장 최상위 컴포넌트에 Provider 컴포넌트를 부모 컴포넌트로 만들어야 한다.
 
-```
-import React from 'react'
-import ReactDOM from 'react-dom'
+보통 create-react-app 을 통해서 리액트 앱을 만들게 되면 App 컴포넌트가 가장 상위 컴포넌트가 된다.
+App 컴포넌트 내부에 있는 컴포넌트들이 store를 사용할 수 있게 하기 위해서 `<Provider />` 로 wrapping 해야 한다.
 
-import { Provider } from 'react-redux'
-import store from './store'
+```js
+import React from "react";
+import ReactDOM from "react-dom";
 
-import App from './App'
+import { Provider } from "react-redux";
+import store from "./store";
 
-const rootElement = document.getElementById('root')
+import App from "./App";
+
+const rootElement = document.getElementById("root");
 ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
   rootElement
-)
+);
 ```
 
-일케 쓰임
-
-## connect
-
-리액트의 컴포넌트 자체는 리덕스랑 원래 연결할 수 없음
-근데 connect를 쓰면 컴포넌트를 리덕스랑 연결할 수 있음.
-이게 react-redux의 고유 기능.
-
-그리고 이 connect 함수는 2개의 인자를 받는데, 둘 다 옵셔널임
-
-그게 밑에 나올 두 함수
-
-## mapStateToProps 함수
-
-state가 변할 때 마다 호출되는데, 전체 store state를 수신하고 이거 쓸 때는 객체로 반환해야됨.
-store 에 있는 state를 props로 전달
-
-## mapDispatchToProps 함수
-
-store 에 있는 reducer를 실행시킬 dispatch를 props로 전달
-이 파라미터는 함수가 될 수 있고 객체가 될 수 있어.
-
-- 함수인 경우
-  이게 함수이면 매개번수로 `dispatch`함수를 받을거임
-  그리고 이건 객체를 반환해야됨
-
-- 객체인 경우
-  actionCreator 라면
-
-# mapStateToProps 사용하기
-
-이건 connect 함수의 처음으로 전달되는 인자라고 위에서 말함
-이건 store의 state를 내가 원하는 컴포넌트에서 사용할 때 사용되는데, 간단하게 mapState라고 부르기도 함
-
-## mapStateToProps 정의하기
-
-```
-function mapStateToProps(state, ownProps?)
-```
-
-첫 번째 매개변수인 state는 꼭 필요한 존재고
-ownProps는 옵셔널임.
-
-여기 인자 2개 에 대해서 알아보자.
-
-- state
-  state는 store.getState()한거랑 비슷하고 그냥 일반적으로 state라고 불러
-
-- ownProps
-  얘는 redux store랑 관련 없이 실제로 컴포넌트가 다른 곳에서 호출되어 props를 전달받을 때 사용함
-  만약 `<NameCard name="jang"/>` 이라고 하면 `NameCard` 안에서는 ownProps가 jang이 되는거고.
-
-# mapDispatchToProps 사용하기
+보통 React 에서는 `App.js`, Next.js 에서는 `_app.js` 에서 추가해주면 된다.
