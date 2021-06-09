@@ -92,3 +92,42 @@ ReactDOM.render(
 이제 실전으로 들어가 todo list 를 만들어보자
 
 # react-redux 로 todo list 만들기
+
+순서는 앞선 목차에서 이야기 했던 것 처럼 다음과 같은 순서로 개발 될 것이다.
+
+1. 프로젝트 만들기
+2. 의존성 추가
+3. UI 작업하기
+4. 리덕스 작업하기
+
+## 프로젝트 만들기
+
+**CRA** 를 이용해서 간단한 리액트 프로젝트를 생성해보자.
+
+```bash
+$ create-react-app redux-todo
+
+$ npx create-react-app redux-todo
+```
+
+그리고 의존성들을 추가해보자.
+간단하게 **redux와 styled-component** 를 추가해보자.
+
+```bash
+$ npm install -y styled-components
+
+$ npm install -y redux
+```
+
+이렇게 까지 했다면 `package.json` 에 의존성이 잘 들어왔는지 확인하고 루트 폴더에서 **App.js와 index.js** 만 남기고 나머지는 삭제한 뒤, 필요하지 않은 코드들을 지워 실행이 되는 것 까지 확인하자!
+
+[##_Image|kage@lt4Xp/btq6TzvwQd9/qYmpm2NzkFvlwUzghVpiY0/img.png|alignCenter|data-origin-width="204" data-origin-height="219" data-ke-mobilestyle="widthOrigin"|||_##]
+
+## UI 작업하기
+
+UI 는 4개의 컴포넌트를 이용해서 구성할 것이고 style 을 아주 간단하게 적용하려 한다. 각각의 컴포넌트는 고유한 style.js 파일을 갖게 되도록 하자
+
+1. App.js
+2. InputForm.js
+3. TodoItem.js
+4. TodoList.js
