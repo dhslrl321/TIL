@@ -16,12 +16,21 @@
   - 구성 요소
   - Provider
 - react-redux 의 Hooks
-  - `<Provider/>`
   - `createStore()`
   - `useSelector()`
   - `useDispatch()`
 - react-redux 로 todo list 만들기
   - 프로젝트 만들기
+  - 의존성 추가
+    - styled-components
+    - react-redux
+  - UI 작업하기
+    - 홈 화면 만들기
+  - 리덕스 작업하기
+    - action type 만들기
+    - action creator 만들기
+    - reducer 만들기
+    - store 추가하기
 
 # redux와 react-redux의 차이
 
@@ -79,3 +88,7 @@ ReactDOM.render(
 ```
 
 보통 React 에서는 `App.js`, Next.js 에서는 `_app.js` 에서 추가해주면 된다.
+
+이제 실전으로 들어가 todo list 를 만들어보자
+
+# react-redux 로 todo list 만들기
