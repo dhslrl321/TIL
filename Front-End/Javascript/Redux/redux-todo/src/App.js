@@ -7,9 +7,11 @@ import TodoList from './components/TodoList';
 function App() {
   return (
     <S.Container>
-      <h1>Redux 로 배우는 Todo List</h1>
-      <InputForm />
-      <TodoList />
+      <S.Wrapper>
+        <h1>Redux 로 배우는 Todo List</h1>
+        <InputForm />
+        <TodoList />
+      </S.Wrapper>
     </S.Container>
   );
 }

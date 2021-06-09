@@ -15,10 +15,6 @@
 - redux 의 기본 개념
   - 구성 요소
   - Provider
-- react-redux 의 Hooks
-  - `createStore()`
-  - `useSelector()`
-  - `useDispatch()`
 - react-redux 로 todo list 만들기
   - 프로젝트 만들기
   - 의존성 추가
@@ -93,14 +89,18 @@ ReactDOM.render(
 
 # react-redux 로 todo list 만들기
 
-순서는 앞선 목차에서 이야기 했던 것 처럼 다음과 같은 순서로 개발 될 것이다.
+Todo List 를 만들 것인데 아마 결과물은 다음과 같이 생겼을 것이다.
+
+[##_Image|kage@6HzQX/btq6Q6BafSW/FauawEzkjtxC8i4WlmIzH0/img.png|alignCenter|data-origin-width="878" data-origin-height="1072" width="608" height="742" data-ke-mobilestyle="widthOrigin"|||_##]
+
+순서는 앞선 목차에서 이야기 했던 것 처럼 다음과 같은 순서로 개발 한다.
 
 1. 프로젝트 만들기
 2. 의존성 추가
-3. UI 작업하기
-4. 리덕스 작업하기
+3. 리덕스 작업하기
+4. UI 작업하기
 
-## 프로젝트 만들기
+# 프로젝트 만들기 & 의존성 추가
 
 **CRA** 를 이용해서 간단한 리액트 프로젝트를 생성해보자.
 
@@ -123,11 +123,356 @@ $ npm install -y redux
 
 [##_Image|kage@lt4Xp/btq6TzvwQd9/qYmpm2NzkFvlwUzghVpiY0/img.png|alignCenter|data-origin-width="204" data-origin-height="219" data-ke-mobilestyle="widthOrigin"|||_##]
 
-## UI 작업하기
+# 리덕스 작업하기
 
-UI 는 4개의 컴포넌트를 이용해서 구성할 것이고 style 을 아주 간단하게 적용하려 한다. 각각의 컴포넌트는 고유한 style.js 파일을 갖게 되도록 하자
+이번 글의 핵심인 **리덕스 작업하기** 부분이다.
+
+리덕스 작업을 하기 위해서는 3개의 js 파일이 필요하다.
+
+- **actions.js**
+  - action 생성을 하고 해당 action 이 어떤 일을 수행할지 지정한다.
+- **reducer.js**
+  - action 을 실행시킬 reducer
+  - action 객체를 받아 state 를 변경시킨다.
+- **store.js**
+  - reducer 로 global store 를 만들 redux store
+
+`commons` 디렉토리를 생성하고 다음 3개의 파일을 각각 작성하도록 하자.
+
+[##_Image|kage@bmRdzp/btq6VrYnuWq/OWUuP0FcioVqvOF1JfMmDK/img.png|alignCenter|data-origin-width="178" data-origin-height="133" data-ke-mobilestyle="widthOrigin"|||_##]
+
+### actions.js
+
+```js
+export const ADD = "ADD_TODO";
+export const DELETE = "DELETE_TODO";
+
+let id = 1;
+
+export const add_todo = (todo) => {
+  return {
+    type: ADD,
+    todo: {
+      id: id++,
+      title: todo.title,
+      isComplete: todo.isComplete,
+    },
+  };
+};
+
+export const delete_todo = (id) => {
+  return {
+    type: DELETE,
+    id,
+  };
+};
+```
+
+### reducer.js
+
+```js
+import { ADD, DELETE } from "./actions";
+
+const initialState = {
+  todos: [],
+};
+
+export const reducer = (state = initialState, action) => {
+  if (action.type === ADD) {
+    return {
+      // 만약 다른 state 가 존재한다면 전개 연산 ...state 를 해야함
+      // 하지만 현재 state 에는 todos 하나 뿐이라 todos 만 반환하면 됨
+      todos: [...state.todos, action.todo],
+    };
+  } else if (action.type === DELETE) {
+    return {
+      todos: [...state.todos.filter((todo) => todo.id !== action.id)],
+    };
+  } else {
+    return state;
+  }
+};
+```
+
+### store.js
+
+```js
+import { createStore } from "redux";
+import { reducer } from "./reducer";
+
+const store = createStore(reducer);
+
+export default store;
+```
+
+# UI 작업하기
+
+UI 는 4개의 컴포넌트를 이용해서 구성할 것이고 style 을 아주 간단하게 적용하려 한다. 각각의 컴포넌트는 고유한 styleㄴ.js 파일을 갖게 된다.
 
 1. App.js
 2. InputForm.js
 3. TodoItem.js
 4. TodoList.js
+
+## App.js & App.styles.js
+
+```js
+// App.js
+import React from "react";
+import * as S from "./App.styles";
+
+import InputForm from "./components/InputForm";
+import TodoList from "./components/TodoList";
+
+function App() {
+  return (
+    <S.Container>
+      <S.Wrapper>
+        <h1>Redux 로 배우는 Todo List</h1>
+        <InputForm />
+        <TodoList />
+      </S.Wrapper>
+    </S.Container>
+  );
+}
+
+export default App;
+
+// App.styles.js
+import styled from "styled-components";
+
+export const Container = styled.div`
+  width: 100vw;
+  height: 200vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  background: #e9ecef;
+
+  input {
+    appearance: none;
+    outline-style: none;
+    border: none;
+  }
+`;
+
+export const Wrapper = styled.div`
+  margin-top: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+`;
+```
+
+## InputForm.js & InputForm.styles.js
+
+```js
+// InputForm.js
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+
+import * as S from "./InputForm.styles";
+import { add_todo } from "../commons/actions";
+
+const InputForm = () => {
+  const dispatch = useDispatch();
+
+  const [text, setText] = useState("");
+
+  const handleChange = (e) => {
+    const { value } = e.target;
+
+    setText(value);
+  };
+
+  const handleClick = () => {
+    const todo = {
+      title: text,
+      isComplete: false,
+    };
+
+    dispatch(add_todo(todo));
+    setText("");
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleClick();
+    }
+  };
+
+  return (
+    <S.Container>
+      <S.InputBox
+        type="text"
+        placeholder="할 일을 입력하세요!!"
+        onChange={handleChange}
+        value={text}
+        onKeyDown={handleKeyPress}
+      />
+      <S.Button onClick={handleClick}>추가 하기</S.Button>
+    </S.Container>
+  );
+};
+
+export default InputForm;
+
+// InputForm.styles.js
+import styled from "styled-components";
+
+export const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const InputBox = styled.input`
+  width: 295px;
+  height: 40px;
+  margin: 10px 5px;
+
+  border-radius: 15px;
+  font-size: 1.2rem;
+
+  background: white;
+  padding: 5px 25px;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.34);
+`;
+
+export const Button = styled.button`
+  width: 100px;
+  height: 50px;
+
+  font-size: 1.2rem;
+
+  background: white;
+
+  border: none;
+  border-radius: 15px;
+
+  color: #20c997;
+
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.34);
+
+  cursor: pointer;
+`;
+```
+
+## TodoItem.js & TodoItem.styles.js
+
+```js
+// TodoItem.js
+import React from "react";
+
+import { useDispatch } from "react-redux";
+
+import * as S from "./TodoItem.styles";
+import { delete_todo } from "../commons/actions";
+
+const TodoItem = ({ todo }) => {
+  const dispatch = useDispatch();
+
+  const { id, title, isComplete } = todo;
+
+  const handleClick = () => {
+    dispatch(delete_todo(id));
+  };
+
+  return (
+    <S.Container>
+      <S.TextColumn>
+        <div>
+          <S.Text>{title}</S.Text>
+        </div>
+        <S.X onClick={handleClick}>{isComplete || "X"}</S.X>
+      </S.TextColumn>
+    </S.Container>
+  );
+};
+
+export default TodoItem;
+
+// TodoItem.styles.js
+import styled from "styled-components";
+
+export const Container = styled.div`
+  margin: 10px 10px;
+  padding: 10px 10px;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  border-radius: 4px;
+`;
+
+export const TextColumn = styled.div`
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const Text = styled.span`
+  margin: 0 8px;
+`;
+
+export const X = styled.button`
+  color: red;
+  border: none;
+  background: white;
+
+  font-size: 1rem;
+
+  cursor: pointer;
+`;
+```
+
+## TodoList.js & TodoList.styles.js
+
+```js
+// TodoList.js
+import React from "react";
+
+import * as S from "./TodoList.styles.js";
+
+import TodoItem from "./TodoItem.js";
+import { useSelector } from "react-redux";
+
+const TodoList = () => {
+  const todos = useSelector((state) => state.todos);
+
+  return (
+    <S.Container>
+      {todos.map((todo) => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+    </S.Container>
+  );
+};
+
+export default TodoList;
+
+// TodoList.styles.js
+import styled from "styled-components";
+
+export const Container = styled.div`
+  width: 400px;
+  padding: 30px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: white;
+
+  border-radius: 15px;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.34);
+`;
+```
+
+#### 전체 실습 코드는 [github](https://github.com/dhslrl321/TIL/tree/master/Front-End/Javascript/Redux/redux-todo) 에 올라가 있으니 참고하시길 바랍니다!

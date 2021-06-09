@@ -3,12 +3,20 @@ import React from 'react'
 import * as S from "./TodoList.styles.js";
 
 import TodoItem from './TodoItem.js';
+import { useSelector } from 'react-redux';
 
 
 const TodoList = () => {
+
+  const todos = useSelector(state => state.todos);
+
   return (
     <S.Container>
-      <TodoItem id={1} title={"일 하기"} isComplete={false} />
+      {todos.map(todo =>
+        <TodoItem
+          key={todo.id}
+          todo={todo} />
+      )}
     </S.Container>
   )
 }

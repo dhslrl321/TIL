@@ -1,3 +1,6 @@
-import { } from "react-redux";
+import { createStore } from "redux"
+import { reducer } from "./reducer";
 
-const todoList = [];
+const store = createStore(reducer);
+
+export default store;
