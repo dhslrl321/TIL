@@ -3,3 +3,37 @@
 지난 시간 우리는 리덕스와 리액트 리덕스를 사용해서 [누구나 만드는 Todo List](https://wonit.tistory.com/514)를 만들었었다.
 
 # 덕스 패턴
+
+- 의미
+  - 하나의 Reducer 파일 안에서 **Action Type, Action Creator** 를 함께 넣어 모듈화 하는 것
+- 덕스 패턴의 필수 3가지 규칙
+  1. reducer() 함수를 export default
+  2. action creator를 함수 형태로 export
+  3. `reducer/ACTION_TYPE` 형태의 action type 을 가져야 함
+- 구조
+  - 최상단에 action type 을 명시한다.
+  - 리듀서를 정의하고 export default 한다.
+  - 액션 생성자를 export 를 통해 내보낸다.
+
+```js
+// action_type 정의
+const ADD = "todo/ADD_TODO";
+const DELETE = "todo/DELETE_TODO";
+
+// reducer exporting
+export default function reducer(state = {}, action = {}) {
+  switch (action.type) {
+    default:
+      return state;
+  }
+}
+
+// action_creator
+export function add_todo() {
+  return { type: ADD };
+}
+
+export function delete_todo() {
+  return { type: DELETE };
+}
+```
