@@ -8,7 +8,9 @@ import { useSelector } from 'react-redux';
 
 const TodoList = () => {
 
-  const todos = useSelector(state => state.todos);
+  const { todos } = useSelector(state => state.todoReducer);
+
+
 
   return (
     <S.Container>
