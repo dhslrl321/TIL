@@ -15,6 +15,8 @@
 - redux 의 기본 개념
   - 구성 요소
   - Provider
+  - `useDispatch()`
+  - `useSelector()`
 - react-redux 로 todo list 만들기
   - 프로젝트 만들기
   - 의존성 추가
@@ -84,6 +86,38 @@ ReactDOM.render(
 ```
 
 보통 React 에서는 `App.js`, Next.js 에서는 `_app.js` 에서 추가해주면 된다.
+
+## useDispatch 와 useSelector
+
+**useDispatch()와 useSelector()**는 리덕스를 **함수형 컴포넌트에서 사용하기 위한 방법이다.**
+
+리액트가 Hook을 발표한 이후로 우리는 이제 더 이상 클래스형 컴포넌트를 사용하지 않는다.
+
+클래스형 컴포넌트에서 리덕스를 사용하기 위해서는 **connect, mapDispatchToProps, mapStateToProps**와 같은 HOC를 이용해야 했지만 이제는 Hook 을 이용해서 더욱 **가독성 있고 편리한 리덕스를 사용할 수 있게** 된 것이다.
+
+### useSelector()
+
+useSelector 는 **Redux Store** 로 부터 state 를 가져올 때 사용한다.
+
+```js
+import { useSelector } from "react-redux";
+
+const result = useSelector((state) => state.someState);
+```
+
+### useDispatch()
+
+useDispatch 는 action 을 dispatch 할 때 사용할 수 있는 훅이다.
+
+```js
+import { useDispatch } from "react-redux";
+
+const dispatch = useDispatch();
+
+dispatch(ACTION);
+```
+
+useDispatch 에서는 memoize를 위해서 **useCallBack()** 와 함께 사용하기도 하는데, 자세한 내용은 **바로 이 다음 시간**에 알아보도록 하자!
 
 이제 실전으로 들어가 todo list 를 만들어보자
 
@@ -168,6 +202,15 @@ export const delete_todo = (id) => {
 };
 ```
 
+우리는 이번 todo list 에서 2개의 액션만을 사용할 것이다.
+
+1. todo 생성
+2. todo 삭제
+
+todo를 생성하기 위해서는 매개변수로 받은 todo 객체를 reducer 에게 반환 하고, todo를 삭제하기 위해서는 삭제하려는 todo의 id 만을 넘겨주도록 한다.
+
+자세한 생성, 삭제 로직은 reducer 에게 위임하도록 하는 것이 action의 책임의 마지막이다.
+
 ### reducer.js
 
 ```js
@@ -194,6 +237,11 @@ export const reducer = (state = initialState, action) => {
 };
 ```
 
+action-creator 에게 받은 **action.type**, **action.payload**를 가지고 이제 실제로 해당 액션이 어떤 결과를 내어야 하는지를 이 reducer 에서 정의하도록 한다.
+
+생성을 위해서는 initialState 에 존재하는 todo 배열에 새로운 항목을 추가한 **새로운 state를 반환**하도록 한다.
+그리고 삭제에서는 action이 넘겨줄 id를 가지고 `Array.filter()` 메서드를 이용해서 id가 동일한 todo 객체를 삭제한 todos를 반환하도록 한다.
+
 ### store.js
 
 ```js
@@ -204,6 +252,8 @@ const store = createStore(reducer);
 
 export default store;
 ```
+
+리덕스 스토어에 reducer를 넣어주는 작업을 해당 파일에서 수행한다.
 
 # UI 작업하기
 
@@ -268,7 +318,13 @@ export const Wrapper = styled.div`
 `;
 ```
 
+App.js 는 우리가 만들 **InputForm, TodoItem, TodoList**를 포함하는 컴포넌트이다.
+
+간단한 스타일을 적용하였지만 만약 styled-component나 css 에 대해서 아직 모른다면 스타일은 그냥 넘어가거나 복사해서 사용해도 좋다.
+
 ## InputForm.js & InputForm.styles.js
+
+해당 파일에서는 TodoItem 을 생성하는 생성 폼 을 구현할 것이다.
 
 ```js
 // InputForm.js
@@ -362,7 +418,15 @@ export const Button = styled.button`
 `;
 ```
 
+InputForm 에서는 텍스트 필드가 변경될 때, 추가 버튼을 클릭했을 때 state를 조작한다.
+
+여기서 눈여겨 봐야 할 것이 우리가 리덕스를 사용한다고 해서 모든 state를 리덕스로 관리할 필요가 없다.
+
+간단한 state 같은 경우에는 그냥 리액트 훅인 **useState()** 만 사용해도 충분하고 global 하게 사용될 여지가 있는 todo 는 리덕스로 관리하도록 했다.
+
 ## TodoItem.js & TodoItem.styles.js
+
+우리가 앞에서 reducer 에서 정의한 state 에 존재하는 todos를 렌더링 할 ui 컴포넌트이다.
 
 ```js
 // TodoItem.js
@@ -433,7 +497,13 @@ export const X = styled.button`
 `;
 ```
 
+여기서는 todo item 을 삭제, 즉 해당 todo를 완료했을 경우를 위해서 DELETE action을 dispatch 한다.
+
+이를 위해서 앞서 배운 useDispatch()를 사용하였다.
+
 ## TodoList.js & TodoList.styles.js
+
+TodoItem 을 렌더링하는 상위 컴포넌트 격인 **TodoList** 컴포넌트이다.
 
 ```js
 // TodoList.js
@@ -474,5 +544,15 @@ export const Container = styled.div`
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.34);
 `;
 ```
+
+해당 컴포넌트에서는 reducer 에 존재하는 state인 todos를 이용해 TodoItem 을 렌더링할 상위 컴포넌트이다.
+
+useSelector 를 이용해서 state 를 가져온 것을 확인할 수 있다.
+
+---
+
+이렇게 오늘은 Redux를 이용해서 TodoList를 간단하게 구현해보았다.
+
+앞으로 Redux 관련된 리팩토링이나 추가 개념들의 기본 base가 될 게시물이니 더 알아보고싶다면 해당 카테고리를 참고해도 좋을 것 같다.
 
 #### 전체 실습 코드는 [github](https://github.com/dhslrl321/TIL/tree/master/Front-End/Javascript/Redux/redux-todo) 에 올라가 있으니 참고하시길 바랍니다!

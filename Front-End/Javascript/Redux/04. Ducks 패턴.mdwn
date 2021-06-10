@@ -1,0 +1,5 @@
+[React-Redux] 덕스 패턴으로 고도화 시키는 Todo List
+
+지난 시간 우리는 리덕스와 리액트 리덕스를 사용해서 [누구나 만드는 Todo List](https://wonit.tistory.com/514)를 만들었었다.
+
+# 덕스 패턴
