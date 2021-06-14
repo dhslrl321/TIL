@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useDispatch } from "react-redux";
 
 import * as S from "./InputForm.styles";
-import { add_todo } from "../modules/todo";
+import { add_todo } from "../../modules/todo";
 
 const InputForm = () => {
   const dispatch = useDispatch();

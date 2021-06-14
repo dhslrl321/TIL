@@ -3,7 +3,7 @@ import React from 'react'
 import { useDispatch } from "react-redux";
 
 import * as S from "./TodoItem.styles";
-import { delete_todo } from "../modules/todo";
+import { delete_todo } from "../../modules/todo";
 
 const TodoItem = ({ todo }) => {
 
