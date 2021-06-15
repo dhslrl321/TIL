@@ -11,9 +11,3 @@ export const ProfileImg = styled.img`
   object-fit: cover;
   border-radius: 25px;
 `;
-
-export const ProfileColumn = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
