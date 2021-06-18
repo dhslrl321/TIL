@@ -1,0 +1,16 @@
+# 3-way handshaking
+
+- 순서
+  1. 클라이언트는 서버에 접속을 요청하는 SYN 패킷 전송
+  2. 클라이언트는 SYN/ACK 응답을 기다리는 SYN_SENT 상태가 됨
+  3. 서버는 SYN 요청을 받고 클라이언트에게 요청을 수락한다는 ACK와 SYN flag 가 설정된 패킷 발송
+  4. 클라이언트는 ACK로 응답 대기
+  5. 서버는 SYN_REVEIVED 상태
+  6. 클라이언트는 ACK 전송 후 연결
+  7. 서버는 ESTABLISHED 상태
+
+# Syn Flooding 공격
+
+- 클라이언트가 SYN을 계속해서 전송
+- 서버는 SYN 에 따라서 ACK를 생성하고 클라이언트에게 전송
+- 서버가 클라이언트가
