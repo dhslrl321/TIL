@@ -1,0 +1,144 @@
+> 해당 글은 **차세대 보안 리더 양성 프로그램(BoB)** 의 선발 전형에 따라 여러 파트로 나뉘어져 있습니다.
+> 세부 일정에 대한 자세한 사항은 **아래 링크**에서 확인하세요
+
+- 1차: [BoB 10기 서류전형 합격 후기](https://wonit.tistory.com/521)
+- 2차: [BoB 10기 필기시험 후기](https://wonit.tistory.com/522)
+- 3차: [BoB 10기 면접 후기](https://wonit.tistory.com/523)
+- 4차: [BoB 10기 최종 합격 후기](https://wonit.tistory.com/524)
+
+#### 해당 글에서 나오는 팁은 모두 **개인적인 의견일 뿐** 꼭 이렇게 해야 합격한다! 를 보장할 수 없습니다.
+
+[##_Image|kage@c0wpAT/btq7YOevjyH/yHTao2wQh6SVq6lz04XP1K/img.png|alignCenter|data-origin-width="486" data-origin-height="287" data-ke-mobilestyle="widthOrigin"|||_##]
+
+# BoB 10기 서류전형 합격 후기
+
+[##_Image|kage@n3cFu/btq70DDbENA/cKD2a6zG0V8SRVQQXDif2K/img.png|alignCenter|data-origin-width="1338" data-origin-height="192" data-ke-mobilestyle="widthOrigin"|||_##]
+
+BoB 에는 크게 3가지 단계가 있다고 생각한다.
+
+1. 자소서를 보는 **서류 전형**
+2. 기본적인 지식과 수준을 확인하는 **필기 전형**
+3. 지금까지 제출한 내용의 모든 점검인 **면접 전형**
+
+개인적인 생각으로는 각각의 단계에 일정 점수가 할당되고 멘토님들이 해당 단계를 채점하여 **점수를 합산하는 형태**라고 예측하고 있다. 이는 개인적인 예측이라 실제와 다를 수 있다.
+
+오늘은 그 첫 번째인 **서류 전형**에 대해서 이야기하려 한다.
+
+# 인적, 경력 사항 및 보유 기술 및 프로젝트 경험
+
+BoB 에서는 본인이 보안에 관하여 활동했던 전반적인 내용을 알고싶어 한다.
+
+기본적인 인적사항부터 시작하여 어떤 경력을 가졌고, 어떤 기술을 보유했으며 어떤 활동을 했는지 궁금해하는것 같다.
+
+#### 이 단계에서 가장 중요한 것은 **꾸밈 없는 사실만을 명시할 것**이다.
+
+면접을 준비해보니 어떠한 질문이 어디서 들어올지 몰라 내가 지금까지 했던 프로젝트, 취약점 제보, 기술에 관해서 모두 준비하는 것이 매우 큰 부담이었다.
+
+실제로 했던 프로젝트도 어떻게 질문이 들어올지 모르니 하나하나 해석하고 찾아보다 시간이 많이 흘렀었다.
+
+나 같은 경우는 다음과 같이 기술하였다.
+
+- **IT 보유 기술**
+  - **Language**
+    - C
+    - Java
+    - Javascript
+    - Python
+  - **Front End**
+    - React.js
+    - Next.js
+    - Redux
+    - Redux Thunk
+  - **Back End**
+    - Spring Boot
+    - Spring Security
+    - Spring Cloud
+      - Spring Cloud Netflix Eureka
+      - Spring Cloud Netflix OpenFeign
+      - Spring Cloud Gateway
+      - Spring Cloud Config
+      - Spring Cloud Bus
+  - **Backing**
+    - RDBMS
+      - MySql, Maria DB
+      - H2database
+      - Oracle
+    - Rabbit MQ
+  - **Dev Ops**
+    - Nginx
+    - Travis CI
+    - Docker
+    - docker-compose
+    - AWS
+- **보안 기술**
+  - 해킹 툴 (CTF 대회 및 wargame 에서 사용)
+    - Burp Suite
+    - Wireshark
+    - HexD
+  - **암호화 (개발 프로젝트에서 경험)**
+    - Bouncy Castle
+    - Keytool
+    - Spring Cloud Config Encrypt, Decrypt
+  - **인증 기술 (개발 프로젝트에서 사용)**
+    - Session / Cookie 인증
+    - 토큰 기반 인증
+      - access_token과 refresh_token 보안 처리
+    - 분산 환경에서 Gateway 의 토큰 기반 인증과 Auth Server 의 인가
+
+나는 이 모든 것을 프로젝트에 최소 한 번 이상 사용해보고 해당 개념과 주제로 포스팅을 해보긴 했었지만 면접에서 이 모든 것을 다시 훑어보고 조사하려 하니 이 또한 나만의 새로운 전형이 생긴것 같았다..
+
+그래서 내가 추천하는 방식은 **본인이 가장 기술적으로 익숙하고 잘 사용할 수 있는 것 위주로 작성하는 것**이다.
+
+혹은 나처럼 **상단에 자신이 생각하는 Level**을 만들고 해당 기술에 Level을 부여하는 방법도 좋은 것 같다.
+
+# 자기소개서
+
+우선 자기소개서에 쓸 내용 (프로젝트, 취약점 제보, 보유 기술)이 갖추어져 있어야 한다.
+
+사실상 BoB 는 준비가 되어있지 않은 학생들을 뽑는 경우를 보지 못했다.
+
+그래서 만약 이 글을 보고 있는 시점에 본인이 어떠한 프로젝트나 기술이 준비되어 있지 않다면 **꼭 준비를 하기 바란다**.
+
+프로젝트는 간단한 것이어도 내가 어떤 열정을 가지고 임했는지 **정확한 근거와 결과**가 있으면 좋을 것 같다.
+
+## 질문 문항
+
+질문 문항은 내 블로그 외에 다른 블로그를 찾아본다면 쉽게 찾아볼 수 있다.
+
+자소서 문항을 유출하는 것이 혀용되지 않는 단체를 여럿 봐왔기 때문에 나는 어떤 문항이 나왔는지 밝히지 않으려 한다.
+
+하지만 한 가지 말 할 수 있는 부분은 **자소서 질문은 꽤나 구체적이고 여러 이야기를 할 수 있다**는 것이다.
+
+질문당 각각 1000자 를 요구하고 **멘토님들이 모두 꼼꼼하게 읽어본다고 하시니 최대한 채우는 것을 목표로 하자**.
+
+#### 하지만 단지 글을 채우기 위해 의미없는 글은 당연히도 마이너스로 작용할 것 같다는 생각이 든다
+
+## 글쓰기
+
+나는 블로그를 오래 운영하며 글쓰기에 익숙하지만 왜 인지 모르겠는데, 자소서 글쓰기는 잘 못하는것 같다..
+
+그래서 내가 취하는 전략에 대해서 이야기 하자면
+
+#### 글은 STAR 기법과 두괄식 글쓰기를 혼합하여 적절한 긴장감을 준다.
+
+### STAR 기법이란?
+
+> STAR 기법은 Situation, Task, Action, Result의 약자로, 자신의 경험을 S(Situation), T(Task), A(Action), R(Result)로 작성하는 글쓰기 구조를 말합니다. 즉, 어떤 상황에서 문제가 발생했을 때 대처하기 위한 나의 행동과 그에 따른 결과를 논리적으로 설명하는 것입니다.
+
+내가 했던 경험에 대해서는 STAR 기법을 통해 신뢰성과 논리를 함께 보여줘야 한다.
+
+### 두괄식이란?
+
+> 두괄식 글쓰기는 말하고자 하는 핵심 내용을 첫 문장으로 쓰는 방법입니다. 읽는 이 입장에서 보면 글의 중심 생각이나 핵심 내용을 쉽게 찾을 수 있다는 장점이 있습니다
+
+나의 포부와 같은 개인적인 사견과 약속?을 하기 위해서는 논리와 핵심을 두괄식으로 먼저 표현하는 것이 좋다.
+
+---
+
+다시 한 번 이야기 하지만 이는 모두 제 개인적인 생각이고 저 또한 자소서를 얼마나 잘 썼고 못 썼는지 아직은 알지 못해요.
+
+단지 지원자 입장으로 제가 했던 고민을 공유하기 위한 글입니다.
+
+만약 누군가가 이 글을 보고 궁금한 내용이 있다면 언제든지 댓글을 달아주세요! 제가 하나하나 읽어보고 가능하다면 피드백도 드릴 수 있습니다 :)
+
+[##_Image|kage@4d9Mf/btq7Z0Mbttj/7r66lpiWB2yopBxloVFEc1/img.png|alignCenter|data-origin-width="730" data-origin-height="540" data-ke-mobilestyle="widthOrigin"|||_##]
