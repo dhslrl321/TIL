@@ -1,0 +1,71 @@
+# 문제
+
+> 해당 포스팅은 백준의 [1978번 소수 찾기](https://www.acmicpc.net/problem/1978) 의 접근과 해결 방법을 설명한 글 입니다.  
+> 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/30678271) 에서 확인 가능합니다.
+
+이 문제를 해결하기 위해 **어떤 방식으로 접근**해야 하는지를 먼저 생각해보자.
+
+# 문제 접근
+
+## 해결법
+
+소수 판별의 전형적인 에라토스테네스의 체를 이용하는 문제였다.
+
+먼저 에라토스테네스의 체로 소수의 인덱스인 배열에 값을 1로 지정해준다.
+
+## 정답 코드
+
+```java
+import java.io.*;
+
+public class Main {
+
+    private static int[] numbers = new int[1001];
+
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+
+        int answer = 0;
+
+        int n = Integer.parseInt(br.readLine());
+        String[] candidates = br.readLine().split(" ");
+
+        removePrimeNumber();
+
+        for(String candidate : candidates) {
+            int number = Integer.parseInt(candidate);
+            if(number == 1) continue;
+            if(numbers[number] == 0) {
+                answer++;
+            }
+        }
+
+        bw.write(String.valueOf(answer));
+
+        bw.flush();
+        bw.close();
+    }
+
+    private static void removePrimeNumber() {
+        for (int i = 2; i < numbers.length; i++) {
+            if(numbers[i] == 1) continue; // 소수인 경우
+
+            for (int j = 2 * i; j < numbers.length; j += i) {
+                numbers[j] = 1;
+            }
+        }
+    }
+
+}
+
+```
+
+---
+
+## 문제 회고
+
+> 회고
+
+#### 정답 소스 코드를 확인하시려면 [solve url](https://www.acmicpc.net/source/30678271) 에서 확인 가능합니다.
