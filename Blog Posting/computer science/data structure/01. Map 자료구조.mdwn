@@ -1,0 +1,18 @@
+# Map
+
+- 정의
+  - Searchable Entry Collections
+  - 검색 가능한 key, value 쌍(pair) 의 데이터 묶음
+    - key : unique data
+    - value : normal data
+- 종류
+  - list-based map
+    - unsorted, node list 로 구현
+    - 데이터를 탐색하기 위하여 선형 탐색 알고리즘을 이용
+    - 시간 복잡도는
+      - O(n)
+    - 특징
+      - 구현하기 쉽지만 데이터 개수가 적을때만 효율
+  - hash table
+    - entry 를 저장하기 위한 주소로 key 를 이용
+    - 시간 복잡도가 대부분 O(1)

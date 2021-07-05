@@ -1,0 +1,63 @@
+요즘 학교 프로젝트랑 BoB 때문에 바빠서 한 동안 알고리즘을 거의 놓다싶이 해버렸다..
+
+그래서 감을 좀 찾으려고 오랜만에 다시 문제를 풀어보려고 프로그래머스에 들어가서 Level 1 문제를 보고 있었다.
+
+문제는 [k 번째 수](https://programmers.co.kr/learn/courses/30/lessons/42748) 라는 문제였었고, 크게 어렵지 않은 문제였다.
+
+대충 배열 하나가 주어지고 입력으로 들어오는 i, j 값이 있으면 주어진 배열에서 i ~ j 까지 해당되는 새로운 배열을 만드는 것이 핵심이었다.
+
+나는 반복문을 이용해서 문제를 풀었는데, 다른 풀이를 보니 Arrays 클래스의 `copyOfRange` 메서드를 이용해서 풀이를 한 사람이 있었고, copyOfRange 에 흥미가 생겨 더 알아보려 한다.
+
+# copyOfRange 로 배열 복사하기
+
+- 오라클 공식 문서 [Arrays.class](https://docs.oracle.com/javase/7/docs/api/java/util/Arrays.html);
+
+공식 문서에서 copyOfRange 는 다음과 같이 표현한다.
+
+> Copies the specified range of the specified array into a new array.
+
+특정 범위에 따라서 새로운 배열을 반환한다는 것이다.
+
+```java
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        int[] array = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+        int[] refinedArray = Arrays.copyOfRange(array, 2, 6);
+
+        System.out.println(Arrays.toString(refinedArray));
+    }
+}
+```
+
+#### Arrays.copyOfRange(원본 배열, 시작 인덱스, 끝 인덱스);
+
+그럼 반환 타입으로 원본 배열과 동일한 타입의 새로운 배열을 반환하게 되는 것이다.
+
+실제 구현이 어떻게 되는지 궁금해서 한 번 찾아보니 다음과 같았다.
+
+```java
+public static int[] copyOfRange(int[] original, int from, int to) {
+    int newLength = to - from;
+    if (newLength < 0)
+        throw new IllegalArgumentException(from + " > " + to);
+    int[] copy = new int[newLength];
+    System.arraycopy(original, from, copy, 0,
+                      Math.min(original.length - from, newLength));
+    return copy;
+}
+```
+
+1. 배열의 size 를 끝 인덱스에서 시작 인덱스 만큼 차감한 값으로 새롭게 할당한다.
+2. 만약 size 가 음수일 경우, from 이 to 보다 큰 경우는 IllegalArgumentException 을 반환한다.
+3. System 의 `arraycopy` 함수를 이용하여 복사본 배열에 저장한다.
+
+엥? `System.arraycopy()` 에 대해서 봐야겠다.
+
+[##_Image|kage@5JOer/btq8T9OizDI/zUUGyuvsDtSm0dL8K0a40K/img.png|alignCenter|data-origin-width="703" data-origin-height="1070" width="441" height="671" data-ke-mobilestyle="widthOrigin"|||_##]
+
+음... 그냥 배열을 copy 한다고 한다..
+
+아무튼 이렇게 또 하나의 스킬을 배웠다!
