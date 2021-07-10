@@ -48,4 +48,4 @@ gradle의 학습용 정보 및 소스코드를 저장하는 공간.
 
 ## [Trouble Shootind](https://github.com/dhslrl321/ROL/tree/master/Trouble-Shooting)
 
-개발 시에 마주하는 각종 문제들을 해결하는 방법과 해결 과정을 정리하는 공간.
+개발 시에 마주하는 각종 문제들을 해결하는 방법과 해결 과정을 정리하는 공간
