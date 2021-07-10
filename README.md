@@ -14,6 +14,7 @@
 6. gradle
 7. android studio
 8. trouble shooting
+9. Security
 
 ## 디렉토리 바로가기
 
