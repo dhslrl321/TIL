@@ -1,0 +1,17 @@
+# Host Byte Order
+
+- Host Level 에서 Byte 를 표현하는 방식
+- Big Endian 과 Little Endian 방식에 따라서 달라짐
+  - 블로그 링크
+  - Big Endian
+    - ARM, Motolora
+  - Little Endian
+    - Inter, AMD
+- Little Endian 인 경우 데이터를 Big Endian 으로 변경해야 하는 작업이 필요함
+
+# Network Byte Order
+
+- Network Level 에서 Byte 를 표현하는 방식
+- Big Endian 방식을 이용
+
+# C 에서 HBO와 NBO 변환하는 방법
