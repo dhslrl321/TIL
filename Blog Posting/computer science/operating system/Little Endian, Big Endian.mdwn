@@ -1,3 +1,8 @@
+# 바이트 저장 순서
+
+- 컴퓨터가 데이터를 메모리에 저장할 때 byte 단위를 사용하는데, 연속된 바이트를 순서대로 저장함
+- 이때 바이트가 저장되는 순서를 엔디언이라는 개념을 이용해서 저장함
+
 # 앤디안, Endian
 
 - 컴퓨터의 메모리와 같은 1차원의 공간에 여러 개의 연속된 대상을 배열하는 방법
@@ -5,29 +10,47 @@
 - 운영체제 별로 다른 엔디언 기법을 사용
   - Big Endian
   - Little Endian
+  - 0x1234 의 표현
+    - 빅 엔디언
+      - `12 34`
+    - 리틀 엔디언
+      - `34 12`
+- 특정 엔디언 기법을 사용한다고 해서 성능상 월등한 우열을 가리기 힘듦
 
 # Big Endian
 
 - 큰 단위가 앞에 나오는 빅 엔디언
+- 낮은 주소에 데이터를 높은 비트부터 저장하는 방식
+  - MSB, Most Significant Bit
+- 메모리에 저장된 순서 그대로 읽을 수 있어 이해하기 쉬운 장점을 가짐
+- ex
+  - 0x12345678 이라는 32 비트 크기의 정수가 존재
+  - 위 정수는 1 바이트 값 4개로 구성됨 `0x12, 0x34, 0x56, 0x78`
+  - 4 개의 1 byte 값들을 빅 엔디안 방식으로 저장한다면 다음과 같이 저장됨
+  - [##_Image|kage@9PSGS/btq9ymmGw8m/2FQIk4jMLh8QEU3BkAHq9k/img.png|alignCenter|data-origin-width="552" data-origin-height="650" width="329" height="387" data-ke-mobilestyle="widthOrigin"|||_##]
 
 # Little Endian
 
 - 작은 단위가 앞에 나오는 리틀 엔디언
+- 낮은 주소에 데이터의 낮은 비트부터 지정하는 방식
+  - LSB, Least Significant Bit
+- 현재 CPU의 대부분을 점유하고 있는 인텔과 AMD 아키텍쳐가 리틀 엔디언을 채택함
+- ex
+  - 0x12345678 이라는 32 비트 크기의 정수가 존재
+  - 위 정수는 1 바이트 값 4개로 구성됨 `0x12, 0x34, 0x56, 0x78`
+  - 4 개의 1 byte 값들을 빅 엔디안 방식으로 저장한다면 다음과 같이 저장됨
+  - [##_Image|kage@tvBqh/btq9AJamQRN/8pGYxXZhWq7mGkEvLaMTy1/img.png|alignCenter|data-origin-width="586" data-origin-height="634" width="314" height="340" data-ke-mobilestyle="widthOrigin"|||_##]
 
-# Middle Endian
+# Big Endian vs Little Endian
 
-- Bit, Little 이 둘 모두를 지원하는 미들 엔디언
-
-# 바이트 순서, Byte Order
-
-- 리틀 엔디언과 빅 엔디언을 사용하는 대표적인 분야
-- 0x1234 의 표현
-  - 빅 엔디언
-    - `12 34`
-  - 리틀 엔디언
-    - `34 12`
-- CPU, 시스템 아키텍처에 따라서 내부적으로 데이터 처리를 위한 엔디언을 사용하는 방식에 차이가 있음
 - 리틀 엔디언
   - intel x86, amd, edc
 - 빅 엔디언
   - ibm, arm, motorola
+- CPU, 시스템 아키텍처에 따라서 내부적으로 데이터 처리를 위한 엔디언을 사용하는 방식에 차이가 있음
+- 물리적으로 데이터를 조작하거나 산술 연산에는 리틀 엔디언이 효과적이나 각 바이트를 배열처럼 취급할 때는 빅 엔디언 방식이 더욱 적합
+
+# 네트워크 관점에서의 엔디언
+
+- 네트워크를 통한 데이터 전송에는 빅 엔디안 방식이 사용됨
+- 인텔 시스템에서 소켓 통신을 할 때는 바이트 순서를 변경하는 조작이 필요함
