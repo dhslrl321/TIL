@@ -1,10 +1,34 @@
+# Wireshark 에서 분석
+
+- http 통신하는거 하나 붙잡으면 Ethernet -> IP -> TCP -> HTTP 순서로 감
+
 # Physical
 
 # Data-Link
 
+- ethernet header (14 byte)
+  - 구성 요소
+    - destination mac address (6 byte) + source mac address (b byte) + ethertype (2 byte)
+      - ethertype
+        - 0800 => ipv4
+        - 86DD => ipv6
+        - 0806 => arp
+
 # Network
 
+- ip header (n byte)
+  - protocol 을 확인해서 tcp 인지 아닌지 확인
+  - 구성 요소
+    - source address
+    - destination address
+
 # Transport
+
+- tcp header
+  - 구성 요소
+    - source port
+    - destination port
+    - tcp payloadg
 
 # Session
 
