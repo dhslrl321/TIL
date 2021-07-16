@@ -1,0 +1,180 @@
+우리가 일반적으로 c 언어를 컴파일하기 위해서는 **Visual Studio**나 **CLion** 을 이용해서 Run 혹은 Debugging 을 하였었다.
+
+[##_Image|kage@NwdI5/btq9I3ucQgv/1NXOwuOjWjeYnUiO3Cok7k/img.png|alignCenter|data-origin-width="326" data-origin-height="43" data-ke-mobilestyle="widthOrigin"|||_##]
+
+하지만 리눅스 환경에서는 Visual Studio 나 CLion 을 설치하기란 매우 까다롭고 QT-Creator 과 같은 프로그램을 이용해야 한다.
+
+이렇게 IDE를 사용하는 방법이 절대 안되는 것은 아니지만, 그것보다 터미널에서 g++이나 gcc 명령어를 통해서 컴파일하는 편이 오히려 더 편할 떄가 있다.
+
+오늘은 터미널에서 gcc 로 c 언어를 컴파일하고 object 파일을 만드는 것에 대해서 알아볼 것이다.
+
+# 리눅스에서 c 언어 컴파일하기
+
+우선 gcc 나 g++ 을 설치해야 하므로 다음과 같이 apt를 통해서 g++, gcc 를 설치해주자. apt-get 을 사용해도 무방하다
+
+### gcc나 g++ 설치하기
+
+```bash
+$ sudo apt update
+
+$ sudo apt install -y g++
+
+$ sudo apt install -y gcc
+
+$ sudo apt install -y vim
+```
+
+그리고 아주 간단한 소스코드를 작성해보자
+
+### c 간단한 출력 프로그램 만들기
+
+간단하게 `printf()` 를 이용해서 출력을 하는 프로그램을 만들고 실행시켜보도록 하자.
+
+우선 vim 을 이용해서 main.c 에 간단한 출력 함수를 작성해보자.
+
+```bash
+$ vim main.c
+```
+
+```c
+#include <stdio.h>
+
+int main() {
+  printf("(main.c executed...) => gcc 로 c 언어 컴파일하기란 매우 쉽네요");
+  return 0;
+}
+```
+
+### gcc 를 이용해서 컴파일하기
+
+gcc 명령어를 통해서 컴파일을 해보자
+
+간단하다. `gcc [소스파일]` 을 형태로 작성해주면 default 로 `a.out` 이라는 파일이 생성될 것이다.
+
+```bash
+$ gcc main.c
+```
+
+그럼 ls 명령어를 통해서 디렉토리 내부 파일을 확인해보면, 해당 디렉토리 아래에 **a.out** 파일이 생성된다.
+
+`./a.out` 을 이용해서 out 파일을 실행시킬 수 있다
+
+```bash
+$ ls
+a.out   main.c
+
+$ ./a.out
+(main.c executed...) => gcc 로 c 언어 컴파일하기란 매우 쉽네요
+```
+
+이렇게 간단하게 gcc를 이용해서 out 파일을 만들고 컴파일하는 방법에 대해서 알아보았다.
+
+이번에는 **링킹**을 이용해서 여러 소스코드를 묶어보는 작업을 해보자
+
+# header 파일로 나뉘어진 소스 코드 링킹하여 컴파일 하기
+
+이제 조금 더 나아가서 헤더파일을 include 하는 main 함수를 작성하고 이를 컴파일해보자
+
+```bash
+$ tree
+.
+└── src
+    ├── main.c
+    ├── hello.h
+    ├── hello.c
+    ├── bye.h
+    └── bye.c
+```
+
+로 구성될 것인데, 우선 헤더 파일과 함께 컴파일을 하기 위해서는 **링킹**에 대해서 알아야 한다.
+
+## 링킹 (Linking) 이란?
+
+우리가 위와 같은 구조에서 **main.c** 가 **hello.h** 와 **bye.h** 를 include 해서 사용하고 Greeting 이라는 프로그램을 만든다고 가정해보자.
+
+그럼 main.c 에서는 실질적으로 hello.h 와 bye.h 를 로드할까?
+
+아니다. 어셈블리 코드를 본다면 main.c 에서는 hello.h 에서 가져온 함수가 어디에 위치해 있다는 것만 연산한다.
+
+그래서 main.c 를 제대로 동작시키기 위해서는
+
+#### **hello.h**와 **bye.h** 를 하나로 합치는 과징인 **Linking**이 필요하게 된다
+
+[##_Image|kage@ywmtf/btq9NYE4csN/XbPBFXJKoDZkTslHktPPiK/img.png|alignCenter|data-origin-width="923" data-origin-height="450" width="657" height="320" data-ke-mobilestyle="widthOrigin"|||_##]
+
+링킹은 서로 다른 파일에 흩어진 **함수나 클래스**를 한 데 묶어서 링크해주는 작업을 뜻하는데, 링킹 과정은 컴파일러에게 Object 파일을 함께 전달하면서 컴파일을 하게 된다.
+
+## 컴파일과 링킹을 통해서 Greeting 프로그램 만들기
+
+자! 이제 우리가 생각한 소스 코드들을 구현하고 이들을 링킹하여 컴파일 해보도록 하자
+
+### main 함수와 각각 header 파일 생성 및 구현
+
+**main 함수 생성 및 구현하기**
+
+```c
+#include <stdio.h>
+#include "hello.h"
+
+int main() {
+
+  say_hello();
+  say_bye();
+
+  return 0;
+}
+```
+
+**header 파일 생성 및 구현하기**
+
+```c
+// hello.h
+void say_hello():
+
+// hello.c
+#include <stdio.h>
+
+void say_hello() {
+  printf("(hello.h) => 안녕하세요! \n");
+}
+
+// bye.c
+#include <stdio.h>
+
+void say_bye() {
+  printf("(bye.h) => 안녕히 가세요! \n");
+}
+```
+
+### object 파일로 만들어서 링킹(Linking) 하기
+
+링킹 컴파일을 위해서는 바로 컴파일을 하는 것이 아니고, 컴파일러에게 연관된 (링크 할) 파일들을 Object 파일로 함꼐 전달해야 하므로 각각 object 파일로 만드는 과정을 수행해보자
+
+gcc 명령에 `-c` 옵션을 준다면 주어지는 파일을 컴파일해서 **목적 파일(Object file)** 을 만들라는 명령을 할 수 있다.
+
+```bash
+$ gcc -c main.c
+$ gcc -c hello.c
+$ gcc -c bye.c
+
+$ gcc main.c hello.c bye.c -o Greeting
+```
+
+그리고 ls 명령을 통해서 잘 컴파일이 완료되었는지 확인하기 위해 ls 명령을 수행해보자
+
+```bash
+$ ls
+
+main.c   main.o   hello.h   hello.c   hello.o   bye.h   bye.c   bye.o   Greeting
+```
+
+그럼 우리가 생성하기로 한 Greeting 파일이 잘 만들어진 것을 볼 수 있다.
+
+#### 실행시켜보자!
+
+```bash
+$ ./Greeting
+
+(hello.h) => 안녕하세요!
+(bye.h) => 안녕히 가세요!
+```

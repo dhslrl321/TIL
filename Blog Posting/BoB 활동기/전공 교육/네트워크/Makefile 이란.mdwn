@@ -1,0 +1,59 @@
+# make
+
+- make 는 *유닉스 계열*의 운영체제에서 사용되는 _빌드 도구_
+  - 유닉스
+    - 유닉스 계열 (Unix-like) : Linux
+      - 정확히 유닉스가 아님
+    - 유닉스의 대표적인 운영체제 : macOS
+  - 빌드 도구
+    - 소스 코드를 컴파일, 테스트, 정적 분석을 위해 실행 가능한 애플리케이션으로 자동 생성하는 프로그램
+    - 대표적인 빌드 도구
+      - Ant, Maven, Gradle, npm
+- 여러 파일들끼리의 의존성과 각 파일에 필요한 명령을 정의함으로써 프로그램을 컴파일할 수 있으며 애플리케이션을 만들 수 있는 과정을 서술할 수 있는 문법 제공
+  - make 구조로 짜여진 파일을 make 가 해석해서 빌드를 실행
+
+# Makefile
+
+- make 를 실행하여 빌드하기 전에 컴파일 규칙 및 링크 규칙을 만드는 명세 파일
+- 특정한 문법이 존재
+- make 명령을 하면 Makefile 에 명시된 쉘 명령를 조건에 따라서 실행
+
+# Makefile 문법
+
+```make
+CC = gcc
+
+TARGET []: PREREQUISITES []
+  RECIPE
+  []
+```
+
+- 매크로 정의 : 매크로를 이용해서 정의된 스트링으로 치환
+- TARGET : 실행 가능한 타겟 파일, object 파일
+- PREREQUISITES : TARGET 을 만들 때 필요한 의존 관계를 명시
+- RECIPE : TARGET 을 만들기 위한 실행 파일, 탭으로 구분, 스페이스 넣으면 동작 x, 주로 cc나 리눅스 명령어를 사용
+  - 실행할 명령어
+
+# Makefile 을 make 로 빌드하기
+
+- 다음과 같은 파일이 존재
+  - `main.c`
+  - `hello.h`
+  - `bye.h`
+  - main.c 에서 hello.h 와 bye.h 를 include 해서 실행
+- 소스 코드가 존재하는 디렉토리에서 Makefile 을 작성
+- make 명령어 치기 `make main.o`
+
+# make 와 Makefile 을 사용하는 이유
+
+- 컴파일을 쉽고 빠르게 하기 위함
+  - make 가 없었다면?
+    - `gcc -c -o main.o main.c` -> `gcc -o my-application.out main.o`
+- 리눅스 c 프로그래밍을 할 때는 윈도우 프로그래밍과 다름
+  - 윈도우에서는 visual studio나 clion 으로 간편하게 컴파일 했지만 리눅스는 직접 컴파일을 파일별로 해줘야 함
+
+# CMake 를 사용하는 이유
+
+- Makefile 의 경우 상호 OS 간의 서로 다른 빌드 환경이 존재
+  - 다른 OS 경우에 일일이 설정을 바꿔줘야 함
+- CMake 는 빌드환경에 상관 없이 컴파일 할 수 있도록 해줌
