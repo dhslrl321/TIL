@@ -1,0 +1,52 @@
+# Header
+
+- 다음에 어떤 PDU, Header가 오는지는 현재의 헤더에서 결정을 해줘야함
+  - PDU : Protocol Data Unit
+    - 데이터 통신에서 상위 계층이 전달한 데이터에 붙이는 제어 정보
+
+# Ethernet Frame Header
+
+- Data Link 계층에 속함
+- 패킷을 잡을 때 가장 먼저 확인할 수 있는 데이터
+- 이더넷 프레임 구조
+  - header 14 bytes
+    - destination mac address : 6 byte
+    - source mac address : 6 byte
+    - ethertype : 2 byte
+      - ehtertype 에 따라서 다음에 어떤 network 계층의 헤더가 올지 정해짐
+      - ipv4 : 0x0800
+      - ipv6 : 0x8100
+      - arp : 0x0806
+  - payload
+- 8 byte 로 구성
+
+[##_Image|kage@k5nPK/btq9OICDyMI/8Mtxtq1SehpxKZTQwn8wjk/img.png|alignCenter|data-origin-width="942" data-origin-height="162" width="796" height="137" data-ke-mobilestyle="widthOrigin"|||_##]
+
+# IPv4
+
+- Network 계층에 속함
+- Ethernet Frame Header 다음에 위치한 헤더
+  - 항상 IPv4가 오는 것은 아니고 Ethernet Frame Header 에서 ethertype 에 명시된 스펙만 오게 됨
+  - IPv6가 올 수도 있고 ARP가 올 수도 있음
+
+[##_Image|kage@bpwLrA/btq9NRz4NUC/urLMF50j7raApsRlivsKW0/img.png|alignCenter|data-origin-width="939" data-origin-height="678" width="476" height="344" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- Source Address : 4 byte
+- Destination Address : 4 byte
+- Protocol
+  - 1 byte
+    - 6 이면 TCP
+    - 1 이면 ICMP
+    - 17 이면 UDP
+
+# TCP
+
+[##_Image|kage@bVRe1I/btq9JL8OKrq/nNqtBZtb6U7r6L0owGzmr1/img.png|alignCenter|data-origin-width="737" data-origin-height="615" width="682" height="569" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- Source Port
+  - 출발지 포트
+- Destination Port
+  - 목적 포트
+- Payload
+  - 실제 데이터, 현재는 HTTP 데이터
+  - FTP가 될 수도 있고, SSH가 될 수도 있음

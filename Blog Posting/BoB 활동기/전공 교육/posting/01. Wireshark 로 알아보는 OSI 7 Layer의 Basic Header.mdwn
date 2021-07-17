@@ -1,0 +1,120 @@
+# OSI 7 Layer
+
+지난 시간 간단하게 OSI 7 Layer 에 대해서 알아보았고, 각각 Layer 를 대표하는 것들에 대해서 알아보았다.
+
+이번에는 Wireshark 로 네트워크 통신이 이루어지면 OSI 7 Layer 가 어떻게 동작하는지, 어떤 헤더를 가지고 있는지 알아보려 한다.
+
+<table style="border-collapse: collapse; width: 100%; height: 136px;" border="1" data-ke-align="alignLeft" data-ke-style="style13"><tbody><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;">OSI 7</td><td style="width: 25%; text-align: center; height: 18px;">Layer NO.</td><td style="width: 25%; text-align: center; height: 18px;">TCP/IP</td><td style="width: 25%; text-align: center; height: 18px;">Ohters</td></tr><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;"><b>Application</b></td><td style="width: 25%; text-align: center; height: 18px;" rowspan="3"><b><u>L7</u></b></td><td style="width: 25%; text-align: center; height: 18px;" rowspan="3"><b><u>HTTP</u></b></td><td style="width: 25%; text-align: center; height: 18px;" rowspan="3">FTP, SMTP, SSH</td></tr><tr style="height: 10px;"><td style="width: 25%; text-align: center; height: 10px;"><b>Presentation</b></td></tr><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;"><b>Session</b></td></tr><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;"><b>Transport</b></td><td style="width: 25%; text-align: center; height: 18px;"><b><u>L4</u></b></td><td style="width: 25%; text-align: center; height: 18px;"><b><u>TCP</u></b></td><td style="width: 25%; text-align: center; height: 18px;">UDP</td></tr><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;"><b>Network</b></td><td style="width: 25%; text-align: center; height: 18px;"><b><u>L3</u></b></td><td style="width: 25%; text-align: center; height: 18px;"><b><u>IP</u></b></td><td style="width: 25%; text-align: center; height: 18px;">IPv6, ARP</td></tr><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;"><b>Data Link</b></td><td style="width: 25%; text-align: center; height: 18px;"><b><u>L2</u></b></td><td style="width: 25%; text-align: center; height: 18px;"><b><u>Ethernet</u></b></td><td style="width: 25%; text-align: center; height: 18px;">SDLC</td></tr><tr style="height: 18px;"><td style="width: 25%; text-align: center; height: 18px;"><b>Physical</b></td><td style="width: 25%; text-align: center; height: 18px;" colspan="3">&nbsp;</td></tr></tbody></table>
+
+실질적으로 프로그래밍으로 다룰 수 있는 Layer 는 Physical 을 제외한 6개의 Unit 이다.
+
+그 이후 Data Link 부터 Application Layer 까지 차례로 L2, L3, L4, L7 이라 부르고 L7 에는 Session + Presentation + Application 영역이 개념적으로 합쳐서 구분하곤 한다.
+
+각각의 Layer 를 대표하는 타입을 이번에 Wireshark 로 분석해보자.
+
+# Wireshark
+
+우선 네트워크 패킷을 캡쳐하기 위해서 Wireshark 를 이용할 것이다.
+
+패킷을 캡쳐하기 위해서 현재 네트워크를 캡쳐한다.
+
+[##_Image|kage@cNlCCq/btq9NRNyBYM/kYGpWS3fOS0OA9GJ9JUr0K/img.png|alignCenter|data-origin-width="505" data-origin-height="403" width="412" height="329" data-ke-mobilestyle="widthOrigin"|||_##]
+
+나는 WAN 으로 잡혀있기 때문에 Wifi 를 Target 으로 설정하도록 하겠다.
+
+그리고 http fileter 를 걸어서 날아다니는 아무 패킷이나 잡아보자
+
+[##_Image|kage@D3G8m/btq9Ns1AAJA/ywnWoy3J21YHxdfF8zYkOK/img.png|alignCenter|data-origin-width="792" data-origin-height="529" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 아래 Packet Details 부분에서 4 개의 Detail 정보가 나오게 된다.
+
+#### 여기서 보이는 이 4개의 Detail 이 L2, L3, L4, L7 을 모두 나타내는 곳이니 눈여겨 보도록하자.
+
+총 4개의 Expandable Column 이 존재한다.
+
+1. Ethernet II
+2. Internet Protocol Version 4
+3. Transmission Control Protocol
+4. Hypertext Transfer Protocol
+
+이들은 각각 L2, L3, L4, L7 에 해당하는 실제 패킷 데이터인데, 각각을 분석해보자.
+
+# L2 Data Link 의 Ethernet
+
+L2 에 해당하는 프로토콜로 **한 지역에서 다른 지역으로 데이터를 전송 또는 수신**할 목적이 있는 레이어의 프로토콜이다.
+
+Ethernet 은 물리 주소인 MAC Address 주소를 포함하여, 목적지의 MAC Address와 출발지의 MAC Address 를 포함한다.
+
+우리가 패킷을 잡을 때, 가장 먼저 확인할 수 있는 데이터로, 다음과 같이 Destination, Source MAC Address 가 존재하는 것을 알 수 있다.
+
+[##_Image|kage@qoCeU/btq9Mu6dNfe/GDjOZMuj9iNlEMiQxYcwD1/img.png|alignCenter|data-origin-width="702" data-origin-height="198" data-ke-mobilestyle="widthOrigin"|||_##]
+
+여기에서 자세히 보면 3가지의 정보가 나온다.
+
+헤더를 조금 분석해보자
+
+## Ethernet Header
+
+[##_Image|kage@k5nPK/btq9OICDyMI/8Mtxtq1SehpxKZTQwn8wjk/img.png|alignCenter|data-origin-width="942" data-origin-height="162" width="796" height="137" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이는 이더넷 프레임의 헤더는 총 14 byte 의 크기로 존재하는데, 다음과 같은 정보를 가지고 있다.
+
+- Destination MAC Address (6 byte)
+- Source MAC Address (6 byte)
+- ethertype (2byte)
+
+#### 다음에 어떤 PDU가 나오는지는 현재 헤더에서 결정을 해줘야 하는 패킷의 특성상 위의 ethertype 이 꽤 중요한 역할을 수행한다.
+
+ethertype 은 2 byte로 L3 에 무엇이 나올지 지정해주는데, 현재 Type 은 IPv4 (0x0800) 이다.
+
+만약 IPv4가 아니라 IPv6 라면 0x8100 이 올 것이고, ARP 라면 0x0806이 올 것이다
+
+# L3 : Network 의 Ipv4
+
+L3에 해당하는 프로토콜로 우리가 잘 하는 IP가 나오는데, L4는 중간 라우터를 통한 라우팅을 포함하여 패킷 포워딩을 담당한다.
+
+Ethernet Frame Header 바로 다음에 위치한 헤더로, 항상 IPv4가 오는 것은 아니고, Ethernet Frame Header 에서 ethertype 으로 명시된 프로토콜만 올 수 있다.
+
+[##_Image|kage@bpwLrA/btq9NRz4NUC/urLMF50j7raApsRlivsKW0/img.png|alignCenter|data-origin-width="939" data-origin-height="678" width="476" height="344" data-ke-mobilestyle="widthOrigin"|||_##]
+
+## Ipv4 Header
+
+IPv4 는 다음과 같은 정보가 담기게 된다.
+
+- Source Address (4 byte)
+- Destination Address (4 byte)
+- Protocol (1 byte)
+
+여기서 Ethernet Header 과 마찬가지로 다음에 어떤 프로토콜이 올지 정해주는게 바로 Protocol 영역이다.
+
+[##_Image|kage@c8iAax/btq9OwCptQN/1sWfFrTDF424Vxh7zmMZOK/img.png|alignCenter|data-origin-width="481" data-origin-height="376" data-ke-mobilestyle="widthOrigin"|||_##]
+
+현재는 TCP라 6이라는 정보가 담겨있지만 만약 ICMP라면 1, UDP면 11? 17 이라는 정보가 담겨있게 된다.
+
+# L4 : Transport 의 TCP
+
+L4에 해당하는 프로토콜로 TCP를 사용한다.
+
+L4 에서는 L7과 L3 를 연결하고 신뢰성, 흐름 제어, 다중화와 같은 서비스를 제공하는 것으로 알려져 있다.
+
+## TCP Header
+
+[##_Image|kage@bVRe1I/btq9JL8OKrq/nNqtBZtb6U7r6L0owGzmr1/img.png|alignCenter|data-origin-width="737" data-origin-height="615" width="682" height="569" data-ke-mobilestyle="widthOrigin"|||_##]
+
+TCP Header 에서 중요하게 봐야할 것은 바로 Source Port와 Destination Port 이다
+
+실질적인 데이터는 Payload에 담겨있지만, Port 로 서비스를 구분하는 패턴이 자주 사용되므로 두 포트를 알아두는 것도 중요하다.
+
+Wireshark 에서 Source Port와 Destination Port 를 쉽게 확인할 수 있다.
+
+[##_Image|kage@ReL1o/btq9MF7U4Xs/D3rHtnwrK0Vp4KpNcvLz6K/img.png|alignCenter|data-origin-width="451" data-origin-height="489" data-ke-mobilestyle="widthOrigin"|||_##]
+
+# Session + Presentation + Application 의 HTTP
+
+L7 에 해당하는 프로토콜로 이전 PDU인 TCP 에서 Payload에 존재하는 실질적인 데이터 이다.
+
+[##_Image|kage@cQJ0YV/btq9KnzXRDb/IX8BSLJ8JmdzdF6xKpiCzk/img.png|alignCenter|data-origin-width="453" data-origin-height="489" data-ke-mobilestyle="widthOrigin"|||_##]
+
+TCP 에서 어떤 Payload 가 되었느냐에 따라서 FTP가 될 수 있고 SSH가 될 수 있다.
+
+하지만 현재 잡은 패킷은 http 패킷이므로 TCP Payload 에는 Hypertext Transport Protocol 이 존재하는 것을 볼 수 있다.

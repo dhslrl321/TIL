@@ -1,8 +1,8 @@
-# Wireshark 에서 분석
+# OSI 7 Layer
 
-- http 통신하는거 하나 붙잡으면 Ethernet -> IP -> TCP -> HTTP 순서로 감
-
-# Physical
+- P, D, N, T, S, P, A
+  - P 는 프로그래밍 영역이 아님
+- http 통신하는거 하나 붙잡으면 Ethernet -> IP -> TCP -> HTTP 순서로 조합이 됨
 
 # Data-Link
 
@@ -30,8 +30,6 @@
     - destination port
     - tcp payloadg
 
-# Session
+# Session & Presentation & Application
 
-# Presentation
-
-# Application
+- HTTP
