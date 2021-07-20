@@ -10,6 +10,86 @@
   - 컨테이너에서 Host PC 에 침투
   - Bitcoin 채굴 Image
 
+# access_log 파일 모니터링
+
+- **동일 제품 비교**
+  - saas
+    - `elk`
+  - On-Premise
+    - `elk`
+    - `Micrometer`
+      - Spring 5 부터 Spring Default Metric
+    - `Prometheus`
+      - Spring boot actuator 과 연동
+      - Event Monitoring
+      - 이벤트를 시계열로 저장
+      - 자체적인 Dashboard 제공
+        - time pannel 로 로그 검색
+    - `Grafana`
+      - 시계열 매트릭 데이터를 시각화
+      - Basic Dashboard만 제공
+        - Configuration 에서 Prometheus 연동해야함
+    - `kibana`
+  - 이 둘은
+- **우리가 하는것**
+  - apache 나 tomcat이 reverse proxy 로 사용될 때, 프록시가 만드는 access_log, error_log 를 분석하는 것
+  - 조금 제한됨
+    - 웹 서비스가 리버스 프록시를 사용하거나
+- **공격 탐지**
+  - DDoS (상)
+    - 패킷 카운팅을 이용한 공격 탐지
+    - 단위 시간 /
+  - 웹 쉘 (상)
+    - 이전 로그의 행과 현재 로그의 행의 전송 바이트 차이가 클 때 웹쉘이 실행되고 있다고 판단
+  - XSS / SQL Injection, FRI/LFI, 커맨드 인젝션 (중)
+    - 문자열의 정규표현식
+    - `/((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)ix`
+  - improper error handling (하)
+    - status code
+    - 401, 500, 403, 404
+- **기능**
+  - 대쉬보드
+    - 트래픽 현황
+    - url hitmap
+    - 위협 로그 보기
+    - 전체 로그 보기
+- **심화**
+  - v3 여야 가능
+  - **SaaS** 형태
+  - **서비스 등록**
+    - conf 파일
+  - **차단**
+    - **nginx, apache, springboot**만
+    - nginx.conf 에 지속적으로 공격하는 ip를 exclude 하는 rule 추가
+      - 공격 탐지에서 공격의 가중치
+- 참고 자료
+  - [grafana live demo](https://play.grafana.org/d/000000012/grafana-play-home?orgId=1)
+  - [Understanding the Apache Access Log: View, Locate and Analyze](https://www.sumologic.com/blog/apache-access-log/)
+  - [Detecting Attacks on Web Applications from Log Files](https://sansorg.egnyte.com/dl/jmtbTzYCuX/?)
+  - [Understanding the Apache Access Log: View, Locate and Analyze](https://www.sumologic.com/blog/apache-access-log/)
+  - [Elastic의 SIEM](https://www.elastic.co/kr/siem/)
+  - [polling, long polling, streaming](https://m.blog.naver.com/PostView.nhn?isHttpsRedirect=true&blogId=youreme&logNo=110162110369)
+  - [Oracle WatchService.java Docs](https://docs.oracle.com/javase/7/docs/api/java/nio/file/WatchService.html)
+
+# Security Monitoring with Saas
+
+- **Application Monitoring**
+  - `WhaTap`
+    - [Link](https://www.whatap.io/ko/)
+    - Application Monitoring
+    - Saas
+- **Security Monitoring**
+  - `Splunk`
+    - [Link](https://www.splunk.com/en_us/cyber-security.html)
+    - 지원 서비스 목록
+      - Security Analytics / SIEM
+      - Investigation / Forensics : 우선 순위가 높은 이벤트를 분석하고 확인하여 근본 원인과 영향을 파악
+      - Security Incident Response : 위협을 탐지하고 automated workflows 를 실행시킴
+    - Saas
+- 참고 자료
+  - [SIEM ESM 설명, 차이 사용이유](https://coconuts.tistory.com/95)
+  - [On-Premise Siem vs Cloud SIEM](https://www.datashieldprotect.com/blog/on-premises-vs-cloud-siem)
+
 # 페이지 벤치마킹
 
 - [채널톡](https://channel.io/ko)
