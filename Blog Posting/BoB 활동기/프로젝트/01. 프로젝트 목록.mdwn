@@ -37,16 +37,21 @@
     - 웹 서비스가 리버스 프록시를 사용하거나
 - **공격 탐지**
   - DDoS (상)
-    - 패킷 카운팅을 이용한 공격 탐지
-    - 단위 시간 /
+    - 탐지 방법
+      - [패킷 카운팅을 이용한 공격 탐지](https://repository.hanyang.ac.kr/handle/20.500.11754/143577)
   - 웹 쉘 (상)
-    - 이전 로그의 행과 현재 로그의 행의 전송 바이트 차이가 클 때 웹쉘이 실행되고 있다고 판단
-  - XSS / SQL Injection, FRI/LFI, 커맨드 인젝션 (중)
-    - 문자열의 정규표현식
+    - 탐지 방법
+      1. 확장자 탐지
+      2. 파일 시그니쳐 탐지
+      3. referer 검증
+      4. 아직 잘 모르겠음
+  - XSS / SQL Injection, FRI/LFI와 같은 인젝션 공격 (중)
+    - Body와 Query String 의 문자열 정규표현식
     - `/((\%3C)|<)((\%2F)|\/)*[a-z0-9\%]+((\%3E)|>)ix`
+      - 근데 엑세스 로그가 request body 데이터가 없어서 post stored xss나 injection 류 공격은 모르겠음
   - improper error handling (하)
-    - status code
-    - 401, 500, 403, 404
+    - 단순 status code 검증
+      - 401, 500, 403, 404
 - **기능**
   - 대쉬보드
     - 트래픽 현황
@@ -56,11 +61,13 @@
 - **심화**
   - v3 여야 가능
   - **SaaS** 형태
+  - **데몬 설치**
+    - wget 으로 우리 서버에서 다운로드
+    - 압축 풀고 간단한 인증시도
   - **서비스 등록**
-    - conf 파일
+    - conf 파일로 클라이언트 서버의 로그 파일 경로 추가
   - **차단**
-    - **nginx, apache, springboot**만
-    - nginx.conf 에 지속적으로 공격하는 ip를 exclude 하는 rule 추가
+    - 지속적으로 공격하는 ip를 exclude 하는 rule 추가
       - 공격 탐지에서 공격의 가중치
 - 참고 자료
   - [grafana live demo](https://play.grafana.org/d/000000012/grafana-play-home?orgId=1)
