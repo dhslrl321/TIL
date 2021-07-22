@@ -9,6 +9,7 @@
   - 인터넷 게이트웨이 : VPC의 리소스와 인터넷 간의 통신을 활상화하기 위해 VPC에 연결되는 게이트웨이
   - VPC 엔드포인트 : 인터넷 게이트웨이, NAT 디바이스, VPN 연결 또는 Direct Connect 연결 없이도 PrivateLink로 구동되는
   - CIDR 블록 : 클래스 없는 도메인 간 라우팅
+    - VPC 에서는 CIDR 방식을 채택함
 
 # CIDR
 
@@ -22,3 +23,13 @@
 - AWS Management Console
 - AWS CLI
 - AWS SDK
+
+# VPC 생성 순서
+
+- IP 주소 범위 선택
+  - RFC 1918 범위를 권장
+    - private ip 를 사용할 때는 3 가지의 cidr 를 사용하라는 권고안
+  - 16 이라는 masking 값을 가지는
+- 가용영역별 서브넷 설정
+- route
+- VPC 로 트래픽 설정

@@ -1,0 +1,21 @@
+# 사전 지식
+
+- 사설망
+  - 하나의 Public IP 를 여러 기기가 공유할 수 있는 방법
+  - 하나의 망에는 private ip 를 부여받은 기기와 gateway 로 구성
+    - 각 기기는 인터넷과 통신시 gateway 를 통해서 통신
+  - private ip 는 지정된 대역의 ip 만 가능
+- CIDR 은 여러 개의 사설망을 구축하기 위해서 망을 나누는 방법
+
+# CIDR
+
+- 위에서 말 했듯, 여러 개의 Private Network IP 를 구축하기 위해서 Class로 구분하지 않는 네트워크 할당 방법
+- Classless Inter Domain Routing
+  - 기존 주소할당 방식인 Network Class 를 대체
+  - IP 주소를 나눌 때 기존 방식보다 유연하게 지산의 원하는 Network Address와 Host Address 를 나눌 수 있음
+
+# CIDR 블록
+
+- IPv4 주소와 비슷한 형태를 지니며, 점과 숫자로 이루어진 4부분의 주소와 `/` 뒤의 0 에서 32 까지의 숫자
+  - Ex) A.B.C.D/N : N은 숫자
+  - IP와 비슷하게 4개의 옥텟으로 이루어진 32비트 이진 숫자
