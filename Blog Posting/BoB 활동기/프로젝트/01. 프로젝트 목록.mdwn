@@ -29,11 +29,8 @@
       - 시계열 매트릭 데이터를 시각화
       - Basic Dashboard만 제공
         - Configuration 에서 Prometheus 연동해야함
-    - `kibana`
 - **우리가 하는것**
-  - apache 나 tomcat이 reverse proxy 로 사용될 때, 프록시가 만드는 access_log, error_log 를 분석하는 것
-  - 조금 제한됨
-    - 웹 서비스가 리버스 프록시를 사용하거나
+  - access_log, error_log 를 분석하는 것
 - **공격 탐지**
   - DDoS (상)
     - 탐지 방법
@@ -54,7 +51,6 @@
 - **기능**
   - 대쉬보드
     - 트래픽 현황
-    - url hitmap
     - 위협 로그 보기
     - 전체 로그 보기
 - **심화**
@@ -68,10 +64,10 @@
   - **차단**
     - 지속적으로 공격하는 ip를 exclude 하는 rule 추가
       - 공격 탐지에서 공격의 가중치
+      - 근데 새로운 rule 이 들어오면 웹 서버 재시작해야하는 문제가 있음
 - 참고 자료
   - [grafana live demo](https://play.grafana.org/d/000000012/grafana-play-home?orgId=1)
-  - [Understanding the Apache Access Log: View, Locate and Analyze](https://www.sumologic.com/blog/apache-access-log/)
-  - [Detecting Attacks on Web Applications from Log Files](https://sansorg.egnyte.com/dl/jmtbTzYCuX/?)
+  - [Detecting Attacks on Web Applications from Log Files](https://sansorg.egnyte.com/dl/jmtbTzYCuX)
   - [Understanding the Apache Access Log: View, Locate and Analyze](https://www.sumologic.com/blog/apache-access-log/)
   - [Elastic의 SIEM](https://www.elastic.co/kr/siem/)
   - [polling, long polling, streaming](https://m.blog.naver.com/PostView.nhn?isHttpsRedirect=true&blogId=youreme&logNo=110162110369)
