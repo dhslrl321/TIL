@@ -1,0 +1,4 @@
+# Amazon VPN
+
+- Amazon EC2의 네트워크 계층
+- 사내 네트워크와 유사
