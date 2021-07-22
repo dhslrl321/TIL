@@ -1,4 +1,24 @@
-# Amazon VPN
+# Amazon VPC
 
+- Amazon Virtual Private Cloud
 - Amazon EC2의 네트워크 계층
-- 사내 네트워크와 유사
+- 사용자 AWS 계정 전용 가상 네트워크
+- VPC 핵심 개념
+  - 서브넷 : VPC 의 IP 주소 범위
+  - 라우팅 테이블 : 네트워크 트래픽을 전달할 위치를 결정하는 데 사용하는 라우팅이라는 이름의 규칙 집합
+  - 인터넷 게이트웨이 : VPC의 리소스와 인터넷 간의 통신을 활상화하기 위해 VPC에 연결되는 게이트웨이
+  - VPC 엔드포인트 : 인터넷 게이트웨이, NAT 디바이스, VPN 연결 또는 Direct Connect 연결 없이도 PrivateLink로 구동되는
+  - CIDR 블록 : 클래스 없는 도메인 간 라우팅
+
+# CIDR
+
+- Classless Inter-Domain Routing
+  - 클래스 없는 도메인 라우팅 기법
+    - 클래스란 IP 주소의 첫 번째 구조 변화를 나타냄
+  - 네트워크 구분을 클래스 단위로 하지 않겠다는 소리
+
+# VPC 생성 방법
+
+- AWS Management Console
+- AWS CLI
+- AWS SDK

@@ -30,7 +30,6 @@
       - Basic Dashboard만 제공
         - Configuration 에서 Prometheus 연동해야함
     - `kibana`
-  - 이 둘은
 - **우리가 하는것**
   - apache 나 tomcat이 reverse proxy 로 사용될 때, 프록시가 만드는 access_log, error_log 를 분석하는 것
   - 조금 제한됨
