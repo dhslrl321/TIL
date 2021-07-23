@@ -1,0 +1,63 @@
+# Thread 생성
+
+- **방법 1** `Thread` 클래스 상속
+  - Thread 를 상속 받으면 다른 클래스를 상속받지 못하므로 재사용성이 비교적 낮음
+  - `run()` 메서드 재정의
+  - Thread 클래스의 메서드를 직접 호출할 수 있음
+- **방법 2** `Runnable` 인터페이스 구현
+  - 재사용성이 높음
+  - `run()` 메서드 구현
+  - 사용하는 곳에서 Thread 의 생성자 파라미터로 Runnable 을 구현한 객체를 넣어줘야 함
+  - `currentThread()` 를 호출해서 Thread 에 참조해야함
+- **Thread 실행**
+  - `start()` 메서드를 이용해서 실행하면 됨
+  - 한 번 실행이 종료된 쓰레드는 다시 실행할 수 없음
+  - 하나의 쓰레드는 `start()` 가 한 번만 호출될 수 있음
+    - 두 번 실행하면 `IllegalThreadStateException` 발생
+
+```java
+/* Thread 상속 */
+public class ThreadByExtends extends Thread {
+  @Override
+  public void run() {
+    System.out.println("---" + getName() + "---");
+  }
+}
+
+/* Runnable 인터페이스 구현 */
+public class ThreadByImpl implements Runnable {
+  @Override
+  public void run() {
+    Thread thisThread = Thread.currentThread();
+    System.out.println("---" + thisThread + "---");
+  }
+}
+
+/* 사용 방법 */
+public class Main {
+  public static void main(String[] args) {
+    Thread thread1 = new ThreadByExtends(); // 1
+
+    Runnable runnable = new ThreadByImpl(); // 2
+    Thread thread2 = new Thread(runnable); // 2
+
+    Thrad thread3 = new Thread(new ThreadByImpl()); // 3
+
+    thread1.start();
+    thread2.start();
+    thread3.start();
+  }
+}
+```
+
+# Thread vs Run
+
+- Thread의 run 메서드에 내부 로직을 실행하는 방법은 2가지가 있음
+  1. `start()`
+  2. `run()`
+- **start()**
+  - 새로운 콜 스택을 생성한 뒤, run() 메서드를 실행시킴
+  - 독립된 콜 스택을 새롭게 생성 후 작업이 끝나면 콜 스택을 삭제
+- **run()**
+  - 쓰레드를 실행시키는 것이 아니라 Thread Class 에 선언된 run 을 호출하는 것
+  - run() 을 호출한 콜 스택에 메서드가 올라감
