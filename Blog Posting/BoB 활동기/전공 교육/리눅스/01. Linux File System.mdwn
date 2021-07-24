@@ -29,13 +29,15 @@
     - 3rd party : 라이센스를 제한하는 소프트웨어의 설치 위치
     - ex) java 설치하면 `/opt` 에 위치함
 
-# Linux Standard Base
+# 권한
 
-- LSB
-- `/etc/LSB-release`
-
-# Unified FileName Tree System
-
-- 파일 시스템 구조에서 하나의 트리 형태를 유지하는 파일 시스템
-  - NameSpace
-  - 디렉토리 이름마다 따로 Mount 를 해주어야 한다
+- DAC (Discretionary Access Control) 에서 사용하는 방식
+  - File의 소유권을 가진자가 임의적 접근 통제 방식
+  - 반대로는 MAC (Mandatory Access Control)
+- 파일 타입, user, group, other
+  - `drwxr-xr-x`
+  - `drwxrwxr-x`
+  - 첫 3자리 : user
+  - 두번 째 3자리 : group
+  - 마지막 3자리 : other
+- read, write, execute
