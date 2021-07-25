@@ -1,0 +1,14 @@
+# 로그 분석
+
+- 로그 파일 정제
+  - include
+    - IP
+    - url
+    - path variable
+    - query parameter
+    - http method
+    - bytes
+    - time
+    - 응답별
+  - exclude
+    - js, css
