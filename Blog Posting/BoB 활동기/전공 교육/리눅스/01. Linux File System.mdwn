@@ -18,6 +18,7 @@
     - `/usr/bin`
     - `/usr/lib`
     - `/usr/include`
+    - `/usr/src` : 패키지 소스를 배포하는 경우
   - `/mnt` : 마운트 위치
   - `/etc` : daemon이나 서비스의 프로그램 설정 및 서비스 설정과 관련한 디렉토리
     - ex) `/etc/passwd` : login daemon 이 사용하는 서비스
