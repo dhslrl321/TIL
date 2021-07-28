@@ -12,3 +12,12 @@
     - 응답별
   - exclude
     - js, css
+
+# 기능 명세
+
+- 트래픽 대시보드
+  - 실시간 트래픽 그래프
+  - today's 보안 위협 트래픽
+- history
+  - log history
+  - query history
