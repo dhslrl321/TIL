@@ -1,0 +1,6 @@
+# S3 CLI 준비
+
+- aws iam 계정 생성
+- aws cli 설치
+- aws cli 에 profile 등록
+  - configure 으로 iam 계정 등록하기

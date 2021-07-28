@@ -1,0 +1,15 @@
+# s3 cli
+
+- 버킷
+  - 버킷 만들기
+    - `aws s3 mb <target> [--options]`
+    - `aws --profile lecture s3 ls`
+  - 버킷 객체 나열
+    - `aws s3 ls <target> [--options]`
+  - 버킷 삭제
+    - `aws s3 rb <target> [--options]`
+- 객체
+  - 객체 삭제
+    - ``
+  - 객체 복사
+    - `aws s3 cp <source> <target> [--options]`
