@@ -18,7 +18,7 @@
     5. 알파벳 개수 (백준 문제까지)
     6. [숫자 자리수 출력하기](https://wonit.tistory.com/418)
     7. [알고리즘에서 아스키 코드 표 이용하기](https://wonit.tistory.com/455)
-    8. 문자열과 숫자, 문자를 다루는 다양한 방법 (`int <-> char`, `char <-> String`, `char <-> String`)
+    8. [여러 백준 문제 비교하며 배워보는 다양한 자바 입출력 기법](https://wonit.tistory.com/559)
 
   - 문제풀이 스킬
     1. Scanner와 System.out.println으로 기본적인 입출력 처리하기
@@ -55,7 +55,7 @@
     2. [백준 10870](https://www.acmicpc.net/problem/10870) 피보나치 수 5 [문제 풀이](https://wonit.tistory.com/383)
     3. [백준 9184](https://www.acmicpc.net/problem/9184) 신나는 함수 실행 [문제 풀이]()
 
-# 알고리즘
+# 알고리즘 분류
 
 - **Dynamic Programming 동적 계획법**
   - 문제
@@ -69,11 +69,10 @@
     8. [백준 11057](https://www.acmicpc.net/problem/11057) 오르막 수 [문제 풀이](https://wonit.tistory.com/396)
     9. [백준 2193](https://www.acmicpc.net/problem/2193) 이친수 [문제 풀이](https://wonit.tistory.com/391)
     10. [백준 9465](https://www.acmicpc.net/problem/9465) 스티커 [문제 풀이](https://wonit.tistory.com/392)
-    11. [백준 2156](https://www.acmicpc.net/problem/2156) 포도주 시식 [문제 풀이](#)
-    12. [백준 11053](https://www.acmicpc.net/problem/11053) 가장 긴 증가하는 부분 수열 [문제 풀이](https://wonit.tistory.com/394)
-    13. [백준 11055](https://www.acmicpc.net/problem/11055) 가장 큰 증가하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
-    14. [백준 11722](https://www.acmicpc.net/problem/11722) 가장 긴 감소하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
-    15. [백준 2579](https://www.acmicpc.net/problem/2579) 계단 오르기 [문제 풀이](https://wonit.tistory.com/395)
+    11. [백준 11053](https://www.acmicpc.net/problem/11053) 가장 긴 증가하는 부분 수열 [문제 풀이](https://wonit.tistory.com/394)
+    12. [백준 11055](https://www.acmicpc.net/problem/11055) 가장 큰 증가하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
+    13. [백준 11722](https://www.acmicpc.net/problem/11722) 가장 긴 감소하는 부분 수열 _문제 풀이는 [11053번 문제 풀이](https://wonit.tistory.com/394)과 논리가 같으므로 해당 링크를 참고하세요_
+    14. [백준 2579](https://www.acmicpc.net/problem/2579) 계단 오르기 [문제 풀이](https://wonit.tistory.com/395)
 - **Sort, 정렬 알고리즘**
   - 문제
     1. [백준 2751](https://www.acmicpc.net/problem/2751) 수 정렬하기 2 [문제 풀이](https://wonit.tistory.com/397)
@@ -105,6 +104,7 @@
     5. [백준 4963](https://www.acmicpc.net/problem/4963) 섬의 개수 [문제 풀이](https://wonit.tistory.com/420)
     6. [백준 2178](https://www.acmicpc.net/problem/4963) 미로 탐색 [문제 풀이](https://wonit.tistory.com/421)
     7. [백준 7576](https://www.acmicpc.net/problem/7576) 토마토 [문제 풀이](https://wonit.tistory.com/557)
+    8. [백준 1697](https://www.acmicpc.net/problem/1697) 숨바꼭질 [문제 풀이](https://wonit.tistory.com/558?category=750230)
 - **이분 탐색, Binary Search**
   - 문제
     1. [백준 1654](https://www.acmicpc.net/problem/1654) 랜선 자르기 [문제 풀이](https://wonit.tistory.com/422)

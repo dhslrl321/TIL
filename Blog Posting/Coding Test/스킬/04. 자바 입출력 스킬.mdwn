@@ -1,0 +1,260 @@
+[알고리즘 문제풀이 스킬] 여러 백준 문제 비교하며 배워보는 다양한 자바 입출력 기법
+
+알고리즘 코딩테스트나 대회에서 자바가 주로 사용되지 않는 가장 큰 이유는 바로 속도 때문이 아닐까 생각한다.
+
+하지만 그 외에 내가 공부하며 느꼈던 가장 큰 단점?은 바로 **입출력이 불편하다** 이다.
+
+사실 로직 위해서 코드를 구성하는 과정은 파이썬이 압도적으로 편하겠지만, 그 외에는 다 비슷비슷하다.
+
+근데 가장 큰 단점인 **입출력의 까다로움**이다.
+
+c++ 은 cin 으로 쉽게 처리할 수 있고, python 은 input 으로 처리한다. 하지만 자바는 `Scanner` 나 `BufferedReader` 객체를 이용해야 한다.
+
+해당 객체에서 또 `nextInt()`, `next()`, `read()`, `readLine()` 과 같은 메서드를 호출해야 한다.
+
+그리고 어떤 입출력 메서드를 사용하는지에 따라 영향이 가는 속도도 무시하지 못한다.
+
+특정 문제에서는 `Scanner` 클래스를 이용하면 통과되지 않고 `BufferedReader` 를 이용해야만 통과되는 문제들이 존재한다.
+
+오늘은 주로 어떤 입출력이 사용되고 문제별로 어떻게 나눠서 사용할지 방법에 대한 포스팅을 해보겠다.
+
+### 목차
+
+- Scanner 와 System.println
+- BufferedReader 와 BufferedWriter
+- 문자열을 다른 데이터 타입으로 변환하기
+- 백준 문제로 배워보기
+  - 한 줄에 나오는 변수들 처리하기
+  - 1차원 배열 처리하기 (문자열, int)
+  - 2차원 배열 처리하기 (문자열, int)
+
+# 입력 받는 2가지 방법 Scanner 과 BufferedReader
+
+## Scanner와 System.out.println
+
+우선 Scanner 는 Java 를 시작하면 가장 먼저 배우는 입력 체계이다.
+
+사용법은 다음과 같다.
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    Scanner scanner = new Scanner(System.in);
+
+    String name = scanner.next();
+    String address = scanner.nextLine();
+    int age = scanner.nextInt();
+    int score = scanner.nextDouble();
+
+    System.out.println(name + address + age + score);
+  }
+}
+```
+
+`nextLine()` 으로 개행 문자까지 입력을 받는 방법이 있고, `next()` 로 문자열 단위로 입력을 받는 방법이 있으며 각각 Data Type 에 따라서 `nextOOO` 메서드를 이용할 수 있다.
+
+#### Scanner와 System.out.println 은 나는 별로 선호하지 않기 때문에 짧게 설명하고 넘어가도록 하겠다.
+
+Scanner 는 속도가 너무 느리다.
+
+그 대안으로 사용되는 BufferedReader 에 대해서 알아보자.
+
+# BufferedReader 와 BufferedWriter
+
+BufferedReader 는 이름처럼 **버퍼**를 이용해서 읽고 쓰는 메서드이다.
+
+### 버퍼를 사용하는 입력과 버퍼를 사용하지 않는 입력
+
+[##_Image|kage@d6f46C/btraGaT32zI/uWcZJhFeTRsWbsxZ5PRRKK/img.png|alignCenter|data-origin-width="860" data-origin-height="412" width="655" height="314" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그 사용법을 보면 다음과 같다.
+
+> 해당 포스팅은 BufferedReader 의 원리와 역사를 아는 것이 목적이 아니라 **어떻게 하면 알고리즘 문제풀이에서 잘 사용할 수 있을까?** 에 대한 고민이 목적이므로 자세한 설명은 하지 않습니다.
+
+BufferedReader 와 BufferedWriter는 각각 생성자로 Stream 을 넣어주면 된다.
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력
+    BufferedWriter br = new BufferedWriter(new OutputStreamReader(System.in)); // 출력
+
+    String inputs = br.readLine(); // 라인 별로 받기
+
+    bw.write(inputs);
+
+    bw.flush(); // 남아있는 버퍼의 내용을 출력
+    bw.close(); // 버퍼 해제
+  }
+}
+```
+
+BufferedWriter 는 버퍼를 비워주는 과정이 꼭 필요하기 때문에 `bw.flush()` 와 close 를 수행해야 한다.
+
+또한 Buffered 클래스는 버퍼를 이용하기 때문에 **IOException** 을 throw 하는데, 이에 대한 처리도 필요하다.
+
+기본적으로 `readLine()` 함수를 이용한다면 **String** 타입으로 우리의 입력을 받아온다.
+
+그렇기에 숫자를 이용할 때에도 해당 String 을 int 로 변환하는 과정이 필요하다.
+
+이에 대해서 더 알아보자
+
+# 문자열을 다양한 자료형으로 변환하기
+
+이 내용을 알기 위해서는 Wrapper Class 에 대한 이해가 있어야 한다.
+
+> Wrapper Class 에 대해서는 위키피디아의 [Primitive wrapper class in java](https://en.wikipedia.org/wiki/Primitive_wrapper_class_in_Java) 에서 확인할 수 있습니다.
+
+각각의 Wrapper Class 는 **parse** 메서드를 제공하는데, 이는 **문자열을 파싱해서 Wrapper 의 데이터 타입으로 변환**한다.
+
+그럼 다음과 같이 사용될 수 있다.
+
+- String 을 int 로 받아오기
+  - `Integer.parseInt("1")`
+- String 을 double 로 받아오기
+  - `Integer.parseInt("1.3")`
+- String 을 float 로 받아오기
+  - `Integer.parseInt("1.1")`
+
+간단하다.
+
+# String.valueOf() 메서드를 이용해서 String 타입으로 변환하기
+
+BufferedWriter.write 는 String 을 매개변수로 받아야 출력할 수 있다. 그렇지 않으면 offset 이나 다른 기능으로 수행되기 때문에 String 타입으로 변환을 해야지만 원하는 것을 출력할 수 있게 된다.
+
+이를 위해서는 String.value() 를 이용해서 int 타입이나 char, double, boolean 을 파싱해야 한다.
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력
+    BufferedWriter br = new BufferedWriter(new OutputStreamReader(System.in)); // 출력
+
+    int number = 10;
+    char chars = 'c';
+    double score = 1.1;
+
+    bw.write(String.valueOf(number)); // int to String
+    bw.write(String.valueOf(chars)); // char to String
+    bw.write(String.valueOf(score)); // double to String
+
+    bw.flush(); // 남아있는 버퍼의 내용을 출력
+    bw.close(); // 버퍼 해제
+  }
+}
+```
+
+이것 역시 간단하다.
+
+# 백준 문제로 배워보기
+
+우리는 이 기법들을 이용해서 어떻게 문제풀이에 접목되는지 알아보자.
+
+## 한 줄에 들어오는 입력 처리하기
+
+다음과 같이 한 줄에 들어오는 입력을 확인해보자
+
+[##_Image|kage@ysBcn/btraMpJmWmH/RCw6hScSkaOEezNjX4c7eK/img.png|alignCenter|data-origin-width="1213" data-origin-height="174" data-ke-mobilestyle="widthOrigin"|||_##]
+
+입력으로는 2개의 숫자가 들어오는데, 우리는 이를 String 으로 받아서 **공백을 기준으로 나눌 것이다**
+
+공백을 기준으로 나눌 때는 String 클래스의 **String[] split(String regex)** 메서드를 통해서 나눌 수 있다.
+
+그렇게 나누면 String 배열이 반환되는데, 해당 배열을 가지고 **Integer** 로 파싱하는 것 까지가 끝이다.
+
+#### 앞서 이야기했듯, BufferedWriter.write 메서드는 int 타입이 들어갈 수 없으므로 String.valueOf() 메서드를 이용하여 문자열로 만들어줘야 한다.
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력
+    BufferedWriter br = new BufferedWriter(new OutputStreamReader(System.in)); // 출력
+
+    String[] line = br.readLine().split(" "); // 첫 번째 라인을 받고 공백을 기준으로 나누기
+
+    int number1 = Integer.parseInt(line[0]);
+    int number2 = Integer.parseInt(line[1]);
+
+    bw.write(String.valueOf(number1 + number2));
+
+    bw.flush(); // 남아있는 버퍼의 내용을 출력
+    bw.close(); // 버퍼 해제
+  }
+}
+```
+
+## 1차원 배열 처리하기
+
+이번에는 다음과 같이 1차원 배열이 입력으로 들어왔을 때를 확인해보자.
+
+[##_Image|kage@bnyESW/btraRwHwiSc/uc31XjfyK7E8TgjisAYJ1k/img.png|alignCenter|data-origin-width="1189" data-origin-height="166" data-ke-mobilestyle="widthOrigin"|||_##]
+
+1 차원 배열을 입력받는 것도 위의 방식과 크게 다르지 않다.
+
+우선 입력된 string 을 split 메서드를 통해서 string 배열로 만들고, 해당 배열을 iteration 하면서 int 배열에 넣어주면 된다.
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력
+    BufferedWriter br = new BufferedWriter(new OutputStreamReader(System.in)); // 출력
+
+    String[] line = br.readLine().split(" "); // 첫 번째 라인을 받고 공백을 기준으로 나누기
+
+    int[] arr = new int[line.length]; // 들어온 입력 만큼의 int 배열 생성
+
+    for(int i = 0; i < line.length; i++) {
+      arr[i] = Integer.parseInt(line[i]);
+    }
+
+    bw.write(Arrays.toString(arr));
+
+    bw.flush(); // 남아있는 버퍼의 내용을 출력
+    bw.close(); // 버퍼 해제
+  }
+}
+```
+
+## 2차원 배열 처리하기
+
+2차원 배열도 역시 비슷하다
+
+[##_Image|kage@cYm9wo/btraInTmIra/KwKyZyB9h7jPek4z3LmfxK/img.png|alignCenter|data-origin-width="1203" data-origin-height="230" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이와 같이 들어온다면 다음과 같이 처리할 수 있다.
+
+```java
+public class Main {
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // 입력
+    BufferedWriter br = new BufferedWriter(new OutputStreamReader(System.in)); // 출력
+
+    int n = Integer.parseInt(br.readLine()); // 입력과 동시에 int 로 변환
+
+    int[][] arr = new int[n][n];
+
+    for(int i = 0; i < arr.length; i++;) {
+      String[] line = br.readLine().split(" ");
+
+      for(int j = 0; j < line.length; j++) {
+        arr[i][j] = Integer.parseInt(line[j]);
+      }
+    }
+
+    bw.write(Arrays.deepToString(arr));
+
+    bw.flush(); // 남아있는 버퍼의 내용을 출력
+    bw.close(); // 버퍼 해제
+  }
+}
+```
+
+## 혼자 연습해보기
+
+이제 우리는 ps 에 필요한 거의 모든 입출력을 해결할 수 있게 되었다.
+
+아래의 입출력 포맷을 위에서 배운 내용을 토대로 한 번 스스로 해보길 바란다.
+
+우리가 배운 것으로 충분히 커버할 수 있는 수준이다!
+
+[##_Image|kage@dQ1xFP/btraIneJrxf/YidmdnacZYDqy0KaUKgSQ0/img.png|alignCenter|data-origin-width="1210" data-origin-height="325" data-ke-mobilestyle="widthOrigin"|||_##]
