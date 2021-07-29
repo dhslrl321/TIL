@@ -58,3 +58,12 @@
   - 보안 Level 시각화
   - 로그 파일의 보관 용이
 - 기술적인 도전 과제
+
+좋은 질문이시네요!
+사실 Ribbon 이 진정한 Client Side Loadbalancer 입니다. 하지만 현재 Spring Cloud Netflix Ribbion 은 Maintenance Mode 가 되어 더 이상 Spring Cloud 에서 관리되고 있지 않습니다. 이제 그 빈 자리를 매꾸는 것이 바로 Spring Cloud Loadbalancer 입니다.
+그래서 진정한 Load Balancing 을 하기 위해서는 Spring Cloud LoadBalancer 를 사용해야 하지만 Spring Cloud Netflix Zuul 이 Maintenance Mode 가 되어 진화된 Spring Cloud Gateway 에서는 Spring Cloud Commons 모듈이 기본적으로 포함되어 있는데, 여기에 Spring Cloud LoadBalancer 가 포함되어 있습니다!
+다시 돌아가서 이야기하자면 Spring Cloud Gateway = Zuul + Ribbon 라고 이해 될 수도 있겠네요 ㅎㅎ
+
+아래 자료를 참고하세요
+https://spring.io/blog/2018/12/12/spring-cloud-greenwich-rc1-available-now
+https://stackoverflow.com/questions/43538030/zuul-and-ribbon-integration
