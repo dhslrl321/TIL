@@ -1,0 +1,11 @@
+# Pem Table
+
+- port number 는 tcp, udp 포트가 아니라 실제 물리적인 포트 시리얼 넘버
+
+# Host ARP Table 의 이해
+
+- 모든 Host는 ARP Table 을 가지고 있음
+- IP-MAC 의 매칭 정보를 가지고 있음
+  - key-value 쌍
+    - key : ip
+    - value : mac
