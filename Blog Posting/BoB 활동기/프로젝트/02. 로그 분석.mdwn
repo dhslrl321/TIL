@@ -38,32 +38,13 @@
 - **ip history**
 - **query history**
 
-# 한 쪽 기획서
+# SaaS 구성
 
-- 아이디어 개요
-  - 사용자 : 웹 서비스를 운영하는 기업
-  - 서비스 유형 : 웹 애플리케이션, 시스템 데몬
-  - BM : B2B
-- 해당 서비스를 기획하게된 배경 및 필요성
-  - SW 인재 대란에서 잘 하는 개발자나 관리자를 뽑는 것이 힘들어진 요즘 기업의 입장에서는 새로운 인력을 채용하는 것이 부담으로 다가갈 수 있다.
-  - 해당 서비스는 사내의 웹 애플리케이션이 저장하고 기존에 존재하는 로그를 기반으로 Application Level 에서 분석하는 통합 Dashboard 를 제공한다.
-- 기능 목록
-  - 실시간 트래픽 모니터링
-  - Today 보안 위협 트래픽 수준
-  - 로그 history 확인
-  - 웹 애플리케이션의 보안 취약점 시각화
-  - 지속적으로 보안에 위해를 가하는 IP 를 임시 차단 (최종 목표)
-- 기대 효과
-  - 사내 로그 분석 SecOps 인력 감소
-  - 보안 Level 시각화
-  - 로그 파일의 보관 용이
-- 기술적인 도전 과제
+- 로그인, 회원가입
+- 프로젝트 등록
+  - 프로젝트 이름
+  - 서버 플랫폼 설정
+- 설치
+  - 파일 설치 경로 확인
 
-좋은 질문이시네요!
-사실 Ribbon 이 진정한 Client Side Loadbalancer 입니다. 하지만 현재 Spring Cloud Netflix Ribbion 은 Maintenance Mode 가 되어 더 이상 Spring Cloud 에서 관리되고 있지 않습니다. 이제 그 빈 자리를 매꾸는 것이 바로 Spring Cloud Loadbalancer 입니다.
-그래서 진정한 Load Balancing 을 하기 위해서는 Spring Cloud LoadBalancer 를 사용해야 하지만 Spring Cloud Netflix Zuul 이 Maintenance Mode 가 되어 진화된 Spring Cloud Gateway 에서는 Spring Cloud Commons 모듈이 기본적으로 포함되어 있는데, 여기에 Spring Cloud LoadBalancer 가 포함되어 있습니다!
-다시 돌아가서 이야기하자면 Spring Cloud Gateway = Zuul + Ribbon 라고 이해 될 수도 있겠네요 ㅎㅎ
-
-아래 자료를 참고하세요
-https://spring.io/blog/2018/12/12/spring-cloud-greenwich-rc1-available-now
-https://stackoverflow.com/questions/43538030/zuul-and-ribbon-integration
+# 고민할 것
