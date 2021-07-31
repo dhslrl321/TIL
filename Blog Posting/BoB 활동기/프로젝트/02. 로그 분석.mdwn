@@ -33,10 +33,13 @@
   - 도넛 & 파이 그래프
 - **today's 보안 위협 트래픽**
   - 보안 레벨 한 눈에 보기
+    - DB 에 존재하는 로그에 보안 위협 레벨을 넣고 가중치로 계산
 - **log history**
-  - 정렬 및 쿼리
+  - 모든 로그
 - **ip history**
+  - 특정 ip 의 요청 로그
 - **query history**
+  - 어떤 쿼리로 들어왔는지
 
 # SaaS 구성
 
@@ -47,13 +50,32 @@
 - 설치
   - 파일 설치 경로 확인
 
-# 고민할 것
+# Front Back 나누는 이유
 
-# 포폴
+- 어차피 Front 에서는 다 비동기 통신을 할 것이라 나누는게 좋음
+  - 우리가 spring boot 에서 html 을 렌더링한다는 소리는 Template Engine 을 쓰겠다는 소리인데, 나는 다 비동기로 처리하는 것을 생각함
+  - 템플릿 엔진을 안 쓰는데 Spring Boot 에서 HTML 을 렌더링하려고 한다면 오버헤드가 발생
+- 굳이? 라는 말을 nginx 없이 spring boot 에서 관리해도 하면 상관 없음 그냥 Front Back 나눈다면 각각 웹 서버를 따로 두는게 맞는것 같아서 의견 제시한 것임
+- 리액트나 뷰는 Full 비동기 통신임
+- 참고 자료
+  - [express 로 html 렌더링 서버 만들기](https://www.section.io/engineering-education/rendering-html-pages-as-a-http-server-response-using-node-js/)
+  - [Express 에서 HTML 파일 렌더링하는 방법](https://codeforgeek.com/render-html-file-expressjs/)
+  - [express 에서 static 파일 제공하는 방법](https://expressjs.com/ko/starter/static-files.html)
 
-- 한 줄 소개
-- 기술 스택
-- 프로젝트
-  - 배재대
-    - 사용 기술 및 아키텍쳐
-    - 내 역할
+# DB 하나로 두면 안되는 이유
+
+- 제1 정규화에 위배됨
+  - 만약 하나의 로그가 두 개의 공격이 함께 들어오는 경우라면?
+- 검색에 시간이 많이 듦
+  - 정상 로그는 계속해서 쌓일 것인데, 만약 모든 악성 로그를 탐색하려 한다면 n 번 검색해야함
+
+# DB 모델링
+
+- 로그
+  - 로그 번호
+  - ip
+  - query param
+- 악성 로그
+  - 악성 로그 pk
+  - 로그 fk
+  - 공격 유형
