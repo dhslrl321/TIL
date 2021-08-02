@@ -12,3 +12,4 @@
 4. [백준 11725](https://www.acmicpc.net/problem/11725) 트리의 부모 찾기 [문제 풀이](https://wonit.tistory.com/563)
 5. [백준 1389](https://www.acmicpc.net/problem/1389) 케빈 베이컨의 6단계 법칙 [문제 풀이](https://wonit.tistory.com/564)
 6. [백준 5567](https://www.acmicpc.net/problem/5567) 결혼식 [문제 풀이](https://wonit.tistory.com/565)
+7. [백준 14502](https://www.acmicpc.net/problem/14502) 연구실 [문제 풀이](https://wonit.tistory.com/566)
