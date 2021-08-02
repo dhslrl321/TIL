@@ -56,11 +56,6 @@
   - 우리가 spring boot 에서 html 을 렌더링한다는 소리는 Template Engine 을 쓰겠다는 소리인데, 나는 다 비동기로 처리하는 것을 생각함
   - 템플릿 엔진을 안 쓰는데 Spring Boot 에서 HTML 을 렌더링하려고 한다면 오버헤드가 발생
 - 굳이? 라는 말을 nginx 없이 spring boot 에서 관리해도 하면 상관 없음 그냥 Front Back 나눈다면 각각 웹 서버를 따로 두는게 맞는것 같아서 의견 제시한 것임
-- 리액트나 뷰는 Full 비동기 통신임
-- 참고 자료
-  - [express 로 html 렌더링 서버 만들기](https://www.section.io/engineering-education/rendering-html-pages-as-a-http-server-response-using-node-js/)
-  - [Express 에서 HTML 파일 렌더링하는 방법](https://codeforgeek.com/render-html-file-expressjs/)
-  - [express 에서 static 파일 제공하는 방법](https://expressjs.com/ko/starter/static-files.html)
 
 # DB 하나로 두면 안되는 이유
 

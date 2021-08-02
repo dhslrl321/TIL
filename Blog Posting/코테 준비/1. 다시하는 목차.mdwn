@@ -1,0 +1,14 @@
+# 2021.07.31 부터 시작하는 분야별 20문제 해결
+
+- 규칙
+  - 분야별로 실버 2 이상 문제를 20문제씩 해결해야만 다음 분야로 넘어갈 수 있다.
+  - Silver 1 문제가 편안해 졌다면 Gold 5 문제까지 도전해야 한다
+
+# DFS 와 BFS
+
+1. [백준 7562](https://www.acmicpc.net/problem/7562) 나이트의 이동 [문제 풀이](https://wonit.tistory.com/560)
+2. [백준 2468](https://www.acmicpc.net/problem/2468) 안전 영역 [문제 풀이](https://wonit.tistory.com/561)
+3. [백준 2583](https://www.acmicpc.net/problem/2583) 영역 구하기 [문제 풀이](https://wonit.tistory.com/562)
+4. [백준 11725](https://www.acmicpc.net/problem/11725) 트리의 부모 찾기 [문제 풀이](https://wonit.tistory.com/563)
+5. [백준 1389](https://www.acmicpc.net/problem/1389) 케빈 베이컨의 6단계 법칙 [문제 풀이](https://wonit.tistory.com/564)
+6. [백준 5567](https://www.acmicpc.net/problem/5567) 결혼식 [문제 풀이](https://wonit.tistory.com/565)
