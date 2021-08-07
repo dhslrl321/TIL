@@ -11,10 +11,13 @@
   - [Singleton 패턴]() - 싱글톤
 - [구현 패턴]()
   - [Abdaptor 패턴]() - 어댑터
-  - [Bridge 패턴]() - 브리지
+  - [Bridge 패턴]() - 브리지, 가교
   - [Composite 패턴]() - 컴포지트
-  - [Decorator 패턴]() - 데코레이터
+  - [Decorator 패턴]() - 데코레이터, 장식자
   - [Facade 패턴]() - 퍼사드
   - [Proxy 패턴]() - 프록시
 - [행동 패턴]()
-  - [Chain Of Responsibility]() - 책임 연쇄
+  - [Chain Of Responsibility 패턴]() - 책임 연쇄
+  - [Command 패턴]() - 명령
+  - [Interperter 패턴]() - 해석자
+  - [Iterator 패턴]() - 반복자
