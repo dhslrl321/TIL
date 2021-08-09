@@ -27,6 +27,15 @@
 
 # 예시
 
+- Iterator
+  - `Iterator`
+- ConcreteIterator
+  - `AirplaneIterator`
+- Aggregate
+  - `Aggregate`
+- ConcreteAggregate
+  - `AirplaneChamber`
+
 # 장점과 단점
 
 ### 장점
