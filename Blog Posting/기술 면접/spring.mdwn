@@ -1,0 +1,14 @@
+# Spring Core
+
+- Ioc/Di 란?
+- AOP 란?
+- 레이어드 아키텍처란?
+- Spring 에서 사용되는 디자인 패턴은?
+
+# JPA
+
+- 영속성 컨텍스트란?
+- @Transactional 어노테이션이란?
+  - Transactional Boundary 를 Service 에 걸어주는 이유
+- ManyToOne vs OneToMany 차이점
+- FetchType.LAZY 와 EAGER 차이 (지연 로딩과 즉시 로딩의 차이)
