@@ -1,0 +1,88 @@
+OPTIONS 는 RFC 7231 에 명시된 HTTP의 여러 메서드 중 하나이다.
+
+[##_Image|kage@bp8WTE/btrb7uP4qPU/rY5KQclFwU0qNic222zB7K/img.png|alignCenter|data-origin-width="800" data-origin-height="288" data-ke-mobilestyle="widthOrigin"|||_##]
+
+OPTIONS 는 실제로 우리가 프레임워크나 라이브러리를 사용한다면 직접 사용할 일은 드물지만 현대의 Front Back 을 나누는 개발 흐름에서는 꼭 알아야 할 개념중 하나이다.
+
+이 Options 에 대해서 알아보도록 하자.
+
+# HTTP의 OPTIONS Mthod
+
+Http `OPTIONS` 메서드는 target 리소스와 혹은 서버와 통신하기 위한 **통신 옵션**을 확인할 때 사용된다.
+
+즉, 해당 타겟 서버나 리소스가 **어떤 method, header, content type** 를 지원하는지 알 수 있다.
+
+주로 Browser 의 Js 가 보내는 Fetch, Axios 요청의 Preflight 에서 사용되곤 한다.
+
+#### 그럼 왜 OPTIONS 를 사용할까?
+
+이를 이해하기 위해서는 Preflight 에 대해서 알야야 한다.
+
+# Preflight 란?
+
+Preflight 은 **더 효율적인 통신**을 위함과 관련이 깊다.
+
+만약 우리가 엄청난 데이터를 서버로 보낸다고 가정하자.
+
+그래서 Front 에서 여러 처리를 한 뒤, 열심히 Body 에 데이터를 파싱하고 담았다.
+
+하지만 서버가 POST 요청을 허용하지 않는다면..?
+
+그럼 데이터를 Network Byte Order 로 바꾸는 등 여러 과정을 거친 것들이 허무하게 사라져 버리게 된다..
+
+이를 방지하기 위해서 **서버에서 어떤 메서드와 어떤 header 를 허용하는지 확인**하는 과정이 필요하게 되었고, 그 과정을 바로 **Preflight** 에서 수행한다.
+
+#### 그럼 결국 흐름은?
+
+우리가 특정 Http Method 로 요청을 보내게 된다면 **해당 서버로 OPTIONS 를 미리 보내보고** 해당 응답을 확인한 후, 우리가 보낸 Http Method 가 지원하면 실제 요청이 이뤄지게 되는 것이다.
+
+#### 이제 OPTIONS Method 를 왜 쓰는지 알 수 있게 되었다.
+
+이제 더 깊게 OPTIONS 에 대해서 알아보도록 하자.
+
+# OPTIONS Method 란?
+
+앞의 Preflight 에서 OPTIONS 가 사용된다는 것을 알게 되었다.
+
+실제 OPTIONS 요청을 봐보자.
+
+OPTIONS 를 curl 요청으로 보내게 된다면 우리가 예상하기로는 **Header나 Content-Type, Allow Method** 의 정보가 넘어와야 한다.
+
+```bash
+$ curl -X OPTIONS https://some-server.com -i
+```
+
+라는 요청을 특저 서버에 보냈다고 가정해보자.
+
+그럼 다음과 같은 응답을 받을 수 있다.
+
+```js
+HTTP/1.1 200 OK
+Allow: OPTIONS, GET, HEAD, POST
+Cache-Control: max-age=604800
+Date: Thu, 13 Oct 2016 11:45:00 GMT
+Expires: Thu, 20 Oct 2016 11:45:00 GMT
+Server: EOS (lax004/2813)
+x-ec-custom-error: 1
+Content-Length: 0
+```
+
+이러한 정보들을 서버로부터 확인을 할 수 있게 되고, 우리는 Preflight 를 비롯한 여러 상황에서 이를 사용하게 되는 것이다.
+
+이 정보는 CORS 에서도 사용될 수 있는데, 잘 알다싶이 CORS 는 먼저 OPTIONS 요청을 보낸 뒤, 해당 정보를 토대로 통신의 가능 여부를 파악하게 된다.
+
+> CORS 에 대한 자세한 이야기는 해당 블로그 [Cross Origin Resource Sharing 이란?](https://wonit.tistory.com/307) 에서 확인할 수 있습니다.
+
+브라우저는 다음과 같은 과정을 거치게 된다.
+
+[##_Image|kage@coyS2P/btrb6tYq4np/UK8GntbcckcP8Rq8HfHbIK/img.png|alignCenter|data-origin-width="1682" data-origin-height="1094" width="686" height="446" data-ke-mobilestyle="widthOrigin"|||_##]
+
+1. GET 요청인지 POST 요청인지 파악한다.
+2. Content-Type 과 Custom HTTP Header 를 파악한다.
+3. OPTIONS 요청을 통해서 서버가 적절한 Access-Control-\* 를 가졌는지 확인한다.
+4. 만약 적절한 Access-Control 을 가졌다면 실제 XHR을 트리거한다.
+5. 적절하지 못한 Access-Control 를 가졌다면 Error 를 발생시킨다.
+
+만약 서버에서 Cross Origin 에 대한 적절한 Access Control 을 하지 않는다면 Preflight 과정에서 Error 를 발생시키고 해당 통신을 수행하지 않게 된다.
+
+그래서 CORS 를 해결하기 위해서는 Access Control 에 대한 명시를 해줘야 한다.

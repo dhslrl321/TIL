@@ -1,9 +1,0 @@
-.headerblock {
-  display: flex;
-  justify-content: center;
-}
-
-.headerblock:first-child {
-  background-color: powderblue;
-  margin-right: auto;
-}
