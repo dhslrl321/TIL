@@ -1,0 +1,59 @@
+[Best Of the Best 활동기] 교육생 지원 노트북 (삼성 갤럭시 북 Pro) 리뷰
+
+오늘은 BoB 10기로 활동하며 받고 있는 **교육생 혜택** 중 하나인 교육 참여 노트북 제공에 대해서 알아보고 해당 노트북을 리뷰해보려 한다.
+
+[##_Image|kage@bxmWvF/btrctvVlHxV/0dqC0kThKaFr4rlje6a0Ok/img.png|alignCenter|data-origin-width="1033" data-origin-height="321" data-ke-mobilestyle="widthOrigin"|||_##]
+
+# 삼성 갤럭시 북 Pro
+
+지난 기수에서는 LG Gram 이 교육 지원 노트북으로 제공되었다고 하는데, 올 해는 **삼성의 갤럭시 북 프로**가 제공되었다.
+
+지난 해에 스펙보다 훨씬 좋은 스펙이 제공될 것이라고 지원 전 부터 소문이 돌았는데 그 소문이 사실이었다 ㅎㅎ
+
+[##_Image|kage@bC9RR1/btrcvxd48Zn/kngGaBpfRCkJMLnI0Afxgk/img.png|alignCenter|data-origin-width="1280" data-origin-height="1280" width="631" height="631" data-ke-mobilestyle="widthOrigin"|||_##]
+
+노트북에는 BoB 로고가 박혀있는데, 이게 생각보다 이상하지 않다
+
+근데 스티커 재질?이 뜯어질 수 있는 재질이라 사용 시에 주의가 필요할 것 같다.
+
+## 스펙
+
+[##_Image|kage@meFf4/btrclIuUOL8/CMsLoTJK7aexIlQ1DVrxo0/img.png|alignCenter|data-origin-width="568" data-origin-height="158" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 인텔 11세대 프로세서 CPU
+  - i7
+  - 2.80 GHz 클럭 2개
+- 16GB RAM
+- 512 SSD
+
+## 체감 성능
+
+체감 성능은 매우매우 빠르고 좋다.
+
+한 번에 VM 2개를 돌리면서 Host PC 에서 꽤 무거운 Application 으로 구성된 도커 인스턴스를 여러 대 함께 돌려도 무리가 없었고, 발열 또한 내가 맥북 유저라 그런지 심한 수준은 아니였었다.
+
+그리고 실제로 발열 때문에 쓰로틀링이 걸려서 버벅거리는 현상도 발견한 적은 없었으며 매우 만족하는 성능이 나온다.
+
+## 터치패드
+
+이거 진짜 큰 단점인데... 내 노트북 터치패드가 많이 이상하다.
+
+마우스 없이 터치패드 만으로 무언가 할 수 없을 정도이다.
+
+터치 패드로 포인터를 이동하면 계속해서 클릭이 되는데 이 문제는 전공 교육이 끝나고 서비스 센터로 방문해서 한 번 문의를 해보려 한다..
+
+# 후기
+
+코로나 상황이라서 노트북은 택배로 센터 측에서 교육생들에게 보내줬다.
+
+[##_Image|kage@QRpc9/btrci9sMn2Y/apY8OfVuQjfeF0TyIIUxD1/img.png|alignCenter|data-origin-width="1280" data-origin-height="1280" width="628" height="628" data-ke-mobilestyle="widthOrigin"|||_##]
+
+하지만 몇몇 학생들은 코로나 4단계가 진행되기 전에 미리 수령한 학생들이 있었는데, 나는 운이 좋게도 그 중에 한 명이었어서 센터에서 오프라은 수업을 들었을 때 수령했었다.
+
+수령을 하자마자 바로 내 원래 노트북에 있는 세팅에서 몇몇 세팅을 빼고 그대로 해줬다 ㅎㅎ..
+
+[##_Image|kage@btdEEz/btrcvxrBSia/0mvHfbma5cUls23IKHxpm1/img.png|alignCenter|data-origin-width="842" data-origin-height="52" data-ke-mobilestyle="widthOrigin"|||_##]
+
+나는 원래 **맥북**과 **MSI 윈도우 노트북** 이렇게 2개를 사용하고 있었는데 윈도우 노트북은 내가 잘 사용하지 않다 보니 가족들에게 양보를 하고 있었고 자취 생활을 하는 나에게 윈도우가 필요한 상황이 생기면, 예를 들면 공동인증이라던지.. hwp 파일을 작성해야 한다던지, **학교로 올라가야 하는 불상사**가 여러번 생겼었다..
+
+하지만 이번에 교육으로 노트북을 받게 되어 그럴 일이 없어져서 너무 편하고, 무엇보다 내가 맥북을 너무 아끼는 탓에 새로운 소프트웨어를 설치하는 것 자체가 부담이었지만 그럴 필요 없이 마음 편하게 쓸 노트북이 하나 생겨서 너무 좋다.

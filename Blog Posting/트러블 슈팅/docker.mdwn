@@ -1,0 +1,81 @@
+# 문제 상황
+
+문제 상황은 이랬다.
+
+내가 Spring Boot Application 으로 Backend API 를 제공하는 서버를 Dockerizing 하였다.
+
+해당 Application 은 테스트를 위한 테스트 이미지에서 초기 initial data 를 위해서 import.sql 로 가짜 데이터를 넣어주고 있었다.
+
+[##_Image|kage@YVkcG/btrcnInr8G0/0mvcOmgoImVBpiVp8mVXwk/img.png|alignCenter|data-origin-width="252" data-origin-height="167" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그리고 Controller 에서 제공하는 API 중 하나가 **현재 시간을 기준으로 -24시간 까지의 특정 데이터**를 불러오게 되는데, 만약 데이터가 없으면 예외를 발생시킨다.
+
+그래서 계속해서 500 Internal Server Error 가 발생하였다.
+
+[##_Image|kage@xakht/btrcvxd5KgX/d9NUck1DcgKDjQC0gtgy31/img.png|alignCenter|data-origin-width="713" data-origin-height="303" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그래서 어떤 문제인지 정확히 파악하기 위해서 docker logs 를 통해서 내부로 들어오는 트래픽의 Application Layer 의 로그를 찍어보니
+
+[##_Image|kage@oFKeV/btrcvyjK8rx/lCrsHmL6QIOApf95VvWfEK/img.png|alignCenter|data-origin-width="1260" data-origin-height="1118" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이런 에러가 발생하는 것을 볼 수 있었다.
+
+이 에러는 앞서 이야기한 Application 에서 일부러 예외로 발생시키는 문제고 런타임에 발생하는 인지 가능한 예외임을 알게 되었다.
+
+하지만 처음에는 왜 이렇게 되는지 몰랐다가 **도커라이징 한 Application 에서만** 문제가 발생한다는 것을 보고 Docker App 과 내 Host PC 간의 차이가 뭐가 있을까? 를 생각하게 되었다.
+
+# 원인
+
+원인은 간단하다.
+
+내가 만든 API 는 DB에 조회할 때, Timestamp Between 연산을 하게 되는데, 현재 시점을 기준으로 -24시간의 데이터를 가져오도록 한다고 이야기 했었는데, 내가 만든 더미 데이터는 **KST를 기준 으로 **insert 되어있고, 도커가 돌아가는 컨테이너는 **UTC, GMT 를 기준으로 **돌아가므로 계속해서 예외가 발생했던 것이다.
+
+그래서 docker exec 명령어로 해당 컨테이너의 시간을 확인해보니
+
+[##_Image|kage@cIFu9a/btrcqxsraYV/I6YeqXTXdSSc7UfUZ16DLk/img.png|alignCenter|data-origin-width="494" data-origin-height="72" data-ke-mobilestyle="widthOrigin"|||_##]
+
+역시나 UTC로 되어있었다.
+
+# 해결 방법
+
+이에 대한 해결 방법은 2가지 방법이 존재한다.
+
+1. volume 을 이용해서 HOST PC 에 Timezone 을 Link 하기
+2. tzdata 를 이용해서 컨테이너 내부에서 Timezone 을 동적으로 설정하기
+
+### volume 을 이용해서 HOST PC 에 Timezone 을 Link 하기
+
+```bash
+$ sudo docker run ...
+  -v /etc/localtime:/etc/localtime
+```
+
+여럿 블로그에서 다음과 같이 HOST PC 의 localtime 을 연결시켜주는 방법을 이야기한다.
+
+하지만 Host PC가 Window 인 경우에는 여러 작업을 많이 해줘야 하기 때문에 권고하지 않는 방법이다.
+
+> 해당 방법으로 문제해결을 하려 했으나 제 경우 동작하지 않았습니다.. 혹시 이에 대한 답이 있으신 분들은 댓글로 알려주시면 감사하겠습니다.
+
+### tzdata 를 이용해서 컨테이너 내부에서 Timezone 을 동적으로 설정하기
+
+tzdata 는 Timezone 데이터베이스라고 부르는데, 세계 표준시간대에 대한 데이터를 제공한다.
+
+tzdata 를 설치해서 local time 을 동적으로 설치할 수 있게 하면 된다.
+
+```dockerfile
+FROM openjdk:17-ea-11-jdk-slim
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Seoul
+RUN apt-get install -y tzdata
+
+WORKDIR /server
+
+COPY ./build/libs/L7-Monitor-0.0.1-SNAPSHOT.jar l7-monitor.jar
+
+ENTRYPOINT ["java", "-jar", "l7-monitor.jar"]
+```
+
+그럼 다음과 같이 KST로 잘 설정되는 것을 알 수 있다.
+
+[##_Image|kage@bu46pY/btrctx6TsPc/7xjJ8akP5BpLPa2M7qJI8k/img.png|alignCenter|data-origin-width="674" data-origin-height="64" data-ke-mobilestyle="widthOrigin"|||_##]
