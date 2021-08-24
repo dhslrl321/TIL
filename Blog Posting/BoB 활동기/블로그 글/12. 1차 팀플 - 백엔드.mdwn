@@ -1,39 +1,3 @@
-- 서비스 설명
-  - Service Flow
-    - 그림
-    - 흐름을 순서로 제공
-- 개발하며 만났던 문제와 고민
-  - 프론트
-    - 웹팩과 express 그리고 리액트
-    - 리액트의 상태 관리
-    - 통신 모듈의 선정
-    - 리액트 디자인 패턴
-  - 백엔드
-    - 아키텍처
-    - 테스트 전략
-      - TDD 하기
-      - BDD Mockito를 이용하여 테스트 커버리지 90% 이상 안정된 API 제공
-    - 아쉬운점
-      - between 연산을 개선
-  - 인프라 구성
-    - nginx를 Reverse Proxy로 사용하기
-      - nginx.conf 와 Dockerfile
-    - 도커
-      - 도커라이징
-      - 프론트에서의 .env
-      - 백엔드의 ARGS
-  - 배포와 패키징
-    - 배포 과정
-      - SaaS 에서 On-Premise 로 바뀜
-      - 도커 컴포즈
-    - 만났던 문제들
-      - 원래 예정 : 쉘 스크립트로 conf 파일만 수정
-      - 바뀐점 : 직접 docker-compose.yml 을 수정하는 방향
-      - 결국 shell-script
-- 결과
-  - 시연 영상
-- 후기 및 느낀점
-
 > [Best Of the Best 활동기] 1차 팀 프로젝트 후기 - 보리밥
 
 오늘은 BoB 10기 보안제품개발 트랙의 **보안 솔루션 제작** 수업에서 한달동안 진행한 1차 팀 프로젝트에 대해서 이야기해보려 한다.
@@ -56,4 +20,386 @@
 
 우선 Backend 는 Spring Boot 가 Framework 으로 사용되었다.
 
-Backend 에서 사용하는 Dependencies 들은 다음과 같다.
+정확히 Backend Application 이 여기서 무슨 일을 하냐면?
+
+지난 시간 이야기 했었던 우리 L7 모니터링 솔루션에서는 서비스 플로우가 다음과 같이 흘러가게 된다.
+
+### 서비스 플로우
+
+[##_Image|kage@bGhBq9/btrcRpOAJc3/j6WuOTI1ke7rsdSNXKmal1/img.png|alignCenter|data-origin-width="687" data-origin-height="400" data-ke-mobilestyle="widthOrigin"|||_##]
+
+1. 고객사는 기존에 운영중이던 서버와 해당 서버가 저장하는 **access.log** 가 존재한다.
+2. 우리가 개발한 **Agent 패키지**를 설치한다.
+3. 해당 Agent에서 access log 의 위치를 지정하고 **분석 서버로 access log 를 전달한다.**
+4. 운영 서버의 성능을 위해서 분석은 **다른 서버에서 진행**한다.
+5. 분석 서버로 들어온 access log 는 **분석을 진행하여 공격 유형에 따라서 DB에 저장**한다.
+6. 해당 DB 의 값들을 토대로 보안 **레벨을 산출**하고 각종 시각화에 필요한 **데이터를 정제하여 Front로 반환**한다.
+7. Front Server는 Backend 에게 받아온 데이터를 가지고 **대시보드에서 시각화**를 수행한다.
+
+여기서 Backend가 개입하는 6번과 7번에서 필요한 웹 데이터를 DB에서 조회하고 여러 가공을 한 뒤 Front 에게 응답으로 반환해주는 역할을 수행한다.
+
+# 백엔드의 기술적 고민
+
+백엔드는 사실상 SELECT 쿼리만 날리고 Get Mapping 만 되어있는 매우 심플한 애플리케이션으로 설계되었다.
+
+원래의 SaaS 형태라면 인증과 인가에 대한 고민을 했었을테고, 그에 따라서 Request Validation 이나 여러 처리들이 들어갔을듯 한데, 워낙 기능이 단순하기 때문에 별다른 고민을 하지 않아도 되는 부분이었다.
+
+하지만 이 과정에서도 나름 여러 고민을 하였고, 나만의 규칙을 세우려고 노력하며 만났던 결과물과 문제들을 공유해보려 한다.
+
+주제는 크게 2가지 이다.
+
+[##_Image|kage@b1s92U/btrc3pHlqTS/4mIAgjLrKaKA3ktTtk4FSK/img.png|alignCenter|data-origin-width="931" data-origin-height="1231" width="731" height="966" data-ke-mobilestyle="widthOrigin"|||_##]
+
+1. 구현 아키텍처
+2. 테스트 전략
+
+# 구현 아키텍쳐
+
+3-Tier 구조에서 프로젝트를 할 때는 거의 **Layered Architecture** 를 Spring Boot 에서 사용하곤 한다.
+
+사실상 Spring Boot 에서 사용할 아키텍처 패턴은 내가 많이 모르는 부분도 있고 해서 기존에 많이 해왔던 레이어드 아키텍처로 API 서버를 구성했다.
+
+간단하게 Layeted Architecture 란 OSI 7 Layer 와 같이 각각의 레이어가 하는 일이 명확하고 하나의 레이어에서 끝낸 데이터를 다음 레이어로 넘겨주는 방식을 취한다
+
+[##_Image|kage@bVIoUz/btrc2nXAs4G/kNklKw5DKK4DDxTxvf4Az0/img.png|alignCenter|data-origin-width="501" data-origin-height="406" data-ke-mobilestyle="widthOrigin"|||_##]
+
+프로젝트 구조는 다음과 같다
+
+[##_Image|kage@H5nBI/btrc6SWQQ3p/GaVYwgNdJEMQy74RoHQMi1/img.png|alignCenter|data-origin-width="295" data-origin-height="869" data-ke-mobilestyle="widthOrigin"|||_##]
+
+## Persistence Layer : Domain 패키지
+
+Domain 패키지에서는 Data 의 영속화 (Persistence) 에 관한 처리를 하는 부분이다.
+
+나는 Domain 안에서 크게 3파트로 나눴다.
+
+1. Jpa Entity
+2. JpaRepository 를 상속받는 인터페이스
+3. dto
+
+### Entity
+
+Entity 는 Jpa 를 공부해봤던 사람들에게는 친근한 객체이다.
+
+Jpa의 핵심인 persistence context 에 들어갈 대상 객체로 DB 테이블에 대응되는 하나의 클래스로 생각하면 쉬운데, DB 테이블을 Object 화 하는 ORM의 특성에서 가장 기본이 되는 인스턴스들을 의미한다.
+
+### JpaRepository 를 상속받는 인터페이스
+
+Spring Data Jpa 에서는 간단한 CRUD 기능을 처리하기 위해서 기본적으로 JpaRepository 를 제공한다.
+
+해당 인터페이스를 상속받고 나는 **쿼리 메서드**의 메서드 네임을 통한 쿼리 생성을 이용하였다.
+
+```java
+public interface TotalRepository extends JpaRepository<Total, Long> {
+  long countByTimestampBetween(LocalDateTime from, LocalDateTime to);
+
+  List<Total> findTop100ByTimestampBetween(LocalDateTime minusDays, LocalDateTime now);
+}
+```
+
+### DTO
+
+DTO 는 **Martin Fowler** 가 정의한 **데이터 전송만을 위한 객체**를 의미한다.
+
+이 글을 쓰는 시점에 알게 되었지만 DTO 는 함수가 존재하지 않는데, 내 코드에서는 DTO에 로직이 존재한다 ㅎㅎ.. ~수정하는걸로..~
+
+## Business Layer
+
+Buisiness Layer 에서는 Presenter Layer 와 Persistence Layer 사이에 위치하여 우리의 Business Logic 을 구성하고 정의하는 레이어다.
+
+#### 실제 Database와 상호작용은 Business layer 에서 이뤄지기 때문에 Transaction Boundary 를 설정해주었다.
+
+스프링 코드에서는 Presentation Layer 에서 받은 DTO를 가지고 Entity 로 변환하며 비즈니스 로직이 호출된 이후 다시 DTO로 변환하는 과정을 거친다.
+
+또한 이 부분에서 jdoc 을 작성해서 가독성을 높였다.
+
+```java
+/**
+* 현재를 기준으로 24시간 이내의 모든 비정상 요청의 개수를 출력한다.
+*
+* @param trafficType 트래픽 유형
+* @return 현재 시간으로부터 -24 시간의 모든 비정상 로그의 개수를 반환한다.
+*/
+public TotalTrafficResponse getTodayTrafficSummaries(TrafficType trafficType) {
+  LocalDateTime from = LocalDateTime.now().minusDays(1L);
+
+  long count = 0;
+
+  if(trafficType.equals(TrafficType.ALL)) {
+      count = totalRepository.countByTimestampBetween(from, LocalDateTime.now());
+  } else if (trafficType.equals(TrafficType.THREAT)) {
+      count = abnormalRepository.countByTimestampBetween(from, LocalDateTime.now());
+  }
+
+  return TotalTrafficResponse.builder()
+          .id(1L)
+          .count(count)
+          .timestamp(from)
+          .build();
+}
+```
+
+위의 코드는 **오늘 발생한 총 트래픽**을 반환한다.
+
+## Presentation Layer
+
+Presentataion Layer 는 2-tier 아키텍쳐에서 HTML 페이지를 반환하기도 한다.
+
+우리는 3-tier 의 아키텍처로 JSON 을 이용한 API Call 을 방향으로 잡았기 때문에 JSON 을 반환하도록 한다.
+
+```java
+@RestController
+@RequestMapping(value = "/api/traffics", produces = "application/json")
+public class TrafficController {
+
+    private final TrafficService trafficService;
+
+    public TrafficController(TrafficService trafficService) {
+        this.trafficService = trafficService;
+    }
+
+    @GetMapping("/summaries")
+    public ResponseEntity<TotalSummariesResponse> getTodayTrafficsSummaries() {
+        return ResponseEntity.ok().body(trafficService.getTodaySummaries());
+    }
+}
+```
+
+실제 코드상에서는 위와 같이 Business Layer 에 존재하는 `Service` 코드를 **생성자 주입**을 통해서 빈을 생성하고, API Endpoint 에서 바로 호출하여 연결해주었다.
+
+#### 이 과정에서 알 수 있는 사실은 **Service.java** 에서는 DTO를 매개변수로 받고 적절한 비즈니스를 처리한 뒤, **DTO로 반환한다는 것**이다
+
+이 과정을 하나의 그림으로 표현하자면 다음과 같이 나올 것이다
+
+[##_Image|kage@5b0QI/btrc9dMIAac/XRvcRhuo62VIV57qjPXrYk/img.png|alignCenter|data-origin-width="772" data-origin-height="261" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이런 과정으로 나는 주로 개발을 해 왔었고, 해당 프로젝트에서도 적용을 했었다.
+
+이 과정에서 원래라면 Service 코드가 들어가는 Business Layer 에서 **Validation** 이 필수적으로 이루어져야 한다.
+
+예를 들어 입력 값, Requets Body 의 Data 가 적절한 데이터인지를 확인하는 과정이 필요하지만 모두 GET 요청으로 처리를 하는 API 서버에서 이는 불필요한 과정이라 생각해서 생략을 하였다.
+
+# 테스트 전략
+
+내가 가장 좋아하는 부분이 바로 **Test Code** 이다.
+
+테스트 코드를 작성하고 실패하는 테스트를 먼저 구성한 뒤, 성공하기 까지 여러 작업을 해주어 테스트가 통과하면 **그 만한 짜릿함을 어디서도 느낄 수 없다**
+
+흔히 말 하는 TDD 를 나는 좋아하는데, 내 나름 규칙이 존재한다.
+
+모든 코드를 TDD로 개발을 한다면 좋겠지만 현실적으로 그게 쉽지만은 않다.
+
+정말 명확하고 간단한 코드, 예를 들어 Entity 의 CRUD 테스트라던지? 이런 코드는 과감히 TDD를 하지 않는다.
+
+그냥 정상 로직을 먼저 짜지만, 어려운 개념을 구현해야 하는 경우는 **무조건 TDD**를 이용한다.
+
+나는 이 과정에서 만났던 문제들과 고민들을 공유해보려 한다.
+
+## Behavior Driven Development
+
+BDD라고 불리는 이것은 TDD를 근간으로 하는 TDD의 또다른 구현법?이다
+
+> BDD에 대한 자세한 사항은 해당 블로그 [JUnit5 BDDMockito로 알아보는 TDD와 BDD 차이점 및 실습](https://wonit.tistory.com/493?category=738059) 에서 확인할 수 있습니다!
+
+BDD는 크게 TDD와 다르지 않다.
+
+#### BDD는 Red -> Green -> Refactor 사이클을 도는 것은 동일하고 테스트 코드를 짜는 방법이 좀 더 체계화 되어있다고 생각하면 된다.
+
+우리가 일반적으로 TDD를 배울 때, 다음과 같이 배운다.
+
+**given-when-then**
+
+이 것이 바로 BDD의 핵심이다.
+
+인간이 읽기 쉬운 방법으로 테스트 코드를 나눠놓는 것을 의미하는데, 나는 이를 위해 **JUnit5 의 BDDMockito** 클래스를 이용했다.
+
+```java
+class TrafficServiceTest {
+
+    private TrafficService trafficService;
+
+    private final TotalRepository totalRepository = mock(TotalRepository.class);
+    private final AbnormalRepository abnormalRepository = mock(AbnormalRepository.class);
+
+    @BeforeEach
+    void init() {
+        trafficService = new TrafficService(totalRepository, abnormalRepository);
+
+        given(totalRepository.countByTimestampBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
+                .willReturn(12327L);
+    }
+
+    @ParameterizedTest
+    @DisplayName("시간 타입(5분) 가 주어지면 8 개의 dto 반환 - 성공")
+    @MethodSource("paramsForGetTrafficCountByPeriodWithValid")
+    void getTrafficBetween_valid(PeriodType periodType) {
+        List<TotalTrafficResponse> response = trafficService
+                .getTrafficCountByPeriod(periodType);
+
+        TotalTrafficResponse firstTotalResponseData = response.get(0);
+
+        assertAll(
+                () -> assertEquals(8, response.size()),
+                () -> assertEquals(1, firstTotalResponseData.getId()),
+                () -> assertEquals(12327L, firstTotalResponseData.getCount()),
+                () -> assertNotNull(firstTotalResponseData.getTimestamp())
+        );
+    }
+}
+```
+
+위의 코드를 확인해보자.
+
+Unit 테스트를 위해서 **테스트 대상 클래스**를 고립하였다.
+
+완벽한 고립을 위해서 대상 클래스를 제외한 모든 클래스를 가짜로 만들어주는 과정이 필요하다.
+
+나는 `mock()` 을 이용해서 파라미터로 들어가는 클래스가 가짜로 어떤 일을 수행할지 결정해주었다.
+
+`init()` 메서드에서는 **테스트 대상 클래스가 하나의 일을 수행할 때, 필요한 의존 관계**에 대해서 주입시켜준다.
+
+이 과정에서 `given()` 이라는 BDDMockito 의 메서드를 사용했다.
+
+그리고 테스트 대상 클래스의 메서드를 호출하여 결과를 예측할 수 있도록 하여 then 을 작성했다.
+
+## 테스트 코드에 Parameter 전달하기
+
+테스트 코드를 작성하다보면 **중복된 테스트 코드**가 많이 발생하게 된다.
+
+이 문제를 해결하기 위해서 나는 **JUnit5** 에 존재하는 **ParameterizedTest** 를 이용하였다.
+
+> 테스트 코드에 파라미터를 넣는 방법에 대해서는 해당 블로그의 [@ParameterizeTest 로 하나의 테스트 코드에서 여러 개의 파라미터 테스트하기](https://wonit.tistory.com/492?category=738059) 에서 확인할 수 있습니다!
+
+나는 이를 Enum 타입을 매개변수로 받는 서비스 로직에 대한 테스트를 할 때 사용했다.
+
+프로젝트에서 실시간 트래픽을 **특정 주기에 맞게** 반환해야 하는 코드가 있는데, 이 상황에서 Test Code를 실행하는 Method의 매개변수로 받아서 처리했다.
+
+```java
+class TrafficServiceTest {
+
+    private TrafficService trafficService;
+
+    private final TotalRepository totalRepository = mock(TotalRepository.class);
+    private final AbnormalRepository abnormalRepository = mock(AbnormalRepository.class);
+
+    @BeforeEach
+    void init() {
+
+        trafficService = new TrafficService(totalRepository, abnormalRepository);
+
+        given(totalRepository.countByTimestampBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
+                .willReturn(12327L);
+
+        given(abnormalRepository.countByTimestampBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
+                .willReturn(417L);
+    }
+
+    @ParameterizedTest
+    @DisplayName("시간 타입(5분) 가 주어지면 8 개의 dto 반환 - 성공")
+    @MethodSource("paramsForGetTrafficCountByPeriodWithValid")
+    void getTrafficBetween_valid(PeriodType periodType) {
+        List<TotalTrafficResponse> response = trafficService
+                .getTrafficCountByPeriod(periodType);
+
+        TotalTrafficResponse firstTotalResponseData = response.get(0);
+
+        assertAll(
+                () -> assertEquals(8, response.size()),
+                () -> assertEquals(1, firstTotalResponseData.getId()),
+                () -> assertEquals(12327L, firstTotalResponseData.getCount()),
+                () -> assertNotNull(firstTotalResponseData.getTimestamp())
+        );
+    }
+    private static Stream<Arguments> paramsForGetTrafficCountByPeriodWithValid() {
+        return Stream.of(
+            Arguments.of(PeriodType.WEEK),
+            Arguments.of(PeriodType.DAY),
+            Arguments.of(PeriodType.FIVE_MINUTE)
+        );
+    }
+}
+```
+
+`paramasForGetTrafficCountByPeriodWithValid` 메서드에서 각각 주기에 맞는 Enum 타입을 반환하고, `getTrafficBetween_valid` 에서 해당 파라미터를 받도록 코드를 작성해서 **3개의 동일한 테스트 코드**를 하나로 줄이도록 했다.
+
+이런 방식으로 조금의 가독성을 챙겼고, 내가 자주 애용하는 방법이기도 하니 이런 고민이 있는 사람들에게는 꼭 추천하는 방법이다.
+
+## Coverage
+
+내가 구현해야할 API 명세는 다음과 같았다.
+
+[##_Image|kage@dePFo1/btrdaFhVdtx/0VNaXkDvguj8DL7JDZ67zk/img.png|alignCenter|data-origin-width="873" data-origin-height="577" width="742" height="490" data-ke-mobilestyle="widthOrigin"|||_##]
+
+API들을 구현할 때, 나만의 약속이 있는데 그것은 바로 **커버리지를 일정 수준 이상으로 꼭 만족시키는 것**이다.
+
+#### 나는 기준을 특별한 경우가 아니라면 코드 커버리지 90% 이상으로 잡는다.
+
+100%도 할 수 있다면 좋겠지만 **약간의 Tradeoff**가 있는듯 하다.
+
+[##_Image|kage@QFnz4/btrc1UhaJpo/3HumE0YS7XwOkmWWrkSaFK/img.png|alignCenter|data-origin-width="723" data-origin-height="154" data-ke-mobilestyle="widthOrigin"|||_##]
+
+예를 들면 롬복에 관한 코드나, DTO에 관한 모든 테스트를 만족시키면 좋겠지만, 생산성을 보자면 90%가 나에게는 적합했고, 만족스러운 수준이었다.
+
+[##_Image|kage@dlv9Fh/btrc8hV9AkB/8QeprnKjKnlLXb6M9XxDvK/img.png|alignCenter|data-origin-width="605" data-origin-height="540" data-ke-mobilestyle="widthOrigin"|||_##]
+
+# Backend 를 개발하며 느낀 후기와 감정
+
+이번에 내가 맡은 API는 사실 크게 어려운 부분이 존재하지 않았다.
+
+문제가 있다면 내가 너무 많은 부분을 맡았던 것... 이라고 하고싶다.
+
+Front Back, 그리고 인프라와 배포까지 내가 맡아버려서 더 멋지고 우아한 코드를 짜는데에 신경을 많이 쓰지 못했다.
+
+그래도 내가 정해놓은 나름의 수준은 만족하는 프로젝트지만 이 프로젝트에서 아쉬운 부분을 꼽자면 2개 정도로 말할 수 있다.
+
+1. active profile 를 사용하지 못한 것
+2. Between 연산을 개선하지 못한 것
+
+## active profile 를 사용하지 못한 것
+
+테스트 코드를 작성할 때, 나는 H2 DB를 사용해서 메모리에서 돌아가게 해서 테스트를 하고 **실제 Production 환경**에서는 Mysql 이 구성되어 있었다.
+
+오늘을 위해서 Spring Boot 의 Active Profiles 에 대해서 공부를 했었는데, 시간이 너무 촉박한 나머지 DB 설정하는 설정 파일에서 단지 주석으로 Test 환경과 Production 환경을 나눴다..
+
+```java
+spring:
+  # H2 콘솔 설정
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+      settings:
+        web-allow-others: true
+  # DB 설정
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:l7-monitor
+    username: l7
+    password:
+
+  # jpa 설정
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/bob_l7?characterEncoding=utf8
+#    username: root
+#    password: 1111
+```
+
+그러다보니 빌드하는 과정에서 Production 환경에서는 테스트 코드가 꼬여서 빌드가 되지 않았고 결국 `gradle bootJar` 로 빌드를 해버렸다..
+
+> Spring boot의 profiles 에 대해서는 해당 블로그의 [Profile.active 을 이용하여 다른 설정 정보(application.properties) 불러오기](https://wonit.tistory.com/501?category=738059)
+
+만약 다음에 여유가 된다면 꼭 Active Profiles 를 사용하려 한다.
+
+## Between 연산을 개선하지 못한 것
+
+Spring Data JPA 에서는 다양한 **쿼리 메서드**기능을 지원하는데, 그 중 하나가 바로 메서드 이름으로 쿼리를 만드는 기능이 있다.
+
+내 API 에서 오늘의 트래픽량을 시간대 별로 알려주는 코드가 있었다.
+
+해당 코드에서는 `long countByTimestampBetween(LocalDateTime from, LocalDateTime to);` 이라는 쿼리 메서드를 호출하는데, 보다싶이 하나의 시간대만 조회를 할 수 있기 때문에 8개가 필요하다면 총 **8번을 호출**하게 된다.
+
+이를 NameQuery 를 이용하거나 다른 방법을 이용한다면 하나의 쿼리에서도 할 수 있지만 하지 않아 아쉬움이 남는다.
