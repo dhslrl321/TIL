@@ -1,0 +1,353 @@
+> [Best Of the Best 활동기] 1차 팀 프로젝트 후기 - 보리밥
+
+오늘은 BoB 10기 보안제품개발 트랙의 **보안 솔루션 제작** 수업에서 한달동안 진행한 1차 팀 프로젝트에 대해서 이야기해보려 한다.
+
+[##_Image|kage@cATJTt/btrcVjnrZXl/puTpQwDj6NkmgKV4ItNkw1/img.png|alignCenter|data-origin-width="960" data-origin-height="462" data-ke-mobilestyle="widthOrigin"|||_##]
+
+> 해당 글은 총 2부작으로 **팀 빌딩과 협업 과정** 그리고 **서비스 설명 및 개발 과정** 으로 나뉘어져 있습니다.
+
+- 1차 팀 프로젝트 [팀 빌딩 및 협업의 고민들](https://wonit.tistory.com/577)
+- 1차 팀 프로젝트 [프론트엔드를 개발하며 했던 고민들](https://wonit.tistory.com/578)
+- 1차 팀 프로젝트 [백엔드를 개발하며 했던 고민들](https://wonit.tistory.com/579)
+- 1차 팀 프로젝트 [인프라를 개발하며 했던 고민들](https://wonit.tistory.com/580)
+
+---
+
+지난 시간은 Back End 를 Spring Boot로 구성하며 했던 기술적 고민과 문제들에 대해서 이야기를 했었다.
+
+오늘은 Front와 Back 을 적절히 나눠주는 인프라에 관한 이야기를 해보려 한다.
+
+아래 그림은 우리가 설계한 아키텍쳐이다.
+
+[##_Image|kage@bGhBq9/btrcRpOAJc3/j6WuOTI1ke7rsdSNXKmal1/img.png|alignCenter|data-origin-width="687" data-origin-height="400" data-ke-mobilestyle="widthOrigin"|||_##]
+
+우리 서비스를 자세히 본다면 Nginx가 위치해 있는 것을 알 수 있다.
+
+우리는 하나의 Computing Machine 에서 2개의 서버가 돌아가고 있다.
+
+1. React View 를 Render 할 웹서버
+2. API를 반환할 WAS
+
+이 둘을 나는 하나의 Port로 합치고자 하였다.
+
+사실 두 개의 포트를 열어서 운영하는 방법도 있겠지만, SSL 통신이나 추후 SaaS로 발전해 인증 로직이 있다면 하나의 포트로 운영하는 것이 더 좋아보였다.
+
+그래서 이를 위한 방법으로 **Reverse Proxy**를 구성하려 했다.
+
+Reverse Proxy는 Nginx를 사용했는데, 그 이유로는 Nginx가 비동기 처리를 해서 더 빠르다 뭐다 하는 장점이 있겠지만 나는 순수하게 **내가 써봐서** 였었다..
+
+이게 타당하지 못한 기술 선정의 이유가 될 수 있지만 우리 조직 내부에서는 **개발과 구현이 한 시가 급했기 때문에** 이 마저도 타당한 것이 되어버렸다 ㅎㅎ..
+
+또한 배포와 패키징은 docker-compose 와 shell-script 를 적절히 이용했고, 이 과정에서 어떤 설정을 했었는지를 공유해보려 한다.
+
+# Nginx의 Reverse Proxy
+
+나는 모든 서버를 **컨테이너 환경**에서 구동하고자 하였다.
+
+그래서 다음과 같이 nginx 의 메인 설정 파일인 nginx.conf 파일을 정의해주고 Dockerfile 을 만들어 dockerizing 을 하는 방향으로 갔다.
+
+```conf
+upstream front-server {
+  server front-container:5000;
+}
+
+upstream backend-server {
+  server back-container:8080;
+}
+
+server {
+  listen 80;
+  server_name l7-monitor;
+
+  location / {
+    proxy_pass http://front-server;
+  }
+
+  location /api {
+    proxy_pass http://backend-server;
+  }
+}
+```
+
+우선 설정을 확인해보자.
+
+server 블록에서 nginx 자체를 80 포트를 Listening 하게 한다. 이는 다음에 있을 **배포와 패키징**에서 호스트 PC의 80 포트와 연결시켜준다.
+
+그리고 **2개의 Upstream 서버를 정의**해주었는데, 2개의 Upstream 서버는 각각 80 포트로 들어온 요청이 URL Matching 을 통해서 Front와 Back으로 각각 포워딩이 된다.
+
+Upstream 서버 각각은 Front 서버와 Back 서버 각각을 의미하는데, 우리는 컨테이너를 이용했기 때문에 **컨테이너의 이름을 명시**해준다.
+
+기본적으로 도커는 **컨테이너 이름이 Host Name**이 되기 때문에 컨테이너 이름을 적어주어 Host 를 식별하게 하여, 동일한 Bridge Network 에서 Host Name 으로 IP를 가져오도록 설정하였다.
+
+이제 해당 nginx.conf 파일을 이용해서 nginx 컨테이너를 생성하기 위해서 Dockerfile 을 다음과 같이 구성했다.
+
+```Dockerfile
+FROM nginx:latest
+
+WORKDIR /proxy
+
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+RUN rm -rf /etc/nginx/conf.d/default.conf
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
+
+EXPOSE 80
+```
+
+그리고 nginx 컨테이너가 Listening 하고 있는 80 포트를 포워딩하여 이미지를 생성했다.
+
+# Dockerizing과 배포 에서 만난 여러 상황들
+
+이제 Front, Back, Proxy 모두 구성을 했으니 각각의 이미지를 만들기 위해서 Dockerfile 을 실행시켜볼 때가 왔다.
+
+근데 갑자기 **요구사항이 변경**됐다.
+
+#### 앞에서 계속 나는 Saas 를 외쳤지만 결국은 On-Premise 가 되었다! 라고 했는데, 바로 이 시점 부터 변경이 되었던 것이다..
+
+그래서 On-Premise 에 맞게 구성을 했어야 했는데 그 구성은 다음과 같았다.
+
+기존에는 SaaS 형태로, Front와 Back을 우리가 운영을 하고 인증을 거친 후 해당 서버의 데이터만 시각화 하면 되었다.
+
+#### 하지만 On-Premise 에서는 사용자에게 우리가 만든 Front, Back 모두를 고객이 설치할 수 있도록 통으로 제공해야 한다는 것이었다.
+
+그래서 기존에 있던 Dockerfile 들을 수정했어야 했는데, 여기서 가장 큰 문제가 발생한다
+
+**이미 만들어진 도커 이미지에 어떻게 동적으로 고객의 IP를 추가할 수 있을까?**
+
+IP를 추가하는 일은 우리 서비스에서 중요하다.
+
+우선 간단하게 IP가 꼭 필요한 경우라면 CORS 인증 처리를 Backend 에서 하고 있는데, 그것 부터서 IP를 기반으로 인증하고 동작한다.
+
+결국 동적으로 컨테이너를 실행시킬 때 IP를 지정했는데, 다음과 같은 문제들을 직면했다.
+
+1. React 에서 .env로 동적 IP 주입
+2. Spring Boot 에서 환경변수로 동적 IP 주입
+
+# React 에서 .env로 동적 IP 주입
+
+리액트에서 환경변수를 사용하는 방법으로는 간단하게 **.env** 를 이용하는 방법이 있다.
+
+리액트 애플리케이션 루트 디렉토리에서 `.env` 파일을 생성하고 앱 내부에서 `process.env.REACT_APP...` 으로 사용하는 방법이다.
+
+예를 들면
+
+```env
+REACT_APP_HOST_IP=192.168.0.2
+```
+
+이라는 env 파일이 존재한다면 실제 앱 내부에서는 다음과 같이 사용된다.
+
+```js
+import axios from "axios";
+
+export const SERVER = axios.create({
+  baseURL: "http://" + process.env.REACT_APP_HOST_IP,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+```
+
+이런 방식을 이용해서 구현하는데, 문제는 **도커라이징을 할 때, env 파일을 변경하는 과정에서 도커 환경변수로 env 파일을 수정**할 수 없다는 것이었다.
+
+그래서 이를 해결하이 위한 방법으로 **도커라이징 시에 동적으로 .env 파일을 만드는 방향** 으로 구현했다.
+
+이 말이 무슨말이냐면, 우선 프로젝트 루트에 `create-env-file.sh` 라는 쉘 스크립트를 만든다.
+
+```sh
+#/bin/bash
+touch .env
+for envvar in "$@"
+
+do
+  echo "$envvar" >> .env
+done
+```
+
+해당 스크립트는 sh 를 실행할 때 주어지는 args 로 env 파일을 만드는 것이다.
+
+그리고 Dockerfile 에서는
+
+```Dockerfile
+...
+# env 변수 할당 및 새로운 .env 파일 생성
+ARG REACT_APP_HOST_IP
+RUN sh create-env-file.sh REACT_APP_BACK_END_URL=$REACT_APP_HOST_IP
+...
+```
+
+과 같이 해당 쉘 스크립트를 매개변수에 따라서 실행하게 된다.
+
+그리고 docker-compose 로 해당 도커파일을 build 시켜버리면서 동시에 IP를 ARGS로 제공해버리면 된다.
+
+```docker-compose
+version: "3"
+
+services:
+  front:
+    container_name: front-container
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_HOST_IP: 172.17.0.1
+    image: l7-frontend
+```
+
+이와 마찬가지로 Spring Boot 도 구현할 수 있다.
+
+# Spring Boot 에서 환경변수로 동적 IP 주입
+
+Spring Boot 에서 IP를 동적으로 사용하는 부분은 바로 CORS Filter 를 만드는 시점에 해당된다
+
+```java
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class CorsFilter implements Filter {
+
+    @Value("${boribob.host-ip}")
+    private String HOST_IP;
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // 생략
+    }
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
+        response.setHeader("Access-Control-Allow-Origin", "http://" + HOST_IP + "/");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods","*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
+
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+        }else {
+            chain.doFilter(req, res);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        // 생략
+    }
+}
+```
+
+여기서 Value 어노테이션을 통해 설정 파일에 존재하는 **외부 설정값**을 주입받아 사용한다.
+
+#### 그럼 또 어떻게 **외부 설정값을 전달할까?**를 생각해 보아야 한다.
+
+이 방법을 해결하기 위해서 나는 `java -jar` 명령어를 통해 실행 시점에 IP를 외부 환경으로 주입받도록 하였다.
+
+우선 application.yml 에 default ip 를 가지고 미리 build를 한다. 그리고 Dockerfile 에서 받는 env 로 IP를 주입받고 `java -jar` 에 외부 환경을 주입한다.
+
+그래서 나온 Dockerfile 은 다음과 같다
+
+```Dockerfile
+FROM openjdk:17-ea-11-jdk-slim
+
+WORKDIR /server
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Seoul
+RUN apt-get install -y tzdata
+
+COPY ./L7-Monitor.jar l7-monitor.jar
+
+ARG HOST_IP
+
+ENV HOST_IP=${HOST_IP}
+
+ENTRYPOINT ["java", "-jar", "l7-monitor.jar", "--spring.datasource.url=jdbc:mysql://bori-db-container/bob_l7?characterEncoding=utf8", "--boribob.host-ip=$HOST_IP"]
+```
+
+여기서 `ENV HOST_IP=${HOST_IP}` 라는 커맨드가 존재한다.
+
+해당 커맨드는 ENTRYPOINT 에서 ARGS 를 사용할 수 없기 때문에 ENV로 한 번 거쳐가기 위한 방법으로 사용되었다.
+
+그래서 완성된 docker-compose 파일은 다음과 같다.
+
+```docker-compose
+version: "3"
+
+services:
+  db:
+    container_name: bori-db-container
+    image: lauvsong/bori-db:210821
+    restart: always
+    ports:
+      - "3306:3306"
+
+  front:
+    container_name: front-container
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_HOST_IP: 172.17.0.1
+    image: l7-frontend
+
+  back:
+    container_name: back-container
+    build:
+      context: ./backend
+      args:
+        HOST_IP: 172.17.0.1
+    image: dhslrl321/boribob-l7:backend
+    depends_on:
+      - db
+
+  proxy:
+    container_name: proxy-container
+    build:
+      context: ./reverse-proxy
+    image: reverse-proxy
+
+    ports:
+      - "80:80"
+    depends_on:
+      - front
+      - back
+```
+
+아예 docker-compose 에서 빌드하지 않았더라면... 더 좋았을텐데..
+
+---
+
+# 프로젝트를 끝내며...
+
+위의 구성 방식에서 아쉬움이 많이 존재한다.
+
+사실상 On-Premise 로 상품을 배포하고 패키징을 한다면 저런 방식으로 **도커**로 제공하는 것은 옳지 못하다고 생각한다.
+
+심지어 docker-compose.yml 을 고객이 직접 열어 자신의 IP를 넣는 방법 또한 매우 문제라고 지적할 수 있다.
+
+만약 더 시간이 있었다면 docker-compose.yml 을 사용자가 수정하는 것이 아니라 이 과정을 자동화 하는 방법을 생각했었을 것이다.
+
+예를 든다면 app.conf과 execute-service.sh 파일을 제공하여 사용자의 IP를 app.conf 에서 명시하여 쉘 스크립트가 동적으로 docker-compose 를 생성하는 방법도 고려했을 것이다.
+
+그럼 Backend Application 은 괜찮은가??
+
+그렇지도 않다.
+
+JPA 쿼리 메서드도 내가 구현한 것이 아닌 쿼리 메서드를 이용했을 뿐이고 아키텍처도 문제가 있다.
+
+이렇게 백엔드가 Select 만 수행하는 기능만 제공한다면 **Master-Slave** 구조로 가는 것도 고려해볼만 했다. 하지만 하지 않았다.
+
+#### 결국 개발자는, 아니 **내가 생각하는 개발자**는 시간과 기술 사이에 수 싸움을 잘 해야 한다고 생각한다.
+
+완벽하지 않더라도 어떤 기한 내에 끝내야 하는 프로젝트라면 스스로 타협을 보더라도 우선 끝내는게 맞다고 생각한다.
+
+물론 이 과정에서 개발자의 능력이 부족해서 좋지 못한 결과를 내기도 하지만 이는 온전히 개발자의 몫인 것이고, 나는 내 나름의 신념에 따라서 열심히 구성했던것 같다.
+
+아직은 학생이고 많이 부족한 것을 내 스스로가 코드 한 줄만 보더라도 느낄 수 있다.
+
+그래도 지난 시간들과 다른 점이 있다면 이제 **뭐가 부족하고 어떻게 고쳐야할지** 알게 된것 같다ㅎㅎ
+
+이제 1차 프로젝트가 끝났고 그 한달 동안 정말 많이 성장했는데, 2차 프로젝트에서는 또 얼마나 성장할지 너무 기대되고 즐거운 하루하루를 보낸다.
