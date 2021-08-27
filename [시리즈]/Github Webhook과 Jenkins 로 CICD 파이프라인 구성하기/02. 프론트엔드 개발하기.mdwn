@@ -1,0 +1,46 @@
+> 해당 글은 **Github Webhook과 Jenkins를 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+
+[##_Image|kage@QMaRU/btrdrnuQLuf/GfAkIzQR0HFtJfKGBVUZak/img.png|alignCenter|data-origin-width="550" data-origin-height="323" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 1편 [시리즈를 시작하며]() :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기]() :: 리액트와 axios
+- 3편 [백엔드 개발하기]() :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치]() :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정]() :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기]() :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기]() :: Jenkins Pipeline Script 작성하기
+
+### 순서
+
+- UI 만들기
+- 통신 로직 구현하기
+
+# **프론트엔드 개발하기**
+
+오늘은 CICD 파이프라인을 위해서 필요한 **프론트엔드 애플리케이션**을 개발해보려 한다.
+
+우선 사전에 **시리즈를 시작하며**에서 이야기 했듯, 프론트엔드는 **리액트**를 이용하려 구성할 예정이다.
+
+> 만약 본인이 리액트에 대해서 알지 못한다면 [todo-with-cicd github](https://github.com/my-research/todo-with-cicd) 에서 코드를 복사하여 사용해도 무방합니다.
+
+컨셉은 **TodoList**이다.
+
+우리가 만들 UI를 확인해보자
+
+[##_Image|kage@bW6Lnc/btrdruHqy8e/v4KPkqxDTtRBkO3KuJsz2k/img.png|alignCenter|data-origin-width="476" data-origin-height="540" data-ke-mobilestyle="widthOrigin"|||_##]
+
+다음과 같이 구성이 될 것이며, Todo List 의 Item 들은 백엔드로부터 받아오고 추가할 수 있도록 할 예정이다.
+
+# UI 만들기
+
+위의 UI 에서 컴포넌트를 분리시키면 다음과 같을 것이다.
+
+[##_Image|kage@rNgHo/btrdswZi0ei/X05VNzVAccTGs3rqtuK9aK/img.png|alignCenter|data-origin-width="481" data-origin-height="540" data-ke-mobilestyle="widthOrigin"|||_##]
+
+총 5개의 컴포넌트가 있고, 각각 다음과 같다.
+
+- `TodoPresenter.js` : Container-Presenter Pattern 의 Presenter 컴포넌트
+- `TodoInput.js` : 새로운 Todo 를 입력할 수 있는 input 컴포넌트
+- `TodoList.js` : Todo Item 들이 모여있는 컴포넌트
+- `TodoItem.js` : Todo 이름과 삭제 버튼이 있는 컴포넌트
+- `App.js` : : TodoPresenter의 Container 컴포넌트

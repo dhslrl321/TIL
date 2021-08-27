@@ -57,14 +57,14 @@
 
 - 순서
   - UI 만들기
-    - TodoContainer
-      - TodoPresenter
-        - TodoItem, TodoItemStyles.js
-        - DeleteButton, DeleteButtonStyles.js
-    - InputForm
-      - TodoTextBox
-      - AddButton
+    - App.js
+    - TodoPresenter.js
+    - TodoList.js
+    - TodoItem.js
+    - TodoInput.js
   - 통신 로직 구현하기
+    - SERVER.js
+    - service.js
 
 ### BackEnd 개발하기
 
