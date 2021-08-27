@@ -1,0 +1,141 @@
+# 스크립트
+
+- 교육 솔루션
+  - 로그수집이 정말 어렵다
+    - 기술적인 한계가 있을 수 있다
+  - 문제를 만드는 사람한테도 폭을 만들어줄 수 있어야 한다
+    - 우리가 먼저 만들고 고객에게 전달
+  - 강의하는 사람들은 코드나 문제를 직접 콕 찝어주기보다 학생이 꺠달아가는 과정을 더 중요시함
+
+---
+
+- 제목
+  - `[Webhook을 이용하여 CI CD 구성하기] - 시리즈를 시작하며`
+  - `[Webhook을 이용하여 CI CD 구성하기] - 프론트엔드 개발하기`
+  - `[Webhook을 이용하여 CI CD 구성하기] - 백엔드 개발하기`
+  - `[Webhook을 이용하여 CI CD 구성하기] - ec2 생성 및 Jenkins 설치`
+  - `[Webhook을 이용하여 CI CD 구성하기] - Dockerizing 및 Nginx 설정`
+  - `[Webhook을 이용하여 CI CD 구성하기] - 웹훅 설정하기`
+  - `[Webhook을 이용하여 CI CD 구성하기] - pipeline으로 배포하기`
+
+### Github Webhook을 이용하여 CI CD 구성하기 시리즈를 시작하며
+
+- 해당 시리즈를 만들게된 이유
+  - CICD에 대한 진입 장벽을 낮추기 위해
+  - 거의 업계 표준인 현재, 개발자 역량을 많은 사람들이 키웠으면 좋겠어서
+- 필요한 역량
+  - 이번 강의는 웹 개발이 목적이 아니라 cicd가 목적이니까 웹에 좀 힘을 덜 실을 예정
+    - 근데 만약 더 알고싶다면 아래 링크에 설명 추가했으니까 확인하면 됨
+  - Front End
+    - create-react-app
+    - styled-components
+    - axios
+    - jest
+  - Spring Boot
+    - Spring Data JPA
+    - JUnit5
+  - Nginx
+    - 리버시 프록시 용도
+    - nginx.conf
+  - Docker
+    - docker 기본 명령어
+  - EC2
+    - ssh 접속
+    - 보안 그룹
+- 준비물
+  - AWS 계정
+  - dockerhub 계정
+  - 코드 편집기
+  - putty 혹은 ssh 클라이언트
+- 실습 및 시리즈 흐름
+  - Todo List 를 개발할 예정
+    - 만약 본인이 리액트를 모르고 스프링부트만 안다? 혹은 리액트를 알고 스프링부트만 안다? 혹은 다 모른다면 바로 스텝 EC2 + Jenkins 로 가서 따라해도 됨
+  - 원래라면 CICD 서버도 따로 존재하지만 이번에는 CICD 서버도 함께 존재하도록 준비함
+  - Blue-Green 배포를 실습
+
+### FrontEnd 개발하기
+
+- 순서
+  - UI 만들기
+    - TodoContainer
+      - TodoPresenter
+        - TodoItem, TodoItemStyles.js
+        - DeleteButton, DeleteButtonStyles.js
+    - InputForm
+      - TodoTextBox
+      - AddButton
+  - 통신 로직 구현하기
+
+### BackEnd 개발하기
+
+- 순서
+  - API 구현
+    - Todo 조회 API
+    - Todo 추가 API
+    - Todo 삭제 API
+  - CORS Filter 구현
+  - Front Back 연결 및 테스트
+
+### ec2 생성 및 Jenkins 설치
+
+- 순서
+  - 전체 흐름 설명
+    - create-react-app 으로 만든 react app 생성
+  - **ec2 인스턴스 생성**
+    - 보안그룹 설정
+    - 키 생성
+  - **실습에 필요한 환경 구성**
+    - docker 설치
+    - nginx 설치 및 리버스프록시
+  - **jenkins 설치**
+    - apt 업데이트
+    - jdk 설치
+  - **jenkins 설정 변경**
+    - default port 변경
+    - 서비스 재실행
+  - **젠킨스 접속 및 젠킨스 웹 설정**
+    - `/var/lib/jenkins/secrets/initialAdminPassword` 에 있는 초기 비번을 이용해서 설치
+    - 사용자 계정 생성
+
+### Dockerizing 및 Nginx 설정
+
+- 순서
+  - 프론트 도커라이징
+  - 백엔드 도커라이징
+  -
+
+### github과 웹훅 설정하기
+
+- 필요 지식
+  - Jenkins Credential
+- 순서
+  - **jenkins 리눅스 계정 설정**
+    - jenkins 사용자 변경
+    - 도커 권한 설정
+  - **Jenkins Credential 설정**
+    - ssh-keygen 을 이용한 RSA 키 생성
+    - github repository 생성
+      - deploy keys setting
+    - Jenkins Credential 추가
+  - **깃허브 웹훅 설정**
+    - github webhook setting
+    - jenkins 에서 github integration 설치
+  - **테스트**
+
+### pipeline으로 배포하기
+
+- 필요 지식
+  - nginx reverse proxy
+  - groovy
+  - pipeline script
+- 순서
+  - **nginx 설치**
+    - nginx.conf 설정
+  - **React App 설치**
+    - `create-react-app` 으로 앱 하나 띄우기
+    - Dockerfile로 컨테이너 이미지 만들기
+    - deploy.sh 스크립트 만들기
+  - **jenkins에 pipeline 생성하기**
+    - item 추가
+    - 설정 및 script 작성
+  - **테스트**
