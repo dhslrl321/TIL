@@ -1,0 +1,126 @@
+> 해당 글은 **Github Webhook과 Jenkins를 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+
+[##_Image|kage@QMaRU/btrdrnuQLuf/GfAkIzQR0HFtJfKGBVUZak/img.png|alignCenter|data-origin-width="550" data-origin-height="323" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 1편 [시리즈를 시작하며]() :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기]() :: 리액트와 axios
+- 3편 [백엔드 개발하기]() :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치]() :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정]() :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기]() :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기]() :: Jenkins Pipeline Script 작성하기
+
+### 순서
+
+- 프로젝트 생성 및 세팅
+  - gradle 의존성 추가
+  - bean 주입 및 db 세팅
+- Model 개발
+- Service 개발
+- Controller 개발
+- Filter 개발
+- 초기 data를 위한 import.sql 작성
+
+# **백엔드 개발하기**
+
+오늘은 CICD 파이프라인을 위해서 필요한 **백엔드 애플리케이션**을 개발해보려 한다.
+
+백엔드도 마찬가지로 시리즈 시작에 언급하였듯 **Spring Boot** 를 이용할 것이다.
+
+Spring Boot 에서는 다음과 같은 의존성들을 사용할 것이니 미리 해당 의존성을 보고 어떤 흐름이겠구나~ 를 생각해보자.
+
+- Spring boot Web
+- Spring Data JPA
+- H2 Databse
+- Lombok
+  - java 생산성을 위한 의존성
+- ModelMapper
+  - Dto to Entity 변환을 위한 매퍼
+
+## 1. 프로젝트 셍성 및 세팅하기
+
+프로젝트 생성을 위해서 **이전에 Frontend 를 개발한 Git 디렉토리로 가서** backend 라는 디렉토리를 생성한다.
+
+그리고 Spring Initializer 를 이용하여 Backend 라는 Spring Boot Project를 생성한다.
+
+나는 **Intellij 를 이용하기 때문에 IDE GUI를 이용해서 세팅**했지만 Intellij 없이 vscode 나 이클립스를 사용한다면 [Spring Initializer](https://start.spring.io) 에서 직접 zip 파일로 내려받을 수 있다.
+
+대충 다음과 같은 의존성만 가지게 하면된다.
+
+[##_Image|kage@xu1Q1/btrdqLC6w4X/cKQgbMaeGoniODgkdkyQS0/img.png|alignCenter|data-origin-width="1392" data-origin-height="1143" data-ke-mobilestyle="widthOrigin"|||_##]
+
+어떤 과정을 거치던 **우리의 Git Repository**에 `/backend` 라는 디렉토리에 위치시켜주면 된다.
+
+### 추가 의존성 ModelMapper 추가하기 및 Bean 주입
+
+ModelMapper 는 대표적으로 자주 사용되는 user lib 이다.
+
+주로 **클래스간 Converting** 기능을 수행하는데, 우리의 경우에는 DTO를 이용해서 네트워크 통신 객체를 정의한다.
+
+만약 Spring Converter 에 의해서 요청이 Json Raw 타입이라면 ObjectMapper가 이를 DTO로 바꿔주는데, 여기까지는 Spring이 해주고 우리는 **바꿔진 DTO를 또 JPA** 가 사용할 수 있도록 **Entity로 컨버팅을 해야한다.**
+
+이 과정에서 ModelMapper 가 사용된다.
+
+그래서 ModelMapper를 `build.gradle` 에 의존성 추가를 해주자
+
+```groovy
+dependencies {
+  implementation 'org.modelmapper:modelmapper:2.1.1'
+}
+```
+
+그리고 gradle 프로젝트를 reload 한 뒤, 해당 클래스를 Bean 으로 등록시켜야 한다.
+
+```java
+@SpringBootApplication
+public class JenkinsCicdTodoCIApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(JenkinsCicdTodoApplication.class, args);
+    }
+
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
+}
+```
+
+해당 application 의 main 함수 아래에 Bean 으로 등록시키기 위한 코드를 추가하자
+
+### application.yml 으로 외부 설정 관리하기
+
+만약 프로젝트가 잘 생성되었다면 **Spring 의 외부 설정**을 조작해보자
+
+외부 설정은 보통 `application.properties` 파일에서 하게 된다.
+
+하지만 properties 파일은 **가독성이 좋지 못하기 떄문에** 개인적으로는 yml 타입의 설정 파일을 좋아한다.
+
+`resources` 디렉토리 아래에 있는 `application.properties` 파일을 삭제하고 `application.yml` 파일을 추가하자!
+
+그리고 다음과 같이 명시해준다.
+
+```yml
+spring:
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+      settings:
+        web-allow-others: true
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    url: jdbc:h2:mem:todo
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+```
+
+해당 시리즈는 Spring과 JPA 에 대한 설명이 아니므로 간략히만 보고 넘어가자면,
+
+- H2 DB를 사용한다.
+- 웹에서 H2 DB 콘솔에 접근을 허용한다
+- DB에 들어갈 데이터는 in memory 에서 관리된다.
+- 하이버네이트가 ddl 을 앱을 실행시키면 create 하고 앱이 종료되면 drop 한다
