@@ -1,0 +1,61 @@
+> 해당 글은 **Github Webhook과 Jenkins를 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+
+만약 해당 실습 내용의 코드가 궁금하다면 [프로젝트 깃허브](https://github.com/my-research/todo-with-cicd) 에서 확인할 수 있습니다.
+
+[##_Image|kage@QMaRU/btrdrnuQLuf/GfAkIzQR0HFtJfKGBVUZak/img.png|alignCenter|data-origin-width="550" data-origin-height="323" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 1편 [시리즈를 시작하며]() :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기]() :: 리액트와 axios
+- 3편 [백엔드 개발하기]() :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치]() :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정]() :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기]() :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기]() :: Jenkins Pipeline Script 작성하기
+
+### 순서
+
+- ec2 인스턴스 생성
+- 실습에 필요한 환경 구성
+- jenkins 설치
+- 젠킨스 접속 및 젠킨스 웹 설정
+
+이번 시간에는 직접 EC2를 만들어서 Jenkins 를 설치하며 필요한 여러 설정을 해줄 차례이다
+
+이번 시간에는 EC2 생성을 위한 **AWS 계정**이 필요하니 필요하다면 꼭 만들어 보는 것을 추천한다.
+
+또한 Freetier 를 사용하지 않을 예정이다.
+
+aws 의 freetier 인 t2-micro 는 매우 제한적인 cpu core 과 메모리이기 때문에 t2-medium 정도는 구매할 계획이다.
+
+하루 정도는 t2-medium 를 사용한다고 해도 큰 금액이 청구되지 않으니 실습을 위해서라도 구매해보자 ㅎㅎ
+
+#### 참고로 T2-medium 은 시간당 100원 정도? 라고 한다! 실습 구성하고 테스트 하면 뭐 천원? 정도도 많고 아무튼 천원 이하? 정도 예상한다
+
+아무튼 이제 본격적으로 EC2 인스턴스를 만들고 Jenkins 를 설치해보도록 하자
+
+# 1. EC2 인스턴스 생성하기
+
+- 인스턴스 생성
+- ssh 키 생성
+- 보안그룹 설정
+
+# 2. 실습에 필요한 환경 구성
+
+- ssh 클라이언트로 서버 원격 접속
+- ubuntu 업데이트 & 업그레이드
+- docker 설치
+- jdk 설치
+- nginx 설치
+
+# 3. Jenkins 설치하기
+
+- jenkins 설치전 설정
+  - jdk 설치
+- jenkins 설정
+  - default port 변경
+- jenkins 재실행
+
+# 5. 젠킨스 접속 및 젠킨스 웹 설정하기
+
+- default 비밀번호 확인하기
+- jenkins 웹 들어가서 세팅 및 계정 생성

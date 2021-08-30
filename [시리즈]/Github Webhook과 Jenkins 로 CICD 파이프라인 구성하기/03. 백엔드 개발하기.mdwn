@@ -1,5 +1,7 @@
 > 해당 글은 **Github Webhook과 Jenkins를 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
 
+만약 해당 실습 내용의 코드가 궁금하다면 [프로젝트 깃허브](https://github.com/my-research/todo-with-cicd) 에서 확인할 수 있습니다.
+
 [##_Image|kage@QMaRU/btrdrnuQLuf/GfAkIzQR0HFtJfKGBVUZak/img.png|alignCenter|data-origin-width="550" data-origin-height="323" data-ke-mobilestyle="widthOrigin"|||_##]
 
 - 1편 [시리즈를 시작하며]() :: 컨텐츠 개요와 동기
@@ -13,13 +15,12 @@
 ### 순서
 
 - 프로젝트 생성 및 세팅
-  - gradle 의존성 추가
-  - bean 주입 및 db 세팅
 - Model 개발
 - Service 개발
 - Controller 개발
 - Filter 개발
 - 초기 data를 위한 import.sql 작성
+- 프론트와 백 E2E 연결하기
 
 # **백엔드 개발하기**
 
@@ -37,7 +38,7 @@ Spring Boot 에서는 다음과 같은 의존성들을 사용할 것이니 미�
 - ModelMapper
   - Dto to Entity 변환을 위한 매퍼
 
-## 1. 프로젝트 셍성 및 세팅하기
+# 1. 프로젝트 셍성 및 세팅하기
 
 프로젝트 생성을 위해서 **이전에 Frontend 를 개발한 Git 디렉토리로 가서** backend 라는 디렉토리를 생성한다.
 
@@ -124,3 +125,265 @@ spring:
 - 웹에서 H2 DB 콘솔에 접근을 허용한다
 - DB에 들어갈 데이터는 in memory 에서 관리된다.
 - 하이버네이트가 ddl 을 앱을 실행시키면 create 하고 앱이 종료되면 drop 한다
+
+이제 환경 설정이 완료되었으니 우리의 앱을 구동시킬 수 있는 클래스들을 미리 만들고 시작하자.
+
+다음과 같은 클래스들을 만들어주면 된다.
+
+[##_Image|kage@cP84kl/btrduVETyms/gy025zkgaxSgcMknbkogP1/img.png|alignCenter|data-origin-width="332" data-origin-height="245" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- **CorsFilter.java** : CORS Filter
+- **JenkinsCicdTodoApplication.java** : Application Entrypoints
+- **Todo.java** : JPA Entity
+- **TodoController.java** : API Endpoints
+- **TodoRepository.java** : Repository
+- **TodoRequestData.java** : DTO
+- **TodoService.java** : Business Layer's Logic
+
+# 2. Model 개발하기
+
+Model 은 Layered Architecture 에서 Model Layer 에 해당하는 코드들을 의미한다.
+
+여기서 구현해야할 것들은 3개이다.
+
+1. JPA Entity
+2. Repository
+3. DTO
+
+사실상 Repository 는 **JpaRepository 를 extends**할 것이기 때문에 크게 해야할 것들은 없다.
+
+다음 코드를 추가해주자.
+
+```java
+// Todo.java
+@Entity @Setter @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Todo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String content;
+}
+
+// TodoRepository.java
+public interface TodoRepository extends JpaRepository<Todo, Long> {
+}
+
+// TodoRequestData.java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TodoRequestData {
+    private String content;
+}
+```
+
+DTO 에 포함되는 데이터는 content만 존재한다.
+
+어차피 Repository 에서 Entity를 저장할 때, GenerationType 을 IDENTITY로 설정해줬기 때문에 내부적으로 AUTO_INCREMENTS가 될 것이다.
+
+## 3. Service 개발하기
+
+Service는 Controller 에서 들어온 DTO나 요청을 받고, Repository로 DB로 조회하는 역할을 한다.
+
+즉, Layered Architecture 에서 View Layer와 Model 사이에 위치하는 layer 로 이해하면 될 것 같다
+
+```java
+@Service
+@Transactional
+public class TodoService {
+    private final TodoRepository todoRepository;
+    private final ModelMapper modelMapper;
+
+    public TodoService(TodoRepository todoRepository, ModelMapper modelMapper) {
+        this.todoRepository = todoRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    /**
+     * 모든 todo item 을 반환한다.
+     *
+     * @return List
+     */
+    public List<Todo> getTodos() {
+        return todoRepository.findAll();
+    }
+
+    /**
+     * content 를 받고 todo 를 저장한다.
+     *
+     * @param todoRequestData
+     * @return 생성된 Todo
+     */
+    public Todo createTodo(TodoRequestData todoRequestData) {
+        return todoRepository.save(modelMapper.map(todoRequestData, Todo.class));
+    }
+
+    /**
+     * id 를 받고 todo 를 삭제한다.
+     *
+     * @param todoId todo id
+     * @return 삭제된 todo 의 id
+     */
+    public Long deleteTodo(Long todoId) throws Exception {
+        Optional<Todo> optionalTodo = todoRepository.findById(todoId);
+
+        if(optionalTodo.isEmpty()) {
+            throw new Exception();
+        }
+
+        todoRepository.delete(optionalTodo.get());
+        return todoId;
+    }
+}
+```
+
+Controller 에서
+
+원래라면 Entity 로 변환된 데이터를 또 DTO로 변환해주는 과정이 필요하지만 그냥 Entity 로 반환했다 ㅎㅎ
+
+# 4. Controller 개발하기
+
+이제 API 서버의 Endpoint 인 Controller 를 개발해보자.
+
+```java
+@RestController
+@RequestMapping(value = "/api/todos", produces = "application/json")
+public class TodoController {
+    private final TodoService todoService;
+
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Todo>> getTodos() {
+        return ResponseEntity.ok().body(todoService.getTodos());
+    }
+
+    @PostMapping
+    public ResponseEntity<Todo> createTodo(@RequestBody TodoRequestData todoRequestData) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(todoService.createTodo(todoRequestData));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Long> deleteTodo(@PathVariable Long id) throws Exception {
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(todoService.deleteTodo(id));
+    }
+}
+```
+
+모든 API의 Response 로는 `ResponseEntity` 를 반환하도록 하고 `ResponseEntity.status`와 `ResponseEntity.body` 로 데이터와 상태 값을 반환하도록 한다.
+
+## 5. CORS Filter 개발하기
+
+CORS 는 프론트엔드와 백엔드를 나누는 3-tier 아키텍쳐에서 중요한 보안 요소이다.
+
+> CORS에 대한 자세한 설명은 해당 블로그의 [OPTIONS 헤더와 Preflight 그리고 CORS](https://wonit.tistory.com/571) 에서 확인할 수 있습니다.
+
+나는 모든 요청에 특정 도메인만 허용하는 OPTIONS 헤더를 반환할 Filter를 만들어 주었다.
+
+CORS를 해결하는 방법에는 다양한 방법이 있는데, [CORS 를 해결하는 3가지 방법](https://wonit.tistory.com/572) 에서 확인할 수 있다.
+
+```java
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class CorsFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+
+    }
+
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods","*");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
+
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+        }else {
+            chain.doFilter(req, res);
+        }
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+}
+```
+
+원래라면 외부 설정 파일로 따로 빼서 HOST PC의 IP를 명시해야 하지만 일단은 간단한 Jenkins 구성을 위해서 `*` 와일드카드를 사용했지만 이는 보안적으로 매우 취약하다고 할 수 있다.
+
+#### 이제 모든 API 개발이 끝났다!
+
+남은 것은 애플리케이션을 실행했을 때, 기본 데이터를 심어주는 `import.sql` 만 만들고 프론트엔드와 연동해보도록 하자
+
+# 6. 초기 데이터를 위한 import.sql 작성하기
+
+import.sql 는 애플리케이션이 실행하는 시점에 해당 파일에 있는 쿼리문을 실행시킨다.
+
+우리는 JPA의 ddl-auto 속성을 통해서 **애플리케이션이 동작하는 시점에 DDL 문만 실행하도록 했다**.
+
+그럼 결국 DB 테이블에는 비어있는 데이터만 있을 것이고, Front 에서 DB에 저장할 데이터를 매번 추가해줘야 한다.
+
+이 과정을 없애고 자동화 시키기 위해서 나는 주로 `import.sql` 을 테스트 환경에서 이용한다.
+
+import.sql 을 이용해서 초기 데이터를 넣어주자
+
+[##_Image|kage@bfXLuI/btrdpti5zmw/OoimyAlv4duUgaNp3me0Q0/img.png|alignCenter|data-origin-width="213" data-origin-height="155" data-ke-mobilestyle="widthOrigin"|||_##]
+
+import.sql 은 `/resources` 디렉토리 아래에 위치시켜주면 된다.
+
+```sql
+INSERT INTO todo(content) VALUES ('리덕스 학습하기');
+INSERT INTO todo(content) VALUES ('Greedy 알고리즘 5문제 풀기');
+INSERT INTO todo(content) VALUES ('Jenkins Backend 구성하기');
+INSERT INTO todo(content) VALUES ('모니터 청소');
+INSERT INTO todo(content) VALUES ('블로그 포스팅 준비하기');
+INSERT INTO todo(content) VALUES ('Effective Java 읽기');
+```
+
+이제 진짜 모든 준비가 끝났다!
+
+프론트와 연동해보자.
+
+# 프론트엔드와 E2E 연동하기
+
+우리는 지난 시간 프론트엔드에서 필요한 데이터 및 상태 로직을 모두 구성했기 때문에 백엔드 서버와 프론트 서버를 키고 단지 요청만 보내면 된다.
+
+우리가 작성한 백엔드의 API 를 확인해보자.
+
+- GET `/api/todos` : 투두 리스트의 모든 투두를 조회한다.
+- POST `/api/todos` : 투두 리스트에 투두를 추가한다.
+- DELETE `/api/todos/{id}` : 투두 리스트에 특정 투두를 삭제한다
+
+프론트엔드가 위치해있는 `/frontend` 디렉토리로 가서 `npm start` 명령을 수행하자
+
+그럼 다음과 같이 API 요청이 실패할 것이다.
+
+[##_Image|kage@dfu63q/btrdqiOWg3Q/P159CQUskT661ocKFNCffK/img.png|alignCenter|data-origin-width="1392" data-origin-height="1527" width="731" height="802" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이는 당연히 백엔드가 돌아가지 않고 있으니 발생하는 문제고 `/backend` 디렉토리로 가서 백엔드를 실행시켜주자
+
+그리고 프론트엔드를 다시 새로고침 하면 다음과 같이 Data Fetching 이 잘 된 것을 확인할 수 있다.
+
+[##_Image|kage@dfEr7J/btrdpCzP87J/T0KnkVysqLuhFerLzzgWG0/img.png|alignCenter|data-origin-width="1392" data-origin-height="1527" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이제 CICD 파이프라인 구성을 위한 애플리케이션 레벨의 준비는 모두 끝났다.
+
+다음 시간에는 직접 EC2를 만들어보며 Jenkins를 설치해보도록 하자!
