@@ -1,0 +1,202 @@
+> 해당 글은 **Jenkins와 Github Webhook을 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+
+만약 해당 실습 내용의 코드가 궁금하다면 [프로젝트 깃허브](https://github.com/my-research/todo-with-cicd) 에서 확인할 수 있습니다.
+
+[##_Image|kage@qcZth/btrdxnboUQb/lGDravHWByLiIuialLTra0/img.png|alignCenter|data-origin-width="581" data-origin-height="365" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 1편 [시리즈를 시작하며](https://wonit.tistory.com/581) :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기](https://wonit.tistory.com/582) :: 리액트와 axios
+- 3편 [백엔드 개발하기](https://wonit.tistory.com/583) :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치](https://wonit.tistory.com/584) :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정](https://wonit.tistory.com/585) :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기](https://wonit.tistory.com/586) :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기](https://wonit.tistory.com/587) :: Jenkins Pipeline Script 작성하기
+
+### 순서
+
+- 프론트 도커라이징
+- gradle 설치
+- 백엔드 도커라이징
+- nginx 리버스프록시 설정하기
+
+이번 시간은 우리가 앞서 만든 프론트엔드와 백엔드 애플리케이션을 **컨테이너 화** 할 수 있도록 SPEC 을 명시하는 Dockerfile 을 작성할 것이다.
+
+또한 EC2 내부에 존재하는 Nginx 를 이용해서 Reverse Proxy 를 활성화 하고 Front와 Back 을 각각 연결시켜줄 수 있도록 할 것이다.
+
+# 1. **프론트엔드 도커라이징**
+
+우리가 이전 시간부터 만든 프론트엔드가 존재하는 디렉토리로 이동해서 Dockerfile 을 생성하자.
+
+그리고 다음과 같이 명시해준다.
+
+```Dockerfile
+FROM node:latest
+
+WORKDIR /frontend
+
+COPY ./package*.json /frontend
+
+RUN npm install
+
+COPY / /frontend
+
+RUN npm run build
+
+CMD ["npx", "serve", "-s", "build"]
+
+EXPOSE 5000
+```
+
+위의 Dockerfile을 간략히 해석하자면 다음과 같다.
+
+- `WORKDIR /frontend` : 컨테이너 내부의 working directory를 생성한다.
+- `COPY ./package*.json /frontend` : 의존성 목록이 있는 `package.json` 을 컨테이너 내부로 복사한다.
+- `RUN npm install` : `package.json` 에 명시된 의존성들을 설치한다.
+- `COPY / /frontend` : HOST PC의 소스 코드를 컨테이너 내부로 복사한다.
+- `RUN npm run build` : npm으로 build를 실행한다.
+- `CMD ["npx", "serve", "-s", "build"]` : serve 로 build 디렉토리 아래에 있는 파일로 웹 서비스를 실행한다.
+- `EXPOSE 5000` : 5000 포트를 노출한다
+
+해당 파일은 우리가 `docker build` 명령어를 수행할 때 필요한 인자 값들을 **하나의 파일**로 관리할 수 있도록 하는데, 다음에 CICD 파이프라인이 구성될 때 git 에서 pull 한 코드들을 이미지로 만드는 작업에 필요하게 된다.
+
+# 2. **gradle 설치**
+
+우리가 CICD 파이프라인을 만들고 백엔드가 배포되기 까지는 다음과 같은 과정을 거친다.
+
+1. 개발자가 git commit을 한다.
+2. github webhook 이 이를 인지한다.
+3. jenkins 가 commit 된 코드를 git pull 한다
+4. gradle build 를 거친다.
+5. dockerfizing 을 수행한다.
+
+여기서 4번째 과정을 위해서 우리의 운영 서버, 즉 **EC2** 인스턴스 내부에서 Build 를 할 수 있는 Build 도구가 필요하다.
+
+나는 Gradle 을 이용할 예정이니 ssh를 이용해서 인스턴스 내부로 접속하자.
+
+그리고 gradle 을 설치해야 하는데, apt 에서 제공하는 gradle 은 4점대 버전으로 현재 버전의 Spring Boot Application 을 빌드하는데에 문제가 있다.
+
+그래서 수동으로 gradle 을 업데이트 해야 한다.
+
+```bash
+$ sudo apt install -y gradle
+
+$ wget https://services.gradle.org/distributions/gradle-7.1.1-bin.zip -P /tmp
+
+$ sudo apt install -y unzip
+$ sudo unzip -d /opt/gradle /tmp/gradle-7.1.1-bin.zip
+
+$ sudo ln -s /opt/gradle/gradle-7.1.1 /opt/gradle/latest
+```
+
+이와 같은 과정을 거쳐서 gradle 홈페이지에서 직접 다운받고 zip을 해제하며 링크를 연결해주자.
+
+그리고 터미널에서 gradle 을 입력해서 gradle.sh 를 실행할 때, 우리가 설치한 버전으로 연결을 하려면 다음과 같이 하면 된다.
+
+```bash
+$ sudo gedit /etc/profile.d/gradle.sh
+```
+
+그리고 다음과 같은 스크립트를 입력해주자
+
+```groovy
+export GRADLE_HOME=/opt/gradle/latest
+export PATH=${GRADLE_HOME}/bin:${PATH}
+```
+
+그리고 해당 스크립트에 실행 권한을 부여하고, source 명령어로 스크립트를 로딩한다
+
+```bash
+$ sudo chmod +x /etc/profile.d/gradle.sh
+
+$ source /etc/profile.d/gradle.sh
+```
+
+그리고 `gradle` 로 버전을 확인하면 7.1.1 버전이 잘 설치된 것을 알 수 있다.
+
+# 3. **백엔드 도커라이징**
+
+이제 다시 github 에 있는 우리의 백엔드 이미지를 만들 **Dockerfile**을 작성해보도록 하자.
+
+우리는 **운영 서버**, 즉 EC2 인스턴스 내부에서 Build를 할 것이다.
+
+`/backend` 디렉토리로 가서 다음과 같이 작성해주자.
+
+```Dockerfile
+FROM openjdk:17-ea-11-jdk-slim
+
+WORKDIR /server
+
+COPY ./build/libs/jenkins-cicd-todo-0.0.1-SNAPSHOT.jar todo-server.jar
+
+ENTRYPOINT ["java", "-jar", "todo-server.jar"]
+```
+
+해당 파일에 명시된 정보로 보자면 `/backend` 디렉토리에서 `docker build .` 을 수행하면 `/backend/build/libs` 아래에 있는 jar 파일을 컨테이너 내부로 복사해서 컨테이너 실행 시점에 jar를 실행할 것이다.
+
+# 4. **Nginx 리버스프록시 설정하기**
+
+이제 nginx 설정을 해줘야 한다.
+
+ssh 클라이언트를 이용해서 EC2 인스턴스에 접속하자. 그리고 `/etc/nginx` 으로 이동해보자 그럼 **nginx.conf** 파일이 있을텐데, 해당 파일을 삭제하고 새로운 nginx.conf 파일을 만들자.
+
+```bash
+$ cd /etc/nginx
+$ sudo rm nginx.conf
+
+$ sudo vi nginx.conf
+```
+
+해당 파일에서 reverse proxy 설정을 할 수 있는데, 다음을 복사해서 넣어준다.
+
+```bash
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+  include       /etc/nginx/mime.types;
+  default_type  application/octet-stream;
+
+  upstream front-server {
+    server 127.0.0.1:5000;
+    keepalive 100;
+  }
+
+  upstream backend-server {
+    server 127.0.0.1:8080;
+    keepalive 100;
+  }
+
+  server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+      proxy_pass http://front-server;
+
+      proxy_set_header HOST $host;
+      proxy_set_header Referer $http_referer;
+    }
+
+    location /api {
+      proxy_pass http://backend-server;
+
+      proxy_set_header HOST $host;
+      proxy_set_header Referer $http_referer;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = 50x.html {
+      root /usr/share/nginx/html;
+    }
+  }
+}
+```
+
+그리고 `sudo systemctl reload nginx` 를 이용해서 nginx 를 재실행하고 ec2 인스턴스에 80 포트로 접근하면 다음과 같이 nginx 가 502 에러를 반환하게 된다.
+
+여기까지 한다면 정상이다!
+
+[##_Image|kage@bf6pwy/btrdDLI2j1s/3sCYc21Xt7BoAkGiyVRh11/img.png|alignCenter|data-origin-width="1392" data-origin-height="688" data-ke-mobilestyle="widthOrigin"|||_##]

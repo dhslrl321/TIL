@@ -1,16 +1,20 @@
-> 해당 글은 **Github Webhook과 Jenkins를 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+> 해당 글은 **Jenkins와 Github Webhook을 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
 
 만약 해당 실습 내용의 코드가 궁금하다면 [프로젝트 깃허브](https://github.com/my-research/todo-with-cicd) 에서 확인할 수 있습니다.
 
-[##_Image|kage@QMaRU/btrdrnuQLuf/GfAkIzQR0HFtJfKGBVUZak/img.png|alignCenter|data-origin-width="550" data-origin-height="323" data-ke-mobilestyle="widthOrigin"|||_##]
+[##_Image|kage@qcZth/btrdxnboUQb/lGDravHWByLiIuialLTra0/img.png|alignCenter|data-origin-width="581" data-origin-height="365" data-ke-mobilestyle="widthOrigin"|||_##]
 
-- 1편 [시리즈를 시작하며]() :: 컨텐츠 개요와 동기
-- 2편 [프론트엔드 개발하기]() :: 리액트와 axios
-- 3편 [백엔드 개발하기]() :: SpringBoot 와 h2
-- 4편 [ec2 생성 및 Jenkins 설치]() :: AWS EC2로 Jenkins 서버 만들기
-- 5편 [Dockerizing 및 Nginx 설정]() :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
-- 6편 [웹훅 설정하기]() :: Github Webhook 연동하기
-- 7편 [pipeline으로 배포하기]() :: Jenkins Pipeline Script 작성하기
+- 1편 [시리즈를 시작하며](https://wonit.tistory.com/581) :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기](https://wonit.tistory.com/582) :: 리액트와 axios
+- 3편 [백엔드 개발하기](https://wonit.tistory.com/583) :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치](https://wonit.tistory.com/584) :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정](https://wonit.tistory.com/585) :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기](https://wonit.tistory.com/586) :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기](https://wonit.tistory.com/587) :: Jenkins Pipeline Script 작성하기
+
+지난 시간까지 우리는 웹 서비스를 모두 완성했었다.
+
+만약 **웹 서비스 개발하기** 파트를 건너 띄고 온 사람이라면 위의 깃허브에서 소스코드를 다운받거나 본인이 가지고 있는 웹 애플리케이션을 준비해놓으면 될 것이다.
 
 ### 순서
 
@@ -33,21 +37,134 @@ aws 의 freetier 인 t2-micro 는 매우 제한적인 cpu core 과 메모리이�
 
 아무튼 이제 본격적으로 EC2 인스턴스를 만들고 Jenkins 를 설치해보도록 하자
 
-# 1. EC2 인스턴스 생성하기
+# 1. **EC2 인스턴스 생성하기**
+
+우리가 EC2 인스턴스를 만들고 해야할 일은 다음과 같다.
 
 - 인스턴스 생성
-- ssh 키 생성
 - 보안그룹 설정
+- ssh 키 생성
 
-# 2. 실습에 필요한 환경 구성
+## 인스턴스 생성 및 보안그룹 설정
+
+앞서서 인스턴스는 T2-Medium 으로 결정했고, 이제 aws에 로그인해서 인스턴스 생성을 진행해보자
+
+[##_Image|kage@IhEmO/btrdBqZVC5Q/4qRcT07At11Fk3Wzivce31/img.png|alignCenter|data-origin-width="1392" data-origin-height="1212" width="637" height="555" data-ke-mobilestyle="widthOrigin"|||_##]
+
+**다음 버튼**으로 보안 그룹 설정이 나올 때 까지 진행한다.
+
+이제 보안 그룹을 설정할 차례인데, **보안 그룹이란?** 인스턴스 내부로 접근할 수 있는 트래픽을 어떠한 보안 원칙과 소스로 허용하고 금지할 것인지를 명시해주는 부분이다.
+
+다음과 같이 2개의 포트를 열어두자
+
+- 22
+- 80
+- 9999
+
+[##_Image|kage@WSDkK/btrdDK4gDUj/3y5iLhX8vFkdimQ5g4WF7K/img.png|alignCenter|data-origin-width="1392" data-origin-height="903" data-ke-mobilestyle="widthOrigin"|||_##]
+
+80 포트는 우리의 **웹 서비스**가 제공될 포트이고 9999 포트는 다음에 설정할 **github**의 webhook 이 commit 된 코드를 전달할 때 사용하는 포트이다.
+
+### ssh 키 생성
+
+우리는 **EC2 인스턴스로 접속할** 프로토콜로 ssh 프로토콜을 사용할 예정이다.
+
+사실상 aws 의 표준이기도 하고 리눅스 접근할 때 가장 범용적으로 많이 사용되는 프로토콜인데, ssh 접속을 하기 위해서는 특정 **인증 수단**이 필요하다.
+
+우리는 그 인증을 위해서 `.pem` 형태의 키로 접속할 것이고, 지금 할 것은 우리가 방금 생성한 **인스턴스에게 어떤 키로 접근하도록 할 것인지 알려주는 부분이다**.
+
+[##_Image|kage@NIGa4/btrdBrR3F2N/MHne4ksXuZwNeJQKtNdm51/img.png|alignCenter|data-origin-width="1392" data-origin-height="903" width="653" height="424" data-ke-mobilestyle="widthOrigin"|||_##]
+
+키 페어에서 새로운 키페어를 사용한다고 하면 `.pem` 파일을 다운 받을 수 있고, 해당 파일을 다운받은 위치를 잘 기억하도록 하자.
+
+바로 아래에서 우리는 해당 키 파일로 ssh 접속을 할 것이다.
+
+계속해서 진행 버튼을 클릭하면 새로운 t2-medium 인스턴스가 성공적으로 잘 생성된 것을 알 수 있다.
+
+# 2. **실습에 필요한 환경 구성**
+
+이제 실습에 필요한 환경 구성을 하기 위해서 다음과 같은 과정을 거칠 것이다.
 
 - ssh 클라이언트로 서버 원격 접속
 - ubuntu 업데이트 & 업그레이드
-- docker 설치
-- jdk 설치
-- nginx 설치
+- 필요 의존성 및 패키지 설치
+  - docker
+  - jdk
+  - nginx
 
-# 3. Jenkins 설치하기
+이제 부터는 우리가 방금 만든 인스턴스 내부에서 작업을 해야 한다.
+
+### ssh 클라이언트로 서버 원격 접속
+
+ssh 프로토콜을 이용해서 인스턴스 내부로 접근하기 위해서는 **SSH 클라이언트**가 존재해야 한다.
+
+대표적인 SSH 클라이언트로는 **Xshell, Putty, MobaXterm, vscode extension** 등이 있다.
+
+이는 본인 실습 환경에 따라서 맞춰서 설치하면 될 것 같고, 개인적으로 추천하는 것은 **vscode 확장 프로그램**으로 설치하는 ssh 클라이언트이다.
+
+나는 현재 맥을 이용하고 있기 때문에 터미널에서 바로 접속을 할 예정인데, 만약 본인이 ssh 클라이언트도 깔지 못하는 상황이라면 우리가 앞서 만든 **EC2 인스턴스에서 웹 콘솔로 연결** 하여 들어갈 수도 있다.
+
+[##_Image|kage@loSPQ/btrdC6s6ph8/2yKn01H4bHHJHUXSOj4Ur1/img.png|alignCenter|data-origin-width="1008" data-origin-height="215" data-ke-mobilestyle="widthOrigin"|||_##]
+
+여기서 **연결**을 클릭하고 웹 콘솔로 접속을 하면 다음과 같이 웹에서도 사용할 수 있다.
+
+[##_Image|kage@rMbMs/btrduUgL7Za/MkxncPbqBqxVn5pZIIk441/img.png|alignCenter|data-origin-width="1392" data-origin-height="903" width="609" height="395" data-ke-mobilestyle="widthOrigin"|||_##]
+
+나는 앞서 이야기했듯 터미널에서 바로 ssh 접속을 시도할 것이다
+
+본인도 터미널에서 접속을 원한다면 (맥이나 리눅스만 가능) 터미널에서 아까 다운받은 `.pem` 파일이 있는 곳으로 가서 다음과 같이 쳐보자.
+
+```bash
+$ chmod 400 [키파일명]
+
+$ ssh -i [키파일명] ubuntu@[ec2 인스턴스 퍼블릭 ip]
+```
+
+`chmod` 는 최초 1회만 진행하면 되는데, 최초에는 ssh 키 파일이 public 으로 설정되어 있기 때문에 **현재 활성중인 Host PC의 USER** 에게만 Read(4) 권한만 주고 그룹과 전체에게는 Non(0) 을 주는 것이다.
+
+만약 권한 설정이 안되어 있다면 aws 에서 접근을 막을 것이다.
+
+그리고 접속을 시도하면 잘 접속 되는것을 알 수 있다.
+
+### Ubuntu 업데이트 및 업그레이드
+
+이제 접속을 했다면 우리의 서버를 **업데이트해줘야 한다**.
+
+다음과 같은 명령어를 차례로 입력하자
+
+```bash
+$ sudo apt update -y
+
+$ sudo apt upgrade -y
+```
+
+그럼 업데이트와 업그레이드를 차례로 진행하게 되고, 패키지 관리 도구의 상태가 최신이 되어있을 것이다.
+
+### 필요 의존성 및 패키지 설치하기
+
+이제 **jdk** 를 설치해줘야 한다.
+
+Jenkins 는 Java로 만들어진 프로젝트이기 때문에 JVM 이 존재해야 한다.
+
+이 JVM을 쉽게 설치하기 위해서 **openjdk 8** 을 설치해준다.
+
+그리고 우리가 만들 웹 서비스 애플리케이션은 **컨테이너 환경**에서 돌아갈 것이고 컨테이너 런타임을 **docker**로 구성할 것이다.
+
+또한 프론트엔드와 백엔드를 나누는 구조에서 우리는 서비스 엔트리포인트를 하나로 합치기 위한 **Reverse Proxy** 도구로 nginx 웹서버를 사용할 것이다.
+
+위의 필요 패키지들을 다음 명령어로 차례대로 설치하자
+
+```bash
+$ sudo apt install -y openjdk-11-jdk
+
+$ sudo apt install -y docker.io
+
+$ sudo apt install -y nginx
+```
+
+이제 모든 준비는 끝났다. Jenkins 를 설치해보자!
+
+# 3. **Jenkins 설치하기**
 
 - jenkins 설치전 설정
   - jdk 설치
@@ -55,7 +172,62 @@ aws 의 freetier 인 t2-micro 는 매우 제한적인 cpu core 과 메모리이�
   - default port 변경
 - jenkins 재실행
 
-# 5. 젠킨스 접속 및 젠킨스 웹 설정하기
+### Jenkins 설치전 설정
 
-- default 비밀번호 확인하기
-- jenkins 웹 들어가서 세팅 및 계정 생성
+Jenkins를 docker 컨테이너 위에서 돌릴 수도 있다.
+
+하지만 **Key의 관리나 생성**에 관한 문제들 때문에 개인적으로 **docker 보다는 host pc 에 직접 설치하는**것을 좋아한다.
+
+그래서 host pc 에 직접 실치를 하기 위해서 apt의 sources.list 를 업데이트 해주는 과정이 필요하다.
+
+다음 명령어를 차례로 수행해보자.
+
+```bash
+$ wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add
+
+$ echo deb http://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list
+
+$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FCEF32E745F2C3D5
+
+$ sudo apt update -y
+
+$ sudo apt install -y jenkins
+```
+
+그리고 jenkins 를 설치하면 성공적으로 jenkins가 설치될 것이다.
+
+# 5. **젠킨스 접속 및 젠킨스 웹 설정하기**
+
+- default port 변경하기
+
+젠킨스가 설치된다면 기본적으로 8080 포트로 열리게 된다.
+
+해당 포트를 9999 포트로 바꿔주기 위해서 `sudo vi /etc/default/jenkins` 를 치고
+
+**HTTP_PORT=8080** 을 9999로 변경하자
+
+[##_Image|kage@VIqzK/btrdEjS5iUt/SYc0Iv9BU29dxEd01EzrEk/img.png|alignCenter|data-origin-width="697" data-origin-height="506" width="591" height="429" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그런 뒤, systemctl 명령어를 통해서 jenkins 를 다시 실행하자. 그럼 9999 포트로 다시 열리게 될 것이다.
+
+```bash
+$ sudo systemctl restart jenkins
+```
+
+그리고 나서 ec2-instance 의 public ip의 9999 포트로 접속하게 된다면 다음과 같이 jenkins 웹 대시보드가 나타나게 된다.
+
+여기서 초기 비밀번호는 `/var/lib/jenkins/secrets/initialAdminPassword` 에 위치해 있는데, cat 명령어로 해당 파일을 확인한 뒤, 복사해서 웹 대시보드의 초기 비밀번호 입력 란에 입력해주자!
+
+[##_Image|kage@sPqVF/btrdCywGRYS/S1s1pJP2bBKr8QWdQ8X820/img.png|alignCenter|data-origin-width="1392" data-origin-height="903" width="550" height="357" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 다음과 같이 여러 설정 페이지가 나오게 되는데, **Jenkins Suggested Plugins** 를 선택히고, 계정을 생성해준다.
+
+[##_Image|kage@Wg3pj/btrdqRYLWVD/Ap1c2PCaeZ8kURZWcGVU1k/img.png|alignCenter|data-origin-width="1288" data-origin-height="881" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 다음과 같이 젠킨스의 웹 대시보드가 활성화 된 것을 볼 수 있다.
+
+[##_Image|kage@b5WlCr/btrdwSbUVED/26NIkv166r8Ac2J0HckjRK/img.png|alignCenter|data-origin-width="1392" data-origin-height="903" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이제 우리는 Jenkins 를 우리의 운영 서버에 설치하고 웹 대시보드를 활성화 하는것 까지 끝냈다.
+
+다음 시간 부터는 도커라이징과 우리가 만든 깃헙 레포지토리의 웹 훅을 활성화 하고 commit 한다면 Jenkins 의 웹훅이 Integration 하는 것을 해볼 예정이다.

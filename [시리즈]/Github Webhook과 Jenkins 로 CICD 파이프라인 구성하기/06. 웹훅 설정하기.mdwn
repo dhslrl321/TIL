@@ -1,0 +1,194 @@
+> 해당 글은 **Jenkins와 Github Webhook을 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+
+만약 해당 실습 내용의 코드가 궁금하다면 [프로젝트 깃허브](https://github.com/my-research/todo-with-cicd) 에서 확인할 수 있습니다.
+
+[##_Image|kage@qcZth/btrdxnboUQb/lGDravHWByLiIuialLTra0/img.png|alignCenter|data-origin-width="581" data-origin-height="365" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 1편 [시리즈를 시작하며](https://wonit.tistory.com/581) :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기](https://wonit.tistory.com/582) :: 리액트와 axios
+- 3편 [백엔드 개발하기](https://wonit.tistory.com/583) :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치](https://wonit.tistory.com/584) :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정](https://wonit.tistory.com/585) :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기](https://wonit.tistory.com/586) :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기](https://wonit.tistory.com/587) :: Jenkins Pipeline Script 작성하기
+
+이제 본격적으로 Jenkins 설정을 하고 Github 의 Webhook 과 연동할 것이다.
+
+### 순서
+
+- **웹 훅이란?**
+- **jenkins 리눅스 계정 설정**
+  - jenkins 사용자 변경
+  - 도커 권한 설정
+- **Jenkins Credential 설정**
+  - ssh-keygen 을 이용한 RSA 키 생성
+  - github repository 생성
+    - deploy keys setting
+  - Jenkins Credential 추가
+- **젠킨스 Integration 설정**
+  - github webhook setting
+  - jenkins 에서 github integration 설치
+- **Github 웹훅 설정하기**
+- **Jenkins 웹훅 설정**
+- **테스트**
+
+# **1. 웹훅(Webhook) 이란?**
+
+웹 훅, **Webhook** 은 **간단히 말 하자면 이벤트 핸들러 Event Handler** 이다.
+
+웹훅을 제공하는 특정 엔드포인트에서 웹훅을 Trigger 한다면 발생한 이벤트를 특정 로직에 따라서 **처리하는 것**이다.
+
+[##_Image|kage@csLtZt/btrdEiUhtNl/8Kfp2TOEO6RGVRkKzWuPtK/img.png|alignCenter|data-origin-width="597" data-origin-height="201" data-ke-mobilestyle="widthOrigin"|||_##]
+
+위의 그림은 우리의 실습 환경과는 조금 다르지만 대충 흐름은 위와 같을 것이다.
+
+1. 개발자가 Code Commit 을 수행한다.
+2. Github Webhook이 Trigger 된다
+3. Github Webhook이 POST로 Jenkins 에게 데이터를 보낸다.
+4. Jenkins가 다음 Action을 취한다.
+
+웹 훅은 Jenkins 뿐만 아니라 여러 분야에서 사용된다.
+
+우리가 Dockerhub를 사용할 때 Webhook 을 이용한다면 Slack 으로 Message를 보내게 할 수 있고 메일 서비스와도 연동할 수 있는 것이 바로 웹훅을 이용한 것이다.
+
+이제 Jenkins 와 Github 연결을 위한 세팅을 해보도록 하자.
+
+# **2. Jenkins 리눅스 계정 설정 및 권한 설정**
+
+우리가 작업을 하고 jenkins 가 해당 시스템 내부에서 deploy를 할 수 있도록 계정 설정을 해줘야 한다.
+
+하는 김에 docker 권한 그룹 설정도 함께 해주자
+
+```bash
+$ sudo usermod -aG docker jenkins
+
+$ sudo su -s /bin/bash jenkins
+```
+
+# **3. Jenkins Credential 설정**
+
+ssh-keygen 을 이용해서 webhook 과 연결할 ssh 키를 생성하도록 하자
+
+```bash
+$ mkdir /var/lib/jenkins/.ssh
+
+$ ssh-keygen -t rsa -b 4096 -C "wh-key" -f /var/lib/jenkins/.ssh/jenkins-github-wh
+```
+
+그럼 passphrase 가 있을텐데 일단은 비우고 넘어가자.
+
+그럼 ssh 키가 잘 생성되는 것을 알 수 있다.
+
+이제 우리의 코드가 저장된 Github 으로 가서 **Setting** 에서 **Deploy keys**를 추가하자
+
+[##_Image|kage@bjLaTY/btrdDabek3C/RE46omRY4CWashZrLtp3A1/img.png|alignCenter|data-origin-width="1392" data-origin-height="965" data-ke-mobilestyle="widthOrigin"|||_##]
+
+위와 같이 이름을 설정해주고 비밀번호를 넣어주면 되는데, 비밀번호는 아까 만든 public 키를 넣어주면 된다.
+
+먼저 cat 명렁어로 우리가 생성한 key 파일을 확인해보면,
+
+```bash
+$ cat /var/lib/jenkins/.ssh/jenking-github-wh.pub
+
+> ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQD2YeOTOf/WeAZwHDZHq4wFobawCdbZahkhlqz9mUzsukf9dQnSik+Nwxm2S25cASg3eowRCLOttyvMIfoFocP3466LGzaPF0vrfPpIiYLJknr/keSM01gR1WSAHd1yrXNf8DShE2x3o9rWfi/e8hqTtt5UM5IyZQESM7xT36bI/junQPeovVzul9+sf2nnNvXN/bKLthmsOiya8aLcaLAecOeXjjBlA/N4rSO4pd7fBOR2EKyx9LWV+AovsAnBPMj/d9+pgRGW3fmDAjwzG39obHpybTAh+FHKpI+Gi4Hj6nPc5O0Iq33zsc6vKaBg6fMaB5V9IXGmFf3JAF2cOXpNIcP06yJmaMfxmfSBB/7OUv61VWo8wEmn/CiOhIUCU0PgWz2586asu3enKz+g+HY5oNySFIDcLp1E4nyykf7oISjh8+FSQNQs0K3nm5OzVG49rWyN3DJXaA79PUwqAm82s/MjsABftXt+q53Ch7IUS/HUEYIOEK922qvykCpAO0bSfdXvfJ1INMuiC6f4Zhg1qUU1AdYcJJDZnWa0p+SPlcDyz1qWVK+uZpHJKSRZH7rewBH2NPNQzS+a8+EWBwolmolCT6rqnN0BpAX7isx0HJIf76xiiL36RutWfKmxa14J2RESbmfqAO67q1qto3j6CnyNpk/XOI1kjEuRnnQaJw== wh-key
+```
+
+과 같이 표현될 것이다. 이를 **모두 다 복사**해서 github에 추가해주자
+
+[##_Image|kage@x5ViN/btrdDKi4wUZ/S16WnHjywohjBmRGwIN9u0/img.png|alignCenter|data-origin-width="1392" data-origin-height="965" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 다음과 같이 Deploy Keys 가 생성된다!
+
+[##_Image|kage@ebtkWe/btrdC4PNNF6/a2WI2qLQlztitcEdI4PSHk/img.png|alignCenter|data-origin-width="924" data-origin-height="210" data-ke-mobilestyle="widthOrigin"|||_##]
+
+### 이제 Credentials 를 설정해보자!
+
+Jenkins 웹 대시보드로 이동한 뒤, Jenkins 관리 탭에서 **Manage Credentials**를 클릭해보자
+
+[##_Image|kage@bakBGl/btrdylrrZ9z/wzhPxKKcvjtah58akPGJN1/img.png|alignCenter|data-origin-width="1392" data-origin-height="819" data-ke-mobilestyle="widthOrigin"|||_##]
+
+**add key**를 클릭하고 Kind를 **SSH Username with private key**로 정한다.
+
+그리고 Scope를 Global의 Jenkins Node로 설정한 뒤, Username 을 **아까 만들어준 RSA Key의 이름과 동일하게 설정하자**
+
+[##_Image|kage@KMCAl/btrdzONEoh9/k2RoZvbJrEER0HR3PfvfGK/img.png|alignCenter|data-origin-width="1392" data-origin-height="1521" data-ke-mobilestyle="widthOrigin"|||_##]
+
+RSA 키는 Private Key 를 입력해야 하는데,
+
+```bash
+$ cat /var/lib/jenkins/.ssh/jenking-github-wh
+```
+
+를 치면 키가 나오게 되니 복사해서 사용하자!
+
+참고로 ====== 이런 문자도 싹 복사해야 한다
+
+# 4. **젠킨스 Integration 설정**
+
+이제 Credential 설정도 끝났으니 Jenkins 로 CI 구성을 해보자
+
+대시보드에서 New Item 을 클릭하고 다음과 같이 **Freestyle Project**로 새로운 Item을 생성한다.
+
+[##_Image|kage@d8b61q/btrdBqsd3dG/AxhiYkJKaIDqK5h42drTUk/img.png|alignCenter|data-origin-width="1392" data-origin-height="1150" width="631" height="521" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그러면 연동을 위한 여러 설정 정보, Github 프로젝트가 있는 URL 이 필요하기도 하고 코드 관리를 위한 Github Repository의 SSH 주소 및 Jenkins 의 Credentials 가 필요하다.
+
+[##_Image|kage@Dmv2P/btrdwTorS57/Dvw5QpJ0VwcTgkya0VT590/img.png|alignCenter|data-origin-width="828" data-origin-height="540" data-ke-mobilestyle="widthOrigin"|||_##]
+
+위와 같이 잘 맞게 작성해주면 Jenkins가 소스 코드를 Build 할 수 있어야 한다.
+
+[##_Image|kage@sqb2X/btrdwSXm0N5/0uBZes7nrR6Hu7NAHLMBF1/img.png|alignCenter|data-origin-width="343" data-origin-height="652" width="290" height="551" data-ke-mobilestyle="widthOrigin"|||_##]
+
+[##_Image|kage@mnB2Z/btrdzOmHEr4/rZMoJTkP0Nh4hXxQhG3JKK/img.png|alignCenter|data-origin-width="968" data-origin-height="273" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그래서 Build Now 를 클릭해주고 **Build History** 에서 성공적으로 Build가 된다면 다음 스텝으로 넘어가자
+
+# 5. **Github 웹훅 설정하기**
+
+이제 Github Webhook 이 Trigger 되면 **자동으로 Jenkins가 Build를 수행할 수 있도록** Github Webhooks 를 설정해줘야 한다.
+
+다시 Github로 가서 Setting -> Webhooks -> Add webhook 을 클릭해주자
+
+그럼 아래와 같이 Webhooks이 발동될 Target URL 을 명시할 수 있고, 어떤 이벤트에 웹훅을 발동시킬 것인지 설정할 수 있다.
+
+[##_Image|kage@bst5AD/btrdEjeA1zB/r4P3dxgzVY08ofAlWMLW50/img.png|alignCenter|data-origin-width="1392" data-origin-height="955" data-ke-mobilestyle="widthOrigin"|||_##]
+
+Payload URL 은 Github Webhook 이 발동되어 데이터를 전달할 URL을 의미하는데, 우리의 Jenkins의 Integration 으로 가야한다.
+
+URL을 위와 같이 EC2 인스턴스의 9999 포트로 설정하고 `/github-webhook/` 을 추가해주자.
+
+그리고 push 이벤트를 감지하도록 하여 웹훅을 추가한다.
+
+[##_Image|kage@dnxh1p/btrdwT9SSYp/zHZyOsWAfvMw7kFtwbY8F0/img.png|alignCenter|data-origin-width="925" data-origin-height="219" data-ke-mobilestyle="widthOrigin"|||_##]
+
+현재는 Github에 웹훅이 추가되었지만 Jenkins 에서 Webhook을 받아줄 준비가 되지 않았기 때문에 위의 그림과 같이 불이 들어오지 않게 된다.
+
+Jenkins 에서 웹 훅을 설정해줘야지만 제대로 동작하게 되니 다음 스텝으로 넘어가자
+
+# **6. Jenkins 웹훅 설정**
+
+다시 Jenkins 대시보드로 돌아가서 **Jenkins -> Dashboard -> Jenkins 관리 -> 플러그인 관리 -> 설치가능** 으로 이동한 후 **github integration** 플러그인을 추가하고 재실행 시켜주자
+
+[##_Image|kage@Z42aS/btrdrvVymPO/wduK5HMuBSOURnRTPKnDYk/img.png|alignCenter|data-origin-width="1392" data-origin-height="955" width="654" height="449" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그럼 아까는 꺼져 있던 Webhooks가 성공적으로 연결되었음을 알려주는 체크가 생기게 된다럼
+
+[##_Image|kage@o8Ng4/btrdC52eFfM/IKP7haCzDyY2g07Xch4Tg0/img.png|alignCenter|data-origin-width="936" data-origin-height="217" data-ke-mobilestyle="widthOrigin"|||_##]
+
+만약 403 에러가 난다면 URL을 잘 확인하자 `http://[jenkins]:[port]/github-webhook/` 에서 `/` 마지막 슬래쉬가 없다면 동작하지 않는다는 이야기도 있어서 `/` 를 왠만하면 추가해주고 redelivery 를 해주자
+
+# **7. 테스트**
+
+여기까지 우리는 Continouse Integration 을 설정한 것이다.
+
+이 설정이 잘 되었는지를 확인하기 하려면,
+
+#### Github에 Code Push를 하고, Jenkins에서 해당 변경사항을 잘 받아오면 **성공적으로 연결된 것이다**
+
+우리의 로컬 git 저장소로 위치를 이동한 뒤, README.md 에 아무 내용을 추가하자
+
+[##_Image|kage@bldU10/btrdqSKd9Ne/Bl2OlXqQbh8ILiTmzF9kek/img.png|alignCenter|data-origin-width="1248" data-origin-height="450" data-ke-mobilestyle="widthOrigin"|||_##]
+
+그리고 다시 Jenkins 대시보드로 들어가서 바뀐 변경점이 Build 되었다면 성공적으로 완료된 것이다
+
+[##_Image|kage@cbY2Pk/btrdCywQMEC/JyPaWCVtUpDGlLry0FKRR0/img.png|alignCenter|data-origin-width="965" data-origin-height="367" width="650" height="247" data-ke-mobilestyle="widthOrigin"|||_##]

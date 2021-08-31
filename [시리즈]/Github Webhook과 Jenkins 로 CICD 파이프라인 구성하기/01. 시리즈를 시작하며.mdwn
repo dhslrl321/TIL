@@ -1,0 +1,112 @@
+> 해당 글은 **Jenkins와 Github Webhook을 이용한 CICD 파이프라인 구성하기 시리즈** 입니다. 자세한 사항은 아래 링크를 참고해주세요!
+
+만약 해당 실습 내용의 코드가 궁금하다면 [프로젝트 깃허브](https://github.com/my-research/todo-with-cicd) 에서 확인할 수 있습니다.
+
+[##_Image|kage@qcZth/btrdxnboUQb/lGDravHWByLiIuialLTra0/img.png|alignCenter|data-origin-width="581" data-origin-height="365" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- 1편 [시리즈를 시작하며](https://wonit.tistory.com/581) :: 컨텐츠 개요와 동기
+- 2편 [프론트엔드 개발하기](https://wonit.tistory.com/582) :: 리액트와 axios
+- 3편 [백엔드 개발하기](https://wonit.tistory.com/583) :: SpringBoot 와 h2
+- 4편 [ec2 생성 및 Jenkins 설치](https://wonit.tistory.com/584) :: AWS EC2로 Jenkins 서버 만들기
+- 5편 [Dockerizing 및 Nginx 설정](https://wonit.tistory.com/585) :: 배포를 위한 도커 빌드와 Nginx의 리버스 프록시
+- 6편 [웹훅 설정하기](https://wonit.tistory.com/586) :: Github Webhook 연동하기
+- 7편 [pipeline으로 배포하기](https://wonit.tistory.com/587) :: Jenkins Pipeline Script 작성하기
+
+# Jenkins와 Github Webhook을 이용한 CICD 파이프라인 구성하기 시리즈를 시작하며...
+
+내가 처음으로 cicd에 관심을 가졌던 프로젝트는 어떤 한 음악 연습실의 홈페이지를 만들어주면서부터였다.
+
+그 때 당시에는 Travis CI와 AWS의 CodeDeploy를 이용했었는데, 그 과정이 너무나도 재미있었고 백엔드 개발자가 되는 것이 꿈인 나에게 데브옵스 엔지니어는 어떨까? 하는 생각으로 확장시켜주었던 경험이었다.
+
+사실 우리는 새로운 기술을 배우기에 조금 힘든 부분이 없지 않아 존재한다.
+
+우선 Official Docs 자체가 영어로 되어있기도 하고, 신입의 입장에서 당장 취업에서 원하는 것은 **새로운 기술 보다는 깊이 있는 이해**를 주로 보기 때문에 CICD 에 대해서 이야기를 들어봤던 대학생 개발자들은 있어도 실제 구성해본 학생들은 드물 것이라고 생각이 든다.
+
+나는 CICD를 구성해보고 경험하는 것 자체를 하나의 스펙 그 이상으로 생각한다.
+
+이 과정에서 웹 아키텍처의 방향성과 구조의 흐름에 대해서 이해하는 그 **자체의 재미**가 또 존재한다.
+
+하지만 앞서 이야기했던 **영어의 문제**도 그렇고 여러 이유 때문에 **해보고는 싶으나 할 시간이 없고 어떤 앱을 가지고 CICD를 해야할지 모르는 사람들을 위해서 이 시리즈를 만들게 되었다**
+
+사실상 업계의 표준이 Jenkins라고 어디선가 들었던 적이 있다.
+
+나는 Travis CI와 CodeDeploy 만 해보았었고 Jenkins 에 대해서는 **'다음에 해봐야 하는 것'** 쯤이었는데, 현재 활동중인 BOB 에서 CICD 파이프라인에 대한 수업이 있었고, 해당 수업에서 듣고 공부했던 내용을 바탕으로 직접 내가 앱을 만들고 파이프라인을 구성해보는 것으로 이번 시리즈를 채웠었다.
+
+이 글을 보고 부디 본인의 개발 경험과 역량에서 많은 도움이 되길 바라며 시리즈를 시작해보도록 하겠다.
+
+# 해당 시리즈를 위해 필요한 역량
+
+이번 시리즈에서는 **웹 개발 도구 및 프레임워크 & 아키텍처**에 대한 언급이 많이 나온다.
+
+zero base 상테에서 이 시리즈를 본다면 매우 힘들 수도 있고 어쩌면 따라올 수 없을 수도 있다.
+
+하지만 **일단 끝까지 완주**한다면 CICD에 대한 첫 걸음은 내딛는 것이니 매우 좋은 경험이 될 것이라고 약속할 수 있다.
+
+이 시리즈에서는 **프론트엔드**와 **백엔드** 모두 직접 구성한다.
+
+하지만 이 시리즈가 웹 개발 시리즈가 아니라 CICD 구성이 목적이라서 웹에 대한 내용은 힘을 조금 덜 실을 예정이다.
+
+> 물론 댓글로 물어본다면 친절히 답변해드려용 ㅎㅎ
+
+기술 스택은 다음과 같다.
+
+## 기술 스택
+
+[##_Image|kage@DOAak/btrdEkLs2qx/NJBsKf0a36xPcs9Um2FU9k/img.png|alignCenter|data-origin-width="581" data-origin-height="236" data-ke-mobilestyle="widthOrigin"|||_##]
+
+- **react**
+  - create-react-app
+  - styled-components
+  - axios
+  - jest
+- **Spring Boot**
+  - Spring Data JPA
+  - JUnit5
+- **Nginx**
+  - 리버시 프록시 용도
+  - nginx.conf
+- **Docker**
+  - docker 기본 명령어
+- **EC2**
+  - ssh 접속
+  - 보안 그룹
+
+## 준비물
+
+준비물은 우선 **AWS 계정**이 필요하다.
+
+우리는 Free Tier를 이용하지 않고 T2-medium 을 사용할 것이라 약간의 돈도 필요하지만 이는 크게 무리가 가지 않는 선일 것으로 예상하고, Github Id도 물론 있어야 한다.
+
+아마 이 글을 읽는 대부분은 있겠지만 물론 코드 편집기, vscode나 intellij 가 필요하다.
+
+또 ssh 접속을 위한 **SSH Client**도 있어야 한다.
+
+windows 라면 putty를 추천하지만 없어도 웹 콘솔에서 접근할 수 있으니 뭐 크게 문제가 되지는 않을 것이다.
+
+# 실습 및 시리즈 흐름
+
+우리는 아주 간단한 **TODO List**를 만들 것이다.
+
+[##_Image|kage@RX1cr/btrdCG2BMia/uR2ZK2Jkn39YBjfsTcoqh0/img.png|alignCenter|data-origin-width="737" data-origin-height="953" width="589" height="762" data-ke-mobilestyle="widthOrigin"|||_##]
+
+이 Todo List를 직접 프론트 UI도 개발하고 스타일링도 해보며 통신 모듈을 만들 것이고, 해당 데이터를 유지 혹은 갱신시킬 수 있는 Backend API도 만들 것이다.
+
+#### 여기서 중요한 것은 만약 **'나는 리액트를 몰라..'** 혹은 **'나는 스프링을 몰라'** 혹은 **'나는 둘 다 몰라'** 한다면 바로 챕터 4로 넘어가서 내 github에 있는 소스코드를 pull 해서 시작하면 된다.
+
+중요한 것은 CICD를 구성하는 것 자체이지 포커스가 웹으로 가면 안된다.
+
+또한 배포는 **무중단 배포**를 하지 **않**는다.
+
+사실 해당 실습을 Blue-Green 배포로 방향성을 잡으려 했으나, 개인적인 일정 문제로 단순한 CICD만 구성하는 것으로 하였다.
+
+만약 추후에 반응이 좋다면 Blue-Green과 Rolling Update 까지 추가하려 한다.
+
+# 끝으로..
+
+저는 아직 대학생입니다. 실제 업무에서 어떤 방식으로 개발이 되는지 **전혀 경험해보지 못했어요 ㅎㅎ..**
+
+그래서 제가 하는 실습이 전반적으로 비효율적인 구조를 띄거나 좋지 못한 방법으로 진행될 수도 있지만 나름 추리고 추려서 구성한 컨텐츠이니 따라 하다 비효율적인 구조나 잘못된게 있다면 바로바로 지적해주시면 감사하겠습니다..!
+
+이를 너그럽게 이해해준다면 감사할 것 같아요 ☺️
+
+열심히 준비한 시리즈이니 부디 많은 도움이 되셨으면 좋겠습니다!
