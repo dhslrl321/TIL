@@ -1,0 +1,34 @@
+# Relations
+
+- **Organization**
+  - organization `1:N` administrator
+  - organization `1:N` teacher
+  - organization `1:N` student
+  - organization `1:N` class
+  - organization `1:N` test
+  - organization `1:N` notice_board
+- **Administrator**
+  - administrator `1:1` organization
+- **Class**
+  - class `1:1` teacher
+  - class `1:N` student
+  - class `1:1` notice_board
+  - class `1:N` Teacher
+- **Notice_board**
+  - notice_board `1:N` post
+- **Post**
+  - post `1:1` notice_board
+- **Teacher**
+  - teacher `1:1` organization
+  - teacher `1:N` student
+  - teacher `1:1` virtual_machine
+- **Student**
+  - student `1:1` organization
+  - student `1:1` snapshot
+  - student `1:N` teacher
+
+# 이야기 할 것
+
+- administrator, teacher, student 가 모두 같은 칼럼을 가지고 있어서 하나로 합치던 어쩌던 해야함
+  - 대신 admin이면서 teacher 인 경우가 있을 수 있음
+- teacher 랑 student 가 분리되면 클래스에는 무조건 student만 들어올 수 있음
