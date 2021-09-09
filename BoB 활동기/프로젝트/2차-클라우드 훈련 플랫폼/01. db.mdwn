@@ -32,3 +32,4 @@
 - administrator, teacher, student 가 모두 같은 칼럼을 가지고 있어서 하나로 합치던 어쩌던 해야함
   - 대신 admin이면서 teacher 인 경우가 있을 수 있음
 - teacher 랑 student 가 분리되면 클래스에는 무조건 student만 들어올 수 있음
+-
