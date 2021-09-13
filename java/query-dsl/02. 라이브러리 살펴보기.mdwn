@@ -1,0 +1,8 @@
+# 사용 라이브러리들
+
+- querydsl-apt
+  - QClass 를 generation 할 때 사용하는 라이브러리
+- querydsl-jpa
+  - 실제 쿼리 코어들
+- HikariCP
+  - db connection pool

@@ -1,0 +1,66 @@
+# Querydsl 설정과 검증
+
+- Q Type 이라는 설정을 뽑아내야함
+  - Entity에 Querydsl 이 사용하기 위한 새로운 엔티티 하나를 생성한다 => QClass
+  - QClass 를 컴파일 시점에 특정 위치에 생성함
+    - 여러 방법이 있는데 QClass는 git에 tracking이 되면 안되므로 보통 build 아래에 generated 에 위치시킴
+- build.gradle 에서 QClass 를 생성하는 방식에 대해서 명시해줘야 함
+  - annotationProcess 를 이용해서 Qxxx.java 파일을 생성하도록 할 수 있음
+  - sourceSets 를 이용해서 src 아래에 있는 코드에서 QClass를 사용할 수 있도록 함
+
+```groovy
+buildscript {
+    ext {
+        queryDslVersion = "4.4.0"
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.5.4'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    // ... 생략
+}
+
+def querydslVersion = '4.3.1'
+
+dependencies {
+    // ... 생략
+    implementation "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+    annotationProcessor(
+            "javax.persistence:javax.persistence-api",
+            "javax.annotation:javax.annotation-api",
+            "com.querydsl:querydsl-apt:${queryDslVersion}:jpa")
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+```
