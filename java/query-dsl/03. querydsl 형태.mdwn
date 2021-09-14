@@ -5,8 +5,7 @@ JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 QMember m = new QMember("ㅡ");
 
 Member selectedMember = queryFactory
-        .select(m)
-        .from(m)
+        .selectFrom(m)
         .where(m.username.eq("손흥민"))
         .fetchOne();
 
@@ -22,3 +21,33 @@ assertEquals("손흥민", selectedMember.getUsername());
   1. `QMember qMember = new QMember("m");` Alias를 m으로 직접 지정하는 방법
   2. `QMember qMember = QMember.member;` 기본 인스턴스를 사용하는 방법
 - 2번 방법은 static import 해서 사용할 수도 있다 (김영한님 권장사항)
+
+# 검색 조건 쿼리
+
+- 검색 조건 쿼리 where() 에서 .and() 메서드 체인으로 여러 개의 조건을 넘길 수 있다.
+- and는 where() 에서 파라미터로 `...` 연산자로 여러 개의 파라미터를 받을 수도 있어서 `,`로 구분해서 넘길 수도 있다.
+
+# 결과 조회
+
+- `fetchOne`
+  - 단건 조회
+  - 없다면 null
+  - 여러 개라면 `NonUniqueResultException` 이 터짐
+- `fetch`
+  - 리스트 조회
+  - 없다면 빈 리스트 반환
+- `fetchResult`
+  - 페이징 정보 포함
+  - total count 쿼리 추가 실행하므로 성능을 따진다면 다른 접근이 필요
+- `fetchCount`
+  - count 쿼리로 변경해서 count 수 조회
+
+# 정렬
+
+- 우리는 어떤 이유로 이 컨텐츠를 골랐고
+- 이 컨텐츠에서 우리는 무엇을 학생들에게 평가하려 하고
+- 평가하려는 이유는 어떻고
+- 해당 컨텐츠를 평가하는 기준은 무엇이다
+- 기준은 어떠한 이유에서 정했다.
+- 해당 컨텐츠를 평가할 때 어떤 도구를 사용할 것이고
+- 이 도구를 사용했는지는 무엇이다.
