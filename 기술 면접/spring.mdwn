@@ -1,9 +1,14 @@
+# Java
+
+- JVM의 동작 구조는?
+
 # Spring Core
 
 - Ioc/Di 란?
 - AOP 란?
 - 레이어드 아키텍처란?
 - Spring 에서 사용되는 디자인 패턴은?
+- DI 방법(생성자 주입, setter 주입 등등)의 구분과 각각의 차이는?
 
 # JPA
 
@@ -12,3 +17,13 @@
   - Transactional Boundary 를 Service 에 걸어주는 이유
 - ManyToOne vs OneToMany 차이점
 - FetchType.LAZY 와 EAGER 차이 (지연 로딩과 즉시 로딩의 차이)
+
+# Test
+
+- DataJpaTest 란?
+- WebMvcTest 란?
+- @MockBean 이란?
+
+# Docker
+
+- 컨테이너의 디버깅 방법
