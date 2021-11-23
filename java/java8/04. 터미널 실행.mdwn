@@ -1,0 +1,28 @@
+# ProcessBuilder를 이용하여 Java 에서 터미널 명령어를 실행하는 방법
+
+최근에 프로젝트를 진행하면서 터미널 명령을 Java 에서 할 수 있도록 개발을 했던 경험이 있다.
+
+프로젝트는 Spring Boot Application 에서 AWS CLI 를 이용하여 클라우드 자원을 생성, 삭제하는 것이었는데, 그 과정에서 찾았던 방법들을 공유하려 한다.
+
+> 방법은 [Baeldung](https://www.baeldung.com/run-shell-command-in-java) 에서 정리된 내용을 많은 부분 참고하였다.
+
+Java 에서 Shell Command 를 실행하는 방법은 크게 2가지가 있다.
+
+1. **Runtime Class** 를 이용하여 Command 를 실행
+2. **ProcessBuilder** 인스턴스를 이용하여 Command 를 실행
+
+우리는 이번에 이 2가지 방법 중 `ProcessBuilder` 에 집중하려 한다.
+
+이 2가지 방법 모두 JVM이 동작하고 있는 Host PC의 OS 에 의존관계가 생긴다.
+
+만약 윈도우라면 `cmd.exe` 를 실행시켜야 하고 유닉스 체제의 운영체제에서는 `sh -c` 를 이용해서 실행시킨다.
+
+그렇기에 이번 포스팅에서는 2가지 방법 모두를 설명할 수 있도록 case 를 나누려 한다.
+
+# 쉘 커맨드의 Input & Output Stream 다루기
+
+쉘 커맨드를 실행하면 그에 따라 발생하는 Output 이 있고 역시 Input이 존재한다.
+
+터미널 또한 하나의 프로세스기 때문에 해당 프로세스의 Output Stream 을 JVM에 적절히 로드할 수 있어야 한다.
+
+InputStream 을 사용하는 `StreamGobbler` 를 만들어보자

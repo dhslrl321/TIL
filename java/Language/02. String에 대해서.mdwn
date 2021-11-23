@@ -1,0 +1,67 @@
+# 자바의 String
+
+- 자바의 모든 리터럴은 `String` 클래스에 담기게 됨
+- 모든 `String` 객체는 constant로 한 번 생성되면 update 라는 개념이 아니라 delete 후 re-create 하게 된다
+  - Immutable 함
+- 하지만 `StringBuffer` 를 사용한다면 Mutable 하게 사용 가능
+- String을 생성하는 방법은 2가지가 존재
+  1. Literal 으로 생성
+  2. `new` 를 통해 String 생성자로 객체 생성
+
+# String 이 Java 에서 Immutable 한 이유?
+
+- 여러가지 이유가 있지만 대표적으로는 **보안적 이유, 동기화, 캐싱**의 장점이 있기 때문
+  - Cacheing
+    - 아래에 나오겠지만 String Constant Pool 을 이용해서 여러 객체가 값을 공유
+  - Security
+    - 자세히는 모르겠음
+    - `If we don't make the String immutable, it will pose a serious security threat to the application. For example, database usernames, passwords are passed as strings to receive database connections. The socket programming host and port descriptions are also passed as strings. The String is immutable, so its value cannot be changed. If the String doesn't remain immutable, any hacker can cause a security issue in the application by changing the reference value.` 이라고 함
+  - Syncronization, Concurrency
+    - 불변하다는 특성 덕분에 당연히 멀티 스레딩에 안전함
+
+# String Constant Pool
+
+- Heap 영역 내에 위치한 문자열 상수 Pool
+  - Java 6 이전에는 Permenent Generation 에 있어 고정된 메모리 사이즈로 문제가 많았지만 Java 7 이후로 Heap Size 를 조절하면 함께 조절 가능한 Heap 영역으로 바뀜
+- Literal 로 String 객체를 생성한다면 Constant Pool 에 해당 문자열의 값이 담긴 메모리 주소를 공유하여 다른 String 객체가 동일한 문자열을 사용 가능
+
+```java
+// --- Literal 로 객체 생성
+String a = "AAAA";
+String b = "AAAA";
+
+assertTrue(a == b);
+
+// --- new 로 객체 생성
+
+String c = new String("BBBB");
+String d = new String("BBBB");
+
+assertFalse(a == b);
+```
+
+- 내부적으로 HashTable 구조를 가져 String 을 hashing 하고 그것을 key로 하여 값을 찾기 때문에 String Pool이 좋은 성능을 발휘함
+  - 물론 StringTableSize 를 바뀌줄 수 있는데
+
+# String.intern()
+
+- String Constant Pool 에 해당 String 의 문자열이 존재한다면 단순 문자열만 반환
+  - 만약 존재하지 않는다면 Constant Pool 에 추가하고 문자열 반환
+
+# String 의 객체 비교
+
+- java 에서 String 을 비교할 때는 2가지 관점으로 비교할 수 있음
+  1. reference comparing
+  2. value comparing
+- 객체 비교에서는 `==` 연산자를 통해서 확인하거나 `hashCode()` 결과 값이 동일한지 확인
+- 값 비교는 `equals()` 메서드를 통해서 확인하거나, `contentEquals()` 를 통해서 확인
+  - `equals()` 는 내부적으로 instanceOf 를 통해 String 클래스의 인스턴스인지 확인
+  - `contentEquals()` 는 문자열의 단순 값만 비교하기 때문에 `String`과 `StringBuilder`, `StringBuffer`, `Char Array` 객체들과도 비교가 가능함
+
+```java
+String a = "AAAA";
+StringBuffer b = "AAAA";
+
+assertFalse(a.equals(b));
+assertTrue(a.contentEquals(b));
+```
