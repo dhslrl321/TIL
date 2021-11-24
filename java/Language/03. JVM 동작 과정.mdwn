@@ -1,0 +1,39 @@
+- 제목 : [조금 더 깊은 Java] JVM과 Garbage Collection 에 대해서
+
+[##_Image|kage@xAvgH/btrlS1xHtSX/6tp3HD7E0NtTdlvXoEscx1/img.png|CDM|1.3|{"originWidth":614,"originHeight":493,"style":"alignCenter"}_##]
+
+자바를 공부해보았다면 익히 들었을 JVM, Java Virtual Machine 에 대해서 이야기해보려 한다.
+
+막연하게 JVM 이 동작하고 JVM이 있기 때문에 플랫폼에 독립적이며 Garbage Collection 으로 장점을 얻을 수 있다고 생각하는 사람들이 많을 것이다.
+
+오늘은 JVM이 어떻게 구성되고 Garbage Collection 이 어떤 방식으로 동작하는지 알아볼 것이다.
+
+# JVM 이란?
+
+- jre
+  - runtime environment
+  - 자바 application 을 로드하는 on-disk 프로그램
+  - 구성요소
+    - core java class lib
+    - class loader
+    - jvm
+- jvm은 java byte code 를 실행하고자 하는 os 에 종속적이지 않도록 하는 실행 가상머신
+  - host machine 내에서 독립적으로 돌아가는 machine
+  - ex) vmware, virtualbox
+
+# JVM 특징
+
+- 스택 기반의 가상 머신
+  - risc, arm은 register 기반으로 동작
+  - jvm 은 stack 기반으로 동작.
+    - 이를 stack-based design 이라고 하는데, register-based 보다 훨씬 덜 하드웨어에 종속적이라고 한다.
+      - 자세한 사항은 [register vs stack based architecture-stackoverflow](https://stackoverflow.com/questions/164143/registers-vs-stacks) 에서 확인할 수 있다
+- 심볼릭 레퍼런스
+  - reference type 을 메모리 주소 기반의 레퍼런스가 아닌 심볼릭 레퍼런스를 통해 참조
+    - 리눅스의 symbolic link 처럼 특정 파일이나 디렉터리를 직접 접근하는 것이 아닌 해당 파일의 경로를 저장한 파일을 통해 접근하는 방법
+- 가비지 컬렉션
+  - 객체의 생성은 명시적으로 하되 삭제는 Garbage Collection 이 자동으로 수행
+- 플랫폼에 독립적인 기본 자료형
+- nbo
+  - 자바 클래스 파일은 Network Byte Order 를 사용함
+  - Network Byte Order 은 Big-Endian 을 이용
