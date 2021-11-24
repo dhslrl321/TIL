@@ -1,0 +1,51 @@
+# .class 파일
+
+- javac 프로그램에 의해 컴파일되는 Bytecode
+
+# 컴파일 과정
+
+- 참여 모듈
+  - Java Compiler
+  - Classloader - Inside JRE
+  - JVM - Inside JRE
+  - Java-Interpreter - Inside JVM
+  - JIT나 Java Interpreter - Inside JVM
+- 순서
+  1. 사용자는 자바 코드를 이용해서 `.java` 확장자를 가진 파일을 생성
+  2. 자바 컴파일러가 `.java` 파일을 읽고 `.class` 파일로 컴파일
+  3. 이 과정에서 클래스 파일을 Java Bytecode 로 변경
+  4. Classloader 가 Byte Code 에 존재하는 클래스들을 로드
+  5. 만약 External Class 가 존재한다면 클래스 라이브러리를 로드
+  6. JVM 안에서 Execution Engine이 동작하여 Byte Code 를 실행
+  7. Execution Engine 이 기계어로 번역후 운영체제로 전달
+  8. 운영체제가 실행
+
+# Execution Engine
+
+- 자바 클래스파일을 실행시키는 방법 2가지
+  - JVM 인터프리터
+    - Linux, Window 플랫폼에 맞는 인터프리터가 Bytecode 를 읽고 운영체제가 이해할 수 있는 기계어로 변역
+    - runtime 중에 바이트 코드를 한 라인씩 읽고 실행
+      - 이 과정에서 속도 문제 발생
+      - C나 C++은 컴파일 시점에 기계어로 변역하기 때문에 Compile-Time 에 결정됨
+  - JIT 컴파일러
+    - Just In Time Compiler
+    - 인터프리터의 속도 문제를 해결하기 위해 디자인된 기능
+    - 자주 실행하는 바이트 코드 영역을 런타임 중에 기계어로 컴파일하여 사용함
+
+```java
+public static void main(String[] args) {
+  int a = 0;
+  for (int index = 0; index < 500; index++) {
+    long startTime = System.nanoTime();
+    for (int subIndex = 0; subIndex < 1000; subIndex++) {
+        a++;
+    }
+    System.out.println("loop count: " + index + ", execution time: " + (System.nanoTime() - startTime));
+  }
+}
+```
+
+- 결과
+  - 반복 초반에는 시간이 오래걸림
+  - 특정 구간을 지나면 점점 실행 시간이 줄어듦

@@ -1,0 +1,78 @@
+# 참고 자료
+
+- [classloader-in-java : javapoint](https://www.javatpoint.com/classloader-in-java)
+
+# Java Classloader
+
+- 런타임에 동적으로 클래스를 로드하고 링크하는 모듈
+  - JRE 의 구성요소중 하나
+  - Classloader가 있기 때문에 JVM은 어떤 기본 파일이나 파일 시스템에 대해서 알 필요가 없음
+  - 한 번에 모든 자바 클래스들을 메모리에 로드하지 않고 프로그램이 필요할 때 동적으로 로드함
+  - JVM 이 클래스에 대한 정보를 갖고있지 않아도 Java 프로그램을 실행시킬 수 있는 이유는 바로 이 클래스로더가 JVM이 필요한 클래스를 동적 로드하기 때문임
+  - 그래서 결국 타입 체크나 상속 관계, 메서드 체크를 Classloader 이 함
+
+# Classloader 특징 및 원칙
+
+- 3가지 대원칙이 존재하고 2가지의 이외 특징이 존재함
+- 3대 원칙
+  - Delegation
+    - 위임 모델
+    - 계층 구조를 바탕으로 `Classloader` 끼리 로드를 위임하는 구조로 동작
+    - 만약 클래스가 로드되지 않았다면(`ClassNotFoundException`) 부모 `Classloader` 에게 질의
+  - Visibility
+    - 가시성이라고도 함
+    - 하위 `Classloader` 는 상위 `Classloader` 의 클래스를 찾을 수 있지만 상위 `Classloader` 에서 하위 `Classloader` 의 클래스를 찾지 못함
+  - Uniqueness
+    - 하위 클래스로더는 상위 클래스로더가 로딩한 클래스를 다시 로딩하지 않기 위해서 로딩된 클래스의 유일성을 보장
+    - 유일성을 식별하기 위해서 Class의 Binary name 을 이용함. 이를 FQCN, Fully Qualified Class Name 이라고 함
+    - 각 `Classloader` 는 로드된 클래스를 Namespace 로 나눔
+      - 만약 이미 로드된 클래스인지 확인하려면 네임스페이스에 보관된 FQCN 을 기준으로 클래스를 찾음
+      - 하지만 FQCN 가 같더라도 Namespace가 다르면 다른 `Classloader` 가 로드한 것으로 간주함
+- 이외의 원칙
+  - 언로드 불가
+    - `Classloader` 클래스를 로드할 수 있지만 언로드는 할 수 없음
+    - 만약 언로드를 하기 위해서는 현재 `Classloader` 를 완전 삭제하고 새로운 Classloader 를 생성해야함
+  - 계층 구조
+    - `Classloader` 끼리 부모-자식 관계를 이루어 계층 구조로 생성
+
+# Classloader 의 고유 룰
+
+- 상위 클래스로더가 로드한 클래스는 Child 에 의해서 다시 로드되면 안됨
+
+## Classloader 의 동작 과정
+
+- 순서
+  - 로드
+    - Class file 을 가져와서 JVM의 메모리에 로드
+  - 검증(Linking)
+    - Java Language Specification 및 JVM 명세에 위배된 정보가 있는지 검사
+  - 준비(Linking)
+    - 클래스가 필요로하는 메모리를 할당
+  - 분석(Linking)
+    - 클래스의 상수 풀 내 모든 심볼릭 레퍼런스를 다이렉트 레퍼런스로 변경
+  - 초기화
+    - 클래스 변수들을 적절한 값으로 초기화
+
+## Classloader 종류
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("우리가 정의한 클래스 : " + Main.class.getClassLoader()); // jdk.internal.loader.ClassLoaders$AppClassLoader
+        System.out.println("Logging 클래스 : "
+        + Logging.class.getClassLoader()); // Logging:sun.misc.Launcher$ExtClassLoader
+        System.out.println("Java Util에 포함된 클래스 " + String.class.getClassLoader()); // null
+    }
+}
+```
+
+- 위에서는 3가지 클래스로더가 존재
+  1. Application Classloader
+  2. External Classloader
+  3. Bootstrap Classloader (출력은 null로 보임)
+- `Bootstrap Classloader`
+  - JVM을 기동할 떄 생성됨.
+  - Object 클래스를 비롯한 자바 API 를 로드하는 `Classloader`
+  - 위 코드에서는 다른 클래스로더와 다르게 자바가 아니라 Native Code 로 구현되어 위에서도 Null로 보임
+- `Extension Classloader` : 기본 자바 API를 제외한 확장 클래스들을 로드하는 `Classloader`
+- `User-Defined Class Loader` : 애플리케이션 사용자가 직접 코드 상에서 생성해서 사용하는 `Classloader`
