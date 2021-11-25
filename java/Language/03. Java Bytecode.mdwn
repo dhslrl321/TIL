@@ -1,1 +1,231 @@
 # Java Bytecode 란?
+
+- JDK 를 설치하면 함께 포함되어 나오는 `javac.exe` 라는 실행 파일로 개발자가 작성한 java 소스코드를 JVM이 이해할 수 있도록 하는 Bytecode
+- 컴파일된 결과라고 해서 C나 C++ 이 생성하는 기계어와 동일하게 생각하면 안됨
+  - 기계어를 번역하는 과정은 JVM의 `Execution Engine` 이 `Java Interpreter`과 `JIT Compiler` 가 수행
+- `.class` 파일이라고 생각하면 됨
+- 우리가 개발한 자바 프로그램(코드)을 배포하는 가장 작은 단위
+
+# Java Bytecode 구성요소
+
+- 컴파일된 결과로 생성되는 코드이므로 일종의 **명령어 집합**
+  - 이 명령어를 JVM Instruction Set 이라고 함
+  - 명령어는 OpCode 와 Operands 로 구성됨
+    - 1 Byte 의 OpCode와 2 Byte의 Operands
+    - 1 Byte 의 OpCode 이므로 총 256 개의 명령어가 존재할 수 있음
+  - 대표적인 명령어는
+- Descriptor 과 Signatures
+  - field Descriptors : 변수, 클래스, 인스턴스를 표현하는 문자열
+  - Signature : Field나 메서드의 Generic Type 을 표현함
+- Constant Pool
+  - JVM 은 Host 의 메모리를 최대한 효율적으로 사용하기 위해서 Constant Pool 을 이용함
+  - JVM이 동적으로 코드를 실행시킬 때 모든 데이터를 즉시 생성하는것이 아니라 Constant Pool 에 존재하는 데이터를 우선으로 가져와서 효율을 챙김
+  - `#` 의 hashtag 로 시작함
+
+# Java Bytecode 의 타입 표현
+
+- 자바 바이트코드의 표현은 우리가 사용할 수 있는 모든 자바의 문법과 타입들에 대해서 Bytecode Expression 으로 변환될 수 있다.
+- 대표적인 타입
+  - `B` : byte
+  - `C` : char
+  - `I` : int
+  - `L<classname>;` : reference
+  - 더욱 구체적인 타입은 [oracle java bytecode docs](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html)를 참고
+- 예
+  - `Object print(String str, int i)` : `(java/lang/String;I)Ljava/lang/Object;`
+
+# 실습
+
+```
+  SHA-256 checksum 4c5e083bee9345acb82373b15b1560f1f70b446e55086eb7d1f8996445fc3e40
+  Compiled from "Wonit.java"
+public class Wonit
+  minor version: 0
+  major version: 58
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #17                         // Wonit
+  super_class: #2                         // java/lang/Object
+  interfaces: 0, fields: 0, methods: 2, attributes: 1
+Constant pool:
+   #1 = Methodref          #2.#3          // java/lang/Object."<init>":()V
+   #2 = Class              #4             // java/lang/Object
+   #3 = NameAndType        #5:#6          // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = String             #8             // 워닉
+   #8 = Utf8               워닉
+   #9 = Class              #10            // Person
+  #10 = Utf8               Person
+  #11 = Methodref          #9.#12         // Person."<init>":(Ljava/lang/String;I)V
+  #12 = NameAndType        #5:#13         // "<init>":(Ljava/lang/String;I)V
+  #13 = Utf8               (Ljava/lang/String;I)V
+  #14 = Methodref          #9.#15         // Person.print:()V
+  #15 = NameAndType        #16:#6         // print:()V
+  #16 = Utf8               print
+  #17 = Class              #18            // Wonit
+  #18 = Utf8               Wonit
+  #19 = Utf8               Code
+  #20 = Utf8               LineNumberTable
+  #21 = Utf8               main
+  #22 = Utf8               ([Ljava/lang/String;)V
+  #23 = Utf8               SourceFile
+  #24 = Utf8               Wonit.java
+{
+  public Wonit();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 1: 0
+
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=4, locals=4, args_size=1
+         0: ldc           #7                  // String 워닉
+         2: astore_1
+         3: bipush        25
+         5: istore_2
+         6: new           #9                  // class Person
+         9: dup
+        10: aload_1
+        11: iload_2
+        12: invokespecial #11                 // Method Person."<init>":(Ljava/lang/String;I)V
+        15: astore_3
+        16: aload_3
+        17: invokevirtual #14                 // Method Person.print:()V
+        20: return
+      LineNumberTable:
+        line 3: 0
+        line 4: 3
+        line 6: 6
+        line 8: 16
+        line 9: 20
+}
+SourceFile: "Wonit.java"
+❯ javap -v -p -s Person.class
+Classfile /Users/jangwonik/Desktop/git_repository/TIL/java/language/Person.class
+  Last modified 2021. 11. 24.; size 1011 bytes
+  SHA-256 checksum d6c6e05d2e6cd41a33bd326ce51c533a76849c911716923d00792921d4fc8cc5
+  Compiled from "Wonit.java"
+class Person
+  minor version: 0
+  major version: 58
+  flags: (0x0020) ACC_SUPER
+  this_class: #8                          // Person
+  super_class: #2                         // java/lang/Object
+  interfaces: 0, fields: 2, methods: 2, attributes: 3
+Constant pool:
+   #1 = Methodref          #2.#3          // java/lang/Object."<init>":()V
+   #2 = Class              #4             // java/lang/Object
+   #3 = NameAndType        #5:#6          // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = Fieldref           #8.#9          // Person.name:Ljava/lang/String;
+   #8 = Class              #10            // Person
+   #9 = NameAndType        #11:#12        // name:Ljava/lang/String;
+  #10 = Utf8               Person
+  #11 = Utf8               name
+  #12 = Utf8               Ljava/lang/String;
+  #13 = Fieldref           #8.#14         // Person.age:I
+  #14 = NameAndType        #15:#16        // age:I
+  #15 = Utf8               age
+  #16 = Utf8               I
+  #17 = Fieldref           #18.#19        // java/lang/System.out:Ljava/io/PrintStream;
+  #18 = Class              #20            // java/lang/System
+  #19 = NameAndType        #21:#22        // out:Ljava/io/PrintStream;
+  #20 = Utf8               java/lang/System
+  #21 = Utf8               out
+  #22 = Utf8               Ljava/io/PrintStream;
+  #23 = InvokeDynamic      #0:#24         // #0:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+  #24 = NameAndType        #25:#26        // makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+  #25 = Utf8               makeConcatWithConstants
+  #26 = Utf8               (Ljava/lang/String;I)Ljava/lang/String;
+  #27 = Methodref          #28.#29        // java/io/PrintStream.println:(Ljava/lang/String;)V
+  #28 = Class              #30            // java/io/PrintStream
+  #29 = NameAndType        #31:#32        // println:(Ljava/lang/String;)V
+  #30 = Utf8               java/io/PrintStream
+  #31 = Utf8               println
+  #32 = Utf8               (Ljava/lang/String;)V
+  #33 = Utf8               (Ljava/lang/String;I)V
+  #34 = Utf8               Code
+  #35 = Utf8               LineNumberTable
+  #36 = Utf8               print
+  #37 = Utf8               SourceFile
+  #38 = Utf8               Wonit.java
+  #39 = Utf8               BootstrapMethods
+  #40 = MethodHandle       6:#41          // REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #41 = Methodref          #42.#43        // java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #42 = Class              #44            // java/lang/invoke/StringConcatFactory
+  #43 = NameAndType        #25:#45        // makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #44 = Utf8               java/lang/invoke/StringConcatFactory
+  #45 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #46 = String             #47            // 블로그 주인의 이름은 \u0001 이며 나이는 \u0001 이다
+  #47 = Utf8               블로그 주인의 이름은 \u0001 이며 나이는 \u0001 이다
+  #48 = Utf8               InnerClasses
+  #49 = Class              #50            // java/lang/invoke/MethodHandles$Lookup
+  #50 = Utf8               java/lang/invoke/MethodHandles$Lookup
+  #51 = Class              #52            // java/lang/invoke/MethodHandles
+  #52 = Utf8               java/lang/invoke/MethodHandles
+  #53 = Utf8               Lookup
+{
+  java.lang.String name;
+    descriptor: Ljava/lang/String;
+    flags: (0x0000)
+
+  int age;
+    descriptor: I
+    flags: (0x0000)
+
+  Person(java.lang.String, int);
+    descriptor: (Ljava/lang/String;I)V
+    flags: (0x0000)
+    Code:
+      stack=2, locals=3, args_size=3
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: aload_1
+         6: putfield      #7                  // Field name:Ljava/lang/String;
+         9: aload_0
+        10: iload_2
+        11: putfield      #13                 // Field age:I
+        14: return
+      LineNumberTable:
+        line 16: 0
+        line 17: 4
+        line 18: 9
+        line 19: 14
+
+  void print();
+    descriptor: ()V
+    flags: (0x0000)
+    Code:
+      stack=3, locals=1, args_size=1
+         0: getstatic     #17                 // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: aload_0
+         4: getfield      #7                  // Field name:Ljava/lang/String;
+         7: aload_0
+         8: getfield      #13                 // Field age:I
+        11: invokedynamic #23,  0             // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        16: invokevirtual #27                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        19: return
+      LineNumberTable:
+        line 22: 0
+        line 23: 19
+}
+SourceFile: "Wonit.java"
+BootstrapMethods:
+  0: #40 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #46 블로그 주인의 이름은 \u0001 이며 나이는 \u0001 이다
+InnerClasses:
+  public static final #53= #49 of #51;    // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles
+```
