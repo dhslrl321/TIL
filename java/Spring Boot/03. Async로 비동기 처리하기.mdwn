@@ -1,0 +1,9 @@
+현재 진행중인 프로젝트에서 외부 프로세스를 실행시키는 태스크가 있었다.
+
+상황은 이렇다. 우선 `ProcessBuilder` 를 이용해서 Bash Process 를 실행한다.
+
+그리고 해당 Bash Process 에서 AWS CLI 를 호출하는데, 해당 메서드는 약 10초 ~ 20초간 waitting 해야 한다.
+
+해당 메서드가 동작하면 다른 API 가
+
+# @Async 로 비동기 메서드 만들기

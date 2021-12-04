@@ -1,0 +1,2 @@
+- [JPA 트랜잭션 동시성 처리](https://velog.io/@recordsbeat/JPA에서-Write-Skew-방지하기-locking-전략)
+- [영속성 컨텍스트와 플러시](https://ict-nroo.tistory.com/130)
