@@ -1,0 +1,12 @@
+# Dependency Injection
+
+- 3가지 Bean 주입 방법이 있음
+  1. `@Autowired`, `@Inject` 어노테이션 => Field Injection
+  2. 생성자 주입
+  3. Setter 주입
+- Bean 으로 등록된 클래스 레퍼런스 변수에 `@Autowired` 나 `@Inject` 어노테이션으로 주입받을 수 있음
+- 생성자 주입
+  - 생성자가 오직 하나고 생성자의 파라미터로 받는 매개변수가 Bean 이 있다면 주입
+- Setter 주입
+  - 클래스에 setter 가 있다면 `@Autowired` 를 추가해서 Bean 주입
+  - 하지만 setter 가 있다면 다른 곳에서 setter 를 호출해서 의존성이 바뀔 가능성이 있음

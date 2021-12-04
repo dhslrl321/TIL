@@ -1,0 +1,38 @@
+# AOP
+
+- Aspect Oriented Programming
+- 흩어진 코드를 관점에 따라 나누고 한 곳에 모아서 처리하자
+  - 단일 책임 원칙을 지킬 수 있음
+- AOP 구현 방법 2가지
+  - Bytecode 를 조작하는 방법
+  - Proxy Pattern 을 사용하는 방법
+    - Spring 이 사용하는 방식
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogExecutionTime {
+}
+
+// -----
+
+@Component
+@Aspect
+public class LogAspect {
+
+Logger logger = Logger.LoggerFactory(LogAspect.class);
+
+  @Around("@annotation(LogExecutionTime)")
+  public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+
+    Object ret = joinPoint.proceed();
+
+    stopWatch.stop();
+
+    logger.info(stopWatch.prettyPrint());
+    return ret;
+  }
+}
+```

@@ -1,0 +1,13 @@
+# Inversion Of Control
+
+- Spring 에서는 _주로_ Dependency 에 대한 제어를 역전함
+  - 객체의 생성을 Spring 이 관리
+  - Dependency 이외에도 다른 것들을 관리하긴 함
+
+# IoC Container
+
+- Bean 을 만들고 엮어주며 제공한다. 혹은 Bean 의 의존성을 관리한다.
+  - Bean 은 객체
+  - `ApplicationContext` ifs
+  - `BeanFactory`
+- 직접 쓸 일이 많이 없다

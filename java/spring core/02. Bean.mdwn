@@ -1,0 +1,19 @@
+# Bean
+
+- Spring IoC Container 가 관리하는 객체
+- Bean 등록하는 방법
+  - 2가지 방법이 있음 (`ComponentScan`, 작접 XML 이나 자바 설정 파일에 등록`)
+    1. `@ComponentScan` : `@Component` 어노테이션이 포함된 모든 클래스를 Bean 으로 등록
+    2. `직접 정의하기` : `@Configuration` 어노테이션 이 포함된 클래스에 `@Bean` 어노테이션으로 등록함
+
+# ComponentScan 과정
+
+- 프로젝트 모든 클래스에 `@Component` 이 붙은 클래스를 보고 Bean 으로 등록
+  - `@Controller`, `@Service` 어노테이션 상위에 보면 `@Component` 가 붙어있음
+
+# Bean 을 꺼내서 쓰는 방법
+
+- 2가지 방법
+  1. Autowired
+  2. 생성자 주입
+  3. setter 주입
