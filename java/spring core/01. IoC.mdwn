@@ -11,3 +11,7 @@
   - `ApplicationContext` ifs
   - `BeanFactory`
 - 직접 쓸 일이 많이 없다
+
+# ApplicationContext
+
+- Spring IoC 컨테이너가 되고 Bean 들의 생성을 관리

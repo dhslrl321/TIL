@@ -1,7 +1,0 @@
-[Trouble Shooting] xxx 문제 해결하기
-
-# 문제 상황
-
-# 원인
-
-# 해결 방법
