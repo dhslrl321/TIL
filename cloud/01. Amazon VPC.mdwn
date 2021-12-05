@@ -1,0 +1,19 @@
+# Amazon VPC
+
+- VPC, Virtual Private Cloud
+  - 기본 VPC와 기본이 아닌 VPC로 나뉨
+    - AWS 가입하면 기본 VPC가 생성되고 해당 VPC를 이용해서 아무런 작업 없이 EC2 를 생성할 수 있음
+    - 회원가입 하고 EC2 하나 할당받으면 바로 쓸 수 있는게 바로 이 이유임
+- 사용자의 AWS 계정 전용 가상 네트워크
+- EC2의 네트워킹 계층
+- IP 주소 범위와 VPC 범위를 설정하고 서브넷을 추가한 뒤 보안 그룹을 연결한 라우팅 테이블 구성
+  - IP주소 + VPC 범위 + Subnet + Security Group
+
+# 서브넷
+
+- VPC의 IP 주소 범위
+- Public Subnet 과 Private Subnet 으로 구성
+  - Public Subnet : 인터넷 연결 o
+  - Private Subnet : 인터넷 연결 x
+- 기본 서브넷이 아니라면
+- 각 서브넷에서 AWS 리소스를 보호하기 위한 Security Group 및 ACL을 포함한 다중 보안 layer 적용 가능
