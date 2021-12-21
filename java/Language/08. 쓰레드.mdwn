@@ -1,0 +1,180 @@
+# Java Thread 의 모든것
+
+- 멀티 프로세서 환경에서 쓰레드를 잘 이용하는 것이 굉장히 중요하고 까다로움
+- JVM 에서 돌아가는 Application 은 제한된 자원과 시간이 존재
+  - 이들을 쓰레드가 낭비 없이 잘 사용하도록 하는 것이 핵심
+
+# Single Thread vs Multi Thread
+
+```java
+public class SingleVsMulti {
+    public static void main(String[] args) {
+
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 1; i <= 500; i++) {
+            System.out.print("○");
+            if(i % 50 == 0) System.out.println();
+        }
+        System.out.printf("1번 작업 (%s) 실행 소요시간 [%d]", Thread.currentThread().getName(), (System.currentTimeMillis() - startTime));
+        for (int i = 1; i <= 500; i++) {
+            System.out.print("●");
+            if(i % 50 == 0) System.out.println();
+        }
+
+        System.out.printf("2번 작업 (%s) 실행 소요시간 [%d]", Thread.currentThread().getName(), (System.currentTimeMillis() - startTime));
+    }
+}
+```
+
+첫 번째 task 가 모두 끝난 후에 2번째 task 실행
+
+```java
+public class SingleVsMulti2 {
+
+    static long startTime = System.currentTimeMillis();
+
+    public static void main(String[] args) {
+        FirstThread thread = new FirstThread();
+        thread.start();
+        for (int i = 1; i <= 500; i++) {
+            System.out.print("○");
+            if(i % 50 == 0) System.out.println();
+        }
+        System.out.printf("1번 작업 (%s) 실행 소요시간 [%d]", Thread.currentThread().getName(), (System.currentTimeMillis() - startTime));
+    }
+}
+
+class FirstThread extends Thread {
+
+    private long startTime = System.currentTimeMillis();
+
+    @Override
+    public void run() {
+        for (int i = 1; i <= 500; i++) {
+            System.out.print("●");
+            if(i % 50 == 0) System.out.println();
+        }
+        System.out.printf("2번 작업 (%s) 실행 소요시간 [%d]", Thread.currentThread().getName(), (System.currentTimeMillis() - startTime));
+    }
+}
+```
+
+- 이렇게 하면 병렬 처리가 가능함
+- 하지만 Single Thread 보다 속도가 느림
+
+# Single Thread 가 Multi Thread 보다 느린 이유
+
+- 하나의 동일한 작업 (write to console task)
+- 2가지 이유가 존재
+  1. 프로세스가 어떤 쓰레드에서 다른 쓰레드로 작업을 바꿀 때는 실행 정보 교환(Context switching)이 발생함
+  2. 두 쓰레드는 서로 번갈아가며 하나의 동일한 작업 (write to console task)을 처리하기 때문에 을 위해 서로 경쟁하기 때문
+- 결국 여기서 알 수 있는 것은 여러 쓰레드를 사용하는 것이 효율적이지 못할 때가 있음
+  - 동일한 작업을 나눠서 **병렬 처리**할 때
+    - 병렬과 병행의 차이
+      - 병렬 (Parallel) : 하나의 작업을 여러 스레드가 나눠서 진행
+      - 병행 (Concurrent) : 서로 다른 여러 작업을 여러 스레드가 동시에 진행
+
+# Thread 의 생성 방법 2가지
+
+- 물론 이후에 나올 Executor 나 Future 를 포함하면 여러 방법이 있겠지만 가장 기본적인 2가지
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        FirstThread thread1 = new FirstThread();
+        Thread thread2 = new Thread(new SecondThread());
+
+        thread1.start();
+        thread2.start();
+    }
+}
+
+class FirstThread extends Thread {
+    @Override
+    public void run() {
+        // logic
+    }
+}
+
+class SecondThread implements Runnable {
+    @Override
+    public void run() {
+        // logic
+    }
+}
+```
+
+- Runnable 을 impl 한 클래스는 Thread 의 생성자로 넣어주면 해당 생성자로 생성된 Thread 객체가 `start()` 될 때 로직이 실행됨
+  - `run()` 메서드와 `start()` 메서드의 차이
+    - `run()` : Thread의 상태가 RUN 될 때, 실행해야 하는 로직이 담겨있는 메서드
+    - `start()` : 해당 Thread 를 JVM의 스케줄러로 enqueue 함, 내부적으로 Runnable 을 impl 하여 로직을 정의함
+
+# Thread 의 5가지 상태
+
+- Thread 의 5가지 상태
+  - **NEW** : 쓰레드가 생성되고 start() 가 호출되지 않은 상태
+  - **RUNNABLE** : 실행 중 또는 실행 가능한 상태로 실행대기 큐에 들어가서 대기하거나 dispatching 되고 있는 상태를 총칭
+    - `start()` 가 호출되면 NEW 에서 RUNNABLE 로 변경됨
+    - `yield()` 되면 실행 중에서 다시 RUNNABLE로 변경됨
+  - **WAITING** : 동기화 블러에 의해서 일시정지된 상태 (lock 이 풀릴 때 까지 대기)
+    - `sleep()` 이나 `wait()` 그리고 `join()` 이 호출되거나 IO Blocking 이 되어 일시정지가 된 상태
+    - 일시정지 조건 제거나 `resume()`, `notify()` 가 호출되면 다시 RUNNABLE 상태로 실행 대기 큐로 들어가게됨
+  - **TIMED_WAITING** : 쓰레드의 작업이 종료되지는 않았지만 실행 가능하지 않은 상태로 일시정지시간이 지정된 경우를 의미
+  - **TERMINATED** : 쓰레드의 작업이 종료된 상태
+    - `stop()` 이 호출되면 쓰레드는 소멸
+
+# Thread의 동기화
+
+- 멀티 쓰레드 환경에서 스택을 제외한 동일한 데이터 영역을 공유하기 때문에 **공유 자원에 대한 임계영역 설정 및 Lock** 이 필요
+  - 즉, Thread Synchronization 이란 한 쓰레드가 진행 중인 작업을 다른 쓰레드가 간섭하지 못하도록 막는 것
+- 여러 방법의 동기화가 존재
+  1. `synchronized`
+  2. `locks`
+  3. `atomic`
+
+```java
+public class Sync {
+    public static void main(String[] args) {
+        Runnable ATM = new ATM();
+
+        new Thread(ATM).start();
+        new Thread(ATM).start();
+    }
+}
+
+class Account {
+    private int balance = 1000;
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public synchronized void withdraw(int money) { // 임계 영역 처리
+        if(balance >= money) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) { }
+
+            balance -= money;
+        }
+    }
+}
+
+class ATM implements Runnable {
+    Account account = new Account();
+
+    @Override
+    public void run() {
+        while(account.getBalance() > 0) {
+            int money = 200;
+            account.withdraw(money);
+
+            System.out.println("balance : " + account.getBalance());
+        }
+    }
+}
+```
+
+- synchronized 로 한 번에 하나의 Thread 만 접근할 수 있도록 Lock 처리
+  - `synchronized` 블럭을 토해서 공유 변수를 지정할 수 있고 synchronized 메서드를 통해서 메서드 전체를 임계 영역 처리를 할 수 있다.

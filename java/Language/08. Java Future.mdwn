@@ -1,0 +1,5 @@
+# Java Future
+
+- asynchronous 연산의 결과를 표현하는 클래스
+- 멀티쓰레드 환경에서 어떤 데이터를 다른 쓰레드에 전달할 수 있음
+- 내부적으로 Thread-Safe 하게 구현되어있기 때문에 `synchronized block` 을 사용하지 않아도 됨
