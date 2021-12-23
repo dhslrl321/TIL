@@ -23,3 +23,5 @@
 10. G5 [백준 9019](https://www.acmicpc.net/problem/9019) DSLR [문제 풀이](https://wonit.tistory.com/569)
 11. G5 [백준 2589](https://www.acmicpc.net/problem/2589) 보물섬 [문제 풀이](https://wonit.tistory.com/570)
 12. G4 [백준 2206](https://www.acmicpc.net/problem/2206) 벽 부수고 이동하기 [문제 풀이](https://wonit.tistory.com/573)
+
+# 이진 탐색
