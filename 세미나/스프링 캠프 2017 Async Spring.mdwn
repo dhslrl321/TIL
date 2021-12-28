@@ -1,0 +1,167 @@
+# 스프링 캠프 2017 Day1 A2 : Async & Spring, 스프링 비동기 개발
+
+# 도입
+
+- Spring 3.2 ~ 4.3 에서의 비동기 개개발 방법
+- 주제 키워드
+  - `@Async`
+  - `Asynchronous Request Processing`
+  - `AsyncRestTemplate`
+- 대상
+  - 중급
+  - 스프링 비동기 개발에 대한 기본 지식과 배경을 알고있는 개발자
+- 기본 지식
+  - 자바 비동기 개발
+    - Java Concurrency
+    - Future, BlockingQueue
+    - ForkJoinTask
+    - CompletableFuture
+    - Flow
+  - 서블릿 비동기 개발
+    - Servlet 3.0 Async Processing
+    - Servlet 3.1 Non-Blocking IO
+    - Servlet 4.0
+  - 스프링 비동기 개발 (주제)
+    - **@Async**
+    - **Asynchronous Request Processing**
+    - **AsyncRestTemplate**
+
+# 동기 비동기 차이
+
+- Synchronous
+  - 두가지 이상이 시간을 맞추는
+  - A와 B가 있을 때 시작시간 또는 종료 시간이 일치한다.
+    - A, B 쓰레드가 동시에 작업을 시작
+    - 메서드 리턴 시간A와 결과를 받는 시간 B가 일치하면 동기
+- Asynchronous
+  - 두가지 이상의 시간을 맞추지 않는
+
+# Blocking, Non-Blocking 차이
+
+- 동기, 비동기와 관점이 다름
+- 내가 직접 제어할 수 없는 대상을 상대하는 방법
+- 대상이 제한적임
+  - IO 때문에 기다려야 하는 상황
+  - 멀티쓰레드 상황에서 쓰레드가 종료되는 시점을 기다리는 상황
+
+# 동기 비동기와 블로킹 논블로킹 예
+
+```java
+ExecutorService es = Executors.newCachedThreadPool();
+
+String res = es.submit(() -> "Hello Async").get();
+```
+
+- `es.submit()` 은 비동기 실행
+  - 메서드의 리턴 시간과 Callable 의 실행 결과를 받는 시간이 일치하지 않음
+  - 여기서는 블로킹 논블로킹은 논외
+- `get()` 은 동기 블로킹 방식
+  - 메서드 리턴 시간과 결과를 가져오는 시간이 일치
+  - 다른 쓰레드의 작업이 완료될 때까지 대기
+
+# Spring 의 비동기 실행
+
+- `@Async`
+  - 가장 오래되고 친숙한 비동기 실행 방법
+
+```java
+class MyService {
+  void service() {
+    // (B)
+  }
+}
+
+class Caller {
+  MyService myService = new MyService();
+
+  void call() {
+    // (A)
+    myService.service();
+    // (C)
+  }
+}
+```
+
+- 실행 순서
+  - A -> B -> C
+
+```java
+@Async
+class MyService {
+  String service() {
+    // (B)
+    return result;
+  }
+}
+
+class Caller {
+  MyService myService = new MyService();
+
+  void call() {
+    // (A)
+    String result = myService.service();
+    // (C)
+  }
+}
+```
+
+- 실행 순서
+  - A -> B, C
+- result 변수는 null 이 담김
+  - String은 `@Async` 가 지원하지 않는 리턴 타입임
+  - 그래서 `@Async` 를 사용할 때는 다음 4가지의 반환 타입이 있어야 함
+    1. `void`
+    2. `Future<T>`
+    3. `ListenableFuture<T>` Spring 4.0 에 추가된 인터페이스, Callback 형태
+    4. `CompletableFuture<T>`
+
+```java
+@Async
+class MyService {
+  Future<String> service() {
+    // (B)
+    return new AsyncResult<>(result);
+  }
+}
+
+class Caller {
+  MyService myService = new MyService();
+
+  void call() {
+    // (A)
+    Future<String> future = myService.service();
+    String res = future.get();
+    // (C)
+  }
+}
+```
+
+- #### ListenableFuture 과 CompletableFuture 추가할 것!
+
+# 스프링의 비동기, SimpleAsyncTaskExecutor
+
+- SimpleAsyncTaskExecutor
+  - `@Async` 가 사용하는 기본 TaskExecutor
+    - `@Async` 쓸 때 아무런 설정 없으면 SimpleAsyncTaskExecutor 를 사용
+  - 쓰레드 풀이 아님
+    - `@Async` 가 있다면 매번 새로운 쓰레드를 생성하고 끝나면 쓰레드를 파기
+    - 쓰레드는 비싼 자원이라서 결국 낭비가 발생함
+  - `@Async` 를 본격적으로 사용한다면 실전에서 사용하지 말 것
+
+# SimpleAsyncTaskExecutor 사용하지 않는 방법
+
+- 앞서 이야기했듯 SimpleAsyncTaskExecutor 는 기본 설정임
+- 다음 타입의 빈이 하나만 존재한다면 SimpleAsyncTaskExecutor 를 사용하지 않음
+  - `Executor`
+  - `ExecutorService`
+  - `TaskExecutor`
+  - 만약 두 개를 등록하면 에러가 발생
+- `@Async("myExecutor")`
+  - 두 개 이상을 등록하고 싶을 때는 위와 같이 이름을 지정해줄 수 있음
+
+# 비동기 서블릿, Asynchronous Processing
+
+- Servlet 3.0 에서 추가됨
+  - 무언가를 기다리느라 서블릿 요청처리를 완료하지 못하는 경우를 위해서 등장
+  - 서블릿에서 AsyncContext 를 만든 뒤 즉시 서블릿 메서드 종료 및 서블릿 쓰레드 반납
+  - 어디서든 AsyncContext 를 이용해서 응답을 넣으면 클라이언트에 결과를 보냄

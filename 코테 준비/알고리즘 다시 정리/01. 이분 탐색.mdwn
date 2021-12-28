@@ -12,4 +12,72 @@
 
 ## 반복문 구현하는 이분 탐색
 
+_정렬된 배열 arr 에서 임의의 수 k 가 있는지 판단하는 알고리즘_
+
+```java
+public boolean exists(int[] arr, int k) {
+  int start = 0;
+  int end = arr.length - 1;
+
+  while (start <= end) {
+    int mid = (start + end) / 2;
+
+    if (arr[mid] == k) { // k 가 mid 와 같다면
+      return true;
+    }
+
+    if (arr[mid] < k) {
+      start = mid + 1;
+    } else {
+      end = end - 1;
+    }
+  }
+
+  return false; // 이분 탐색을 모두 끝낼 때 까지 k가 없었다면 반환
+}
+```
+
 ## 재귀로 구현하는 이분 탐색
+
+_정렬된 배열 arr 에서 임의의 수 k 가 있는지 판단하는 알고리즘_
+
+```java
+public boolean exists(int[] arr, int start, int end, int k) {
+
+  int mid = (start + end) / 2;
+
+  if (arr[mid] == k) {
+    return true;
+  }
+
+  if (arr[mid] < k) {
+    exists(arr, mid + 1, end, k);
+  } else {
+    exists(arr, mid + 1, end, k);
+  }
+}
+```
+
+# 집
+
+- 사당, 잠실
+
+- 급여 수준은 얼마나 되는지
+- 함께 일하는 팀원은 몇명인지
+- 코드리뷰가 존재하는지
+- 근무는 재택근무인지
+- 인턴의 복지는 뭐가 있는지
+  - 노션에 있는 내용이 동일하게 적용되는지?
+  - 혹시 교통비도 지원이 되는지?
+
+안녕하세요 재연님. 답변 감사합니다!
+제가 계속 질문을 드리는게 어쩌면 업무에 더 방해되겠다는 생각을 해서 궁금한 것들을 한 번에 정리해서 보내드립니다.
+신경써주셔서 감사합니다.
+
+1. 함께 일하는 팀원은 몇명이나 될까요?
+2. 근무의 형태는 재택근무인가요?
+3. 인턴에게도 notion 에 있는 복지가 동일하게 적용되나요?
+4. 급여 수준은 얼마나 될까요?
+
+감사합니다.
+장원익 드림
