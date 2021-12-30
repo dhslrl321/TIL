@@ -11,7 +11,7 @@
 - 프로젝트 모든 클래스에 `@Component` 이 붙은 클래스를 보고 Bean 으로 등록
   - `@Controller`, `@Service` 어노테이션 상위에 보면 `@Component` 가 붙어있음
 
-# Bean 을 꺼내서 쓰는 방법
+# Bean 을 꺼내서 쓰는 방법들
 
 - 2가지 방법
   1. Autowired
