@@ -9,7 +9,7 @@
 1. S1 [백준 1946](https://www.acmicpc.net/problem/1946) 신입사원 [문제 풀이](https://wonit.tistory.com/576)
 2. S1 [백준 15729](https://www.acmicpc.net/problem/15729) 방탈출 [문제 풀이](https://wonit.tistory.com/592)
 
-# DFS 와 BFS
+# DFS & BFS
 
 1. S2 [백준 7562](https://www.acmicpc.net/problem/7562) 나이트의 이동 [문제 풀이](https://wonit.tistory.com/560)
 2. S1 [백준 2468](https://www.acmicpc.net/problem/2468) 안전 영역 [문제 풀이](https://wonit.tistory.com/561)
