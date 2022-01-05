@@ -19,7 +19,7 @@
 6. S1 [백준 5567](https://www.acmicpc.net/problem/5567) 결혼식 [문제 풀이](https://wonit.tistory.com/565)
 7. G5 [백준 14502](https://www.acmicpc.net/problem/14502) 연구실 [문제 풀이](https://wonit.tistory.com/566)
 8. G5 [백준 10026](https://www.acmicpc.net/problem/10026) 적록색약 [문제 풀이](https://wonit.tistory.com/567)
-9. G5 [백준 5014](https://www.acmicpc.net/problem/5014) 스타트 링크 [문제 풀이](https://wonit.tistory.com/568) s
+9. G5 [백준 5014](https://www.acmicpc.net/problem/5014) 스타트 링크 [문제 풀이](https://wonit.tistory.com/568)
 10. G5 [백준 9019](https://www.acmicpc.net/problem/9019) DSLR [문제 풀이](https://wonit.tistory.com/569)
 11. G5 [백준 2589](https://www.acmicpc.net/problem/2589) 보물섬 [문제 풀이](https://wonit.tistory.com/570)
 12. G4 [백준 2206](https://www.acmicpc.net/problem/2206) 벽 부수고 이동하기 [문제 풀이](https://wonit.tistory.com/573)
