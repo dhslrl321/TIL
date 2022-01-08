@@ -11,7 +11,7 @@
 
 # 서브넷
 
-- VPC의 IP 주소 범위
+- VPC의 IP 주소 범위,
 - Public Subnet 과 Private Subnet 으로 구성
   - Public Subnet : 인터넷 연결 o
   - Private Subnet : 인터넷 연결 x
