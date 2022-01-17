@@ -5,4 +5,34 @@
   - shell 명령을 순차적으로 실행할 수 있음
   - 범용적 컴파일 명령어
 
-# ㅁㅇㄹ
+# Makefile 규칙
+
+- 기본 구조
+
+```Makefile
+target ...: dependencies ...
+  command
+  ...
+```
+
+- target : 프로그램에 의해 생성되는 파일의 이름
+  - 실행 파일, 오브젝트, 혹은 실행할 액션의 이름
+- dependency : target 을 만들기 위한 입력으로 사용되는 파일
+  - target 을 만들기 위해서 여러 개의 파일으로 dependency 를 구성할 수 있음
+- command : make 가 실행핫는 액션
+
+# Makefile 변수
+
+```makefile
+object = main.o kdb.o command.o \
+        insert.o search.o files.o
+```
+
+# Phony Target, 가짜 타겟
+
+- 실제로 파일의 이름이 아닌 것
+- 2가지 사용 이유가 존재
+  1. 실제 파일이름 충돌을 해결
+  2. 성능 개선
+- 실제 파일이름 충돌 해결
+  - make 명령이 실행되는 디렉토리에 Makefile 의 target 과 같은 이름의 파일이 존재하는 경우 충돌이 발생
