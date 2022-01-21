@@ -1,0 +1,6 @@
+# Codegen
+
+- server stub 를 생성하여 빌드 프로세스를 간소화시킴
+  - API 를 자동으로 생성함
+- OpenAPI Specification 을 정의하고 API 구현에 집중할 수 있게 해줌
+- 반복적인 코드 생성 작업을 자동화
