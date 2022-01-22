@@ -1,0 +1,8 @@
+# API First Design
+
+- 협업하는 개발 프로세스에서 API 를 가장 첫 번째 우선순위로 가져가는 것.
+  - 각각의 서버간 고립으로 테스트하고자 하는 것에 집중할 수 있음
+- 서비스 개발시 endpoint인 API 를 가장 먼저 고려하는 것
+- API 를 먼저 고려하고 API 문서를 생성하면 일을 **병렬적으로 수행**할 수 있음
+- API First Design 실천 도구
+  - Swagger Codegen

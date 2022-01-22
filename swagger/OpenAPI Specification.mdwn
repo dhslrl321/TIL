@@ -1,0 +1,5 @@
+# OAS, OpenAPI Specification
+
+- RESTful API 에 대한 **언어**에 구애받지 않는 표준 인터페이스를 정의
+- Docs Gen 과 같은 문선 생성 도구, 코드 생성 도구에 의해 사용될 수 있음
+  - Swagger 도 마찬가지

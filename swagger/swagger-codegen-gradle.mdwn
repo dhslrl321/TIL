@@ -1,0 +1,7 @@
+# Gradle Swagger Generator Plugin
+
+- [github](https://github.com/int128/gradle-swagger-generator-plugin)
+- 소개
+  - OpenAPI Yaml Validate
+  - YML 로 부터 소스를 생성
+  - YML 로 부터 Swagger UI 생성

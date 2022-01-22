@@ -1,0 +1,26 @@
+[Swagger Codegen github](https://github.com/swagger-api/swagger-codegen)
+
+# Codegen
+
+- server stub 를 생성하여 빌드 프로세스를 간소화시킴
+  - API 를 자동으로 생성함
+- OpenAPI Specification 을 정의하고 API 구현에 집중할 수 있게 해줌
+- 반복적인 코드 생성 작업을 자동화
+- Swagger Editor 에서 YML 로 생성한 API Docs 를 토대로 **코드를 생성함**
+
+# Codegen install with brew on mac
+
+- Codegen 설치
+
+```bash
+brew install swagger-codegen
+```
+
+# Swagger Codegen Docker
+
+- Swagger Codegen 을 설치하는 다른 방법
+
+```bash
+docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli generate \
+  -i https://
+```
