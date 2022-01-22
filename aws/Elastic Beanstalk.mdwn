@@ -1,0 +1,9 @@
+# Elastic Beanstalk
+
+- 애플리케이션을 실행하는 AWS 인프라에 대해서 자세히 몰라도 클라우드에 빠르게 배포하고 관리할 수 있는 도구
+  - 관리 복잡성을 줄여준다
+  - 용량에 대한 프로비저닝, 로드 밸런싱, 조정, 상태 모니터링을 자동으로 처리
+- 사용 방법
+  - Elastic Beanstalk 콘솔
+  - AWS CLI
+  - eb (Elastic Beanstalk 를 위해 특별히 설계된 CLI)
