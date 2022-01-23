@@ -7,3 +7,26 @@
   - Elastic Beanstalk 콘솔
   - AWS CLI
   - eb (Elastic Beanstalk 를 위해 특별히 설계된 CLI)
+
+# Elastic Beanstalk 개념
+
+- **애플리케이션, Application**
+  - 환경, 버전 및 구성을 포함한 Elastic Beanstalk 구성 요소의 논리적 컬렉션
+  - 개념적으로 폴더와 유사함
+- **애플리케이션 버전, Application version**
+  - 웹 애플리케이션의 배포 가능한 코드의 특정 버전
+  - 버전은 배포 가능한 코드가 포함된 S3 객체를 가리킴
+  - Uniqueness 를 보장
+- **환경, Environment**
+  - 애플리케이션 버전을 실행 중인 AWS 리소스의 모음
+  - 환경을 생성하면 Elastic Beanstalk 에서 사용자가 지정한 애플리케이션의 버전을 실행하는데 필요한 AWS 리소스를 프로비저닝
+- **환경 티어, Environment Tier**
+  - 환경에서 실행되는 애플리케이션의 유형을 프로비저닝할 리소스를 결정
+    - HTTP 요청을 처리하는 애플리케이션은 `웹 서버 환경 티어`에서 실행됨
+    - SQS 대기열에서 가져오는 백엔드 환경은 `작업자 환경 티어`에서 결정됨
+- **환경 구성, Environment Configuration**
+  - 리소스의 작동 방법을 정의하는 파라미터 및 설정의 모음
+- **저장된 구성, Saved Configuration**
+  - 고유한 환경 구성을 생성하기 위한 시작점
+- **플랫폼, Platform**
+  - OS, Runtime, Web Server, WAS 등 Beanstalk 구성 요소의 조합
