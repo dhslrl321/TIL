@@ -1,0 +1,314 @@
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - Spring Boot 서버 생성하기
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - EB 생성하기
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - Github Actions 정의하기
+
+[##_Image|kage@cbQ4qs/btrrpouXTDY/idSxLIGCZi4kmiAL5pSOYK/img.png|CDM|1.3|{"originWidth":749,"originHeight":426,"style":"alignCenter","width":617,"height":351}_##]
+
+> 해당 시리즈는 3개의 글로 구성되어있습니다. 각 단계의 자세한 사항은 아래 링크를 참조해주세요
+
+- 1편 [Spring Boot 서버 생성하기](https://wonit.tistory.com/595)
+- 2편 [Elastic Beanstalk 생성하기](https://wonit.tistory.com/596)
+- 3편 [Github Actions 정의하기](https://wonit.tistory.com/597)
+- 해당 글의 [실습 코드 및 github repository](https://github.com/my-research/aws-eb-action-example)
+
+# 지난 시간...
+
+지난 시간 우리는 Spring Boot 를 이용해서 Application 서버를 생성했고 **Elastic Beanstalk 를 생성** 했다.
+
+이번 시간에는 Github Actions 를 이용하여 **Master branch** 의 변경사항이 있다면 자동으로 배포하는 배포 자동화에 대해서 알아보자.
+
+# Github Actions 에 대해서 더 자세히
+
+Github Actions 는 깃허브에서 공식적으로 제공하는 workflow 자동화 툴이다.
+
+Workflow 자동화라고 한다면 Continous Delivery, Deploy 인 CD 에 대해서 이야기가 자주 나오지만 이들은 엄연히 다른 분류라고 한다.
+
+이에 대한 내용은 추후에 더 공부하고 다뤄보기로 하고 Github Actions 에서 사용하는 개념들이 있다 하ㅏ니 알아보자.
+
+## Github Actions 의 개념
+
+- **Workflow**
+  - 자동화된 전체 프로세스로 하나 이상의 Job 으로 구성되며 Event 에 의해 트리거 되거나 예약될 수 있다.
+  - 배포를 포함하여 테스트, infra 구성등 모두 하나로 보는 개념이다.
+  - Jenkins 의 Pipeline 과 비슷한 개념이다.
+- **Event**
+  - Workflow 를 트리거하는 특정한 활동이나 규칙이다.
+  - 보통 master, main, release 브랜치에 트리거 규칙을 정해놓곤 한다.
+  - 즉, master 브랜치의 코드 변경사항이 있다면 Workflow 를 발동시킨다.
+- **Job**
+  - 단일 가상 환경에서 실행되는 작업들의 단위이다.
+  - 여러 Job과 의존 관계를 맺을 수 있으며 독립, 병렬로 실행될 수 있다.
+- **Step**
+  - Job 안에서 순차적으로 실행되는 프로세스 단위이다.
+- **Action**
+  - job 을 구성하기 위한 step 의 조합이다.
+  - Github Actions Marcket Place 에 많은 Actions 가 정의되어 있어서 쉽게 가져다 사용할 수 있다.
+- **Runner**
+  - Github Action Runner 가 설치될 머신으로 Workflow 가 실행될 인스턴스를 의미한다
+
+# Github Action 생성하기
+
+Github Actions 를 생성하는 방법은 매우 간단하다.
+
+#### Project Repository 에 `.github/workflows` 디렉토리를 생성하고 yml 포맷의 파일로 Workflow 를 정의해주면 끝이다.
+
+우리가 앞서 생성한 프로젝트 레포지토리에 다음과 같은 구조로 디렉토리와 파일을 생성해보자
+
+[##_Image|kage@bR3SC4/btrrqM9uw9Q/2aOhuJMwrikGph32yGzfKk/img.png|CDM|1.3|{"originWidth":331,"originHeight":163,"style":"alignCenter"}_##]
+
+## todo-master-deploy.yml
+
+```yml
+name: todo-master-to-beanstalk
+
+on:
+  push:
+    branched:
+      - master # action 트리거 브랜치
+  workflow_dispatch: # 수동 실행 옵션 (생략)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # action 스크립트가 작동될 OS
+
+    steps: # 작업 단계
+      - name: Checkout source code # 단계별 이름, 구분자로 소스를 가져옴
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 1.8 # JDK 설치
+        uses: actions/setup-java@v1 # (5)
+        with:
+          java-version: 1.8
+
+      - name: Grant execute permission for gradlew
+        working-directory: ./server-app
+        run: chmod +x ./gradlew
+        shell: bash
+
+      - name: Build with Gradle
+        working-directory: ./server-app
+        run: ./gradlew clean build
+        shell: bash
+
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYYMMDDTHHmm
+          utcOffset: "+09:00"
+
+      - name: Generate deployment package
+        run: |
+          mkdir -p deploy
+          cp server-app/build/libs/server-app.jar deploy/todo-application-prod-ebextensions-1.jar
+          cp Procfile deploy/Procfile
+          cp -r .ebextensions deploy/.ebextensions
+          cd deploy && zip -r todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}} .
+
+      - name: Deploy Consumer to EB
+        uses: einaregilsson/beanstalk-deploy@v14
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: todo-application-prod
+          environment_name: Todoapplicationprod-env
+          version_label: todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}}
+          region: ap-northeast-2
+          deployment_package: deploy/todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}}.zip
+```
+
+뭐가 매우 많고 헷갈린다.
+
+하지만 걱정할 것이 전혀 없다.
+
+[##_Image|kage@cK7Cbm/btrrpEREH7A/B2Jkct20e1z5e5qcYkk7J1/img.png|CDM|1.3|{"originWidth":742,"originHeight":425,"style":"alignCenter"}_##]
+
+앞서 이야기했듯 각각의 Job 을 실행시키는 방법들을 명세해놓은 것이고 이들을 모두 외우고 있지 않아도 Marcket Place 에서 쉽게 복사하여 붙여넣으면 된다.
+
+그럼 **아까 이야기 했던 Github Actions 의 개념**을 적용해서 어떤 구조로 yml 이 구성되어있는지 알아보자.
+
+위의 yml 을 작게 분해해보겠다.
+
+### Workflow 정의
+
+```yml
+name: todo-master-to-beanstalk
+
+on:
+  push:
+    branched:
+      - master # action 트리거 브랜치
+  workflow_dispatch: # 수동 실행 옵션 (생략)
+jobs:
+  build:
+    runs-on: ubuntu-latest # action 스크립트가 작동될 OS
+```
+
+해당 workflow 는 `todo-master-to-beanstalk` 라는 이름의 workflow 이다.
+
+master 브랜치로 push 된다면 이벤트를 발생시키고 `workflow_distpatch` 는 생략하였는데, 이는 수동으로 실행할 때 주는 옵션 값이다.
+
+또한 Job 이 실행될 OS 는 ubuntu 에서 실행이 된다는 것을 알 수 있다.
+
+### Job 정의 - 1. source code
+
+```yml
+- name: Checkout source code # 단계별 이름, 구분자로 소스를 가져옴
+  uses: actions/checkout@v2
+```
+
+위의 step 블록은 해당 Workflow 가 레포지토리에 액세스할 수 있도록 사용되는 공식 Action 이다.
+
+### Job 정의 - 2. JDK 설치
+
+```yml
+- name: Set up JDK 1.8 # JDK 설치
+  uses: actions/setup-java@v1 # (5)
+  with:
+    java-version: 1.8
+```
+
+보면 바로 알 수 있듯 JDK Action 을 가져와 실행한다.
+
+JDK 버전은 1.8 버전으로 Java8 을 사용했다.
+
+### Job 정의 - 3. Gradle 설정
+
+```yml
+- name: Grant execute permission for gradlew
+  working-directory: ./server-app
+  run: chmod +x ./gradlew
+  shell: bash
+
+- name: Build with Gradle
+  working-directory: ./server-app
+  run: ./gradlew clean build
+  shell: bash
+```
+
+해당 블럭은 Gradle 과 관련된 설정이다.
+
+chmod 를 통해서 Application Server 디렉토리의 gradlew 에게 실행 권한을 부여하고 앱을 build 한다.
+
+working-directory 를 이용해서 `./server-app` 이 작업을 수행할 디렉토리임을 명시하였다.
+
+### Job 정의 - 4. 시간 설정
+
+```yml
+- name: Get current time
+  uses: 1466587594/get-current-time@v2
+  id: current-time
+  with:
+    format: YYYYMMDDTHHmm
+    utcOffset: "+09:00"
+```
+
+서버를 배포할 때는 서버의 버저닝이 매우 중요하다.
+
+이 버저닝을 위해서 get-current-time 이라는 Action 을 가져와 사용하라는 블럭이다.
+
+### Job 정의 - 5. 배포 설정
+
+```yml
+- name: Generate deployment package
+  run: |
+    mkdir -p deploy
+    cp server-app/build/libs/server-app.jar deploy/todo-application-prod-ebextensions-1.jar
+    cp Procfile deploy/Procfile
+    cp -r .ebextensions deploy/.ebextensions
+    cd deploy && zip -r todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}} .
+```
+
+이 Job 이 현재 구성한 Actions 정의들 중 가장 까다로운 부분이다.
+
+우선 넘어가고 아래에서 자세히 알아보자
+
+### Job 정의 - 6. Elastic Beanstalk Consumer 연결
+
+```yml
+- name: Deploy Consumer to EB
+  uses: einaregilsson/beanstalk-deploy@v14
+  with:
+    aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    application_name: todo-application-prod
+    environment_name: Todoapplicationprod-env
+    version_label: todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}}
+    region: ap-northeast-2
+    deployment_package: deploy/todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}}.zip
+```
+
+Beanstalk 를 연결하는 부분이다.
+
+여기서 앞서 정의한 EB의 Application 이름과 environment 이름을 설정하고 SECRET 을 통해 연결해준다.
+
+이제 정의 5번 6번에 대해서 자세히 알아보자.
+
+# 배포 설정 자세히 보기 - Procfile
+
+Procfile 은 Elastic Beanstalk 에게 실행할 JAR 를 알려주는 **프로세스 구성 파일이다.**
+
+프로젝트 루트에 `Procfile` 파일을 생성하자.
+
+그리고 해당 파일의 web 블럭에 실행할 jar 파일을 추가시켜주면 된다.
+
+```Procfile
+web: java -jar todo-application-prod-ebextensions-1.jar
+```
+
+우리의 서버를 패키징하면 2개의 jar 파일이 생성되는데, EB에서는 어떤 jar 파일을 실행시켜야하는지 모르기 때문에 위와 같이 Procfile 을 생성해주고 EB 내부로 넣어줘야 한다.
+
+# 배포 설정 자세히 보기 - ebextensions
+
+`.ebextenstions` 는 config 파일을 이용해서 고급 환경 구성을 할 수 있도록 한다.
+
+Timezone 설정을 위해 사용하였는데, 이 역시 EB 내부로 넣어주어야 한다.
+
+```config
+commands:
+  set_time_zone:
+    command: ln -f -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+```
+
+# Consumer 자세히 보기 - Github Secret 설정
+
+**Job 정의 6번** 을 다시 봐보자
+
+```yml
+- name: Deploy Consumer to EB
+  uses: einaregilsson/beanstalk-deploy@v14
+  with:
+    aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    application_name: todo-application-prod
+    environment_name: Todoapplicationprod-env
+    version_label: todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}}
+    region: ap-northeast-2
+    deployment_package: deploy/todo-application-prod-label-${{steps.current-time.outputs.formattedTime}}-${{github.sha}}.zip
+```
+
+`aws_access_key` 와 `aws_secret_key` 를 보면 실제 값을 노출시키는 것이 아니라 외부 설정에서 가져오고 있다.
+
+[##_Image|kage@rKArz/btrroXxFBS7/UasLg92nMQo8YMkpbWEvYK/img.png|CDM|1.3|{"originWidth":850,"originHeight":540,"style":"alignCenter","width":723,"height":459}_##]
+
+이를 위해서 Repository Setting 에서 Key 를 등록시켜주자.
+
+Repository 의 Setting 에서 Secret 탭에 들어가서 새로운 **Action Secret** 을 생성해주자
+
+앞서 생성한 IAM 의 Access 와 Secret 을 등록해주면 된다.
+
+[##_Image|kage@FHwNP/btrrq0GZyvz/hZB8MrQnzAgjAaqqxZjf4K/img.png|CDM|1.3|{"originWidth":797,"originHeight":727,"style":"alignCenter","width":608,"height":555}_##]
+
+그럼 위의 Job 정의 6번에서 외부 설정을 가져올 수 있게 된다.
+
+# 코드 푸시하여 Actions 와 EB 연결하기
+
+이제 모든 준비가 다 되었다!
+
+github 에 master 브랜치로 push 하여 EB를 Trigger 해보자
+
+[##_Image|kage@b0X8Wf/btrrr5HLR37/dmvk55fp70fkexGIOHhQkK/img.png|CDM|1.3|{"originWidth":960,"originHeight":761,"style":"alignCenter","width":652,"height":517}_##]
+
+그럼 위와 같이 대기중이 뜨며 결국은 Success 가 들어오게 되며 새로운 버전으로 잘 동작하는 것을 알 수 있다.
+
+[##_Image|kage@ZItpM/btrruAnbiyK/q3TBzglH49cAZTKTTQ7OFK/img.png|CDM|1.3|{"originWidth":914,"originHeight":412,"style":"alignCenter","width":760,"height":343}_##]

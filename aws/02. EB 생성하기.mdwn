@@ -1,0 +1,132 @@
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - Spring Boot 서버 생성하기
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - EB 생성하기
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - Github Actions 정의하기
+
+[##_Image|kage@cbQ4qs/btrrpouXTDY/idSxLIGCZi4kmiAL5pSOYK/img.png|CDM|1.3|{"originWidth":749,"originHeight":426,"style":"alignCenter","width":617,"height":351}_##]
+
+> 해당 시리즈는 3개의 글로 구성되어있습니다. 각 단계의 자세한 사항은 아래 링크를 참조해주세요
+
+- 1편 [Spring Boot 서버 생성하기](https://wonit.tistory.com/595)
+- 2편 [Elastic Beanstalk 생성하기](https://wonit.tistory.com/596)
+- 3편 [Github Actions 정의하기](https://wonit.tistory.com/597)
+- 해당 글의 [실습 코드 및 github repository](https://github.com/my-research/aws-eb-action-example)
+
+# 지난 시간...
+
+지난 시간 우리는 Spring Boot 를 이용해서 Application 서버를 생성했고 github 에 push 하는 작업까지 마쳤다.
+
+이번 시간에는 Elastic Beanstalk 에 대해서 알아보고 실제로 생성을 해보도록 하자.
+
+# Elastic Beanstalk 에 대해서 더 자세히
+
+**Elastic Beanstalk** 에 대해서 다시 한 번 정의해보자.
+
+#### **Elastic Beanstalk** 는 애플리케이션을 실행하는 AWS 인프라에 대해서 자세히 알지 못해도 클라우드에 빠르게 배포하고 관리할 수 있게 하는 도구이다.
+
+이러한 도구를 통해서 우리는 **Auto Scaling, 용량에 대한 Provisining, Load Balancing, Monitoring** 을 손쉽게 수행할 수 있고, 그에 따른 관리 복잡성을 줄이게 된다.
+
+EB는 **AWS CLI나 EB CLI** 를 통해서 구성할 수 있지만 다른 리소스들과 마찬가지로 **EB 웹 Console** 이 존재한다.
+
+자세한 사항은 [AWS Elastic Beanstalk Docs](https://docs.aws.amazon.com/ko_kr/elasticbeanstalk/latest/dg/Welcome.html) 에서 확인할 수 있다.
+
+추가적으로 EB에 대한 사용은 모두 무료이며 EB를 통해 생성되는 인스턴스에 한해서만 과금이 된다는 장점이 있다.
+
+# Elastic Beanstalk 개념
+
+위의 Docs 에서 나온 개념들을 빠르게 정리하자면 다음과 같다
+
+- **애플리케이션, Application**
+  - 환경, 버전 및 구성을 포함한 Elastic Beanstalk 구성 요소의 논리적 컬렉션
+  - 개념적으로 폴더와 유사함
+- **애플리케이션 버전, Application version**
+  - 웹 애플리케이션의 배포 가능한 코드의 특정 버전
+  - 버전은 배포 가능한 코드가 포함된 S3 객체를 가리킴
+  - Uniqueness 를 보장
+- **환경, Environment**
+  - 애플리케이션 버전을 실행 중인 AWS 리소스의 모음
+  - 환경을 생성하면 Elastic Beanstalk 에서 사용자가 지정한 애플리케이션의 버전을 실행하는데 필요한 AWS 리소스를 프로비저닝
+- **환경 티어, Environment Tier**
+  - 환경에서 실행되는 애플리케이션의 유형을 프로비저닝할 리소스를 결정
+    - HTTP 요청을 처리하는 애플리케이션은 `웹 서버 환경 티어`에서 실행됨
+    - SQS 대기열에서 가져오는 백엔드 환경은 `작업자 환경 티어`에서 결정됨
+- **환경 구성, Environment Configuration**
+  - 리소스의 작동 방법을 정의하는 파라미터 및 설정의 모음
+- **저장된 구성, Saved Configuration**
+  - 고유한 환경 구성을 생성하기 위한 시작점
+- **플랫폼, Platform**
+  - OS, Runtime, Web Server, WAS 등 Beanstalk 구성 요소의 조합
+
+주로 우리는 Application 과 Envorionment 를 다루게 될 것인데, 그래도 알아두자
+
+# EB 생성하기
+
+Elastic Beanstalk Web Console 에 들어가서 생성하기 버튼을 클릭하면 다음과 같은 UI 가 나오게 된다.
+
+[##_Image|kage@cT7VRi/btrrr4WmaDE/m7I4wrPwizCw3dNHVt3vi1/img.png|CDM|1.3|{"originWidth":492,"originHeight":540,"style":"alignCenter"}_##]
+
+첫번째로 Application Name 을 지정해줘야 하는데, 추후에 연동할 **Github Actions 에서는 이 Application Name 을 토대로 EB를 식별**하기 때문에 적절한 이름으로 잘 지어야 한다.
+
+[##_Image|kage@kGjKq/btrrwfwyxNK/S1liln4rvVzilfYDf3zEc0/img.png|CDM|1.3|{"originWidth":1752,"originHeight":731,"style":"alignCenter"}_##]
+
+워낙 AWS Web Console 이 잘 구성되어있기 때문에 어려움은 없을 것이다.
+
+잠깐 살펴보자면,
+
+- **사전 설정**을 통해 고가용성을 선택하게 되면 새롭게 배포될 시점에 Auto-Scaling 을 수행한다.
+- **애플리케이션 코드** 는 무엇을 선택하더라도 상관이 없다. 다만 샘플 애플리케이션을 이용하면 AWS 에서 제공하는 코드가 초기에 돌아가므로 샘플 애플리케이션을 선택해주도록 한다.
+
+다음과 같이 구성해주고 생성을 하자.
+
+[##_Image|kage@baTQWu/btrrq0fPQvE/buYi5HJVyktRR7TwXp8Yqk/img.png|CDM|1.3|{"originWidth":960,"originHeight":288,"style":"alignCenter"}_##]
+
+초기 설정을 위해 기다리다 보면 다음과 같이 EB가 생성된다.
+
+[##_Image|kage@6h01y/btrrxYOPTAQ/8BaXfgeipGzmbsKPBFBIWK/img.png|CDM|1.3|{"originWidth":468,"originHeight":540,"style":"alignCenter"}_##]
+
+# EB Load Balancing 으로 Spring Boot 서버 포워딩 하기
+
+이제 EB의 Load Balancing 설정을 조금 수정할 것이다.
+
+이유는 우리가 만든 Application Server 는 기본적으로 8080 포트로 돌아가지만 **EB의 default 는 5000 port**로 돌아가기 때문에 80 포트와 8080 포트를 포트 포워딩 시켜줘야한다.
+
+그래서 EB의 **구성 탭에서 로드 밸런싱** 섹션을 들어가보자
+
+[##_Image|kage@dhHXrJ/btrrpTBz7dN/5kRJqE5BZznFM02wLklNUK/img.png|CDM|1.3|{"originWidth":1225,"originHeight":353,"style":"alignCenter"}_##]
+
+그런 뒤 다음과 같이 편집하고 저장한다
+
+[##_Image|kage@ui3QS/btrrpF359Tk/OwxDkyXkrjUwLrNQubsLSK/img.png|CDM|1.3|{"originWidth":750,"originHeight":540,"style":"alignCenter"}_##]
+
+그럼 이제 EB를 위한 설정은 모두 마쳤다.
+
+이제 Github Actions 가 접근할 수 있도록 **Programming Access 기반의 IAM 을 만들어보자**
+
+# Github Actions 를 위한 IAM 생성
+
+IAM 은 AWS 리소스에 대한 액세스를 안전하게 제어하는 서비스이다.
+
+자세한 사항은 [AWS에 로그인 하는 2가지 방식 (루트 사용자와 IAM 사용자)](https://wonit.tistory.com/348?category=912982) 에서 확인하도록 하고 계속 이어 진행해보려한다.
+
+[##_Image|kage@c9ZX0e/btrroYi35oK/Z2SYRRT7CYYC8gIKnUCJMk/img.png|CDM|1.3|{"originWidth":707,"originHeight":472,"style":"alignCenter"}_##]
+
+IAM 대시보드로 가서 **새로운 사용자를 추가**해주자.
+
+만약 기존의 사용자가 존재하고 ACCESS_KEY 와 SECRET_KEY 를 알고 있다면 해당 키를 이용해도 무방하다.
+
+[##_Image|kage@bgRhjU/btrrwfwyQA7/SHEhQv1PJXdIZKsEayHHrK/img.png|CDM|1.3|{"originWidth":907,"originHeight":186,"style":"alignCenter"}_##]
+
+그리고 사용자 유형에서 **Programming Access 방식**을 선택하고 **AdministratorAccess-AWSElasticBeanstalk** 권한을 부여한다.
+
+[##_Image|kage@bbCRw0/btrrpoBL4hq/DFwqZOZC2gozYoKW3XzbZ0/img.png|CDM|1.3|{"originWidth":973,"originHeight":799,"style":"alignCenter","width":781,"height":641}_##]
+
+잘 생성이 되었다면 .csv 파일을 다운로드 할 수 있는데, Github Actions 에서 인증을 위해 필요하니 꼭 가지고 있어야 한다.
+
+#### .csv 파일을 왠만하면 다운받고 안전한 곳에 보관하자!!
+
+이렇게 해서 EB의 생성을 모두 마치게 되었다.
+
+사실 위의 과정들에서 **아주 많은 AWS Resource** 들이 사용되었다.
+
+우리는 일일이 설정을 하지 않더라도 Elastic Beanstalk 를 이용하여 손쉽게 환경을 구성할 수 있다.
+
+다음 시간에는 방금 생성한 **EB를 Github Actions 과 연동**해보도록 하자

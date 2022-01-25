@@ -1,0 +1,213 @@
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - Spring Boot 서버 생성하기
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - EB 생성하기
+- Github Action 과 Elastic Beanstalk 로 서버 배포하기 - Github Actions 정의하기
+
+[##_Image|kage@cbQ4qs/btrrpouXTDY/idSxLIGCZi4kmiAL5pSOYK/img.png|CDM|1.3|{"originWidth":749,"originHeight":426,"style":"alignCenter","width":617,"height":351}_##]
+
+> 해당 시리즈는 3개의 글로 구성되어있습니다. 각 단계의 자세한 사항은 아래 링크를 참조해주세요
+
+- 1편 [Spring Boot 서버 생성하기](https://wonit.tistory.com/595)
+- 2편 [Elastic Beanstalk 생성하기](https://wonit.tistory.com/596)
+- 3편 [Github Actions 정의하기](https://wonit.tistory.com/597)
+- 해당 글의 [실습 코드 및 github repository](https://github.com/my-research/aws-eb-action-example)
+
+# 동기
+
+최근 사내에서 새롭게 개발하는 서버를 EB 와 Github Action 을 이용하여 배포 자동화 구성을 하는 기회가 생겼었다.
+
+지금까지 해봤던 CI/CD, 배포 자동화는 다음 2개이다.
+
+- Travis CI + CodeDeploy
+- EC2 + Jenkins
+
+처음 자동화에 대해서 학습할 때 Elastic Beanstalk 에 대한 후기는 거의 못보다 싶이 했지만 현재는 **EB** 와 **Github Action** 에 대한 성공 케이스가 많아지고 간단한 토이 프로젝트 및 스타트업에서는 이들을 많이 이용한다고 한다.
+
+이번 시리즈에서 나는 EB 와 Github Action 을 이용하여 Spring Boot Application Server 의 배포 자동화를 구성해보고 그 과정들을 공유해보려 한다.
+
+## 사전 지식 1. Elastic Beanstalk 란?
+
+- [Elastic Beanstalk Docs](https://docs.aws.amazon.com/ko_kr/elasticbeanstalk/latest/dg/Welcome.html)
+
+아마존에는 수백가지의 서비스가 존재하고 또 그 구조에 맞는 이해와 Trouble Shooting 이 필수적이다.
+단순히 우리가 개발한 Application Server 를 EC2 에 올리는 작업 마저도 알아야 할 기본적 지식들이 너무나도 많다.
+
+VPC부터 시작해서 Security Group, EBS 등등..
+
+만약 여기에 **배포 자동화**를 붙힌다면 IAM 권한 설정과 VPC 설정, Load Balancing 설정등 다양한 설정을 우리가 학습하고 사용해야 한다.
+
+이를 위해서 AWS 에서는 이런 **클라우드 리소스들을 더욱 쉽게 조작할 수 있도록** 하는 서비스가 바로 Elastic Beanstalk 이다.
+
+자세한 설명은 실제로 EB 를 사용하는 시점에 다시 이야기하도록 하겠다.
+
+## 사전 지식 2. Github Actions 란?
+
+- [Github Actions Docs](https://github.com/features/actions)
+
+Github Actions 는 Github 에서 운영하는 CD 도구로 많이 알려져 있다.
+
+[##_Image|kage@rnWTj/btrrqMn1ZEl/EkYbpcRkwndAYDZZkvt5m0/img.png|CDM|1.3|{"originWidth":1257,"originHeight":603,"style":"alignCenter","width":556,"height":267}_##]
+
+공식적으로는 Github Actions 는 Github 에서 제공하는 Workflow 자동화 도구이다.
+
+주로 테스트, 빌드, 배포 등의 다양한 작업을 수행할 수 있는데, Github 에서 CI/CD 파이프라인을 도입할 때 Travis CI 처럼 다른 솔루션으로 들어가서 설정하는게 아니라 직접적으로 바로 Github 과 연결이 되어있기 때문에 많은 회사들이 Github Actions 를 사용한다고 한다.
+
+역시 자세한 설명은 실제로 Github Actions 를 사용하는 시점에 다시 이야기하도록 하겠다.
+
+#### 이제 실습을 위해서 Github Repository 하나를 생성하고 Spring Boot 서버를 추가시켜보자.
+
+# 1. Github Repository 생성 및 서버 개발
+
+우선 실습을 위한 Github Repository 를 생성해주자.
+
+[##_Image|kage@cFPWk2/btrrqMn14D4/I8A6KSxUbX49Y1fkZj23f1/img.png|CDM|1.3|{"originWidth":1392,"originHeight":1025,"style":"alignCenter","width":706,"height":520}_##]
+
+그리고 Spring Boot Application Server 를 만들어 해당 Repository 로 push 해주도록 하자.
+
+[##_Image|kage@o4H96/btrrqMuP0Vt/c4iKXiPDnIkqmcPO3M1noK/img.png|CDM|1.3|{"originWidth":666,"originHeight":540,"style":"alignCenter"}_##]
+
+아주 간단한 Application Server 를 개발하려 하니 Lombok 과 Spring Boot Web 만 의존성으로 추가시켜주자.
+
+> Github Actions 와 Elastic Beanstalk 에 대한 사용 만을 목표로 하신다면 [실습 코드 및 github repository](https://github.com/my-research/aws-eb-action-example) 에서 소스코드를 다운받고 새롭게 생성된 본인의 Repository 에 위치시켜주세요.
+
+## 프로젝트 디렉토리 구조
+
+[##_Image|kage@lgEa7/btrroMJk0uT/7BuS6kBE7p8FsN6ox7zT70/img.png|CDM|1.3|{"originWidth":298,"originHeight":228,"style":"alignCenter"}_##]
+
+아주 기본적인 Spring Boot 의 Layered Architecture 만 가져가도록 하고 위의 디렉토리 구조에 맞게 소스코드를 추가해주자.
+
+## Application server 의 코드
+
+### ServerAppApplication.java
+
+```java
+@SpringBootApplication
+public class ServerAppApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ServerAppApplication.class, args);
+    }
+
+}
+```
+
+### Todo.java
+
+```java
+@Getter @Setter @Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Todo {
+    private String todoId;
+    private String todoName;
+    private LocalDateTime createdAt;
+}
+```
+
+`Todo` 는 Persist 할 Entity 대상 객체이다.
+
+단순하게 식별자와 todo 이름 그리고 생성일만 갖는다.
+
+### TodoRepository.java
+
+```java
+@Repository
+public class TodoRepository {
+
+    private List<Todo> dataStorage = new ArrayList<>();
+
+    public void save(Todo todo) {
+        dataStorage.add(todo);
+    }
+
+    public List<Todo> findAll() {
+        return dataStorage;
+    }
+}
+
+```
+
+DB를 사용하지 않을 것이기 때문에 `dataStorage` 가 Persist 할 저장소라 생각하면 된다.
+
+`save()` 메서드가 호출되면 `dataStorage` 에 Todo 를 추가하고 `findAll()` 메서드가 호출되면 dataStorage 에 저장된 모든 todo 를 반환한다.
+
+### TodoService.java
+
+```java
+@RequiredArgsConstructor
+@Service
+public class TodoService {
+    private final TodoRepository todoRepository;
+
+    public void createTodo(String todoName) {
+        String todoId = UUID.randomUUID().toString();
+
+        Todo todo = Todo.builder()
+                .todoId(todoId)
+                .todoName(todoName)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        todoRepository.save(todo);
+    }
+
+    public List<Todo> getAllTodo() {
+        return todoRepository.findAll();
+    }
+}
+```
+
+비즈니스 로직이 존재하는 Service 코드이다.
+
+예상하는 바와 같이 **Todo 생성과 조회**의 역할을 수행한다.
+
+### CreateTodoRequest.java
+
+```java
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreateTodoRequest {
+    private String todoName;
+}
+```
+
+Todo 를 생성할 때 사용되는 DTO 객체이다.
+
+### TodoController.java
+
+```java
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(value = "/api/todos", produces = "application/json")
+public class TodoController {
+    private final TodoService todoService;
+
+    @PostMapping
+    public ResponseEntity<Todo> createTodo(@RequestBody CreateTodoRequest requestData) {
+        String todoName = requestData.getTodoName();
+        todoService.createTodo(todoName);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Todo>> getAllTodo() {
+        return ResponseEntity.ok(todoService.getAllTodo());
+    }
+}
+```
+
+위의 코드는 API Endpoints이다.
+
+위 디렉토리 구조에 보이는 `DefaultController` 는 현재 단계에서 생략해도 좋다.
+
+우리는 `DefaultController` 의 API Endpoint 하나를 추가하고 실제 EB와 Github Actions 가 잘 동작하는지를 알아볼 것이다.
+
+## Code Push
+
+작성한 코드들을 적절한 Commit Message 로 묶어서 github 에 올려두자.
+
+[##_Image|kage@bd9Jog/btrroWrZWEc/Kxr9gZMqTw3dm4YjKqKTq1/img.png|CDM|1.3|{"originWidth":697,"originHeight":483,"style":"alignCenter"}_##]
+
+이제 우리는 **Elastic Beanstalk 와 Github Actions 를 사용할 준비**가 된 것이다.
+
+이제 바로 다음시간 부터 Github Actions 를 이용해서 배포 자동화를 구성해보자!

@@ -30,3 +30,18 @@
   - 고유한 환경 구성을 생성하기 위한 시작점
 - **플랫폼, Platform**
   - OS, Runtime, Web Server, WAS 등 Beanstalk 구성 요소의 조합
+
+# 배포 순서
+
+- Server 생성
+- EB 생성
+  - 새 환경 생성으로 환경 설정
+  - 플랫폼 선택
+  - 사전 설정 (고가용성)
+  - 업데이트 및 배포 설정
+- AWS IAM 설정
+  - 프로그래밍 엑세스 계정 생성
+    - AdministratorAccess-AWSElasticBeanstalk
+- Github Action 설정
+  - `.github/workflows` 디렉토리 생성
+  - `deploy.yml` 생성
