@@ -1,13 +1,5 @@
-import Navbar from "./components/Navbar";
-import HeroSection from "./components/Hero";
-
-function App() {
-  return (
-    <div>
-      <Navbar />
-      <HeroSection />
-    </div>
-  );
-}
+const App = () => {
+  return <div>asdf</div>;
+};
 
 export default App;
