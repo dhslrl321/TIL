@@ -42,5 +42,6 @@ class User {
     this.email = email;
     return new User(username, email);
   }
+
   
 }
