@@ -23,7 +23,9 @@ const App = () => {
     user: new User("", "")
   })
 
-  user.printInfo();
+  const handleXXX = () => {
+
+  }
 }
 
 class User {
@@ -35,7 +37,9 @@ class User {
     this.email = email;
   }
 
-  printInfo() {
-    console.log(username, email);
+  change(username, email) {
+    this.username = username;
+    this.email = email;
+    return new User(username, email);
   }
 }
