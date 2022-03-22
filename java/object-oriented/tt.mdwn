@@ -1,0 +1,13 @@
+# asdf
+
+- CA Migration
+  - 필요한 데이터만 가져와서 Migration
+    - 결제 완료 & club membership endDate
+    - 를 확인해
+
+# 순서
+
+- AdditionalPaymentInfo 를 PaymentItem 으로 옮기기
+- DB Migration
+- SNS 연동하기
+-
