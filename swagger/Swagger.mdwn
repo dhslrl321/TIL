@@ -2,3 +2,65 @@
 
 - [Swagger Specification](https://swagger.io/specification/)
 - [Swagger Docs](https://swagger.io/docs/specification/about/)
+
+```js
+const userId = 2d7df965-a5a2-4cb8-9c42-4d9c590a4e1c;
+const orderId = 1004
+
+```
+
+```json
+{
+  "id": {
+    "value": "6681782141017269"
+  },
+  "payload": "{
+    \"userId\":null,
+    \"productOptionId\":null,
+    \"orderId\":\"23482394\",
+    \"orderItems\":[
+      {\"amount\":160000,\"type\":\"CARD\"},
+      {\"amount\":10000,\"type\":\"POINT\"},
+      {\"amount\":10000,\"type\":\"NO_EXCHANGE_POINT\"}
+    ],
+    \"additionalPaymentInfo\":{
+      \"method\":\"TOSS\",
+      \"paymentProps\":{
+        \"value\":{
+          \"tossPayToken\":\"tossPayToken\",
+          \"cardToken\":\"cardToken\"
+        }
+      }
+    },
+      \"occurredAt\":\"2022-03-24T15:49:29.734\"}",
+  "type": "com.trevari.order.events.RefundedEvent",
+  "occurredAt": "2022-03-24T15:49:29.735"
+}
+```
+
+```js
+const arr = {
+  id: {
+    value: "5123",
+  },
+  payload: {
+    userId: 1234,
+    productOptionId: null,
+    orderId: 1004,
+    orderItems: [
+      { amount: 25000, type: CARD },
+      { amount: 35000, type: POINT },
+      { amount: 45000, type: NO_EXCHANGEABLE_POINT },
+    ],
+    additionalPaymentInfo: {
+      method: "TOSS",
+      paymentProps: {
+        value: { tossPayToken: "", cardToken: "" },
+      },
+    },
+    occuredAt: "2022-03-24T15:49:29.734",
+  },
+  type: "com.trevari.order.events.RefundedEvent",
+  occurredAt: "2022-03-24T15:49:29.735",
+};
+```
