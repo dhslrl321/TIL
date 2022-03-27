@@ -38,29 +38,3 @@ const orderId = 1004
 }
 ```
 
-```js
-const arr = {
-  id: {
-    value: "5123",
-  },
-  payload: {
-    userId: 1234,
-    productOptionId: null,
-    orderId: 1004,
-    orderItems: [
-      { amount: 25000, type: CARD },
-      { amount: 35000, type: POINT },
-      { amount: 45000, type: NO_EXCHANGEABLE_POINT },
-    ],
-    additionalPaymentInfo: {
-      method: "TOSS",
-      paymentProps: {
-        value: { tossPayToken: "", cardToken: "" },
-      },
-    },
-    occuredAt: "2022-03-24T15:49:29.734",
-  },
-  type: "com.trevari.order.events.RefundedEvent",
-  occurredAt: "2022-03-24T15:49:29.735",
-};
-```
