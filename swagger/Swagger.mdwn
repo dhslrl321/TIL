@@ -4,43 +4,153 @@
 - [Swagger Docs](https://swagger.io/docs/specification/about/)
 
 ```js
-const userId = 2d7df965-a5a2-4cb8-9c42-4d9c590a4e1c;
-const orderId = 1004
+import fetch from "common/fetch";
 
-```
-
-```json
-{
-  "id": {
-    "value": "6681782141017269"
-  },
-  "payload": "{
-    \"userId\":null,
-    \"productOptionId\":null,
-    \"orderId\":\"23482394\",
-    \"orderItems\":[
-      {\"amount\":160000,\"type\":\"CARD\"},
-      {\"amount\":10000,\"type\":\"POINT\"},
-      {\"amount\":10000,\"type\":\"NO_EXCHANGE_POINT\"}
-    ],
-    \"additionalPaymentInfo\":{
-      \"method\":\"TOSS\",
-      \"paymentProps\":{
-        \"value\":{
-          \"tossPayToken\":\"tossPayToken\",
-          \"cardToken\":\"cardToken\"
-        }
-      }
-    },
-      \"occurredAt\":\"2022-03-24T15:49:29.734\"}",
-  "type": "com.trevari.order.events.RefundedEvent",
-  "occurredAt": "2022-03-24T15:49:29.735"
+interface ISendMessage {
+  attachments: Array<{
+    author_name: string,
+    color: string,
+    text: string,
+  }>;
+  icon_emoji: string;
+  username: string;
 }
+
+interface IPayload {
+  Records: Array<{
+    Sns: {
+      Message: string,
+    },
+  }>;
+  isTest?: boolean;
+}
+
+export const handler: AWSLambda.Handler = async (
+  payload: IPayload,
+  _,
+  cb
+): Promise<any> => {
+  const iconEmoji = process.env.ICON_EMOJI || ":robot_face:";
+  const userName = process.env.USERNAME || "AWS";
+
+  try {
+    const sendMessage: ISendMessage = {
+      attachments: buildAttachments(payload),
+      icon_emoji: iconEmoji,
+      username: userName,
+    };
+
+    switch (sendMessage.attachments[0].color) {
+      case "danger": {
+        const webhookUrl = !payload.isTest
+          ? process.env.SLACK_URL_DANGER
+          : process.env.SLACK_URL_TEST;
+        sendSlack(sendMessage, webhookUrl);
+        break;
+      }
+      case "good": {
+        // const webhookUrl = !payload.isTest ? process.env.SLACK_URL_GOOD || process.env.SLACK_URL_TEST;
+        // sendSlack(sendMessage, webhookUrl);
+        break;
+      }
+    }
+
+    return cb();
+  } catch (error) {
+    console.error(error);
+    return cb(error);
+  }
+};
+
+const sendSlack = async (
+  message: ISendMessage,
+  webhookUrl: string | undefined
+) => {
+  console.log("message:", message);
+  if (webhookUrl) {
+    await fetch({
+      query: `
+      query sendBackendHealthyToSlack($message: sendBackendHealthyToSlackInput!, $webhookUrl: String!){
+        sendBackendHealthyToSlack(message: $message, webhookUrl: $webhookUrl)
+      }
+      `,
+      variables: {
+        message,
+        webhookUrl,
+      },
+    });
+  } else {
+    console.log("webhook url is undefined");
+  }
+};
+const buildAttachments = (payload: IPayload) => {
+  const msgMap = parseSnsMsg(payload.Records[0].Sns.Message);
+
+  if (msgMap && msgMap.Environment) {
+    const { Message, Environment } = msgMap;
+    return [
+      {
+        author_name: Environment,
+        color: isErrorMessage(Message) ? "danger" : "good",
+        text: highlightMessage(Message),
+      },
+    ];
+  }
+  return [
+    {
+      author_name: "author-error",
+      color: "danger",
+      text: "BuildAttachments Parsing Error",
+    },
+  ];
+};
+
+// sns에서 보낸 메시지 파싱하는 부분
+const parseSnsMsg = (message: string) => {
+  try {
+    const parts = message.split("\n");
+    const data = {
+      Environment: "",
+      Message: "",
+    };
+    parts.forEach((part: string) => {
+      part = part.trim();
+      if (!part) {
+        return data;
+      }
+      if (!part.includes(":")) {
+        return data;
+      }
+      let [key, value] = part.split(":");
+      key = key.trim();
+      value = value.trim();
+      if (!key || !value) {
+        return;
+      }
+      Object.assign(data, { [key]: value });
+    });
+    return data;
+  } catch (error) {
+    console.log("parseSnsMsg error: " + error);
+    return null;
+  }
+};
+
+// 상태 메시지에 부정적인 메시지가 들어가 있는지 확인
+const isErrorMessage = (message: string) => {
+  const errorKeywords =
+    process.env.ERROR_KEYWORDS || "Unsuccessful command, to Degraded, Failed";
+  const arrErrorKeywords = errorKeywords.split(", ");
+  for (const errorKeyword of arrErrorKeywords) {
+    if (message.includes(errorKeyword)) {
+      return true;
+    }
+  }
+};
+
+const highlightMessage = (msg: string) => {
+  const sentences = msg.split(".");
+  sentences[0] = `*${sentences[0]}*`;
+  return sentences.join(".");
+};
 ```
-
-# dd
-
-- backend prod 2 를 만들어서 올리기
-  - 배포가 되는지 확인
-- 읽기 : 09:44, 11:49
-- 쓰기 : 12:01, 12:06
