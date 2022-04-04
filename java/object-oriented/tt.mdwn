@@ -22,3 +22,13 @@
 - 이들을 통일 시킬 필요가 있다.
   - api 면 api 라고 표현되어야 하고
   - 의미가 가까운 것들은 가까운 것들끼리 모아야 한다.
+
+# backend-prod-3
+
+- user-backend-api-prod 라고 바꾸기
+- backend 와 동일하게 그대로 복사하기
+- 목적
+  - user 에서는 backend-prod-3 를 더이상 호출하지 않는다.
+  - url 하나 만들기
+  - user-backend-api.trevari.co.kr
+  - cloud flare 로 추가하기
