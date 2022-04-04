@@ -10,4 +10,15 @@
 - AdditionalPaymentInfo 를 PaymentItem 으로 옮기기
 - DB Migration
 - SNS 연동하기
--
+
+# Health check
+
+- annyeng
+- 지금부터 마무리 짓기
+
+# 통일
+
+- eb, github 이름이 통일되어있지 않다
+- 이들을 통일 시킬 필요가 있다.
+  - api 면 api 라고 표현되어야 하고
+  - 의미가 가까운 것들은 가까운 것들끼리 모아야 한다.
