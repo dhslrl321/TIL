@@ -1,0 +1,37 @@
+# 순서
+
+1. EC2 생성 및 CodeDeploy Agent 설정
+2. IAM 설정
+3. CodeDeploy 생성 및 설정
+4. Github Action workflow 설정
+
+## 1. EC2 생성 및 CodeDeploy Agent 설정
+
+- CodeDeploy agent 를 설치해야 함
+  - agent 가 ruby 로 작성되어서 ruby 가 필요함
+- codedeploy-agent 시작
+
+## 2. IAM 설정
+
+- CodeDeployFullAccess, S3FullAccess 를 갖는 IAM 추가
+
+## 3. CodeDeploy 생성 및 설정
+
+- AWS Home 에서 CodeDeploy 생성
+
+## 4. Github Action Workflow 설정
+
+- CI 설정과 CD 설정을 나눠서 진행
+  - CI 설정
+    - gradle build
+  - CD 설정
+    - S3 업로드
+
+# VPC Endpoint 생성
+
+- CodeDeploy 를 위한 VPC Endpoint
+
+# ARN
+
+- Role
+  - EC2-CodeDeploy-Role
