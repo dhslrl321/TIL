@@ -1,0 +1,30 @@
+# 사설망 구축
+
+- public 2 (서로 다른 az 각각 1개)
+- private 2 (서로 다른 az 각각 1개)
+
+# 클라우드 아키텍처
+
+- 인스턴스 접근 관리용으로 하나의 Bastion 을 둔다
+
+# 순서
+
+1. VPC 생성
+2. Subnet 생성
+3. 라우팅 테이블 생성
+4. 인터넷 게이트웨이 생성
+5. NAT 게이트웨이 생성
+6. 보안 그룹 생성 (인스턴스 별로)
+
+## VPC 생성
+
+- Public 2, Private 2
+  - 서로 다른 AZ 로 각각 한개씩 생성한다
+    ㅣ
+
+# Security
+
+- React Bolier plate 적용시키기
+- thymleaf to -> react
+  - handlebars
+- Tech Support 에 올리기
