@@ -1,0 +1,15 @@
+# Zipkin
+
+- 분산 환경의 추적 시스템
+- 마이크로서비스의 컴포넌트는 Reporter 를 통해 최소한의 정보 (ID 정보, 시간 정보, 이름과 같은 메타데이터) 를 비동기적으로 Zipkin 서버에 요청을 날려서 기록함
+  - 요청은 HTTP 통신이 될 수 있고 Messaging 을 이용해서 Report 할 수 있다
+
+# Zipkin Component
+
+- Collector
+  - 마이크로서비스 컴포넌트는 zipkin daemon 으로 데이터를 전송하는데 이를 컬렉터라고 부른다.
+- Storage
+  - 카산드라가 default 로 사용된다.
+  - 플러그 앤 플레이 방식이기 때문에 Elastic Search & MySQL 을 지원한다.
+- Web UI
+  - collector 에 의해 storage 에 저장된 trace 데이터를 웹 대시보드 형태의 GUI 로 보여준다.

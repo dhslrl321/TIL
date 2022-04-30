@@ -1,0 +1,40 @@
+# Sleuth 기본
+
+- Sleuth 는 Google 의 Dapper 의 용어를 따라서 쓰고있다.
+- Sleuth 의 기본 용어들
+  - **Span** : 작업의 단위, 태그나 기타 부가 정보들을 포함할 수 있다. HTTP Call 하는 것과 response 하는것 각각이 새로운 span 이 될 수 있음. Span 을 생성했으면 어딘가에서는 Span 을 닫아줘야 함
+  - **Trace** : 트리와 같은 자료구조로 Span 들을 묶어놓은 것, 즉 하나의 트랜잭션
+    - CS, Client-Sent : 시작
+    - SR, Server-Received : 서버 요청
+    - SS, Server-Sent : 서버 응답
+    - CR, Client-Received : 클라이언트 끝
+- Tracer 의 구현체로 Brave 를 사용함
+  - Brave 는 요청들을 인터셉트해서 시간 정보들을 얻어옴
+    > Brave typically intercepts production request to gather timing data
+  - 얻은 정보를 토대로 Zipkin 서버로 전송함
+
+# Dapper
+
+- 구글이 개발한 분산 트랜잭션 추적 방식
+- Node1 이 보낸 메시지와 Node2 가 보낸 메시지의 상관관계를 찾기 위해서 HTTP Header 에 태그 정보를 추가하는 방법을 활용하여 메시지 추적
+- 이렇게 함으로써 헤더에 정보를 가지고 분산된 요청들을 하나의 트랜잭션으로 추적
+
+# SpanId 는 어떻게 발급되는가?
+
+- TraceValve 에서 CurrentTraceContext 호출
+- CurrentTraceContext 에서 주어진 Span 을 토대로 새로운 Span 을 생성
+
+# Report 하는 시점?
+
+- Span 이 Closed 될 때 Reporter 가 동작해서 Reporting
+  - Http, Messaging 방식을 제공
+  - sender.type 수정으로
+- ZipkinRestTemplateWrapper 가 동작함
+  - RestTemplateSender 에 의해서 실제 Zipkin 으로 보내짐
+  - 때는 Span 이 Close 될 때
+
+# 궁금한 것
+
+- TraceId, SpanId 는 어떻게 발급되는가?
+  - 어떻게 TraceId 를 가져오는가?
+  - 어떻게 TraceId 가 있다고 판단하는가?
