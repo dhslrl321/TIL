@@ -6,10 +6,13 @@
 
 ### 목차
 
-- [분산 추적이란?](#)
-- [Spring Cloud Sleuth 와 Zipkin](#)
+- [Distributed Tracing, 분산 추적이란?](#)
+- [Zipkin](#)
+- [Spring Cloud Sleuth 에 대한](#)
 - [Sleuth 로 Http 환경의 분산 추적 실습](#)
 - [Sleuth 로 Messaging 환경의 분산 추적 실습](#)
+
+##### 실습에 대한 소스코드를 확인하시고 싶다면 [실습 github](https://github.com/my-research/open-tracing-for-msa)에서 확인하실 수 있습니다.
 
 ---
 
@@ -106,6 +109,18 @@ Zipkin 은 크게 3가지의 파트로 나뉜다.
 - 카산드라가 기본적인 Storage Infrastructure 로 사용된다.
 - Plug & Play 방식이기 때문에 Cassandra 이외에도 Elastic Search & MySQL 을 연동할 수 있다
 
+# Zipkin 실행하기
+
+zipkin 을 시작하는 방법은 여러가지 방법이 있겠지만 나는 docker 를 이용해보려 한다.
+
+```java
+docker run --rm -d -p 9411:9411 openzipkin/zipkin
+```
+
+을 통해서 zipkin 을 실행하고 9411 포트로 접근하면 다음과 같은 웹 대시보드가 나타나게 된다
+
+[##_Image|kage@bwWw2H/btrARh7lXT4/T8vprgvZtsmj4Ily2OnZvk/img.png|CDM|1.3|{"originWidth":3680,"originHeight":2382,"style":"alignCenter","width":635,"height":411}_##]
+
 # Spring Cloud Sleuth
 
 Zipkin 과 함께 사용되는 Tracer 는 많은 것들이 존재한다.
@@ -122,7 +137,7 @@ Zipkin 과 함께 사용되는 Tracer 는 많은 것들이 존재한다.
   - appmetrics-zipkin
   - htrace
 
-이 중에서도 우리는 Spring Cloud 프로젝트에서 공식적으로 지원하는 **Spring Cloud Sleuth** 에 대해서 알아볼 것이다.
+이 중에서도 우리는 Zipkin 의 Brave B3-Propagation 의 Java 구현체인 **Spring Cloud Sleuth** 에 대해서 알아볼 것이다.
 
 Spring Cloud Sleuth 는 분산 추적을 위한 Spring Boot 기반의 auth-configuration 을 제공한다.
 
@@ -132,3 +147,72 @@ Spring Cloud Sleuth 는 분산 추적을 위한 Spring Boot 기반의 auth-confi
 - TraceId, SpanId 를 자동으로 생성해준다.
 - Http 을 통해서 Tracing 정보를 Zipkin 으로 전송한다
 - Trace 에 대한 정보들을 토대로 Log Integration 을 제공한다
+
+# Spring Cloud Sleuth 에서 Tracer 와 Span
+
+Sleuth 에는 2가지의 핵심 인터페이스가 존재한다.
+
+1. Tracer
+2. Span
+
+Tracer 는 Root Span 을 생성할 수 있도록 도와준다.
+
+Span 은 **하나의 작업 단위**로 특정 노드에서 발생하는 일련의 과정 (`start & end`) 가 Span 이 된다.
+
+# Span 의 Lifecycle
+
+- start
+  - Span 이 생성, 시작되었음을 의미하고 start timestamp 가 기록된다.
+- end
+  - span 이 종료되었음을 의미하고, Span 의 Life state 가 end 상태여야만 Zipkin Collector 로 전송이 된다.
+
+보통 Span 을 사용하기 위해서는 `Tracer` 를 autowired 하여 사용할 수 있다.
+
+```java
+public class A {
+
+  @Autowired
+  private Tracing tracing;
+
+  public void doSomething() {
+    Tracing current = tracing.current():
+    // ...
+  }
+}
+```
+
+위의 내용들은 이후에 있을 실습에서 조금 더 자세히 알아보는 것으로 하자
+
+# Zipkin 으로 Reporting 하기
+
+Spring Cloud Sleuth 에서 Span 이 닫히게 되면 Zipkin 서버로 Reporting 을 한다.
+
+이떄, Sleuth 를 사용한다면 Reporting 하는 로직을 우리가 구성하지 않아도 된다.
+
+RestTemplate, KafkaTemplate, KafkaListener, RedisTemplate 를 Bean 으로 등록한다면 BeanPostProcessor 를 통해서 Sleuth 가 Reporting 을 수행하기 때문이다.
+
+**이 다음 시간에 있을 Sleuth 실습에서 볼 수 있지만 Sleuth 를 사용하지 않는 node-express 환경에서는 이를 직접 구현해서 Reporting 한다**
+
+[##_Image|kage@lKd5k/btrARhGxcok/33hCij3couZEfqFw9ciZ20/img.png|CDM|1.3|{"originWidth":2268,"originHeight":516,"style":"alignCenter"}_##]
+
+Sleuth 를 사용할 경우 Zipkin 으로 Report 하는 과정은 AsyncRepoter 에 의해 Asynchronous 하게 동작하기 때문에 본 Transaction 과는 무관하게 동작한다.
+
+**이 말은 Reporting Span 정보가 유실될 수 있다는 말이므로 유실에 대한 대비도 필요하다**
+
+# Log Integration
+
+Sleuth 를 사용한다면 쉽게 Log Integration 이 가능하다
+
+Sleuth 를 추가하게 된다면 다음과 같은 형식으로 로그가 찍히게 된다.
+
+[##_Image|kage@1wA25/btrABLuMlsq/QNSwh639ObwraivOkitYRK/img.png|CDM|1.3|{"originWidth":0,"originHeight":0,"style":"alignCenter"}_##]
+
+즉,
+
+```java
+[service-name], [trace-id], [span-id]
+```
+
+형태로 찍히게 되는데, 이 말은 **TraceId** 로 로그를 구분할 수 있게 된다는 것이다.
+
+이 특성을 이용해서 추후 **Kibana** 와 같은 곳에서도 로그를 쉽게 관리할 수 있게 된다.

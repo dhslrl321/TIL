@@ -1,4 +1,4 @@
-[Distributed Tracing] 마이크로서비스 분산 추적이란 무엇인가
+[Distributed Tracing] 마이크로서비스의 분산 추적이란 무엇인가
 
 [##_Image|kage@r4JA9/btrAR736lDt/jzAcvz59orEByhKDlwn810/img.png|CDM|1.3|{"originWidth":1494,"originHeight":836,"style":"alignCenter","width":592,"height":331}_##]
 
@@ -6,10 +6,12 @@
 
 ### 목차
 
-- [분산 추적이란?](#)
+- [Distributed Tracing, 분산 추적이란?](#)
 - [Spring Cloud Sleuth 와 Zipkin](#)
 - [Sleuth 로 Http 환경의 분산 추적 실습](#)
 - [Sleuth 로 Messaging 환경의 분산 추적 실습](#)
+
+##### 실습에 대한 소스코드를 확인하시고 싶다면 [실습 github](https://github.com/my-research/open-tracing-for-msa)에서 확인하실 수 있습니다.
 
 ---
 
@@ -17,7 +19,9 @@
 
 이전의 웹 서비스는 3-tier 아키텍처와 2-tier 아키텍처가 주를 이루었었다.
 
-하지만 마이크로서비스 아키텍처가 세상에 나오고 이를 시도하고 성공하는 기업의 사례가 늘어남에 따라서 마이크로서비스 환경에 대한 관심도도 그에 걸맞게 증가하고 있다.
+[##_Image|kage@qLDCQ/btrATTMGbAT/PQMxfVxr3zgKdjaIo86Dt0/img.png|CDM|1.3|{"originWidth":1040,"originHeight":436,"style":"alignCenter","width":534,"height":224}_##]
+
+하지만 마이크로서비스 아키텍처가 세상에 나오고 이를 시도하고 성공하는 기업의 사례가 늘어남에 따라서 **마이크로서비스 환경**에 대한 관심도도 그에 걸맞게 증가하고 있다.
 
 마이크로서비스 아키텍처와 별개로 시스템 아키텍처 내에서 발생하는 issue 들을 **탐지하는 것**은 꽤나 중요한 일이었다.
 
@@ -35,18 +39,21 @@
 
 Distributed Tracing, 분산 추적은 어떻게 할까?
 
-node 1과 node 2 에서 서로 통신을 한다고 가정해보자.
+마이크로서비스를 node 로 구분하고 각각의 node 1과 node 2 에서 서로 통신을 한다고 가정해보자.
 
-그럼 node 1 에서부터 추적이 시작되고 **추적 트리**가 생겨난다.
+그럼 node 1 에서부터 추적이 시작되고 **추적 트리, distributed tracing tree**가 생겨난다.
 
-그리고 node 1 에서 다른 node 로 요청을 보낼 경우 해당 추적 트리에 데이터가 추가되는 형태로 점점 tracing data 를 추가한다.
+[##_Image|kage@JP0sh/btrAUyVNcL9/gDQq8l0mt2Sa1KKfkHjblK/img.png|CDM|1.3|{"originWidth":1476,"originHeight":542,"style":"alignCenter"}_##]
 
-이러한 Tracing Data 는 **Timing Data 가 일반적으로 함께 포함**되는데, Timing 데이터를 통해서 토폴로지간의 Latency 를 탐지할 수 있게 되는 것이다.
+그리고 node 1 에서 다른 node 로 요청을 보낼 경우 해당 추적 트리에 자식 node 가 append 되는 형태로 tracing tree 를 완성시키는 방법이다.
+
+이러한 Tracing Data 는 일반적으로 **Timing Data 가 함께 포함**되는데, Timing 데이터를 통해서 토폴로지간의 Latency 를 탐지할 수 있게 되는 것이다.
+
 즉, 개발자는 각각의 요청들에 대해서 얼마나 시간이 걸렸고, 어떤 문제가 발생했는지 더욱 빠르고 효과적으로 파악할 수 있게 된다.
 
-이 때, 이를 실현할 수 있는 방법은 여러가지가 있지만 가장 유명한 Dapper 에 대해서 알아보자
+이 때, 이를 실현할 수 있는 방법은 여러가지가 있지만 가장 유명한 **Dapper** 에 대해서 알아보자
 
-# Dapper
+# Google's Dapper
 
 [##_Image|kage@tP7Fw/btrATdi4X2G/wP6rbqJtuiSxjAdAklBKck/img.png|CDM|1.3|{"originWidth":1320,"originHeight":958,"style":"alignCenter","width":442,"height":321}_##]
 

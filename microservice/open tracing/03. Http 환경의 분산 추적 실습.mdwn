@@ -1,4 +1,4 @@
-[Distributed Tracing] 마이크로서비스 분산 추적이란 무엇인가
+[Distributed Tracing] HTTP 환경에서의 분산 추적 실습
 
 [##_Image|kage@r4JA9/btrAR736lDt/jzAcvz59orEByhKDlwn810/img.png|CDM|1.3|{"originWidth":1494,"originHeight":836,"style":"alignCenter","width":592,"height":331}_##]
 
@@ -6,19 +6,339 @@
 
 ### 목차
 
-- [분산 추적이란?](#)
+- [Distributed Tracing, 분산 추적이란?](#)
 - [Spring Cloud Sleuth 와 Zipkin](#)
-- [Sleuth 로 Http 환경의 분산 추적 실습](#)
-- [Sleuth 로 Messaging 환경의 분산 추적 실습](#)
+- [HTTP 환경의 분산 추적 실습](#)
+- [Messaging 환경의 분산 추적 실습](#)
+
+##### 실습에 대한 소스코드를 확인하시고 싶다면 [실습 github](https://github.com/my-research/open-tracing-for-msa)에서 확인하실 수 있습니다.
 
 ---
 
 # Spring Cloud Sleuth 를 이용한 HTTP 환경의 분산 추적
 
-이번은 지난 시간에 거쳐서 알아보았던 분산 추적에 대한 실습을 진행해보려 한다.
+이번은 지난 시간에 알아보았던 분산 추적에 대한 실습을 진행해보려 한다.
 
 우선 개략적인 아키텍처는 다음과 같다
 
 [##_Image|kage@exRtZf/btrAVsUgA5E/zpaJmniYpuUrHcoGUSbP21/img.png|CDM|1.3|{"originWidth":1833,"originHeight":536,"style":"alignCenter","width":1375,"height":402}_##]
 
-위의 아키텍처는 **다음 시간에 이어질 Messaging 환경의 분산 추적**을 포함한 아키텍쳐이다.
+위 아키텍처를 구분하자면 2개의 부분으로 나눌 수 있다.
+
+1. HTTP API
+2. Messaging
+
+#### HTTP 환경에서는 Polygrat 한 현실 세계의 아키텍처를 반영하기 위해서 다음과 같은 형태로 구성을 하였다.
+
+- **user-service** : express, node.js
+- **order-service** : spring boot, java
+- **delivery-service** : spring boot, java & aws sqs
+- **notification-service** : spring boot, java & aws sqs
+
+# 마이크로서비스 호출 Flow
+
+실습에 대한 호출의 flow 를 **비즈니스적인 한 문장**으로 표현하자면 다음과 같다
+
+#### **사용자 (User)** 가 **주문 (Order)** 을 한다면 사용자의 정보와 주문 상품의 정보를 토대로 **배송 (Delivery)** 하고, 배송이 시작되었다는 **알림 (Notification)** 을 전송한다.
+
+위 과정은 다음과 같은 호출이 하나의 트랜잭션으로 이루어진다
+
+- **user-service** 는 **order-service** 로 HTTP GET 요청을 보낸다
+- **order-service** 는 **delivery-service** 로 HTTP POST 요청을 보낸다
+- 다음 Messaging 방식에서 계속..
+
+# User-Service 개발하기
+
+우선 node 환경의 express 에서 zipkin 에 report 하기 위한 모듈을 손쉽게 구성할 수 있다.
+
+아래에서 나오겠지만 Spring Cloud Sleuth 에서는 이 과정 조차도 auto-configuration 이 적용되어 하지 않아도 된다.
+
+## express 서버 뼈대 구성하기
+
+package.json 의존성에는 기본적인 express server 를 만들기 위해서 필요한 것들을 추가해야 한다
+
+```bash
+$ npm install express
+$ npm install axios
+```
+
+그리고 다음과 같이 index.js 를 구성해보자
+
+### index.js
+
+```js
+const express = require("express");
+const axios = require("axios");
+
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("hello world");
+});
+```
+
+그런 다음 Order-Service 로 호출하기 위해서 axios 를 이용하여 Server Request 를 추가한다.
+
+```js
+const express = require("express");
+const axios = require("axios");
+
+const ORDER_SERVICE_ENDPOINT = "http://localhost:8080/";
+
+const app = express();
+
+app.get("/", async (req, res) => {
+  const result = axios.get(`${ORDER_SERVICE_ENDPOINT}`);
+  res.send("[user-service] :: " + result.data);
+});
+```
+
+order-service 의 endpoint 는 8080 번의 포트로 열려있다고 가정하겠다.
+
+만약 통신에 성공하면 **String 문자열을 반환하고 얻을 수 있따.**
+
+이제 zipkin 을 추가해보자
+
+```bash
+$ npm install zipkin
+$ npm install zipkin-instrumentation-axios
+$ npm install zipkin-transport-http
+$ npm install zipkin-instrumentation-express
+```
+
+위의 의존성들은 zipkin 과 연동할 수 있는 **Reporter** 를 만들 때 필요한 의존성들이다.
+
+그리고 index.js 를 다음과 같이 구성해보자.
+
+### index.js
+
+```js
+const express = require("express");
+
+const axios = require("axios");
+const zipkinInstrumentationAxios = require("zipkin-instrumentation-axios");
+
+const {
+  Tracer,
+  ExplicitContext,
+  BatchRecorder,
+  jsonEncoder,
+} = require("zipkin");
+const { HttpLogger } = require("zipkin-transport-http");
+const zipkinMiddleware =
+  require("zipkin-instrumentation-express").expressMiddleware;
+
+const ZIPKIN_ENDPOINT = "http://localhost:9411";
+const ORDER_SERVICE_ENDPOINT = "http://localhost:8080/";
+
+const tracer = new Tracer({
+  ctxImpl: new ExplicitContext(),
+  recorder: new BatchRecorder({
+    logger: new HttpLogger({
+      endpoint: `${ZIPKIN_ENDPOINT}/api/v2/spans`,
+      jsonEncoder: jsonEncoder.JSON_V2,
+    }),
+  }),
+  localServiceName: "user-service",
+});
+
+const app = express();
+app.use(zipkinMiddleware({ tracer }));
+
+const zipkinAxios = zipkinInstrumentationAxios(axios, {
+  tracer,
+  serviceName: "user-service",
+});
+
+app.get("/", async (req, res) => {
+  const result = await zipkinAxios.get(`${ORDER_SERVICE_ENDPOINT}`);
+  res.send("[user-service] :: " + result.data);
+});
+
+const server = app.listen(8000, () => {
+  console.log("[User-Service] server started");
+});
+```
+
+위의 axios 를 보다싶이 알 수 있지만, axios 를 Zipkin Instrumentation 으로 한번 Wrapping 하는 것을 알 수 있다.
+
+그럼 내부적으로 Tracing 에 대한 정보들 (Span, tId) 와 같은 것들을 추가한다.
+
+> 나는 node, express 에 대해서 잘 알지 못한다. 그러므로 자세한 사항은 [Tracing Express services with zipkin-js](https://medium.com/trabe/tracing-express-services-with-zipkin-js-6e5c5680467e) 에서 확인할 수 있다.
+
+# Order-Service 개발하기
+
+이제 Spring Cloud Sleuth 가 포함된 Order-Service 에 대해서 개발을 해보자
+
+Spring Cloud Sleuth 를 이용해서 Zipkin 서버와 통신하기 위해서는 다음 2개의 의존성이 필요하다
+
+### build.gradle
+
+```java
+implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.1'
+implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:3.1.1'
+```
+
+만약 여기서 sleuth 만 추가할 경우 zipkin 과 연동할 수 없다.
+
+zipkin 과 연동하기 위해서 **sleuth-zipkin** 을 추가해주도록 하자.
+
+그리고 우리의 설정 파일인 application.yml 을 다음과 같이 만들자
+
+### application.yml
+
+```yml
+spring:
+  application:
+    name: order-service
+  zipkin:
+    base-url: http://localhost:9411
+```
+
+그리고 User-Service 에서 들어오는 요청을 받아줄 수 있는 Controller 를 구현해보자.
+
+이제 속도를 좀 높여서 한 스텝을 더 나아가 보겠다.
+
+우리의 실습 플로우는
+
+#### **사용자 (User)** 가 **주문 (Order)** 을 한다면 사용자의 정보와 주문 상품의 정보를 토대로 **배송 (Delivery)** 하고, 배송이 시작되었다는 **알림 (Notification)** 을 전송한다.
+
+이기 때문에 Order 에서 바로 다음 서비스인 Delivery로 요청을 Relay 해줄 것이다.
+
+이번은 Post 로 요청을 해보도록 하자
+
+### OrderController.java
+
+```java
+@RestController
+@RequiredArgsConstructor
+public class OrderController {
+
+    private final RestTemplate rest;
+    private final URI uri = URI.create("http://localhost:8081/delivery");
+
+    @GetMapping("/")
+    public String getOrder() {
+        DeliveryRequest req = new DeliveryRequest("1004L", "seoul");
+        String response = rest.postForObject(uri, req, String.class);
+        return "[order-service] :: 의 주문 :: " + response;
+    }
+}
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class DeliveryRequest {
+    private String userId;
+    private String address;
+}
+```
+
+여기서 주의해야할 점이 있다.
+
+Axios 에서 zipkinAxios 로 감쌌던 것 처럼 RestTemplate 도 Wrapping 해야 한다.
+
+이렇게 해주는 이유는 **새로운 Span** 을 생성하는 책임을 Sleuth 의 Auto-Configuration 이 담당할 수 있도록 하기 위함이다.
+
+### ApplicationConfig.java
+
+```java
+@Configuration
+public class ApplicationConfig {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+```
+
+어려운 과정은 없다.
+
+단지 **RestTemplate 을 Bean 으로 등록해주기만 하면 된다.**
+
+그렇다면 `BeanPostProcessor` 에 의해서 Reporting 하게 된다.
+
+# Deliver-Service 개발하기
+
+Delivery Service 도 역시 어려운 것은 없다.
+
+Order-Service 와 마찬가지로 RestTemplate 호출을 받아들일 수 있는 Controller 하나가 필요하고, 적당한 String 만 반환해주기만 하면 끝이다.
+
+### Controller, Dto
+
+```java
+@RestController
+@RequestMapping("/delivery")
+public class DeliveryController {
+
+    @PostMapping
+    public String delivery(@RequestBody DeliveryRequest request) {
+
+        String userId = request.getUserId();
+        String address = request.getAddress();
+
+        return "[delivery-service] userId: " + userId + " address: " + address + " 배송 요청 완료";
+    }
+}
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class DeliveryRequest {
+    private String userId;
+    private String address;
+}
+```
+
+역시 application.yml 이나 build.gradle 또한 Order-Service 와 마찬가지로 구성해주면 된다.
+
+하지만 다른 점이 있다면 port 충돌을 막기 위해서 server port 를 8081로 바꿔주자
+
+# Zipkin 연동하기
+
+이제 Zipkin 과 연동하기만 하면 끝이다.
+
+앞전 시간에 알려주었던 docker script 를 이용해서 띄워도 무방하지만 나는 docker-compose 를 이용해서 띄웠다.
+
+별 다른 이유는 없고 그냥 docker script 를 외우기 귀찮아서 compose script 를 이용했다.
+
+### docker-compose.yml
+
+```yml
+version: "3"
+services:
+  zipkin:
+    container_name: tracer-zipkin
+    image: openzipkin/zipkin
+    restart: always
+    ports:
+      - "9411:9411"
+```
+
+그리고 up 명령어를 통해서 zipkin 서버를 띄워보자
+
+```bash
+$ docker-compose up
+```
+
+[##_Image|kage@bnMJlw/btrAYms5J33/oJSAUSD8C4fDcBGuBuqaLk/img.png|CDM|1.3|{"originWidth":3680,"originHeight":2382,"style":"alignCenter","width":709,"height":459}_##]
+
+그리고 9411 포트로 접근하게 되면 다음과 같은 대시보드를 확인할 수 있다
+
+[##_Image|kage@Ny9wc/btrAYvJ3nIc/MScdtW55psDiF9cp3Rprn1/img.png|CDM|1.3|{"originWidth":2252,"originHeight":2010,"style":"alignCenter","width":725,"height":647}_##]
+
+이제 node 서버인 8000 포트로 요청을 날려보자
+
+[##_Image|kage@HwZsI/btrAYvccIPh/GUVKrT2cRzX8qavhsh0JGK/img.png|CDM|1.3|{"originWidth":2200,"originHeight":1004,"style":"alignCenter","width":680,"height":310}_##]
+
+그럼 User-Service 에서 시작된 요청이 아래와 같은 흐름을 타고 통신에 대한 성공 응답을 확인할 수 있다.
+
+[##_Image|kage@blF6OT/btrATSms4QD/bH1ebt53fy2JRhTncl6hY0/img.png|CDM|1.3|{"originWidth":969,"originHeight":536,"style":"alignCenter","width":532,"height":294}_##]
+
+이 흐름에 대한 Zipkin Tracing Span 에 대한 정보들은 다음과 같다
+
+[##_Image|kage@dot84x/btrAZdWYT7b/D23LJOH0iIVL5bQjZDNYeK/img.png|CDM|1.3|{"originWidth":3456,"originHeight":672,"style":"alignCenter"}_##]
+
+### 이제 다음 시간에는
+
+다음 시간에는 Delivery 서비스에서 **Message 를 Producing 하고 Notification 에서 해당 메시지를 Consume** 하는 시스템을 만들고, 이들을 분산 추적해보려 한다.

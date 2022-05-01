@@ -1,0 +1,271 @@
+[Distributed Tracing] Messaging 환경에서의 분산 추적 실습
+
+[##_Image|kage@r4JA9/btrAR736lDt/jzAcvz59orEByhKDlwn810/img.png|CDM|1.3|{"originWidth":1494,"originHeight":836,"style":"alignCenter","width":592,"height":331}_##]
+
+> 본 글은 **마이크로서비스의 분산 추적** 시리즈로 이론과 실습이 함께 포함된 시리즈입니다. 아래 목차에 표시된 글을 모두 참고하면 좋습니다.
+
+### 목차
+
+- [Distributed Tracing, 분산 추적이란?](#)
+- [Spring Cloud Sleuth 와 Zipkin](#)
+- [HTTP 환경의 분산 추적 실습](#)
+- [Messaging 환경의 분산 추적 실습](#)
+
+##### 실습에 대한 소스코드를 확인하시고 싶다면 [실습 github](https://github.com/my-research/open-tracing-for-msa)에서 확인하실 수 있습니다.
+
+---
+
+# Messaging 환경 에서의 분산 추적 실습
+
+지난 시간 우리는 **HTTP 환경에서의 분산 추적** 에 대해서 알아보았다.
+
+다시 한번 **개략적인 아키텍처**에 대해서 확인해보자
+
+[##_Image|kage@exRtZf/btrAVsUgA5E/zpaJmniYpuUrHcoGUSbP21/img.png|CDM|1.3|{"originWidth":1833,"originHeight":536,"style":"alignCenter","width":1375,"height":402}_##]
+
+위 아키텍처를 구분하자면 2개의 부분으로 나눌 수 있다.
+
+1.  HTTP API
+2.  **Messaging**
+
+#### 이번에는 HTTP 통신을 넘어 Messaging 환경에서 Span 들을 하나의 Trace 로 관리할 수 있도록 해볼 것이다.
+
+- **user-service** : express, node.js
+- **order-service** : spring boot, java
+- **delivery-service** : spring boot, java & aws sqs
+- **notification-service** : spring boot, java & aws sqs
+
+# 마이크로서비스 호출 Flow
+
+실습에 대한 호출의 flow 를 **비즈니스적인 한 문장**으로 표현하자면 다음과 같다
+
+#### **사용자 (User)** 가 **주문 (Order)** 을 한다면 사용자의 정보와 주문 상품의 정보를 토대로 **배송 (Delivery)** 하고, 배송이 시작되었다는 **알림 (Notification)** 을 전송한다.
+
+위 과정은 다음과 같은 호출이 하나의 트랜잭션으로 이루어진다
+
+- user-service 는 order-service 로 HTTP GET 요청을 보낸다
+- order-service 는 delivery-service 로 HTTP POST 요청을 보낸다
+- **deliver-service** 는 HTTP 요청이 발생하면 AWS SQS 로 Message 를 produce 한다.
+- **notification-service** 는 Queue 에 메시지가 존재한다면 Message 를 Consume 한다
+
+# AWS SQS 에 Queue 만들기
+
+우선 메시징 환경을 구현하기 위해서 AWS SQS 에 큐 하나를 생성하자
+
+[##_Image|kage@mmrXe/btrAVr9NTkV/0MDWoSeAaG5MZudLJ7gs3K/img.png|CDM|1.3|{"originWidth":1952,"originHeight":1944,"style":"alignCenter"}_##]
+
+> 이번 시간에는 Message Queue 나 AWS SQS 에 대한 시간이 아니기 때문에 SQS 관련된 설정은 넘어가도록 하겠다.
+
+큐가 준비되었다면 이제 Delivery Service 에서 큐와 연동을 해보자
+
+# Deliver-Service
+
+deliver-service 에서 다음과 같은 의존성을 추가해준다.
+
+### build.gradle
+
+```groovy
+// zipkin & sleuth
+implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.1'
+implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:3.1.1'
+implementation 'io.zipkin.aws:brave-instrumentation-aws-java-sdk-sqs:0.23.4'
+
+// aws sqs
+implementation 'org.springframework.cloud:spring-cloud-aws-messaging:2.2.6.RELEASE'
+```
+
+Zipkin 과 Sleuth 그리고 **Brave Instrumentation** 을 추가해주도록 한다
+
+---
+
+- brave instrumentation 이란 무엇인가?
+- brave instrumentation 를 추가히지 않으면 어떻게 되는가?
+
+---
+
+여기서 눈여겨 볼 설정은 바로 **org.springframework.cloud:spring-cloud-aws-messaging** 의존성이다.
+
+---
+
+- io.awspring.sqs 의존성이랑 org.spring-cloud 랑 뭐가 차이가 있는가
+  - 뭘 써야하는가
+- io.awspring 을 쓰면 왜 안되는가?
+
+---
+
+## delivery-service 에서 Producer 설정하기
+
+Producer 를 설정할 때 보통 **QueueMessagingTemplate** 을 사용하곤 한다.
+
+여기에 Trace 정보를 추가하기 위해서는 **BraveInstrumentation** 의 **SqsMessagingTemplate** 을 RequestHandler 로 추가해줘야 한다
+
+```java
+@Configuration
+public class SqsConfig {
+
+    Tracer tracer;
+
+    public SqsConfig(Tracer tracer) {
+        this.tracer = tracer;
+    }
+
+    @Bean
+    public QueueMessagingTemplate queueMessagingTemplate() {
+        Tracing current = Tracing.current();
+
+        SqsMessageTracing sqsMessageTracing = SqsMessageTracing.create(current);
+
+        AmazonSQSAsync client = AmazonSQSAsyncClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(new EnvironmentVariableCredentialsProvider())
+                .withRequestHandlers(sqsMessageTracing.requestHandler())
+                .build();
+
+        return new QueueMessagingTemplate(client);
+    }
+}
+```
+
+---
+
+- RequestHandlers 가 무엇인가?
+  - 왜 Sqs를 추가해줘야 하는가?
+
+---
+
+#### 또 눈여겨볼 점은 Tracing 을 Bean 주입을 통해 가져오는 것이다.
+
+Span 에 대한 Global 한 Access 를 위해서는 앞선 Zipkin & Sleuth 를 설명하며 이야기를 잠시 했듯, Bean 으로 주입받아야 한다.
+
+그래야 Span 에 대한 Lifecycle 에 대한 관리가 가능하게 된다.
+
+### MessageSender.java
+
+이제 Queue 설정이 끝났으니 Queue 에게 Message 를 Send 할 Sender 를 만들어보자
+
+```java
+@Component
+@RequiredArgsConstructor
+public class MessageSender {
+    @Value("${aws.queue.name}")
+    private String notificationQueue;
+
+    private final QueueMessagingTemplate template;
+
+    public void send(Object message) {
+        template.convertAndSend(notificationQueue, message);
+    }
+}
+```
+
+일반적으로 SQS Sender 를 구현할 때 사용하는 방식과 동일하다
+
+그리고 DeliveryController 에 다음과 같이 **요청을 받으면 Message 를 Produce 하는 로직을 추가**해보자
+
+### DeliveryController
+
+```java
+@RestController
+@RequestMapping("/delivery")
+@RequiredArgsConstructor
+public class DeliveryController {
+
+    private final MessageSender messageSender;
+
+    @PostMapping
+    public String delivery(@RequestBody DeliveryRequest request) {
+
+        String userId = request.getUserId();
+        String address = request.getAddress();
+
+        messageSender.send("배송 문자 발송 요청2");
+
+        return "[delivery-service] userId: " + userId + " address: " + address + " 배송 요청 완료";
+    }
+}
+```
+
+이제 다시 Zipkin Dashboard 를 확인해보자
+
+[##_Image|kage@cKi6ld/btrATTllcIf/mToxQCt9Xkkiy1kUcoUobk/img.png|CDM|1.3|{"originWidth":3680,"originHeight":1134,"style":"alignCenter"}_##]
+
+그럼 위와 같이 message publish 에 대한 Span 이 추가된 것을 볼 수 있다.
+
+Messaging 환경에서는 HTTP 환경과 다르게 2가지의 Annotation 이 존재한다.
+
+[##_Image|kage@bZZZDT/btrASBxwGbX/cpvniFfSjJw6D5tMVXkKdK/img.png|CDM|1.3|{"originWidth":1386,"originHeight":1138,"style":"alignCenter","width":538,"height":442}_##]
+
+1. Producer Start
+2. Producer Finish
+
+이것을 미루어보았을 때, Messaging 환경에서는 Span 이 Close 되는 시점, 즉 Zipkin 으로 Reporting 하는 시점이 Producer Finish 하는 시점임을 알 수 있다.
+
+이제 Consumer 를 만들어보자
+
+# Notification-Service
+
+지금 해볼 부분은 Consumer 에서 Consume 한 Message 를 Trace 하는 것이다
+
+[##_Image|kage@bpjICE/btrASwxxbK4/TcgfKoPjJnKdPbSlkCekb0/img.png|CDM|1.3|{"originWidth":1870,"originHeight":737,"style":"alignCenter","width":1403,"height":553}_##]
+
+위의 흰색 영역을 구현하기 위해서 **Notification Service** 를 만들어보자
+
+속도를 내서 빠르게 코드만 우선 보여주도록 하겠다
+
+### SqsConfig.java
+
+```java
+@Configuration
+public class SqsConfig {
+
+    @Bean
+    public QueueMessagingTemplate queueMessagingTemplate() {
+        Tracing current = Tracing.current();
+        SqsMessageTracing sqsMessageTracing = SqsMessageTracing.create(current);
+
+        AmazonSQSAsync client = AmazonSQSAsyncClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(new EnvironmentVariableCredentialsProvider())
+                .withRequestHandlers(sqsMessageTracing.requestHandler())
+                .build();
+
+        return new QueueMessagingTemplate(client);
+    }
+}
+```
+
+SqsConfig 에서는 Producer 와 마찬가지로 **QueueMessagingTemplate** 을 생성해줄 때, Tracer 를 함께 붙여야한다
+
+### MessageReceiver.java
+
+```java
+@Service
+@RequiredArgsConstructor
+public class MessageReceiver {
+
+    @SqsListener("${aws.queue.name}")
+    public void receiveMessage(String message) {
+        System.out.println("메시지 수신 완료, message = " + message);
+    }
+}
+```
+
+MessageReceiver 에서는 일번적으로 사용하는 reveicer 와 똑같이 구현해주면 된다.
+
+이제 모든 구현이 끝났기 때문에 전체적인 요청을 다시 보내보도록 하자
+
+혹시라도 잊어버렸을 수 있으니 실습에 대한 호출의 flow 를 **비즈니스적인 한 문장**으로 표현해보자면,
+
+#### **사용자 (User)** 가 **주문 (Order)** 을 한다면 사용자의 정보와 주문 상품의 정보를 토대로 **배송 (Delivery)** 하고, 배송이 시작되었다는 **알림 (Notification)** 을 전송한다.
+
+이기 때문에 User-Service 로 요청을 보내면 우리의 Producer, Consumer 들이 잘 동작해서 Zipkin Dashboard 에 도착할 것이다
+
+[##_Image|kage@GerjG/btrAUxP7tic/BQy86AvyAFGq955IZe3Vi1/img.png|CDM|1.3|{"originWidth":2198,"originHeight":1006,"style":"alignCenter","width":764,"height":350}_##]
+
+localhost:8000 인 user-service 로 요청을 보내면 다음과 같은 정보들이 zipkin dashboard 에 찍히게 된다.
+
+[##_Image|kage@OMejS/btrATcMrtpV/2PjlkhMxl2lrc0ZHrPdA5K/img.png|CDM|1.3|{"originWidth":3450,"originHeight":636,"style":"alignCenter"}_##]
+
+## 끝으로..
+
+이렇게 우리는 간단한 실습을 거쳐서 HTTP 환경과 Messaging 환경에서의 데이터를 Tracing 해보았다.
