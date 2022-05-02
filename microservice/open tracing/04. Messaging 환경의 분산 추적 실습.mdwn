@@ -6,10 +6,10 @@
 
 ### 목차
 
-- [Distributed Tracing, 분산 추적이란?](#)
-- [Spring Cloud Sleuth 와 Zipkin](#)
-- [HTTP 환경의 분산 추적 실습](#)
-- [Messaging 환경의 분산 추적 실습](#)
+- [Distributed Tracing, 분산 추적이란?](https://wonit.tistory.com/623)
+- [Spring Cloud Sleuth 와 Zipkin](https://wonit.tistory.com/624)
+- [Sleuth 로 Http 환경의 분산 추적 실습](https://wonit.tistory.com/625)
+- [Sleuth 로 Messaging 환경의 분산 추적 실습](https://wonit.tistory.com/626)
 
 ##### 실습에 대한 소스코드를 확인하시고 싶다면 [실습 github](https://github.com/my-research/open-tracing-for-msa)에서 확인하실 수 있습니다.
 
@@ -64,7 +64,7 @@ deliver-service 에서 다음과 같은 의존성을 추가해준다.
 
 ### build.gradle
 
-```groovy
+```java
 // zipkin & sleuth
 implementation 'org.springframework.cloud:spring-cloud-starter-sleuth:3.1.1'
 implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin:3.1.1'
@@ -76,22 +76,12 @@ implementation 'org.springframework.cloud:spring-cloud-aws-messaging:2.2.6.RELEA
 
 Zipkin 과 Sleuth 그리고 **Brave Instrumentation** 을 추가해주도록 한다
 
----
+여기서 눈여겨 볼 설정은 바로 다음 2개이다.
 
-- brave instrumentation 이란 무엇인가?
-- brave instrumentation 를 추가히지 않으면 어떻게 되는가?
+- **org.springframework.cloud:spring-cloud-aws-messaging**
+- **io.zipkin.aws:brave-instrumentation-aws-java-sdk-sqs:0.23.4**
 
----
-
-여기서 눈여겨 볼 설정은 바로 **org.springframework.cloud:spring-cloud-aws-messaging** 의존성이다.
-
----
-
-- io.awspring.sqs 의존성이랑 org.spring-cloud 랑 뭐가 차이가 있는가
-  - 뭘 써야하는가
-- io.awspring 을 쓰면 왜 안되는가?
-
----
+천천히 살펴보자
 
 ## delivery-service 에서 Producer 설정하기
 
@@ -126,12 +116,13 @@ public class SqsConfig {
 }
 ```
 
----
+**Brave Instrumentation** 이란 Zipkin 서버로 Span 데이터를 전송하는 구현체이다.
 
-- RequestHandlers 가 무엇인가?
-  - 왜 Sqs를 추가해줘야 하는가?
+Messaging 환경에서는 B3-Propagation 이 작동하지 않는다.
 
----
+Seamless 한 Tracing 환경을 만들기 위해서는 Queue 로 던질 Message 의 Header 에 B3 데이터를 넣어줘야 하므로 Tracer 의 구현체를 직접 다뤄야 한다.
+
+그 과정이 바로 `withRequestHandlers(sqsMessageTracing.requestHandler())` 이다
 
 #### 또 눈여겨볼 점은 Tracing 을 Bean 주입을 통해 가져오는 것이다.
 
@@ -269,3 +260,7 @@ localhost:8000 인 user-service 로 요청을 보내면 다음과 같은 정보�
 ## 끝으로..
 
 이렇게 우리는 간단한 실습을 거쳐서 HTTP 환경과 Messaging 환경에서의 데이터를 Tracing 해보았다.
+
+아쉬운 점이 있다면 어떤 방식으로 SpanId 가 생성되고 동작하는지에 대해서 깊게 알아보지 못했던 것이 아쉽다.
+
+하지만 분명 이 다음 시간 언젠가는 그 부분을 이야기하는 시간이 있을것이다.
