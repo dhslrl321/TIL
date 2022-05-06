@@ -1,0 +1,5 @@
+# Specification Pattern
+
+- Business Rule 을 Boolean 을 통해서 체이닝하는 조합법
+- 주로 DDD 에서 사용됨
+- 다른 Business Rule 과 조합될 수 있는 Business Rule 을 표현함
