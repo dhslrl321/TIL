@@ -1,0 +1,6 @@
+# Elasticsearch
+
+# RDB 와 Elasticsearch 의 차이
+
+- RDB
+-
