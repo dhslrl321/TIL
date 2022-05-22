@@ -1,0 +1,9 @@
+# Routing Table
+
+# NAT Gateway
+
+# Internet Gateway
+
+# Private Subnet
+
+# Public Subnet
