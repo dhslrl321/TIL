@@ -1,9 +1,31 @@
+# VPC
+
+- VPC 는 가상 네트워크에서 AWS 리소스를 시작할 수 있게 하는 것
+  - name : young-su-vpc
+- IPv4
+  - 192.168.0.0/24
+
+# Subnet
+
+- name
+  - young-su-subnet-pub
+  - young-su-subnet-priv
+- IPv4
+  - pub : 192.168.0.0/25
+  - priv : 192.168.0.128/25
+
+# Internet Gateway
+
+- 인터넷 게이트웨이는 VPC와 인터넷 간의 통신을 활성화합니다. 인터넷 게이트웨이를 생성한 후 VPC에 연결하고 인터넷 라우팅 가능한 IPv4 또는 IPv6 트래픽에 대한 서브넷 라우팅 테이블의 대상으로 지정합니다.
+  - name : young-su-igw
+
 # Routing Table
 
 # NAT Gateway
 
-# Internet Gateway
-
 # Private Subnet
 
 # Public Subnet
+
+1111 1111 - 1111 1111 - 1111 1111 - 1111 1111
+1111 1111 - 1111 1111 - 1111 1111 - 0000 0000 / 24
