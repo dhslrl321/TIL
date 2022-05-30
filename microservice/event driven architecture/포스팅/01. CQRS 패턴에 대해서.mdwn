@@ -1,0 +1,11 @@
+[Architecture Pattern] CQRS 패턴에 대해서
+
+### 목차
+
+- 전통적인 시스템
+- CQRS 패턴이란
+- CQRS 를 하는 이유
+- CQRS 의 장점
+- CQRS 의 단점
+
+# CQRS 패턴에 대해서
