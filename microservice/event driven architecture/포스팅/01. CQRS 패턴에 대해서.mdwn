@@ -3,12 +3,159 @@
 ### 목차
 
 - 도입
-- 전통적인 시스템
-- CQRS 패턴이란
-- CQRS 를 하는 이유
+- Query 와 Command 란?
+- CQRS 란
+  - 정의
+  - CQRS 를 하는 이유
+  - 전통적인 시스템
 - CQRS 의 장점
 - CQRS 의 단점
+- Real World 에서의 CQRS
 
 # 도입
 
-# 전통적인 시스템
+회사 시스템이 전통적인 CRUD 애플리케이션에서 Event 기반의 시스템으로 바뀌어 가는 과정에 팀에 합류를 하게 되어 나의 최근 가장 큰 관심사가 바로 이 CQRS 이다.
+
+학부 시절에도 마이크로서비스를 공부하며 잠깐 잠깐 봤던 CQRS 는 이름 부터 생소하기에 겁을 먹었던 기억이 난다.
+
+하지만 CQRS 의 원리 자체는 사실 되게 간단하다
+
+Command 와 Query 를 분리하자!
+
+Command 와 Query 를 먼저 정의하고 이야기를 계속 해보자
+
+# Query 와 Command 란?
+
+Query 와 Command 에 대해서 이야기 하기 위해서는 CQS 에 대해서 먼저 알아볼 필요가 있다.
+
+[##_Image|kage@noW3z/btrDJvHoMQF/LhmGWyrsiLzjtiQ6YLS0uK/img.png|CDM|1.3|{"originWidth":370,"originHeight":94,"style":"alignCenter"}_##]
+
+CQS 는 Design By Contract 라는 용어를 만든 버트란드 메이어, Betrand Meyer 가 소개한 개념이다.
+
+함수는 특정 동작을 수행하는 코드 블록을 의미하는데, 함수의 목적에 따라서 두가지로 분류할 수 있다.
+
+그것이 바로 Command 와 Query 이다.
+
+## Command
+
+Command 는 시스템에 어떠한 side effect, 즉 **변경을 가하는 행위**를 하는 것을 말한다.
+
+그래서 Command 성 함수 라고 한다면 변경을 가하는 함수를 말할 수 있다.
+
+#### Command 성 함수는 시스템의 상태를 변경시키는 대신 값을 반환하지 않아야 한다.
+
+```java
+// O, 상태만 변경시킴
+void updateUser(User user) {
+  user.updateAge(12);
+}
+
+// X, 값을 반환
+User updateUser(User user) {
+  return user.updateAge(12);
+}
+```
+
+## Query
+
+이에 반해서 Query 는 시스템의 **상태를 관찰할 수 있는 행위**를 하는 것을 말한다.
+
+마찬가지로 Query 성 함수라고 한다면 **단지 시스템의 상태만 확인하는 함수**라고 할 수 있다.
+
+#### Query 성 함수는 시스템의 상태를 단지 반환하기만 하고 상태를 변경시키지 않아야 한다.
+
+```java
+// O, 값만 반환
+User getUser(Long userId) {
+  return users.get(userId);
+}
+
+// X, 상태를 변경
+void getUser(Long userId) {
+  User user = users.get(userId);
+  user.updateLastQueriedAt();
+  return user;
+}
+```
+
+## CQS 는 Command Query Separation 이다
+
+[##_Image|kage@bJSJmY/btrDInQo2qL/Kld8bSqz9kUAD7k7OK1Ivk/img.png|CDM|1.3|{"originWidth":562,"originHeight":94,"style":"alignCenter"}_##]
+
+버트란드 마이어는 위의 Command 와 Query 를 분리해야 하며 하나의 함수는 이 성격을 띄어야 한다고 했다.
+
+#### 즉, 어떠한 함수가 있다면 그 함수는 Command 또는 Query 중 하나의 역할만 수행해야 한다.
+
+만약 하나의 함수에서 Command 와 Query 가 모두 동시에 일어나게 된다면, 이는 소프트웨어의 3가지 원칙 중 복잡하지 않아야 한다는 KISS 가 지켜지지 않을 것이다.
+
+이런 관점에서 연장선상에 있는 것이 바로 Command Query Responsibility Separation 이다.
+
+# CQRS 란?
+
+[##_Image|kage@FeC5P/btrDKHgvNrT/ATAp2mkeoQYN5NIMhTB1hK/img.png|CDM|1.3|{"originWidth":821,"originHeight":94,"style":"alignCenter"}_##]
+
+CQRS 는 [Greg Young](https://twitter.com/gregyoung) 이 소개한 말이고, CQS에 비해 조금 더 큰 레벨에서의 Command 모듈과 Query 모듈의 책임을 분리하자는 말이다.
+
+CQS 는 코드 레벨에서의 분리를 말한다면 CQRS 는 모듈 레벨에서의 분리를 의미한다.
+
+좀 더 리얼 월드 수준으로 이야기 하자면
+
+#### 데이더 저장소에 대한 **읽기** 및 **업데이트 작업**을 구분한다는 것이다
+
+왜 이렇게 할까?
+
+## 기존의 아키텍쳐
+
+기존 아키텍처에서 도메인이 갖는 의미에 대해서 생각해보자.
+
+### 도메인이란 곧 비즈니스이다.
+
+비즈니스는 보통 특정한 데이터의 상태를 변경 (create, update, delete) 을 하는 것이다.
+
+이러한 비즈니스는 시간이 증가하면서 점점 복잡도가 올라가게 되고, 많은 요구사항들을 포함할 수 있어야 했다.
+
+하지만 query 는 어떠할까?
+
+query 는 단순 데이터 조회이기 때문에 비즈니스와 무관하지만 가끔 query 를 위한 처리가 도메인에 침투하는 경우가 생긴다.
+
+안 그래도 도메인 자체는 비대해져 가는데, 비즈니스 자체를 표현해야 하는 도메인에 query 가 침투한다?
+
+#### 이를 해결하기 위해 CQS 를 더 높은 수준에서 적용시킨 **조회의 책임**과 **명령의 책임** 을 분리하는 CQRS 를 탄생시킨 것이다.
+
+아래의 그림은 다음과 같은 비즈니스를 포함하고 있다.
+
+- 사용자는 정답을 입력한다.
+- 정답이라면 점수를 올리고 오답이면 점수를 내린다.
+- 사용자의 랭킹 확인할 수 있다.
+
+[##_Image|kage@cSJIIJ/btrDKJ6C9ru/fvSGrHMiOXnDuAZbyfjNs1/img.png|CDM|1.3|{"originWidth":1364,"originHeight":880,"style":"alignCenter","width":703,"height":454}_##]
+
+위의 구조는 동일한 도메인 모델을 사용한다. 즉, 조회의 책임과 명령의 책임이 하나의 도메인에 포함되어있다는 이야기다.
+
+하지만 여기서 CQRS 를 적용해서 **책임에 따른 Command 와 Query 를 분리**시키면 다음과 같은 형태를 띄게 된다.
+
+[##_Image|kage@4jbbd/btrDGI1XXCx/2zNozrFdIOdh89p49LLFVk/img.png|CDM|1.3|{"originWidth":1386,"originHeight":1012,"style":"alignCenter","width":745,"height":544}_##]
+
+그렇다면 정답과 관련된 비즈니스를 책임지는 윗쪽 도메인에게는 **상태를 변경시키는 Command 의 책임**만 존재하기에 비즈니스를 그대로 표현할 수 있다.
+
+역시 아래의 도메인에게는 **상태를 확인하는 Query 의 책임** 만 존재하게 된다.
+
+이렇게 되면 어떤 장점이 있을 수 있을까?
+
+단순히 가장 먼저 드는 생각은 Command 와 query 에 각기 다른 Persistence Module 을 사용할 수 있을것이다.
+
+- Command Side 에는 객체 중심적인 개발이 가능한 JPA 를 사용할 수 있다.
+- Query Side 에는 최적화된 쿼리를 위해서 mybatis 를 사용할 수 있을 것이다.
+
+그럼 CQRS 더 고도화시켜보자.
+
+Command 와 Query 의 책임이 분리되었기 때문에 Command 와 Query 는 서로 다른 인프라가 구성될 수 있다.
+
+[##_Image|kage@51uPK/btrDKJ6Edvt/YH8Rcwh5XlxSR7EkalKkDK/img.png|CDM|1.3|{"originWidth":1385,"originHeight":1045,"style":"alignCenter","width":731,"height":552}_##]
+
+그럼 위와 같이 Polygrat 한 Persistance Infra 가 구성될 수 있다.
+
+그럼 또 아래와 같이 구성할 수 있다.
+
+- Command infra 에는 write 에 최적화된
+- Query Side 에는 최적화된 쿼리를 위해서 mybatis 를 사용할 수 있을 것이다.
