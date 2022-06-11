@@ -5,12 +5,9 @@
 - 도입
 - Query 와 Command 란?
 - CQRS 란
-  - 정의
-  - CQRS 를 하는 이유
-  - 전통적인 시스템
-- CQRS 의 장점
-- CQRS 의 단점
+- CQRS 의 장단점
 - Real World 에서의 CQRS
+- 직접 구현해보는 CQRS
 
 # 도입
 
@@ -142,12 +139,12 @@ query 는 단순 데이터 조회이기 때문에 비즈니스와 무관하지�
 
 이렇게 되면 어떤 장점이 있을 수 있을까?
 
-단순히 가장 먼저 드는 생각은 Command 와 query 에 각기 다른 Persistence Module 을 사용할 수 있을것이다.
+단순히 가장 먼저 드는 생각은 Command 와 Query 에 각기 다른 Persistence Module 을 사용할 수 있을것이다.
 
-- Command Side 에는 객체 중심적인 개발이 가능한 JPA 를 사용할 수 있다.
-- Query Side 에는 최적화된 쿼리를 위해서 mybatis 를 사용할 수 있을 것이다.
+- Command Side 에는 객체 중심적인 개발이 가능한 **JPA** 를 사용할 수 있다.
+- Query Side 에는 최적화된 쿼리를 위해서 **MyBatis** 를 사용할 수 있을 것이다.
 
-그럼 CQRS 더 고도화시켜보자.
+## CQRS 더 고도화 시켜볼 수 있다
 
 Command 와 Query 의 책임이 분리되었기 때문에 Command 와 Query 는 서로 다른 인프라가 구성될 수 있다.
 
@@ -157,5 +154,41 @@ Command 와 Query 의 책임이 분리되었기 때문에 Command 와 Query 는 
 
 그럼 또 아래와 같이 구성할 수 있다.
 
-- Command infra 에는 write 에 최적화된
-- Query Side 에는 최적화된 쿼리를 위해서 mybatis 를 사용할 수 있을 것이다.
+- Command infra 에는 write 에 최적화된 DB를 사용할 수 있을 것이다.
+- Query Side 에는 더욱 빠른 쿼링을 위해서 elasticsearch나 opensearch 와 같은 검색 엔진을 도입할 수 있을 것이다.
+
+그래서 보통 Query Side 에 **Materialized View** 를 이용하여 복잡한 쿼리를 방지하고 **관점에 따른 정보 뷰**를 생성하여 사용하곤 한다
+
+# CQRS 의 장점과 단점
+
+위에서 우리는 CQRS 에 대해서 대략적으로 알아보았고, **level 별로 CQRS 를 구분해보았다**.
+
+이제 CQRS 에 대한 장단점을 한번 생각해보자
+
+## 장점
+
+- **도메인 로직에만 집중할 수 있게 된다**
+  - Command 와 Query 를 분리했기 때문에 OCP 를 준수하는 도메인 모델을 만들 수 있다.
+  - 이를 통해 결국 도메인 로직에 비즈니스 로직을 집중시킬 수 있다
+- **데이터소스의 독립적인 크기 조정이 가능하다**
+  - 보통 read 와 write 의 비율은 8 : 2 이다.
+  - 그러므로 write db 가 물리적으로 나뉘어져 있다면 해당 db 인스턴스는 작게 유지하고 read db 인스턴스에 더 높은 투자를 할 수 있다.
+- **단순한 쿼리**
+  - Query side 에서는 Materialized View 를 이용할 수 있는데, 이를 통해서 복잡한 조인 쿼리 없이 단순한 쿼리를 이용해서 원하는 정보를 얻어올 수 있다
+
+## 단점
+
+- **복잡성이 올라간다**
+  - command side 와 query side 를 명시적으로 분리하기 때문에 복잡성이 올라간다.
+- **즉시적인 일관성이 보장되지 않는다**
+  - command 에 따른 data 의 무결성이 잠시동안 깨질 수 있다.
+  - 이 말은 데이터의 consistency 가 항상 동일하지 않다
+  - 하지만 최종적으로는 데이터가 맞춰질 것이니 **Eventual Consistency**라고 할 수 있다.
+
+이런 장단점을 가지고 있기 때문에 **도메인 또는 비즈니스 규칙이 단순한 곳**에서는 CQRS 를 하기 힘들다.
+
+하지만 많은 사용자가 동시에 동일한 데이터에 **병렬로 접근**하는 경우나 read 연산이 write 연산보다 많은 경우는 CQRS 를 사용하는 것이 효과적이다.
+
+# Real World 의 CQRS
+
+리얼월드에서는 CQRS 를 어떻게 사용할까?
