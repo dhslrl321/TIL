@@ -1,0 +1,22 @@
+# Gradle Build Lifecycle
+
+- gradle 의 의존성 기반은 각각의 task 가 의존적으로 실행되며 각 task 는 한 번만 실행됨을 보장한다.
+
+# build phases
+
+- gradle 에는 3가지 빌드 페이스가 있음
+  1. Initialization
+  2. Configuration
+  3. Execution
+
+### Initialization
+
+- 초기화 단계에서 build 에 어떤 모듈들이 참여할지 결정하고 각 모듈들을 project 라는 단위로 나누며 실제로 `Project` 라는 인스턴스가 각각 생긴다
+
+### Configuration
+
+- `Project` **인스턴스가 구성**되며 모든 인스턴스에 빌드 스크립트가 실행됨
+
+### Execution
+
+- 전 단계에서 생성 및 구성된 **하위 실행 집합들을 결정**하고 각 태스크를 **실행**

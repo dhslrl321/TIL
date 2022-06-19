@@ -1,4 +1,0 @@
-# 실습할 목록
-
-- **기본이 아닌 VPC 로 EC2 생성하기**
-  - VPC 와 Internet Gateway + EIP 로 인터넷 엑세스 가능하도록 설정하는 실습

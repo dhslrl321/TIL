@@ -1,0 +1,43 @@
+# gradle 이란 무엇인가
+
+- gradle 은 bulid tool 로 대부분의 타입 언어도 빌드 가능
+  - build tool 이란
+  - build : 개발자가 작성한 코드와 그것을 실행하는데 필요한 의존성 라이브러리들을 컴파일하고 패키징하는 것
+- groovy 기반의 DSL 를 이용한 빌드 자동화 시스템
+  - jdk 위에서 돌아감
+- 사용자가 정의한 빌드 스크립트를 통해서 다양한 작업이 가능하게 함
+- 자바 진영에서 제일 많이 사용되는 build tool
+  - maven 도 있지만 xml 의 마크업 기반이 아니라 human friendly 한 groovy 로 간결하고 가독성 좋은 코딩이 가능
+  - 프로그래밍 기법의 groovy 를 차용
+
+# gradle 의 핵심
+
+- **gradle 의 핵심은 의존성 기반의 프로그래밍 흐름**
+- 코어 모델은 task 에 기반함
+- 비순환 그래프로 빌드를 모델링함
+  - 비순환 그래프 : DAG : Directed Acyclic Graphs
+  - 기본적으로 일련의 작업을 구성하고 그래프 연결 의존에 따라서 그래프를 생성함.
+  - 작업 그래프가 생성되면 작업에 순서를 결정하고 실행함
+- 그래들의 3가지 고정 빌드 단계
+  - initialization : 빌드 환경 설정 후 프로젝트 결정
+  - configuration : 빌드에 대한 작업 그래프 구성 및 실행 순서 결정
+  - execution : 구성이 끝나고 선택한 작업 수행
+
+# gradle project 구성
+
+- `gradlew` : unix 용 실행 스크립트
+- `gradlew-wrapper.jar` : wrapper 파일 (사용자가 gradle 을 host 에 설치하지 앟아도 gradle task 를 실행할 수 있도록 함)
+- `build.gradle` : 의존성이나 플러그인 설정을 위한 설정 스크립트 파일
+- settings.gradle` : 프로젝트 구성 정보 기록
+
+# gradle 의 장점
+
+- 다양한 repository
+  - google maven repository, maven central, jcenter 외에 private repository 에 대한 설정이 가능
+  - 손쉽게 repository 정의하면 됨
+
+# 속도가 빠른 이유
+
+- incremental build
+- build cache
+- daemon process

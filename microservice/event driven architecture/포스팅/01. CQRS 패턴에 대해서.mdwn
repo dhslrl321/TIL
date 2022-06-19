@@ -6,8 +6,6 @@
 - Query 와 Command 란?
 - CQRS 란
 - CQRS 의 장단점
-- Real World 에서의 CQRS
-- 직접 구현해보는 CQRS
 
 # 도입
 
@@ -188,7 +186,3 @@ Command 와 Query 의 책임이 분리되었기 때문에 Command 와 Query 는 
 이런 장단점을 가지고 있기 때문에 **도메인 또는 비즈니스 규칙이 단순한 곳**에서는 CQRS 를 하기 힘들다.
 
 하지만 많은 사용자가 동시에 동일한 데이터에 **병렬로 접근**하는 경우나 read 연산이 write 연산보다 많은 경우는 CQRS 를 사용하는 것이 효과적이다.
-
-# Real World 의 CQRS
-
-리얼월드에서는 CQRS 를 어떻게 사용할까?

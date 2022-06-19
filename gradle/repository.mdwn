@@ -1,0 +1,84 @@
+# gradle repository
+
+- gradle repository 는 artifcat 모듈을 저장하는 위치
+  - 의존성을 받기 위해서는 repository 를 설정해줘야 함
+- gradle 은 maven 을 포함해 여러 public repository 를 이용할 수 있다
+  - 유명한 public repository 로는 maven central 과 google android repository 가 존재함
+- 모두 유명한 public repository 들은 shorthand 표기법으로 레포지토리를 연결할 수 있다.
+
+```groovy
+repositories {
+    mavenCentral() // maven shorthand notation
+    google() // google android shorthand notation
+}
+```
+
+# declaring custom repository by url
+
+- public repository 이외에도 custom (private) repository 를 추가할 수 있다.
+  - private repository 는 사내에서 사용할 용도로 만든 repository 를 의미하는 경우가 많다.
+  - 이렇게 private repository 를 사용하는 이유는 보안적 문제나 가용성 때문일 것이다
+  - 사용자 지정 URL 을 통해서 private repository 를 구축할 수 있는데, 대부분 http 나 https 를 사용한다.
+    - 이외에도 sftp 나 s3 url 을 등록할 수도 있다
+
+## declaring multiple repository
+
+```groovy
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repo.spring.io/release"
+    }
+    maven {
+        url "https://repository.jboss.org/maven2"
+    }
+}
+```
+
+# AWS s3 repositories configuration
+
+```groovy
+repositories {
+    maven {
+        name = '${name}'
+        url = '${s3-bucket-url}' // s3://<bucketName>[.<regionSpecificEndpoint>]/<s3Key>
+        credentials(AwsCredentials) {
+            accessKey = '${AWS_ACCESS_KEY}'
+            secretKey = '${AWS_SECRET_KEY}'
+        }
+    }
+}
+```
+
+# AWS Publish
+
+```groovy
+publishing {
+    publications {
+        "$project.name"(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'trevari'
+            if (!version.endsWith('SNAPSHOT')) {
+                url = 's3://repo.trevari.net/releases'
+            } else {
+                url = 's3://repo.trevari.net/snapshots'
+            }
+            credentials(AwsCredentials) {
+                accessKey = '${AWS_ACCESS_KEY}'
+                secretKey = '${AWS_SECRET_KEY}'
+            }
+        }
+    }
+}
+
+```
+
+## references
+
+- [gradle docs - declaring repositories](https://docs.gradle.org/current/userguide/declaring_repositories.html)
+- [gradle docs - AwsCredentials](https://docs.gradle.org/current/javadoc/org/gradle/api/credentials/AwsCredentials.html)

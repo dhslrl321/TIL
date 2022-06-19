@@ -1,0 +1,123 @@
+### 목차
+
+- 배경
+- Spring Data 는 CQS 를 지키지 않는 것일까?
+- CQS 란?
+  - 참조 투명성
+
+# 배경
+
+최근에 **발행**했던 **글**이 하나가 있다.
+
+[CQRS 패턴에 대한 오해 풀기](https://wonit.tistory.com/628) 라는 글에서 CQS 에 대해서 잠깐 언급한다.
+
+[##_Image|kage@ch4Btb/btrE51ktlOd/cfasKBxz0x09dhkixKkALk/img.png|CDM|1.3|{"originWidth":1952,"originHeight":1468,"style":"alignCenter","width":643,"height":484}_##]
+
+해당 글의 포스팅을 준비하면서 **CQS** 에 대해 작성하다 한가지 **큰 오해**를 했었는데 오늘 **오브젝트**라는 책을 읽다보니 그 오해를 풀 수 있었다.
+
+오늘은 그 **오해**에 대해서 짧막한 **내 생각**을 이야기해보려 한다.
+
+# 내가 했던 오해
+
+내가 했던 오해는
+
+### Spring Data 는 CQS 를 지키지 않는 것일까?
+
+아래 코드를 봐보자
+
+[##_Image|kage@8xYYI/btrE3KSoWEq/JcTMG5kjyAUJo6W91SQlJK/img.png|CDM|1.3|{"originWidth":1976,"originHeight":1050,"style":"alignCenter"}_##]
+
+이는 Spring Data 모듈의 **CrudRepository** 라는 인터페이스이다
+
+Spring Data 를 사용하는 사람이라면 매우 익숙한 메서드 일 것이다.
+
+인자로 저장할 객체가 들어오면 해당 객체를 저장하고 **저장된 결과를 반환**하는 코드이다.
+
+해당 Spring Data 의 코드에 대한 **자세한 구현**은 이야기하지 않겠다.
+
+다음 상황을 보면 Spring Data 는 CQS 를 지키지 않은 것처럼 보인다.
+
+```java
+public void addTickets(WalletId walletId, TicketKey ticket) {
+    Wallet wallet = walletRepository.findById(walletId);
+
+    wallet.add(ticket);
+
+    Wallet updatedWallet = walletRepository.save(ticket);
+
+    assert updateWallet.getTicket().equals(ticket) == true;
+}
+```
+
+이유는
+
+#### `Entity save(Entity entity)` 의 코드는 **객체의 상태를 바꾸기도 하고 결과를 반환**하기도 하므로 **명령과 조회**가 적절히 분리되지 않았기 때문이다.
+
+맞을까?
+
+아니다. 이건 **오해**다.
+
+CQS 에 대해서 다시 한번 이야기해보자
+
+# CQS 란?
+
+CQS 는 Command 와 Query 를 분리하는 것이다.
+
+- command : 객체의 상태를 변경하는 명령은 반환 값을 가질 수 없다.
+- query : 객체의 정보를 반환하는 쿼리는 상태를 변경할 수 없다.
+
+왜 **분리하는** 것일까?
+
+### 핵심은 참조 투명성이다
+
+**참조 투명성은 어떠한 참조에 대해서 항상 동일한 결과를 반환할 것을 보장하는 것이다.**
+
+다음과 같은 상황에서 보면 더 쉽게 이해할 수 있다.
+
+```java
+boolean isSafe() {
+    if (threat) {
+      removeThreat(); // 위험 요소 제거
+      return false;
+    }
+    return threat;
+}
+```
+
+위의 코드는 객채의 상태가 현재 위험한지 위험하지 않은지 확인하는 **쿼리성 메서드**이다.
+
+만약 위험 요소가 존재한다면 위험 요소를 삭제하고 위험하지 않은 상태로 만든다.
+
+하지만 3번째 줄을 보면 `removeThreat()` 가 존재한다. 즉 **부수 효과를 일으키는 커맨드성 성격**도 함께 띄고 있다.
+
+만약 해당 객체가 위험한 상태였고 처음 `isSafe()` 를 조회할 때는 false 라는 결과가 반환될 테지만 두번째로 호출한다면 **위험하지 않은 상태가 될 것이다**.
+
+최악이다.
+
+이렇듯 CQS 를 **만족하지 않는다면 객체는 최악의 상황**으로 가버릴 것이다
+
+그럼 다음과 같이 CQS 를 하는 **이유**를 한 문장으로 **정리**할 수 있을것 같다.
+
+#### query 에서 객체의 상태를 바꾸는 행위가 동반된다면, 즉 부수효과가 함께 일어난다면 여러 번의 query 에 따라서 결과가 달라질 수 있다. 그래서 query 에서 부수효과를 일으키지 않도록 하여 불안감을 없앤다.
+
+# 다시 Spring Data 로 돌아와서
+
+그럼 Spring Data 는 어떨까? 최악일까?
+
+아니다.
+
+Spring Data 의 save() 를 호출하는 클라이언트를 생각해보자.
+
+save() 를 호출하는 클라이언트는 save 메서드를 **참조를 하기 위해서 사용할까?**, save 메서드로 객체의 상태를 **확인**하려는 클라이언트 코드, 개발자, 시스템이 있을까?
+
+그렇지 않다.
+
+그래서 CQS 의 의도와는 전혀 다른 이야기가 되어버리고 CQS 의 본질을 흐트리지 않는다.
+
+# 결론
+
+결국 하고싶은 이야기는, 내가 배운 것은 **어떠한 개념이나 원칙은 진리가 아니다** 라는 것이다.
+
+관례적인 것들에 왜? 라고 물음하고 부정하는 것도 하나의 능력이고 개발자에게 필요한 자세가 아닐까 싶다.
+
+> 원칙이 현재 상황과 부적합하다고 생각한다면 과감하게 원칙을 무시하라. 원칙을 아는 것보다 더 중요한 것은 원칙이 언제 유용하고 언제 유용하지 않은지 판단할 수 있는 능력을 기르는 것이다. \_오브젝트, 조영호
