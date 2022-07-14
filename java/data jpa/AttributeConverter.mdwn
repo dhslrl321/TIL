@@ -1,0 +1,73 @@
+# DB 칼럼에 Value Mapping 하기
+
+# 동기
+
+- DDD 를 실습하기 위해 한 Aggregate 에 존재하는 value 객체를 db 에 넣으려 하니 value 객체의 field 명이 그대로 들어가는 문제가 발생함
+- converter 를 이용해서 value 객체의 field 를 이용하지 않도록 함
+
+# 해결
+
+- AttributeConverter 를 이용함
+
+# 실습 코드
+
+- Order
+- AddressDBConverter
+- OrderRepositoryTest
+
+### Order Entity
+
+```
+@Entity(name = "orders")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Convert(converter = AddressDBConverter.class)
+    private Address address;
+}
+```
+
+### Conveter
+
+```
+@Converter
+public class AddressDBConverter implements AttributeConverter<Address, String> {
+    @Override
+    public String convertToDatabaseColumn(Address attribute) {
+        return attribute.getValue();
+    }
+
+    @Override
+    public Address convertToEntityAttribute(String dbData) {
+        return Address.from(dbData);
+    }
+}
+```
+
+### Test code
+
+```
+@DataJpaTest
+class OrderRepositoryTest {
+
+    @Autowired
+    OrderRepository sut;
+
+    @Test
+    void saveAndQuery() {
+        Order order = Order.builder()
+                .address(Address.from("seoul"))
+                .build();
+
+        Order saved = sut.save(order);
+        Order found = sut.findById(saved.getId()).get();
+
+        assertThat(saved).isEqualTo(found);
+    }
+}
+```
