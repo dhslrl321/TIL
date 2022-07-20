@@ -1,0 +1,37 @@
+# value 객체 mapping
+
+### 목차
+
+- 서론
+- EmbeddedId
+- Embedded
+- Embeddedable
+- AttributeOverrides
+- AttributeOverride
+
+# 서론
+
+- 궁금증
+  - Entity 에서 value 타입의 객체들을 field 로 가질 때 어떻게 이들을 db schema 로 매핑시킬까?
+- 어떤 원리로 이게 되는걸까?
+
+# @Embeddable
+
+- value 객체에서 사용될 클래스 위에 해당 객체는 value 객체임을 알려주는 어노테이션
+
+# @EmbeddedId
+
+- 엔티티 클래스에 적용된 Embedded 클래스의 Primary Key 를 의미한다
+- 해당 클래스에는 `@Id` 어노테이션이 존재하지 않아야 하며 `@Embeddable` 어노테이션도 하나만 존재해야 한다
+
+# @Embedded
+
+- embeddable 한 value 객체의 property 를 명시함
+  - 꼭 `@Embeddable` 어노테이션이 붙은 클래스에만 사용해야 함
+
+# @AttributeOverride
+
+# @AttributeOverrides
+
+- Used to override mappings of multiple properties or fields.
+- 다수의 프로퍼티나 필드에 대한 mapping 오버라이드로 사용된다.
