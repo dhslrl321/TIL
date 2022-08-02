@@ -1,0 +1,227 @@
+해당 **제어 불가능한 것을 제어하자** 라는 글은 2편의 시리즈로 이루어져 있습니다.
+
+1. [static method 를 mocking 하기 힘든 이유](https://wonit.tistory.com/631) <- **현재 글**
+2. [static method 를 mocking 하는 다양한 방법들](https://wonit.tistory.com/632)
+
+시리즈 1. **static method 를 mocking 하기 힘든 이유** 에서는 junit 동작과 관련이 있습니다.
+빠른 해결법을 원하신다면 시리즈 2. **static method 를 mocking 하기** 로 바로 가셔서 확인하셔도 무방합니다
+
+---
+
+### 목차
+
+- 동기
+- static 메서드란
+- 단위 테스트
+- 제어 불가능한 영역
+- junit 에서 static 메서드를 mocking 이 안되는 이유
+- 결론
+
+# 동기
+
+최근 사내에서 특정 프로젝트의 **maintenence 업무**를 했던 적이 있다.
+
+사내에서 거대하다고 취급받는 프로젝트 중 하나였고 기존에 쌓여있던 코드들로 인해서 나에게는 조금 압도되는 프로젝트였다.
+
+내가 개발해야하는 기능을 위해서 테스트 코드를 작성하고 있는데, **기존 로직에서 static method 를 사용하고 있었기에 테스트가 조금 힘들었다**.
+
+#### 해당 static method 를 호출하기 위해서는 **생성이 복잡한 객체를 생성**해내야 했고 특정한 **상태를 유지**했어야 했다.
+
+그래서 이를 해결하려다 보니 다양한 방법을 찾아보게 되었고, 꽤나 많은 코드를 수정했어야 했다.
+
+#### 이 과정에서 내가 경험한 것들이 꽤나 유용하고 재미난 것들이 있었다.
+
+그 중에는 이미 사내에서 다른 프로젝트에 이와 같은 상황을 대비해 만든 해결책도 있었고 유용한 라이브러리도 있었다.
+
+이 방법들이 나에게 너무 인상적이었기에 이 글을 한 번 시작해보려 한다.
+
+우선 이번 글을 우연히 들어온 독자도 있을 것이니 이번 글에서는 **배경 설명에 대해서 먼저** 하려한다.
+
+그리고 다음 글에서 **실제 해결법**에 대해서 이야기해볼 것이다.
+
+---
+
+# **java 에서 static 이란**
+
+static 은 한글로 번역하면 **정적인, 움직임이 없는, 고정된**의 의미를 갖고 있는 단어이다.
+
+자바나 여러 programming language 에서는 static 이라는 키워드가 존재하는데 주로 사용하는 의미는 **공유된 메모리의 영역을 사용하는 무언가** 쯤으로 말할 수 있다.
+
+그 무언가는 block 이나 variable 이 될 수도 있고 method 가 될 수 있으며 class 가 될 수 있다.
+
+이렇게 우리가 static 을 사용하는 이유는 바로 **Shared Resource**, 즉 공유를 위해서 사용한다.
+
+static 으로 선언한 코드는 **메모리에 static 영역에 올라가게 되는데** 이렇게 되면 **동적 메모리 할당의 heap 영역이나 변수의 stack 영역**에 그 만큼 **여유 공간**이 생기기 때문에 Memory Management 입장에서는 꽤나 좋은 선택지가 된다.
+
+또한 정적 메서드로 만들면 클래스를 메모리에 로드하는 시점에 메서드가 결정되므로 **인스턴스를 만들지 않아도 된다는 장점**이 있다.
+
+그런 이유로 정적 메서드는 주로 Input/Output 이 명확한 functional 한 util 혹은 static constructor 로 사용되곤 한다.
+
+```java
+LocalDateTime createdAt = LocalDateTime.now();
+
+User user = User.of();
+```
+
+하지만 static 키워드에도 단점은 존재한다.
+
+바로 Programming 에서 Shared 의 고질적인 문제인 **공유 자원에 따른 race condition, mutex, locking** 이다.
+
+이에 관련된 이야기는 할 이야기가 또 많으니 주제를 따로 잡아서 이야기하도록 하고 static 에 대한 이야기는 이쯤에서 마무리하겠다
+
+# **단위 테스트, Unit Test**
+
+단위 테스트의 핵심은 한 단어로 정리하면 **isolation** 이다.
+
+즉, 내가 테스트하고자 하는 대상인 sut,(System Under Test) 를 고립시켜 테스트 대상이 행위할 수 있는것 자체에 집중할 수 있는 테스트를 의미한다.
+
+단위 테스트는 통합 테스트와 다르게 DoC (Depended On Component) 에 대해서 적절한 Test Double 이 필요하다.
+
+위의 두 문장을 코드로 풀어서 설명하자면 다음과 같다.
+
+### 주문 금액을 계산하는 TotalPaymentCalculator
+
+아래 코드를 보면 **TotalPaymentCalculator** 는 **DiscountPolicyLoader**와 협력하고 있다.
+
+그리고 `calculateFee()` 메서드를 통해서 **DiscountPolicyLoader** 에게 할인 정책들을 가져오도록 하고 적절한 로직을 수행한다고 가정해보자
+
+```java
+@RequiredArgsConstructor
+public class TotalPaymentCalculator {
+
+  private final DiscountPolicyLoader policyLoader;
+
+  public Price calculateFee() {
+    Policies policies = policyLoader.load();
+    // TODO impl
+  }
+}
+```
+
+그럼 누군가는 **TotalPaymentCalculator** 대한 `calculateFee()` 에 대한 기능을 테스트하고 싶어할 수 있다.
+
+#### 그래서 sut 는 **TotalPaymentCalculator** 이고 doc **DiscountPolicyLoader** 인 **단위 테스트**를 작성한다고 가정해보자.
+
+테스트에서 자주 사용되는 JUnit 을 사용한다고 가정하면 다음과 같이 구성할 수 있다
+
+```java
+@ExtendWith(MockitoExtension.class)
+class TotalPaymentCalculatorTest {
+
+  @InjectMock
+  TotalPaymentCalculator sut;
+
+  @Mock
+  DiscoundPolicyLoader loader;
+
+  @Test
+  void name() {
+    given(loader.load()).willReturn(new DiscountPolicy());
+
+    Price actual = sut.calculateFee();
+
+    assertThat(actual).isNotNull();
+  }
+}
+```
+
+이렇듯 sut 에 대해서만 관심이 있고 sut 만 집중하고 싶어서 doc 를 test double 로 만들어줬고 sut 의 기능을 테스트하고 있는 것이다.
+
+# **제어 불가능한 영역**
+
+우리는 앞서 보았던 단위 테스트에서 sut 에 집중하기 위해서 sut 가 책임지고 있지 않는 기능에 대해서는 mocking 을 해줬다.
+
+#### 즉, 우리가 sut 를 위해 외부의 것들을 제어한 것이다
+
+하지만 sut 에서도 제어가 불가능한 것이 있다.
+
+**바로 static method 이다**
+
+만약 어떤 sut의 기능이 static method 를 이용한다면 sut 의 기능이 **실행되기 전에 이미 static method 가 결정**되기 때문에 제어가 힘들어진다.
+
+코드로 보자
+
+### Using non-static
+
+```java
+@RequiredArgsConstructor
+public class TotalPaymentCalculator {
+
+  private final DiscountPolicyLoader policyLoader;
+
+  public Price calculateFee() {
+    Policies policies = policyLoader.load();
+    // TODO impl
+  }
+}
+```
+
+이 코드는 생성자로 메서드의 인스턴스를 주입받고 해당 인스턴스의 메서드를 실행한다.
+
+그러므로 **TotalPaymentCalculator** 과 협력하기 위한 객체가 위 코드상에서는 결정되지 않았다.
+
+결국 우리가 **제어할 수 있는 객체를 넣을 수 있다는 것**이다.
+
+### Using static
+
+```java
+public class TotalPaymentCalculator {
+
+  public Price calculateFee() {
+    Policies policies = DiscountPolicyLoader.load();
+    // TODO impl
+  }
+}
+```
+
+위의 코드는 **DiscountPolicyLoader** 에게 static method 를 호출하기에 DiscountPolicyLoader 가 이미 결정되었다.
+
+## Junit 으로 Stubbing 해보자
+
+이쯤 되면 Junit 으로 stubbing 할 수 없다는 것을 눈치챘을 것이다.
+
+그래도 혹시 모르니 Stubbing 해보자
+
+```java
+@ExtendWith(MockitoExtension.class)
+class TotalPaymentCalculatorTest {
+
+  @InjectMock
+  TotalPaymentCalculator sut;
+
+  @Test
+  void name() {
+    given(DiscoundPolicyLoader.load()).willReturn(new DiscountPolicy());
+
+    Price actual = sut.calculateFee();
+
+    assertThat(actual).isNotNull();
+  }
+}
+```
+
+이렇게 실행시킨다면 다음과 같은 로그가 나오게 된다
+
+[##_Image|kage@b33DVd/btrH2f9z4JK/r6oc539WuA6QISPslsHVuK/img.png|CDM|1.3|{"originWidth":3376,"originHeight":954,"style":"alignCenter"}_##]
+
+### 참고) junit 에서 static 메서드를 mocking 이 안되는 이유는 무엇일까?
+
+이와 관련해서 스택 오버플로에서 관련 논의가 있었다.
+
+> [stackoverflow - Why doesn't Mockito mock static methods?](https://stackoverflow.com/questions/4482315/why-doesnt-mockito-mock-static-methods) 에 의하면 mockito 에서는 mock 객체를 만들기 위해서 다이나믹 code 생성을 위해서 cglib 를 사용한다. 이것은 런타임에 클래스를 상속하게 되는데 static 멤버들에 대해서는 재정의가 불가능하기 때문이다.
+
+결국 static method 를 재정의하기 위해서는 runtime 의 byte code 조작이 필요한 것이다.
+
+_이는 다음 시간에 조금 더 자세히 알아보도록 하자_
+
+이래서 static method 가 포함된 sut 는 test double 이 힘들다는 것이다.
+
+# 결론
+
+사실 static method 를 mocking 하겠다는 것은 **설계가 잘못 되었을 가능성이 높다**
+
+#### 하지만 개발을 하다보면 잘못된 설계임을 인지하고 최선의 상황을 찾아야 할 때가 있고 늘 그렇게 해야만 한다.
+
+우리는 이번 시간을 통해서 static method 를 mocking 해야 하는 상황 자체가 나쁜 냄새가 난다는 것을 인지한다면 된 것이다.
+
+다음 시간에는 잘못된 설계에서 최선의 방법을 찾기 위해 static method 를 mocking 하는 방법을 찾아보도록 하자.

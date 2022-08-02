@@ -1,0 +1,106 @@
+# 설정
+
+- spring data jdbc 를 실행하기 위해서 필요한 설정들을 알아본다
+- 가장 빠르고 쉽게 jdbc 를 이용한 application 을 만들어본다
+
+### 목차
+
+- 기본 설정하기
+
+# 기본 설정하기
+
+- data jdbc 는 스키마 자동 생성 기능이 없어서 직접 sql 파일 만들고 띄워줘야 한다
+- 설정할 파일
+  - build.gradle
+  - init.sql
+  - docker-compose.yml
+  - application.yml
+  - java file
+    - User.java
+    - UserRepository.java
+
+### build.gradle
+
+```groovy
+plugins {
+    id 'org.springframework.boot' version '2.7.2'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    id 'java'
+}
+// 생략
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.postgresql:postgresql:42.3.6'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+```
+
+### init.sql
+
+```sql
+CREATE TABLE IF NOT EXISTS users
+(
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(25) NOT NULL,
+
+    version INT NOT NULL
+);
+```
+
+### docker-compose.yml
+
+```yml
+version: "3.9"
+services:
+  db:
+    image: postgres:latest
+    container_name: pg-ddd-jdbc-datasource
+    restart: always
+    ports:
+      - "6923:5432"
+    environment:
+      POSTGRES_DB: "ddd-jdbc-test-db"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+    volumes:
+      - ${PWD}/schema:/docker-entrypoint-initdb.d
+```
+
+### application.yml
+
+```yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6923/ddd-jdbc-test-db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  h2:
+    console:
+      enabled: true
+```
+
+### User.java & Repository
+
+```java
+@Table(name = "users")
+@Getter @Builder @ToString
+@NoArgsConstructor @AllArgsConstructor
+public class User {
+    @Id
+    private Long id;
+    private String name;
+
+    @Version
+    private Integer version;
+}
+
+public interface UserRepository extends CrudRepository<User, Long> {
+}
+```
+
+###

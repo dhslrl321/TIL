@@ -1,0 +1,32 @@
+# Mocking 하는 원리
+
+다음과 같이 클래스를 mocking 한다면 어떤 일이 벌어질까?
+
+```java
+class SomeTargetTest {
+
+  @Test
+  void test1() {
+    SomeTarget target = mock(SomeTarget.class);
+  }
+}
+```
+
+- Mockito 의 mock() 을 호출함
+  - Mocking 할 클래스의 Class 타입을 파라미터로 넘기면 내부적으로 MockSettings 객체도 함께 넘김
+  - mockitoSetting() 을 내부적으로 호출함
+    - mock 객체에 대한 추가적인 정보를 담고 있음
+    - 생성자 형태,
+- MockitoCore 를 호출함
+
+# mock() 의 첫번째 파라미터
+
+[##_Image|kage@bsCqWO/btrIdaerTBk/6Kte33It3zuJAyOcnAqqn1/img.png|CDM|1.3|{"originWidth":1526,"originHeight":876,"style":"alignCenter","width":672,"height":386}_##]
+
+# mock() 의 두번째 파라미터 MockSettings
+
+다음과 같은 해당 클래스에 대한 정보를 담고 있음
+
+[##_Image|kage@1rno8/btrH31qcl0q/M3txBOaXYSR8cZPr4MDA31/img.png|CDM|1.3|{"originWidth":1176,"originHeight":1026,"style":"alignCenter","width":631,"height":551}_##]
+
+- MockSettings 클래스가 있는 이유는 필요하다면 Custom 한 Mock Setting 을 넣을 수 있도록 하기 위함

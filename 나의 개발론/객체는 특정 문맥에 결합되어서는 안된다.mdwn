@@ -1,0 +1,168 @@
+### 목차
+
+- 동기
+- 객체는 특정 문맥에 결합되어서는 안된다
+- 로또 게임 구현하기 Overview
+- 컨텍스트 독립성
+- 어떻게 해결할 수 있을까?
+
+# 동기
+
+조영호 님의 오브젝트 스터디를 진행하면서 책의 절반의 진도가 나갔을 즈음 중간 점검 느낌으로 실습 주제를 하나 정해서 코딩을 해보기로 했다.
+
+우리는 실습의 주제로 next-step 에서 진행하는 실습 과제 하나인 [로또 게임 구현하기](https://github.com/next-step/java-lotto) 로 정했다.
+
+실습에서 실제 우리가 책에서 배운 내용을 적용해보며 코드를 객체지향적으로 구성해보는 실습을 하였는데, 꽤나 재미있는 내용이 있어서 그 경험을 공유하려 한다.
+
+# 객체는 특정 문맥에 결합되어서는 안된다
+
+객체는 특정 문맥에 결합되어서는 안된다는 이야기가 있다.
+
+특정 문맥에 결합되는 순간 객체는 딱딱해지고 결정되어진다.
+
+> 클린 아키텍처에서 말하길 **엉클 밥**은 소프트웨어를 소프트웨어 답게 부드럽게 만들게 하기 위한 방법은 변경 가능한 결정 사항을 최대한 많이 선택 가능하게 만들어야 한다고 한다
+
+이는 결국 무언가에 결정되지 않는 아키텍처를 의미한다.
+
+실제로 스터디를 진행하며 내가 실습 코드로 작성한 **로또 게임 구현** 코드를 참고해보자. 자세한 코드는 [github](https://github.com/dhslrl321/object-study/tree/main/원익님/assignment-01/part1/src/main/java/com/example) 에서 확인할 수 있다.
+
+# 로또 게임 구현하기 Overview
+
+아래 보이는 그림은 **로또 게임중 로또를 생성하는 부분의 협력 다이어그램**을 표현한 것이다
+
+[##_Image|kage@pvknP/btrHN3anDzD/tJgeM4C1pRFiIE14d6PDMk/img.png|CDM|1.3|{"originWidth":1188,"originHeight":506,"style":"alignCenter","width":891,"height":380}_##]
+
+총 4가지의 객체가 등장한다
+
+- **Lottery**
+- **Lotteries**
+- **LotteriesFactory**
+- **RandomNumberGenerator**
+
+Lotteries 는 생성될 때 생성 방법이 복잡하기 때문에 오로지 **생성만의 책임을 갖는 Factory 클래스를 만들었는데 그것이 바로 LotteriesFactory** 이다
+
+### LotteriesFactory
+
+LotteriesFactory 는 로또 자동 번호 생성을 위해서 **RandomNumberGenerator** 와 협력하고 있다.
+
+```java
+public class LotteriesFactory {
+
+    private final RandomNumberGenerator randomNumberGenerator;
+
+    public LotteriesFactory(RandomNumberGenerator randomNumberGenerator) {
+        this.randomNumberGenerator = randomNumberGenerator;
+    }
+
+    public Lotteries create() {
+        int numberLength = 6;
+        Number number = randomNumberGenerator.generateFrom(numberLength);
+        // ...생략
+    }
+}
+```
+
+여기서 문제가 발생한다
+
+# 컨텍스트 독립성
+
+컨텍스트 독립성이란 어떠한 클래스는 자신과 협력할 객체의 **구체적인 클래스**를 알아서는 안된다는 것이다.
+
+구체적인 클래스를 알면 알수록, 해당 클래스가 사용되는 특정한 문맥에 강하게 결합된다.
+
+그래서 구체 클래스를 명시하는 것이 곧 **해당 인스턴스는 어떠한 문맥에서 사용될거야! 를 명시하는 것과 같아진다**
+
+#### 위의 코드에서 LotteriesFactory 클래스는 어떠한 문맥에 강하게 결합되어 있다. 무엇일까?
+
+바로 **난수 생성기**, `RandomNumberGenerator` 라는 난수의 문맥에 결합되어 있다.
+
+이유는 코드를 보면 바로 알 수 있듯이 LotteriesFactory 의 생명주기와 동일한 것이 바로 RandomNumberGenerator 이며 곧 LotteriesFactory 는 **컴파일 시점에 문맥이 결정되어 버린다**
+
+그럼 `LotteriesFactory` 는 이제 **난수 밖에 생성하지 못하는 클래스**가 되어버린다.
+
+만약 새로운 요구사항이 들어와서 로또 발급 방법이 **자동 로또 생성 이외에도 수동으로 번호 지정해서 로또를 만들 수 있도록 해달라고 요청이 들어왔다면** 기존에 동작하던 코드를 건들어야 하는 상황이 와버린다
+
+#### 결국 소프트웨어가 **결정 사항을 성급하게 결정해버린 딱딱한 하드웨어**가 되어버리고 만 것이다.
+
+# 어떻게 해결할 수 있을까?
+
+답은 간단하다.
+
+#### 컨텍스트에 독립적이게 만들면 된다
+
+LotteriesFactory 관점에서 **랜덤하게 숫자를 생성한다는 컨텍스트에서** 독립적이게 만드는 것이다.
+
+즉, 컴파일 시점에 문맥을 결정시키는 것이 아니라 **런타임 시점에 결정할 수 있도록 만드는 것이다.**
+
+[##_Image|kage@boOOWu/btrHOjRBIbk/AZpT5MKzpyjK27vTEjrIZK/img.png|CDM|1.3|{"originWidth":1408,"originHeight":616,"style":"alignCenter","width":1056,"height":462}_##]
+
+위의 그림과 같이 LotteriesFactory 가 알고있는 것은 오로지 숫자를 생성할 수 있다는 것이다
+
+숫자가 Random 하게 생성되던 Manual 하게 생성되던 지정된 숫자만 생성되던 그런 구체적인 문맥을 모르게 하는 것이다
+
+코드로 확인해보자면 다음과 같은 인터페이스를 하나 만들 수 있다
+
+```java
+public interface NumberGenerator {
+    Number generateFrom(int length);
+}
+```
+
+그리고 해당 인터페이스의 구현체를 2가지 타입으로 각각 구현해주자
+
+1. RandomNumberGenerator
+2. ManualNumberGenerator
+
+```java
+public class RandomNumberGenerator implements NumberGenerator {
+
+    @Override
+    public Number generateFrom(int length) {
+        // impl
+    }
+}
+
+public class ManualNumberGenerator implements NumberGenerator {
+
+    @Override
+    public Number generateFrom(int length) {
+        // impl
+    }
+}
+```
+
+그리고 LotteriesFactory 는 **런타임 시에 결정될 수 있도록** Context free 한 인터페이스를 멤버로 가지고 있으면 된다.
+
+```java
+public class LotteriesFactory {
+
+    private final NumberGenerator numberGenerator;
+
+    public LotteriesFactory(NumberGenerator numberGenerator) {
+        this.numberGenerator = numberGenerator;
+    }
+
+    public Lotteries create() {
+        int numberLength = 6;
+        Number number = numberGenerator.generateFrom(numberLength);
+        // ...생략
+    }
+}
+```
+
+즉, LotteriesFactory 를 생성하는 쪽에서 정말 Random, 혹은 Manual 이라는 구체적인 방법이 필요할 경우 해당 문맥을 만들고 넣어주면 된다.
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        // random context
+        NumberGenerator randomGenerator = new RandomNumberGenerator();
+        LotteriesFactory randomLotteriesFactory = new LotteriesFactory(randomGenerator);
+
+        // manual context
+        NumberGenerator manualGenerator = new ManualNumberGenerator();
+        LotteriesFactory manualLotteriesFactory = new LotteriesFactory(manualGenerator);
+    }
+}
+```

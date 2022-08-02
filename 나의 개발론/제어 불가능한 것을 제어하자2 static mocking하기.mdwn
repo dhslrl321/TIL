@@ -1,0 +1,371 @@
+해당 **제어 불가능한 것을 제어하자** 라는 글은 2편의 시리즈로 이루어져 있습니다.
+
+1. [static method 를 mocking 하기 힘든 이유](https://wonit.tistory.com/631)
+2. [static method 를 mocking 하기](https://wonit.tistory.com/632) <- **현재 글**
+
+시리즈 1. **static method 를 mocking 하기 힘든 이유** 에서는 junit 동작과 관련이 있습니다.
+빠른 해결법을 원하신다면 시리즈 2. **static method 를 mocking 하기** 로 바로 가셔서 확인하셔도 무방합니다
+
+---
+
+### 목차
+
+- 지난 시간에 대한 정리
+- 해결법 1. 감싸기
+- 해결법 2. mockito-inline 라이브러리 이용
+- 결론
+
+# **지난 시간에 대한 정리**
+
+지난 시간 우리는 **static method 와 unit test** 가 무엇인지에 대해서 알아보았고 왜 junit 에서 `static method mocking` 이 안되는지 이유를 알아보았다.
+
+이번 시간에는 static method 를 mocking 하는 **다양한 방법**에 대해서 알아보도록 하겠다.
+
+static method 를 mocking 하는 방법은 크게 2가지가 있다.
+
+1. 객체 감싸기
+2. 라이브러리 이용하기
+
+# **static 을 mocking 하기 1. 객체 감싸기**
+
+테스트하기 좋은 객체를 만들기 위해서는 가능하다면 static 을 사용하지 않으면 되겠지만 **어쩔 수 없이 사용해야 하는 상황**이 있을 수 있다.
+
+어쩔 수 없이 사용해야 하는 상황에 대해서 한 번 다음과 같이 가정을 해보자.
+
+### 우리는 영화관에 **티켓 관리 애플리케이션**을 개발하고 있다고 해보자.
+
+티켓 관리 애플리케이션에서 우리는 ticket 만료 처리에 대한 로직을 개발하고 있다
+
+- **Ticket** 이 존재하고 Ticket 에는 만료일과 만료 여부가 존재한다
+- **TicketExpireProcessor** 가 Ticket 의 만료일을 확인하고 **최종 만료 처리**를 한다
+
+아래의 코드는 Ticket 클래스다
+
+### Ticket.class
+
+```java
+@Getter
+public class Ticket {
+
+  private boolean isUsable;
+  private final LocalDateTime endedAt;
+
+  public Ticket(LocalDateTime endedAt) {
+    isUsable = true;
+    this.endedAt = endedAt;
+  }
+
+  public void expire() {
+    isUsable = false;
+  }
+}
+```
+
+2개의 멤버를 가지고 있고 별다른 로직은 없다.
+
+### TicketExpireProcessor.class
+
+실제로 티켓의 기간을 확인하고 만료 처리를 해주는 책임을 갖는 객체이다.
+
+```java
+public class TicketExpireProcessor {
+
+  public boolean doProcess(Ticket ticket) {
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime ticketEndedAt = ticket.getEndedAt();
+
+    if (now.isBefore(ticketEndedAt)) {
+      return false;
+    }
+    ticket.expire();
+    return true;
+  }
+}
+```
+
+위의 로직은 **티켓을 검사하는데**, 만약 **티켓의 유효기간**이 지났으면 **티켓을 만료**시키는 로직이다.
+
+- 티켓이 **만료되었으면 true** 를 반환한다
+- 티켓이 **만료되지 않았으면 false** 를 반환한다
+
+#### 문제가 발생한다! 여기서 현재 시간을 쉽게 가져올 수 있도록 하는 LocalDateTime 의 now 라는 static 메서드가 사용된다.
+
+우선 문제는 인지하고 있고 TicketExpireProcessor 를 테스트한다고 해보자
+
+```java
+class TicketExpireProcessorTest {
+
+  private final static LocalDateTime _2022_05_31 = LocalDateTime.of(2022, 5, 31, 23, 59, 59);
+
+  TicketExpireProcessor sut;
+
+  @Test
+  void 오늘이_2022_05_31_이후라면_티켓이_만료된다() {
+    sut = new TicketExpireProcessor();
+
+    Ticket ticket = new Ticket(_2022_05_31);
+
+    boolean isTerminated = sut.doProcess(ticket);
+    assertThat(isTerminated).isTrue();
+  }
+
+  @Test
+  void 오늘이_2022_05_31_이전이라면_티켓은_만료되지_않는다() {
+    sut = new TicketExpireProcessor();
+
+    Ticket ticket = new Ticket(_2022_05_31);
+
+    boolean isTerminated = sut.doProcess(ticket);
+    assertThat(isTerminated).isFalse();
+  }
+}
+```
+
+테스트가 성공할까? 실패할까?
+
+이 테스트는 실패할 것이다. 그리고 문제가 있다
+
+#### 오늘이 언제냐에 따라서 이 테스트는 성공할 수도 있고 실패할 수도 있기 때문이다.
+
+만약 테스트를 돌린 시점이 **2022년 5월 31일 23시 59분 59초 전**이라면 테스트는 성공할 것이고 **이후라면 테스트에 실패**할 것이다.
+
+이럴때 어떻게 해결할 수 있을까?
+
+답은 간단하다
+
+#### LocalDateTime 을 제어할 수 있도록 다른 객체로 감싸면 된다
+
+Clock 이라는 Wrapping 객체를 만들고 **환경에 따라서 해당 클래스의 실제 구현을 바꿔주면 된다**.
+
+> 사실 Ticket 객체를 생성할 때 아예 말도 안되는 기간으로 멀리 혹은 과거로 EndedAt 을 설정할 수 있다. 하지만 이는 근본적인 해결책이 되지 않는다. 경계값 테스트를 진행하는 코드가 많다면 계속해서 Stubbing 하는 값이 달라져야 한다.
+
+#### 즉, Setter Injection 을 통해서 특정 문맥에서 다르게 동작하게 해주면 된다.
+
+## Wrapping 객체 Clock 의 등장
+
+[##_Image|kage@02KmG/btrIcHcJOuw/5kj2hy0DssJQoN5RB36gq0/img.png|CDM|1.3|{"originWidth":1496,"originHeight":1051,"style":"alignCenter","width":770,"height":541}_##]
+
+위와 같은 구조로 Wrapping 을 할 것이다.
+
+다음과 같이 Clock 인터페이스를 만들어보자
+
+```java
+public interface Clock {
+  LocalDateTime getNow();
+}
+```
+
+그리고 해당 인터페이스의 구현체를 만들어주자.
+
+```java
+public class Clocks implements Clock {
+  @Override
+  public LocalDateTime getNow() {
+    return null;
+  }
+}
+```
+
+그리고 SystemClock 과 FakeClock 이라는 inner class 를 만들고 **시점에 따라 다른 인스턴스를 사용할 수 있게 하자**
+
+```java
+public class Clocks implements Clock {
+
+  private static Clock INSTANCE;
+  private static final Clock SYSTEM_CLOCK = new SystemClock();
+
+  static {
+    INSTANCE = SYSTEM_CLOCK;
+  }
+
+  public static LocalDateTime now() {
+    return INSTANCE.getNow();
+  }
+
+
+  public static void setFakeClockBy(LocalDateTime fakeDate) {
+    INSTANCE = new FakeClock(fakeDate);
+  }
+
+  public static void rollback() {
+    INSTANCE = SYSTEM_CLOCK;
+  }
+
+  @Override
+  public LocalDateTime getNow() {
+    return null;
+  }
+
+  private static final class SystemClock implements Clock {
+
+      @Override
+      public LocalDateTime getNow() {
+        return LocalDateTime.now();
+      }
+  }
+
+  private static final class FakeClock implements Clock {
+
+    private final LocalDateTime fakeDateTime;
+
+    private FakeClock(LocalDateTime fakeDateTime) {
+      this.fakeDateTime = fakeDateTime;
+    }
+
+    @Override
+    public LocalDateTime getNow() {
+      return fakeDateTime;
+    }
+  }
+}
+```
+
+코드가 많아 보이지만 2 개의 메서드에 집중하면 된다
+
+- `setFakeClockBy(LocalDateTime fakeDateTime)`
+- `rollback()`
+
+### **setFakeClockBy(LocalDateTime fakeDateTime)**
+
+은 런타임 시점에 동적으로 파라미터의 DateTime 으로 LocalDateTime 을 지정하는 역할을 한다.
+해당 LocalDateTime 을 통해서 **FakeClock** 의 `getNow()` 를 구현한다.
+
+### **rollback()**
+
+은 테스트가 끝나면 Clocks 의 인스턴스를 다시 정상 SystemClock 으로 돌려주는 역할을 수행한다
+
+## static 을 바로 사용하지 않도록 만들어주자
+
+그리고 이제 다시 **TicketExpireProcessor** 로 돌아가서 `LocalDateTime.now()` 를 우리가 만든 **Clocks** 의 now 로 호출하도록 하자.
+
+```java
+public class TicketExpireProcessor {
+
+  public boolean doProcess(Ticket ticket) {
+    // LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = Clocks.now();
+    LocalDateTime ticketEndedAt = ticket.getEndedAt();
+
+    if (now.isBefore(ticketEndedAt)) {
+      return false;
+    }
+    ticket.expire();
+    return true;
+  }
+}
+```
+
+그럼 **기본은 SystemClock**을 사용하는 우리의 Clock 이 동작할 것이다.
+
+#### 즉, 우리가 제어할 수 있는 Clock 이 되었다.
+
+그리고 테스트 코드에서 다음과 같이 setter injection 으로 런타임 시점에 Clock 의 인스턴스를 바꿔주게 하면 된다.
+
+```java
+private final static LocalDateTime _2022_04_21 = LocalDateTime.of(2022, 4, 21, 23, 59, 59);
+
+@Test
+void 오늘이_2022_05_31_이전이라면_티켓은_만료되지_않는다() {
+  Clocks.setFakeClockBy(_2022_04_21); // FakeClock 으로 설정
+
+  sut = new TicketExpireProcessor();
+
+  Ticket ticket = new Ticket(_2022_05_31);
+
+  boolean isTerminated = sut.doProcess(ticket);
+  assertThat(isTerminated).isFalse();
+
+  Clocks.rollback(); // 다시 SystemClock 으로 롤백
+}
+```
+
+이렇게 우리가 원하는 객체로 바꿔서 **제어 불가능한 것을 제어 가능하도록**하였다.
+
+# static 을 mocking 하기 2. mockito-inline 라이브러리 이용
+
+위 방법은 사실 **범용적으로 사용될 수 있다고 생각하지 않는다**.
+
+기존에 동작하던 코드를 수정해야 하기 때문에 적용하기 힘든 분야도 분명 있을 것이다.
+
+그래서 많은 블로그나 글에서 설명하는 mockito 를 이용하여 static method mocking 하기에 대해서 간단하게 설명하려 한다.
+
+**mockito static method mocking** 이라는 주제로 구글링 하면 많이 나오는 방법이다.
+
+## mockito-inline
+
+[지난 시간](#) 우리는 mockito 에서 static, final 클래스 혹은 멤버에 대해서는 mocking 이 힘들다는 것을 이야기했었다.
+
+사실 아예 불가능하지는 않다.
+
+[##_Image|kage@bskz6U/btrH1AlNsSf/NiQMe8t3ZK7f6QCWCBgQw0/img.png|CDM|1.3|{"originWidth":3078,"originHeight":1642,"style":"alignCenter"}_##]
+
+mock 객체를 생성할 때, method call stack 을 따라가면 내부적으로 MockMaker 이라는 객체를 통해서 mock 객체를 만든다는 것을 알 수 있다.
+
+[##_Image|kage@ccpmaB/btrH6HLOFo7/oVkwKkKen9ibWcFPcKELI0/img.png|CDM|1.3|{"originWidth":2382,"originHeight":632,"style":"alignCenter","width":720,"height":191}_##]
+
+이 mockMaker 는 다양한 형태의 구현체로 이루어져 있는데, mockito 에서 static member 에 대한 mocking이 되지 않는 이유는 바로 **SubclassByteBuddyMockMaker** 때문이다.
+
+mockito 에서는 **SubclassByteBuddyMockMaker** 를 이용해서 mock 객체를 생성한다.
+
+mockito 가 사용하는 MockMaker 대신에 mockito-inline 이 사용하는 MockMaker 를 사용하면 문제를 조금 쉽게 해결할 수 있다.
+
+[##_Image|kage@b8O5oQ/btrH6Ixerze/L1MrGEacxtUhUkXYbympw0/img.png|CDM|1.3|{"originWidth":1932,"originHeight":1262,"style":"alignCenter"}_##]
+
+**SubclassByteBuddyMockMaker** 에서는 subclass 방식, 즉 상속을 통해서 mock 객체를 만드는데 이는 런타임 시에 결정되기 때문에 ByteCode 를 직접다루지 못한다.
+
+하지만 mockito-inline 라이브러리를 의존성으로 등록하는 순간 mock 객체를 만드는 mockMaker 구현체가 달라지게 된다.
+
+mockito-inline 에서는 **InlineDelegateByteBuddyMockMaker** 를 MockMaker 로 사용한다.
+
+#### **InlineDelegateByteBuddyMockMaker** 이용해서 런타임시에 Subclass 방식이 아닌 Bytecode 를 직접 조작해서 mock 객체를 만들어준다.
+
+그래서 static 객체 또한 mocking 이 가능한 것이다.
+
+하지만 주의해야할 것이 jdk 9 이상 버전에서부터 공식 지원을 한다고 한다.
+
+#### 결국 핵심은 mockito-inline 을 사용하면 된다는 것이다
+
+사용법은 다음과 같다
+
+```java
+private final static LocalDateTime _2022_05_31 = LocalDateTime.of(2022, 5, 31, 23, 59, 59);
+private final static LocalDateTime _2022_04_21 = LocalDateTime.of(2022, 4, 21, 23, 59, 59);
+
+@Test
+void 오늘이_2022_05_31_이전이라면_티켓은_만료되지_않는다_lib() {
+  MockedStatic<LocalDateTime> mockedStatic = mockStatic(LocalDateTime.class);
+  given(LocalDateTime.now()).willReturn(_2022_04_21);
+
+  Ticket ticket = new Ticket(_2022_05_31);
+
+  boolean isTerminated = sut.doProcess(ticket);
+
+  assertThat(isTerminated).isFalse();
+
+  mockedStatic.close();
+}
+```
+
+여기서 주의해야할 것이 하나가 있다.
+
+마지막에 자원에 대한 close() 를 호출해줘야 한다.
+
+mockStatic 의 내부 로직을 본다면 ThreadLocal 의 mockController 를 생성하는데
+
+[##_Image|kage@NW1QD/btrH6IqsBDj/WNeEA4BoVKsvOzLzUg4C21/img.png|CDM|1.3|{"originWidth":2960,"originHeight":782,"style":"alignCenter"}_##]
+
+만약 close 를 하지 않으면 해당 Thread 는 활성 Thread 로 남기 때문에 다른 테스트에 영향을 주게 된다고 한다.
+
+# 결론
+
+사실 static method 를 감싸는 방법 중에서도 구현 방법이 굉장히 다양하다
+
+런타임 시점에 가짜 객체와 진짜 객체를 바꿔치기 한다는 큰 맥락은 같지만 편의성을 좀 더 증대시키기 위해서 커스텀 어노테이션을 만든다거나 하는 방법도 있을 것이다.
+
+#### 하지만 이는 구현 방법에 대한 이야기이며 관통하는 핵심은 **런타임 시에 결정**할 수 있도록 우리가 제어하는 것이다.
+
+결국 테스트라는 것은 우리가 제어할 수 있는 영역과 제어하지 못하는 영역이 명확해야 하고 구분되여져야 한다.
+
+제어하지 못하는 영역이 많다는 것은 그만큼 잘못된 의존이 많다는 뜻이고 적절한 책임이 분리되지 못했다는 뜻과도 같다.
+
+이를 인지하고 해결하는 하나의 과정을 통해서 우리는 **제어**에 대해서 확실이 인식하기 시작했고 이 글을 읽는 사람들 또한 그것을 느꼇길 바란다

@@ -1,30 +1,42 @@
-# 순서
+### 1.협력 다이어그램에서 부자연스러운 부분이 있을까요?
 
-- 사전 준비
-  - java
-  - 추상화
-  - 상속
-  - 다형성
-- 객체란?
-  - 트랜젝셔널 스크립트 (절차 지향) 커피 주문 플로우
-    - 문제점
-    - 자율적이지 못함
-    - 변화에 수동적
-  - 커피 주문 플로우 개선하기
-    - 자율적인 객체
-    - 의인화
-- 역할 책임 협력
-  - 역할이란
-    - 커피 가게의 역할
-  - 책임이란
-    - 커파 가게의 책임
-  - 협력이란
-    - 커피 주문 플로우
-  - 영화 예메 설계하기
-    - 객체의 협력
-    - CRC 카드 작성
-- Springboot
-  - 서비스 레이어의 등장
-  - 서비스들 사이에서 협력하는 방법
+[루시트 차트](https://lucid.app/lucidchart/035893eb-6a1d-4f56-91ab-9995a08e3c0a/edit?invitationId=inv_089813ba-2084-4475-8e48-0f178086560c&page=SvOBZB2m~wio#)
 
-df
+1. RelayProsessor 에게 Relay 를 요청한다.
+2. RelayProsessor는 DestinationFetcher 에게 활성 중인 복수의 Destination 을 찾아온다. (이것을 통해 Destination은 ACTIVE/INACTIVE 상태가 있음을 확인)
+3. 복수의 Destination 중 순차대로 실행한다. 이 때 해당 Destination 에 맞는 DestinationPublisher 를 찾는다.
+4. 한 개의 Destination에 맵핑되는 PartitionQueue 를 꺼낸다. (이때, Destination과 PartitionQueue 는 1:1 관계이다)
+5. 꺼내온 PartitionQueue 에서 AssigndEventMessage 를 Peek 한다.
+6. Peek 한 AssigndEventMessage 를 DestinationPublisher 에게 Publish 요청을 한다.
+7. Eventpublisher 에게 PoppedEventMessage 를 event publish 한다.
+
+![image-20220728124637044](https://tva1.sinaimg.cn/large/e6c9d24egy1h4mhvane62j213f0u0gr7.jpg)
+
+### 2. Publish 하는 순서에 대한 고민
+
+### <img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4mhykxa10j213q0u0n3o.jpg" alt="image-20220728124945096" style="zoom:50%;" />
+
+Publisher 가 메세지를
+
+1. PartitionQueue 의 순서대로 1개씩 꺼내서 Publish 할 것인가?
+2. PartitionQueue 의 순서대로 N개씩 꺼내서 Publish 할 것인가?
+
+3. PartitionQueue 의 갯수만큼 비동기로 동시실행하게 할 것인가?
+
+### 3.데드락에 대한 문제 해결 방안
+
+[루시드 차트](https://lucid.app/lucidchart/035893eb-6a1d-4f56-91ab-9995a08e3c0a/edit?invitationId=inv_089813ba-2084-4475-8e48-0f178086560c&page=j~CCyjudQ_A4#)
+
+<img src="/Users/len/Library/Application Support/typora-user-images/image-20220728123339319.png" alt="image-20220728123339319" style="zoom: 50%;" />
+
+하나의 DB 에서 한쪽에서는 Add 를 하고 한쪽에서는 Peek 과 Pop 을 하게 되면 데드락 상태가 됩니다. 옵티머스락킹을 걸린 상태라면, 옵티머스락킹 예외가 발생합니다.
+
+해결 방안은 다음과 같습니다.
+
+Client 1만 Message 을 Add 하고, Pop 할 수 있습니다. Client2 는 peek 한 메세지를 peeked-message-history 에 저장합니다. Client 1 는 MessageRepository 에 MessageSize 가 N 개 일때 Peeked-message-history 에서 가장 최근까지 peeked 된 Seq 를 확인하게 MessageRepositroy 안에 Seq까지의 Message 삭제한다.
+
+<img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4mhkpb7xaj20rk0omq5e.jpg" alt="image-20220728123626280" style="zoom:50%;" />
+
+### 4.오늘의 목표
+
+위 고민 사항을 확립하고 클래스다이어그램을 그린 다음에, 어두운 영역을 다시한번 확인해본다.
