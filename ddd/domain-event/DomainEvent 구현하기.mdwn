@@ -1,0 +1,12 @@
+[DDD] DomainEvent 란 무엇일까
+
+# DomainEvent
+
+- Spring 에서 이벤트를 일으키는 방법은 3가지가 있음
+  - AbstractAggregateRoot
+  - EventPublisher
+  - ??
+- 위 세가지 중 도메인 이벤트라고 하는 것은 AbstractAggregateRoot 에서 일으키는 것만 도메인 이벤트라고 함
+  - 이유는 다른 것들은 어디서든지 일으킬 수 있기 때문에 코드로 명시적이게 드러나지 않음
+  - 그래서 marker interface 를 만들어서 명시적으로 표현하기도 함
+    - ? 무엇을 표현하지?, 어떻게 표현하지?

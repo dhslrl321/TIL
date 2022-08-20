@@ -1,0 +1,13 @@
+# Why Stpring Data JDBC
+
+- 이미 JPA 는 자바 월드에서 가장 많이 사용되는 persistence API 인데 왜 JDBC 가 존재해?
+  - JPA 는 개발자를 도와주기 위해서 많은 것들이 있다.
+  - 무엇보다도 entities 의 변화를 추적해서 lazy loading 을 할 수 있게 하고 db schema 에 따라서 객체를 생성할 수 있게 한다.
+  - 이것은 많은 것들을 쉽고 편하게 만들어준다.
+- 스프링 데이터 JDBC는 다음과 같은 설계를 통해 개념적으로 훨씬 더 간단해지는 것을 목표로 한다
+  - entity 를 load 한다면 SQL 문이 실행되고 완벽히 entity 가 로드된다.
+    - Lazy Loading 은 없다
+    - caching 도 없다.
+  - 만약 save 하길 원하면 save 되고 그렇지 않으면 save 되지 않는다.
+    - dirty checking 없다
+    - session 없다

@@ -1,0 +1,194 @@
+[Spring] ApplicationEventPublisher 를 이용해서 DomainEvent 를 발행하는 과정
+
+> 해당 글의 소스코드는 [github](https://github.com/my-research/ddd) 에서 확인할 수 있습니다. README 를 참조하세요
+
+### 목차
+
+- 동기
+- There is No Magic in spring
+
+# 동기
+
+최근에 DDD 를 학습하면서 도메인 이벤트라는 것을 알게 되었다.
+
+그러면서 Spring 에서 한 VM 안에서 이벤트를 발행하고 해당 이벤트를 handling 하는 코드를 접했고, 그와 관련해서 여러 실습을 해보던 중 Spring 에서 무언가 Magic 이 일어나고 있는것 같은 느낌을 받았다.
+
+긴 말 필요 없이 아래의 코드를 확인해보자.
+
+```java
+@Entity(name = "orders")
+public class Order {
+
+    public static Order create() {
+        return new Order();
+    }
+
+    @Id
+    private Long id;
+    private OrderStatus status = CREATED;
+
+    public void cancel() {
+        OrderCanceled event = OrderCanceled.of(id);
+        Events.raise(event); // event trigger
+        status = CANCELED;
+    }
+}
+```
+
+위의 코드는 Order 라는 실습을 위해 탄생한 가상의 도메인이다.
+
+실습의 시나리오에서는 아주 간단한 로직만을 가지고 있다.
+
+[##_Image|kage@WrIzy/btrJGVnD0zS/nUZrk2z0o7X2EmbkgW1Egk/img.png|CDM|1.3|{"originWidth":858,"originHeight":462,"style":"alignCenter","width":644,"height":347}_##]
+
+주문이 취소되면 Membership 의 상태를 변경하는 것이 다다.
+
+해당 Order 라는 가상의 도메인 코드에서 집중해야 할 부분은 `cancel()` 이라는 메서드가 하는 일이다.
+
+Events 라는 유틸리티성 클래스의 static 메서드인 `raise()` 를 호출해서 이벤트를 발행한다.
+
+#### Events 클래스를 확인해보자
+
+```java
+public class Events {
+    private static ApplicationEventPublisher publisher;
+
+    protected static void setPublisher(ApplicationEventPublisher publisher) {
+        Events.publisher = publisher; // initializing
+    }
+
+    public static void raise(DomainEvent event) {
+        if (publisher == null) {
+            throw new IllegalStateException();
+        }
+        publisher.publishEvent(event);
+    }
+}
+```
+
+Events 클래스는 Spring 의 EventDispatcher 인 ApplicationEventPublisher 를 감싸고 있는 일종의 Facade 역할을 수행한다.
+
+해당 코드에서는 `raise()` 를 호출하게 된다면 멤버로 가지고 있는 `ApplicationEventPublisher` 와 협력하여 event 를 publish 한다.
+
+`ApplicationEventPublisher` 는 스프링에서 제공하는 event publisher 인데, Events 라는 클래스에서는 사용성을 높이기 위해서 static 으로 EventPublisher 를 외부에서 주입받는다.
+
+```java
+@Configuration
+@RequiredArgsConstructor
+public class EventsConfig {
+    private final ApplicationContext applicationContext;
+
+    @Bean
+    public InitializingBean eventsInitializer() {
+        return () -> Events.setPublisher(applicationContext);
+    }
+}
+```
+
+Events 를 초기화 하기 위해서 InitializingBean 을 사용했다.
+
+자.
+
+이런 저런 과정들을 해주고 해당 이벤트를 받고 있는 event handler 로 가보자
+
+```java
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class OrderCanceledEventHandler {
+    private final MembershipTerminateService membershipTerminateService;
+
+    @EventListener(OrderCanceled.class)
+    public void handle(OrderCanceled event) {
+        log.info("OrderCanceledEvent occurred !! => {}", event);
+        membershipTerminateService.terminateBy(event.getOrderId());
+    }
+}
+```
+
+`@EventListener` 어노테이션을 추가하면 해당 이벤트가 발행될 때 Listening 하여 특정 로직을 수행할 수 있도록 한다.
+
+어떠한 마법이 숨어있는 것일까?
+
+# There is No Magic in spring
+
+늘 그렇듯 There is No Magic in spring 이다.
+
+내가 궁금한 것은 우선
+
+1. 왜 Config 에서 `ApplicationContext` 를 Events 에게 set 하는가?
+2. `@EventListener` 는 어떻게 consuming 하는가
+
+인데, 하나씩 확인해보자.
+
+## 왜 Config 에서 ApplicationContext 를 Events 에게 set 하는가?
+
+EventPublisher 를 동적으로 set 해주는 Config 코드에서 `ApplicationContext` 를 넘겨서 Events 클래스에게 `ApplicationEventPublisher` 를 설정해준다.
+
+```java
+@Configuration
+@RequiredArgsConstructor
+public class EventsConfig {
+    private final ApplicationContext applicationContext;
+
+    @Bean
+    public InitializingBean eventsInitializer() {
+        return () -> Events.setPublisher(applicationContext);
+    }
+}
+```
+
+Events 가 원하는 멤버는 ApplicationEventPublisher 인데 왜 ApplicationContext 를 넘길까?
+
+```java
+public class Events {
+    private static ApplicationEventPublisher publisher;
+
+    protected static void setPublisher(ApplicationEventPublisher publisher) {
+        Events.publisher = publisher;
+    }
+
+    public static void raise(DomainEvent event) {
+        //...
+    }
+}
+```
+
+우리가 알고 있는 `ApplicationContext` 는 IoC Container 로서 Bean Factory 역할을 수행한다.
+그런 `ApplicationContext` 에는 다양한 기능이 존재하는데, 그중 하나가 바로 **ApplicationEventPublishing** 이다.
+
+[##_Image|kage@b9Ph46/btrJE2zPjlq/Rq1eoFDjJ93QL4XDbSRXy0/img.png|CDM|1.3|{"originWidth":1920,"originHeight":248,"style":"alignCenter"}_##]
+
+실제 스프링의 코드를 확인하더라도 동일하다
+
+[##_Image|kage@lySqr/btrJCoi5qH7/xW6KogXOytCwB7FvgvLOSk/img.png|CDM|1.3|{"originWidth":1922,"originHeight":612,"style":"alignCenter"}_##]
+
+그리고 해당 `ApplicationEventPublisher` 의 구현은 `ApplicationContext` 를 상속하고 있는 `AbstractApplicationContext` 에서 존재한다.
+
+결국 `Events` 에게 `raise()` 라는 협력을 요청하게 되면 `AbstractApplicationContext` 에 존재하는 `publishEvent()` 가 호출되게 된다.
+
+Event 가 Publish 되면 Spring 에서 제공하는 `ApplicationEvent` 타입인지 먼저 확인하고 그렇지 않다면, Custom 한 Event 라면 `ApplicationEvent` 의 구현체인 `PayloadApplicationEvent` 로 변환한다.
+
+[##_Image|kage@nc7xL/btrJNHO9L1L/khpSSRk0kNU9KxUbPfo0Kk/img.png|CDM|1.3|{"originWidth":1670,"originHeight":1080,"style":"alignCenter"}_##]
+
+## `@EventListener` 는 어떻게 consuming 하는가
+
+이제 여기서부터 `@EventListener` 는 어떻게 동작하는지에 대한 실마리가 나온다.
+
+아까 봤던 `AbstractApplicationContext` 에서 조금 더 내려가다 보면 실제로 Event 를 multicast 하는 곳이 등장하게 된다.
+
+[##_Image|kage@nx59w/btrJBVVK6Sk/3zuoy5IssajrFvy1pFWct1/img.png|CDM|1.3|{"originWidth":1920,"originHeight":454,"style":"alignCenter"}_##]
+
+`ApplicationEventMulticaster` 는 여러 ApplicationListener 객체를 관리하고 이벤트를 publish 할 수 있는 도록 하는 인터페이스인데,
+
+실제로 호출되는 구현체는 바로 `SimpleApplicationEventMulticaster` 이다.
+
+[##_Image|kage@PZU3V/btrJAQ1Zzjw/q6sIJ3HFjCmMaNK0YIyYEK/img.png|CDM|1.3|{"originWidth":2512,"originHeight":340,"style":"alignCenter"}_##]
+
+그리고 해당 구현체의 내부에서 `@EventListener` 어노테이션이 붙은 ApplicationListener 들을 모두 불러와서 적절한 Listener 에게 event 를 전달하게 되는 것이다.
+
+[##_Image|kage@diYkNB/btrJFPBaKS3/m2LFobqkUmKAg9K2lDEye0/img.png|CDM|1.3|{"originWidth":1920,"originHeight":742,"style":"alignCenter"}_##]
+
+### References
+
+- [https://docs.spring.io/spring-framework/docs/3.0.x/javadoc-api/org/springframework/context/ApplicationContext.html](https://docs.spring.io/spring-framework/docs/3.0.x/javadoc-api/org/springframework/context/ApplicationContext.html)

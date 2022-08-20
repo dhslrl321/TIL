@@ -1,0 +1,16 @@
+# DDD and RDB
+
+- 모든 Spring Data module 은 DDD 에서 소개되는 repository, aggregate, aggregate root 에 영감을 받았다
+- aggregate 은 일관성에 보장을 받는 entity 의 그룹이다.
+  - Order 과 OrderItem 이 그 예다
+  - 각각의 aggregate 는 하나의 aggregate root 를 갖는다
+  - aggregate 에 존재하는 entity 는 aggregate root 에 의해서만 접근되어져야 한다
+    - 이것이 바로 일관성이다
+- repository 는 특정 유형의 aggregate 의 영구 저장소의 추상화다.
+  - 일반적으로 하나의 aggregate root 당 하나의 repository 를 의미한다
+  - Sprign Data JDBC 에서는 aggregate root 에 포함되는 모든 entity 는 해당 aggregate root 로만 접근된다.
+    - 즉 aggregate root 에서만 각각의 aggregate 에 접근할 수 있도록 ManyToOne 매핑을 지원하지 않는다.
+
+```
+A repository is an abstraction over a persistent store that looks like a collection of all the aggregates of a certain type. For Spring Data in general, this means you want to have one Repository per aggregate root. In addition, for Spring Data JDBC this means that all entities reachable from an aggregate root are considered to be part of that aggregate root. Spring Data JDBC assumes that only the aggregate has a foreign key to a table storing non-root entities of the aggregate and no other entity points toward non-root entities.
+```

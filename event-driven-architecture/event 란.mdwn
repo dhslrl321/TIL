@@ -1,0 +1,130 @@
+# Event 란
+
+Event 는 무엇일까?
+
+Event 의 개념은 간단하다.
+
+#### 이벤트는 과거에 일어난 어떠한 사건이다.
+
+Event-Streaming-Platform 에서는 이러한 이벤트를 통해서 분산된 환경에서 데이터를 주고받고 어떠한 **side effect 를 일으키**거나 특정 **process 를 trigger 하며** 어떨 대는 데이터를 **동기화를 하기도 한다.**
+
+이러한 이벤트를 사용하는 이유는 여러 이유가 있겠지만 개인적으로 생각하는 가장 큰 이유는 바로 **시스템간 강하게 결합된 문제**라고 생각한다.
+
+예를 들어서 다음과 같은 상황을 봐보자.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderCancelService {
+
+    private final OrderRepository repository;
+
+    public void cancelBy(Long orderId) {
+        Order order = repository.findById(orderId).orElseThrow(NoSuchElementException::new);
+        order.cancel();
+        repository.save(order);
+    }
+}
+```
+
+`OrderCancelService` 는 주문을 취소하는 어떤 상황을 코드로 표현한 것이다.
+
+`cancelBy` 라는 메서드를 읽어보면 다음과 같은 것들을 한다.
+
+- orderId 로 Order 를 조회한다.
+- Order 를 cancel, 취소한다
+- 취소된 order 를 update 한다.
+
+여기에 **어떤 요구사항이 추가되었다**고 가정해보자.
+
+#### 주문이 취소되면 해당 주문에 따른 멤버십을 해지시켜야 한다
+
+[##_Image|kage@bRrLpQ/btrJMzRpVe4/FVaAdnHiFBFdPbsqDOEct0/img.png|CDM|1.3|{"originWidth":572,"originHeight":176,"style":"alignCenter","width":429,"height":132}_##]
+
+그렇다면 다음과 같이 개발할 수 있을 것이다.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderCancelService {
+
+    private final OrderRepository orderRepository;
+    private final MembershipRepository membershipRepository;
+
+    public void cancelBy(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(NoSuchElementException::new);
+        order.cancel();
+        orderRepository.save(order);
+
+        // Membership 해지
+        Membership found = membershipRepository.findByOrderId(orderId).orElseThrow(NoSuchElementException::new);
+        found.terminate();
+        membershipRepository.save(found);
+    }
+}
+```
+
+해당 주문의 id 를 통해서 membership 을 조회하고 또 저장하고 있다.
+
+그런데 설상가상으로 새로운 요구사항이 또 추가되었다.
+
+#### 멤버십이 해지되면 해당 멤버십을 가지고 있는 사용자에게 해지 문자를 보내달라고 한다.
+
+[##_Image|kage@cmleYZ/btrJLSDF6gg/ojxYhc3uHczrW5nNbK9kp0/img.png|CDM|1.3|{"originWidth":924,"originHeight":176,"style":"alignCenter","width":693,"height":132}_##]
+
+그렇다면 또 다음과 같이 개발할 수 있을 것이다.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderCancelService {
+
+    private final OrderRepository orderRepository;
+    private final MembershipRepository membershipRepository;
+    private final NotificationService notificationService;
+
+    public void cancelBy(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(NoSuchElementException::new);
+        order.cancel();
+        orderRepository.save(order);
+
+        // Membership 해지
+        Membership found = membershipRepository.findByOrderId(orderId).orElseThrow(NoSuchElementException::new);
+        found.terminate();
+        Membership terminatedMember = membershipRepository.save(found);
+
+        PhoneNumber number = terminatedMember.getPhoneNumber();
+        notificationService.sendSms(number, "멤버십이 해지되었습니다. 이용해주셔서 감사합니다.");
+    }
+}
+```
+
+이렇게 하나하나 요구사항이 생길 떄 마다 코드가 수정되어야 하고 결국 개방 폐쇠 원칙을 어기는 꼴이 된다.
+
+또 다른 문제가 있다.
+
+`OrderCancelService` 는 무엇을 하는 책임을 가지고 있을까?
+
+문자 전송? 멤버십 해지? 주문 취소? 환불?
+
+물론 위의 코드는 어느 정도 비약이 존재하지만 이런식으로 점점 시간이 지날때마다 각자가 가져야하는 책임이 불문명해진다.
+
+#### 이 문제를 해결하려면 여러 방법 중 이벤트를 발행하는 방법이 있다.
+
+[##_Image|kage@Z51eQ/btrJItYJEWm/Gw8aUElzzWr1COzG7OQVuK/img.png|CDM|1.3|{"originWidth":902,"originHeight":748,"style":"alignCenter","width":677,"height":561}_##]
+
+위와 같이 이벤트, 즉 어떠한 사건을 이용해서 해당 사건에 관심있는 것들에게 후속 작업을 요청하게 할 수 있다.
+
+# EDA, Event-Driven-Architecture 란 무엇일까
+
+Event-Driven-Architecture 가 바로 위에서 말한 문제의 해결의 실마리가 될 수 있는 아키텍처 설계 기법이다.
+
+#### 시스템에서 **동기적으로 어떠한 프로세스가 실행**되는 것이 아니라 누군가가 **이벤트를 발행**하면 해당 이벤트에 관심있어라 하는 다른 누군가가 **해당 이벤트를 수신해서 처리**하는 방식의 아키텍처이다.
+
+어떤 글을 본다면 EDA 는 분산된 환경에서만 사용할 수 있는것 처럼 표현하지만 개인적으로는 동의하지 않는다.
+
+분산 아키텍처 환경에서 상호 간 결합도를 낮추기 위해 비동기 방식으로 메시지를 전달하는 패턴으로 주로 Message Broker(Kafka, RabbitMQ)와 결합하여 구성됩니다.
+
+### References
+
+- [https://akasai.space/architecture/about_event_driven_architecture/](https://akasai.space/architecture/about_event_driven_architecture/)
