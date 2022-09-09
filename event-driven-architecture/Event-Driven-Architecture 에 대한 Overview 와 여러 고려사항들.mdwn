@@ -1,0 +1,246 @@
+Event-Driven-Architecture 에 대한 Overview 와 여러 고려사항들
+
+### 목차
+
+- Event 란
+- Event Driven Architecture 란
+- Event Driven Architecture 의 구현 모델
+- Event-Driven-Architecture 에서 고려해야할 문제들
+
+# Event 란
+
+Event 는 무엇일까?
+
+Event 의 개념은 간단하다.
+
+#### **이벤트는 과거에 일어난 어떠한 사건이다.**
+
+Event-Streaming-Platform 에서는 이러한 이벤트를 통해서 분산된 환경에서 데이터를 주고받고 어떠한 **side effect 를 일으키**거나 특정 **process 를 trigger 하며** 어떨 대는 데이터를 **동기화를 하기도 한다.**
+
+이러한 이벤트를 사용하는 이유는 여러 이유가 있겠지만 개인적으로 생각하는 가장 큰 이유는 바로 **시스템간 강하게 결합된 문제**라고 생각한다.
+
+예를 들어서 다음과 같은 상황을 봐보자.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderCancelService {
+
+    private final OrderRepository repository;
+
+    public void cancelBy(Long orderId) {
+        Order order = repository.findById(orderId).orElseThrow(NoSuchElementException::new);
+        order.cancel();
+        repository.save(order);
+    }
+}
+```
+
+`OrderCancelService` 는 주문을 취소하는 어떤 상황을 코드로 표현한 것이다.
+
+`cancelBy` 라는 메서드를 읽어보면 다음과 같은 것들을 한다.
+
+- orderId 로 Order 를 조회한다.
+- Order 를 cancel, 취소한다
+- 취소된 order 를 update 한다.
+
+여기에 **어떤 요구사항이 추가되었다**고 가정해보자.
+
+#### 주문이 취소되면 해당 주문에 따른 멤버십을 해지시켜야 한다
+
+[##_Image|kage@bRrLpQ/btrJMzRpVe4/FVaAdnHiFBFdPbsqDOEct0/img.png|CDM|1.3|{"originWidth":572,"originHeight":176,"style":"alignCenter","width":429,"height":132}_##]
+
+그렇다면 다음과 같이 개발할 수 있을 것이다.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderCancelService {
+
+    private final OrderRepository orderRepository;
+    private final MembershipRepository membershipRepository;
+
+    public void cancelBy(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(NoSuchElementException::new);
+        order.cancel();
+        orderRepository.save(order);
+
+        // Membership 해지
+        Membership found = membershipRepository.findByOrderId(orderId).orElseThrow(NoSuchElementException::new);
+        found.terminate();
+        membershipRepository.save(found);
+    }
+}
+```
+
+해당 주문의 id 를 통해서 membership 을 조회하고 또 저장하고 있다.
+
+그런데 설상가상으로 새로운 요구사항이 또 추가되었다.
+
+#### 멤버십이 해지되면 해당 멤버십을 가지고 있는 사용자에게 해지 문자를 보내달라고 한다.
+
+[##_Image|kage@cmleYZ/btrJLSDF6gg/ojxYhc3uHczrW5nNbK9kp0/img.png|CDM|1.3|{"originWidth":924,"originHeight":176,"style":"alignCenter","width":693,"height":132}_##]
+
+그렇다면 또 다음과 같이 개발할 수 있을 것이다.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderCancelService {
+
+    private final OrderRepository orderRepository;
+    private final MembershipRepository membershipRepository;
+    private final NotificationService notificationService;
+
+    public void cancelBy(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(NoSuchElementException::new);
+        order.cancel();
+        orderRepository.save(order);
+
+        // Membership 해지
+        Membership found = membershipRepository.findByOrderId(orderId).orElseThrow(NoSuchElementException::new);
+        found.terminate();
+        Membership terminatedMember = membershipRepository.save(found);
+
+        PhoneNumber number = terminatedMember.getPhoneNumber();
+        notificationService.sendSms(number, "멤버십이 해지되었습니다. 이용해주셔서 감사합니다.");
+    }
+}
+```
+
+이렇게 하나하나 요구사항이 생길 떄 마다 코드가 수정되어야 하고 결국 개방 폐쇠 원칙을 어기는 꼴이 된다.
+
+또 다른 문제가 있다.
+
+`OrderCancelService` 는 무엇을 하는 **책임을** 가지고 있을까?
+
+문자 전송? 멤버십 해지? 주문 취소? 환불?
+
+물론 위의 코드는 어느 정도 비약이 존재하지만 이런식으로 점점 시간이 지날때마다 각자가 가져야하는 책임이 **불문명해진다**.
+
+#### 이 문제를 해결하려면 여러 방법 중 이벤트를 발행하는 방법이 있다.
+
+[##_Image|kage@Z51eQ/btrJItYJEWm/Gw8aUElzzWr1COzG7OQVuK/img.png|CDM|1.3|{"originWidth":902,"originHeight":748,"style":"alignCenter","width":677,"height":561}_##]
+
+위와 같이 이벤트, 즉 어떠한 사건을 이용해서 해당 사건에 관심있는 것들에게 **후속 작업을 요청**하게 할 수 있다.
+
+# EDA, Event-Driven-Architecture 란 무엇일까
+
+**Event-Driven-Architecture** 가 바로 위에서 말한 문제의 해결의 실마리가 될 수 있는 **아키텍처 설계 기법이다.**
+
+위에서 보여준 일련의 코드들은 **하나의 애플리케이션에서 발행하는 이벤트**인데, 이를 시스템적으로 확장시킨 것이 바로 Event Driven Architecture 이다.
+
+[##_Image|kage@dE240n/btrKbsTOMyH/XfAsoit1w28lIJUwwLBw81/img.png|CDM|1.3|{"originWidth":1648,"originHeight":1232,"style":"alignCenter","width":683,"height":511,"caption":"이벤트 기반 분산 시스템을 향한 여정 - 박용권님 발표 자료중"}_##]
+
+#### 시스템에서 **동기적으로 어떠한 프로세스가 실행**되는 것이 아니라 누군가가 **이벤트를 발행**하면 해당 이벤트에 관심있어라 하는 다른 누군가가 **해당 이벤트를 수신해서 처리**하는 방식의 아키텍처이다.
+
+즉, 전통적인 **동기 방식 (Request-Response)** 이 아니라 어떤 작업이 특정 이벤트에 대해서 실행되고 해당 이벤트에 대한 응답으로 따른 작업을 trigger 할 수 있음을 의미한다.
+
+그래서 이벤트 기반 아키텍처를 **asynchronous 통신**이라고 표현하기도 한다.
+
+이렇게 시스템이 구성된다면 특정 A 라는 시스템은 B 라는 시스템과 통신하기 위해서 기다려야 하는 불필요한 과정이 사라지게 되는 것이다.
+
+#### 그래서 Event 를 이용한 비동기 통신을 **Fire and Forgot** 이라고 표현하기도 한다.
+
+## 이러한 Event-Driven-Architecture 가 현대에 각광받는 이유가 있다.
+
+사실 EDA 는 꽤나 오래된 개념이라고 한다.
+
+martinfowler 의 블로그에서 EDA 라는 개념이 [2007 년의 글, Focusing on Events](https://martinfowler.com/eaaDev/EventNarrative.html) 에서 소개되기도 했으며 그리 최신의 기술은 아니다.
+
+하지만 현대에 들어서 EDA 의 핵심 컨셉이 **Loosely Coupled 를 기반으로 각광받는 MSA** 와 많이 닮아있으며 서로 상호 보완적인 관계를 가지고 있다.
+
+MSA 와 같은 분산 환경에서는 REST 형태의 통신으로 인한 Synchronous 의 여러 제약사항들, 이를테면 **Transaction 과 데이터의 Consistency** 나 Materialized View 처럼 반정규화된 환경에서 데이터 처리가 힘들었었고, 이를 보완하는 Asynchronous 한 통신인 Event Driven 이 주목을 받는 것이다.
+
+# Event-Driven-Architecture 의 구현 모델
+
+Event-Driven-Architecture 는 다양한 방법으로 구현될 수 있다.
+
+단순하게는 Messaging Infra 를 이용해서 **Producer/Consumer** 나 **Pub/Sub** 구조를 만드는 것부터 시작해서, **Event Store** 를 활용하여 **Event Streaming Channel** 을 만들고 계속해서 **event 를 sourcing** 하는 방법까지...
+
+## 게시/구독 모델
+
+그 중에서 가장 단순한 모델인 Pub/Sub 모델에 대해서 이야기해보자면, pub/sub 형태인 게시 구독 모델은 Messaging Infra 를 이용해서 구현한다.
+
+[##_Image|kage@rsmaH/btrKkSbHj7n/Nz1QUXKMKNPLE46rQMpVr1/img.png|CDM|1.3|{"originWidth":1342,"originHeight":704,"style":"alignCenter","width":1007,"height":528}_##]
+
+pub/sub 에서는 누군가는 이벤트를 Messaging Infra 에 게시 (publish) 하면 해당 이벤트에 관심있는 다른 누군가가 해당 이벤트를 구독 (subscribe) 해서 가져가게 된다.
+
+일종의 **Broadcasting** 형태로 Pub 하는 애플리케이션에서는 Sub 하는 애플리케이션의 존재를 모르게 된다.
+
+결국 서로 다른 책임을 갖고 있고 상대에 대한 규약이 없기 때문에 **장애 격리(Fault Isolation)** 구조로 동작하게 된다.
+
+# Event-Driven-Architecture 에서 고려해야할 문제들
+
+다음은 EDA 를 위한다면 고려해야할 문제들이다.
+
+- 도메인에 대한 새로운 관점
+- 메시지의 신뢰성
+- 장애 포인트
+- 적절한 Infrastructure
+- Debuging
+
+## 도메인에 대한 새로운 관점
+
+Event 기반으로 구성된다는 것은 대부분 어떠한 Domain Event 가 발생되는 것을 의미할 것이다.
+
+그럼 그에 맞게 도메인에 대한 설계가 필요하며 과거의 방식과는 조금 **다른 인사이트**가 필요할 수 있다.
+
+**정상 시나리오에 대한 Event 발행**과 Event 발행에 대한 **실패/재시도** 처리 또한 고려될 수 있다.
+
+## 메시지의 신뢰성
+
+Event-Driven-Architecture 에서는 하나의 비즈니스 트랜잭션을 성공적으로 끝마치기 위해서는 전달되는 이벤트의 신뢰성이 중요하다.
+
+이벤트는 **Exactly once, 반드시 한번** 전달되어야 한다.
+
+그렇지 않다면 동일한 이벤트가 여러번 처리되지 않도록 **멱등하게** 구성될 것이라는 것을 보장해야 한다.
+
+또한 메시지는 **순서가 중요하다**.
+
+Event 는 **과거에 발생했던 어떤 사건**을 의미하는데, 이 사건에 대해서는 **과거라는 시점이** 매우 중요하다.
+
+이벤트가 발생된 순서에 따라서 시스템의 상태가 변경되고 결정되기 때문이다.
+
+또한 Scaling 된 Application 에서 Event Message 를 사용할 경우 **그들 간의 race condition** 에 대해서도 고려해야 한다.
+
+## 장애에 대한 처리
+
+Event-Driven-Architecture 에서 뿐만이 아니라 여타 다른 아키텍처 패턴에서도 **장애에 대한 handling** 이 중요하다.
+
+Event-Driven Architecture 에서는 Messaging Infrastructure 를 통해서 통신이 이루어지기 때문에 Messaging Infrastructure 의 **Reliability** 가 매우 중요하다.
+
+단일 Channel 을 사용한다면 해당 Channel 에 장애가 발생할 경우 **SPOF (Single Point of Failure)** 가 될 수도 있으며 **Partitioning** 과 같이 이에 따른 적절한 Scaling 이 필요할 수도 있다.
+
+그렇다면 Scaling 된 Channel 에 대해서도 순서가 적절히 보장되어야 하고 다시 **메시지의 신뢰성으로 문제가 귀결**된다.
+
+## 적절한 Infrastructure
+
+또한 EDA 에서는 적절한 **인프라가** 매우 중요하다.
+
+이벤트 소비 실패에 대한 처리를 위해서 **DLQ** 를 사용한다거나 발생하는 모든 Event 를 한곳에 저장해야 하는 등 **message 자체를 persist 하게** 가져가야 할 때가 있다.
+
+결국 EDA 를 사용하는 관점과 방법에 따라서 RDS 를 사용하는 것이 유용할 수 있고 NoSQL 을 사용하는 것이 유용할 수도 있다.
+
+또한 모든 이벤트가 한곳에 쌓이는 **Event Store** 를 구성할 경우 **Network Throughput 을 감당할** 수 있는 시스템에 대한 설계가 필요하다.
+
+Messaging Infrastructure 가 **Apache Kafka** 를 사용해야 할 떄와 **RabbitMQ** 를 사용해야 할 때, **SQS/SNS** 를 사용할 때와 같이 **용례와 용법이 다르기** 때문에 적절한 솔루션을 찾는것도 필요하며 당연하게 그에 대한 **팀의 노하우가 존재해야 하며 역시 리소스가** 필요할 수도 있다.
+
+## Debuging
+
+**Loosely Coupled 한 환경**을 EDA 를 통해서 구축했다면 당연하게 **Debuging 이 매우 어려워짐**을 의미한다.
+
+한 Transaction 에서 Synchronous 하게 처리되는 환경이라면 어디서 문제가 발생되었는지 비교적 간단하게 찾을 수 있다.
+
+하지만 분산된 환경은 그렇지 않다는 것이다.
+
+이를 위해서는 [Open Tracing](https://wonit.tistory.com/623?category=854727) 을 도입하는 등 Debuging 을 위한 다양한 장치들이 필요할 수 있다.
+
+### References
+
+- [https://wonit.tistory.com/623?category=854727](https://wonit.tistory.com/623?category=854727)
+- [https://medium.com/dtevangelist/event-driven-microservice-란-54b4eaf7cc4a](https://medium.com/dtevangelist/event-driven-microservice-란-54b4eaf7cc4a)
+- [https://akasai.space/architecture/about_event_driven_architecture/](https://akasai.space/architecture/about_event_driven_architecture/)
+- [https://www.equalexperts.com/blog/tech-focus/event-driven-architecture-the-good-the-bad-and-the-ugly/](https://www.equalexperts.com/blog/tech-focus/event-driven-architecture-the-good-the-bad-and-the-ugly/)
+- [https://s-core.co.kr/insight/view/당신의-msa는-안녕하신가요-msa를-보완하는-아키텍처-edmevent-drive/](https://s-core.co.kr/insight/view/당신의-msa는-안녕하신가요-msa를-보완하는-아키텍처-edmevent-drive/)
+- [https://developer.confluent.io/patterns/event-stream/event-stream/](https://developer.confluent.io/patterns/event-stream/event-stream/)

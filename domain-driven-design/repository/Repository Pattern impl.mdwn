@@ -1,0 +1,10 @@
+이 글은 **이론과 실습**, 두 파트로 나뉘어져 있습니다.
+
+1. [Repository Pattern 에 대해서, 이론편](https://wonit.tistory.com/636)
+2. [Repository Pattern - 실전편 (Spring 에서 DIP 를 통해 Repository 의 선언과 구현 분리시키기)](https://wonit.tistory.com/637) **<- 현재 글**
+
+### 목차
+
+- 간략한 도메인 설명
+- 도메인 구현
+- 예제
