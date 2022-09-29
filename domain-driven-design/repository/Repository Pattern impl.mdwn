@@ -3,8 +3,449 @@
 1. [Repository Pattern 에 대해서, 이론편](https://wonit.tistory.com/636)
 2. [Repository Pattern - 실전편 (Spring 에서 DIP 를 통해 Repository 의 선언과 구현 분리시키기)](https://wonit.tistory.com/637) **<- 현재 글**
 
+#### 해당 글에서 나오는 코드는 [github repository-ddd](https://github.com/my-research/ddd/tree/master/repository-pattern) 에서 확인할 수 있습니다.
+
 ### 목차
 
-- 간략한 도메인 설명
-- 도메인 구현
-- 예제
+- 서론
+- 문제점 1. 복잡성
+- 문제점 2. 확장성
+- 해결해야 할 문제
+- 결론
+  - pros
+    - 도메인을 도메인답게
+    - cqrs 도 가능
+  - cons
+    - 그만한 가치가 있는가
+    - proxy 객체를 만들어야 한다
+
+# 서론
+
+[지난 시간](https://wonit.tistory.com/636?category=955962) 우리는 DDD 에서 이야기하는 Repository Pattern 에 대해서 알아보았다.
+
+지난 시간에 이야기했던 내용을 간단히 요약하면 다음과 같다.
+
+#### 데이터를 persist 하고 load 하는 것을 Repository 라는 인터페이스로 추상화하여 domain layer 에서 실제 구현 기술에 대해서 모르게 한다
+
+그렇다는 소리는 **Domain 과 Infrastructure 는 서로 코드베이스 상에서 격리시켜 느슨한 결합을 유지해야 한다는 것**이다.
+
+이번 시간에는 지난 시간에 개념적으로만 설명했던 문제점들을 실제로 맞닥들이면서 Domain 과 Infrastructure 가 혼재된 코드는 어떤 문제가 있는지 알아볼 것이다.
+
+그리고 Domain 과 Infrastructure 는 서로 코드베이스 상에서 격리시켜 느슨한 결합을 유지함으로써 이 문제를 해결할 것이다.
+
+이렇게 함으로써 발생할 수 있는 여러 문제들도 확인해보고 내가 내린 결론을 이야기해보도록 하겠다.
+
+먼저 문제점에 대해서 이야기해보자. 아래의 코드는 Order 라는 주문 객체 하나에 대한 정의이다.
+
+```java
+@Entity(name = "orders")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Order {
+
+    public static Order create(Long userId) {
+        Long id = LongIdGenerator.gen();
+        return new Order(id, userId, new ArrayList<>(), 0L);
+    }
+
+    public static Order by(Long id, Long userId, List<Long> orderItems, Long totalPrice) {
+        return new Order(id, userId, orderItems, totalPrice);
+    }
+
+    @Id
+    private Long id;
+    private Long userId;
+    @ElementCollection
+    private List<Long> orderItems;
+    private Long totalPrice;
+
+    private Order(Long id, Long userId, List<Long> orderItems, Long totalPrice) {
+        this.id = id;
+        this.userId = userId;
+        this.orderItems = orderItems;
+        this.totalPrice = totalPrice;
+    }
+
+    public void add(Product product) {
+        orderItems.add(product.getId());
+
+        totalPrice += product.getPrice();
+    }
+    // more ...
+}
+```
+
+위 코드에는 두가지 문제점이 크게 드러난다.
+
+1. 복잡성
+2. 확장성
+
+하나씩 확인해보도록 하겠다.
+
+# 문제점 1. 복잡성 (Domain 과 Infrastructure 가 혼재된 코드)
+
+이게 무슨 말일까?
+
+위 코드를 보면 **Domain 과 Infrastructure 가 혼재되어있어 복잡성이 느껴지는 코드**이다.
+
+복잡성을 다른 표현으로 해보자면, Order 라는 **도메인이 가져야 할 비즈니스 로직과**, Order 객체를 **저장하기 위해서 필요한 코드**들이 함께 뒤섞여 있다는 것이다.
+
+- 도메인 로직 : `add(Product product)` 메서드 등등
+- 저장하기 위한 로직 : `@Entity`, `@Id`, `@ElementCollection` 과 여러 Builder, `AllArgsConstructor` 등등
+
+비즈니스 로직이 `add(Product product)` 만 존재함에도 불구하고 비즈니스와 무관한 어노테이션이 덕지덕지 붙어있고 도메인 관점에서는 전혀 중요하지 않은 내용들이 섞여있다.
+
+과연 도메인 관점에서 `@ElementCollection` 이라는 어노테이션이 중요할까? 주문의 관점에서 해당 객체가 어떤 Id 생성 전략을 갖는지가 중요할까?
+
+전혀 중요하지 않다. 오히려 도메인에 무관한 내용이 있기 때문에 더욱 도메인에 집중할 수 없게 된다.
+
+어떻게 해결할 수 있을까?
+
+#### 답은 의외로 간단하다. 분리시키자
+
+서로 다른 책임을 갖는 두가지 클래스로 분리하자! **하나는 도메인, 비즈니스 로직에 관심을 갖는 객체, 다른 하나는 저장에 관심갖는 객체로 분리하자**
+
+### Order.java
+
+```java
+@Getter
+public class Order {
+
+    public static Order create(Long userId) {
+        Long id = LongIdGenerator.gen();
+        return new Order(id, userId, new ArrayList<>(), 0L);
+    }
+
+    public static Order by(Long id, Long userId, List<Long> orderItems, Long totalPrice) {
+        return new Order(id, userId, orderItems, totalPrice);
+    }
+
+    private final Long id;
+    private final Long userId;
+    private List<Long> orderItems;
+    private Long totalPrice;
+
+    private Order(Long id, Long userId, List<Long> orderItems, Long totalPrice) {
+        this.id = id;
+        this.userId = userId;
+        this.orderItems = orderItems;
+        this.totalPrice = totalPrice;
+    }
+
+    public void add(Product product) {
+        orderItems.add(product.getId());
+
+        totalPrice += product.getPrice();
+    }
+}
+```
+
+여전히 몇가지의 building block 이 필요하지만 그래도 도메인 다워졌다.
+
+### SpringDataJpaOrderEntity.java
+
+```java
+@Entity(name = "orders")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class SpringDataJpaOrderEntity {
+    @Id
+    private Long id;
+    private Long userId;
+    @ElementCollection
+    private List<Long> orderItems;
+    private Long totalPrice;
+}
+```
+
+이제 순수하게 persist 와 관련된 코드만 남게 되었다.
+
+우리는 Hibernate 를 사용하는 세대이기 때문에 Entity 라는 어노테이션 만으로도 쉽게 저장 대상 객체라는 것을 알릴 수 있다.
+
+하지만 그렇지 않는 상황이라면? 걱정 없다. 더러워지는 것은 `SpringDataJpaOrderEntity` 뿐이니까.
+
+> 다른 이야기이지만 이름도 중요하다! 왜 **SpringDataJpaOrderEntity** 라고 했을까? domain 의 infrastructure 구현체가 SpringDataJpa 이기 때문이다. Jpa 를 쓰니까 JpaOrderEntity 라고 한다? 이것도 적절하지 않다고 생각한다. jpa 와 spring data jpa 는 서로 다른 구현 기술이기 때문에 명확히 명시해야 한다.
+
+# 문제점 2. 확장성 (새로운 비기능적 요구사항 추가)
+
+자, 이제 우리가 만들었던 비즈니스가 시장에서 가치를 인정받고 사용자들이 급격하게 많이 늘어났다고 가정해보자.
+
+기존에 사용하던 기술은 일반적인 관계형 데이터베이스였는데, 만약 엄청나게 빠른 속도로 검색이 가능해야 한다고 해보자.
+
+그리고 DB Latency 가 너무 심해서 쿼리 튜닝으로는 도저히 해결할 수 없는 상황이라고 굳이 굳이 가정해보자.
+
+#### 결국, 팀의 합의 하에 MySQL 이 아니라 Elasticsearch 를 사용해야만 한다고 결정되었다.
+
+그럼 처음 봤던 **Domain 과 Infrastructure 가 혼재된 코드라면 어떻게 해야할까?**
+
+도메인은 역시 복잡하고 저장하는 Repository 는 아마 다음과 같을 것이다
+
+```java
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    Order save(Order entity);
+    Optional<Order> findByUserId(Long id);
+}
+```
+
+이 상황에서 선택할 수 있는 선택지는 여러가지가 있지만, Spring Data 모듈을 사용하는 나는 아마도 `org.springframework.boot:spring-boot-starter-data-elasticsearch` 에서 제공하는 `ElasticsearchRepository` 를 사용할 것 같다.
+
+```java
+public interface OrderRepository extends ElasticsearchRepository<Order, Long> {
+    Order save(Order entity);
+    Optional<Order> findByUserId(Long id);
+}
+```
+
+괜찮을까? 괜찮을것이다.
+
+하지만 이렇다면 어떨까?
+
+`JpaRepository` 안에 `DeleteAllInBatch()` 라는 시그니처가 존재한다.
+
+[##_Image|kage@5aq6F/btrNbWX56fT/kko4gK3oOZ5VUKtp66RrQ0/img.png|CDM|1.3|{"originWidth":676,"originHeight":179,"style":"alignCenter"}_##]
+
+해당 메서드가 무엇을 하는지는 모르지만 어딘가에서 저 메서드를 사용한다면 큰일이다. 왜냐? `ElasticsearchRepository` 에는 해당 시그니처가 없기 때문이다
+
+[##_Image|kage@cl2obw/btrNb3JpfD2/jegRPoowKpImLGaa0wqt8K/img.png|CDM|1.3|{"originWidth":1337,"originHeight":536,"style":"alignCenter"}_##]
+
+그럼 확장을 하기 위해서 중간 사이 중재자를 두던지 어댑터를 두던지 여러 방법이 필요할 것이다.
+
+어떻게 해결할 수 있을까?
+
+#### 역시 답은 의외로 간단하다. DIP 를 활용하면 된다
+
+지난 시간에 소개했던 그림을 다시 가져와서 보자면
+
+[##_Image|kage@qVvS4/btrKl2Z0RFO/jAtPLDW6nEkdXsATqPtWd0/img.png|CDM|1.3|{"originWidth":1298,"originHeight":638,"style":"alignCenter","width":974,"height":479}_##]
+
+과 같은 형태로 구성하면 도메인과 인프라를 적절하게 떼어낼 수 있다.
+
+앞서서 도메인과 영속성 객체를 분리했듯, Repository 역시 분리시키자
+
+```java
+public interface OrderRepository {
+    Order save(Order order);
+    Optional<Order> findByUserId(long userId);
+}
+```
+
+도메인은 위와 같이 도메인에 존재하는 Repository 는 Order 객체를 알도록 하고, 영속성 인프라 레포지토리를 영속성 엔티티와 함께 사용하면 된다.
+
+```java
+public interface SpringDataJpaOrderRepository extends JpaRepository<SpringDataJpaOrderEntity, Long> {
+    SpringDataJpaOrderEntity save(SpringDataJpaOrderEntity entity);
+    Optional<SpringDataJpaOrderEntity> findByUserId(Long id);
+}
+```
+
+그럼 아마 다음과 같은 형태가 될 것이다.
+
+[##_Image|kage@bCOyrW/btrNdoFO5mk/wOx56CPBg0nQaafkOXUzGk/img.png|CDM|1.3|{"originWidth":1166,"originHeight":572,"style":"alignCenter","width":875,"height":429}_##]
+
+하지만 한가지 문제가 생긴다.
+
+#### 도메인에 존재하는 Repository 와 infrastructure 에 존재하는 Repository 의 형태가 서로 달라져버린다.
+
+그래서 이 사이에 Adapter 를 하나 두고, 해당 Adapter 가 Domain 의 Repository 와 Infrastructure 의 Repository 사이의 규격을 맞춰주면 된다.
+
+[##_Image|kage@dFjTa5/btrNa2qGVIq/8RGkTa7mfHdL1RCsa7iMhk/img.png|CDM|1.3|{"originWidth":1451,"originHeight":572,"style":"alignCenter","width":1089,"height":429}_##]
+
+코드로 보자면 다음과 같을 것이다.
+
+```java
+@Component
+@RequiredArgsConstructor
+public class SpringDataJpaOrderRepositoryAdapter implements OrderRepository {
+
+    private final SpringDataJpaOrderRepository repository;
+
+    @Override
+    public Order save(Order order) {
+        SpringDataJpaOrderEntity entity = repository.save(convert(order));
+        return convert(entity);
+    }
+
+    @Override
+    public Optional<Order> findByUserId(long userId) {
+        Optional<SpringDataJpaOrderEntity> optional = repository.findByUserId(userId);
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(convert(optional.get()));
+    }
+
+    private SpringDataJpaOrderEntity convert(Order domain) {
+        return SpringDataJpaOrderEntity.builder()
+                .id(domain.getId())
+                .userId(domain.getUserId())
+                .orderItems(domain.getOrderItems())
+                .totalPrice(domain.getTotalPrice())
+                .build();
+    }
+
+    private Order convert(SpringDataJpaOrderEntity entity) {
+        return Order.by(entity.getId(),
+                entity.getUserId(),
+                entity.getOrderItems(),
+                entity.getTotalPrice());
+    }
+}
+```
+
+해당 Adapter 를 Bean 으로 등록하고 도메인에 있는 Repository 를 사용할 때, Spring Context 에게 빈을 주입받아서 사용한다.
+
+#### 그러면 사용하는 클라이언트는 Domain 의 Repository 을 사용하는 것이지만 실제로 저장은 Infrastructure 의 Repository 가 호출되어 저장될 것이다.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final OrderRepository repository;
+
+    public Order order() {
+        return repository.save(new Order());
+    }
+
+    public Order find() {
+        return repository.findByUserId(1L);
+    }
+}
+```
+
+전체적으로 도메인과 인프라를 분리한 패키지의 모습을 확인해보자
+
+[##_Image|kage@YTLrz/btrM9QqwVJj/ZlVkRzrkoMk70QRez0Wkgk/img.png|CDM|1.3|{"originWidth":447,"originHeight":931,"style":"alignCenter"}_##]
+
+도메인, 웹, 인프라스트럭처를 gradle 모듈로 분리시켜 의존의 제약을 걸어두었다.
+
+> 다시한번 이야기하지만 위의 내용으로는 블로그 글의 한정된 특성으로 인해 이해가 어려울 수 있습니다. 자세한 사항은 [github repository-ddd](https://github.com/my-research/ddd/tree/master/repository-pattern) 에서 확인할 수 있습니다.
+
+어떤가 이해가 조금 되는가?
+
+분리를 함으로써 우리는 복잡성을 낮추고 확장성을 높이는 이점을 취할 수 있었다.
+
+하지만 분리하는 것이 마냥 좋은 것만은 아니다.
+
+몇가지 해결해야 할 문제점들이 있는데, 확인해보자
+
+# 해결해야 할 문제
+
+해결해야 할 문제들이 꽤나 있다.
+
+1. 너무 많은 컨버팅 코드
+2. 휴먼 에러
+3. JPA 사용시 Lazy Loading 불가
+
+## 너무 많은 컨버팅 코드
+
+우선 위 adapter 코드를 보면 알 수 있듯이, 너무나도 많은 컨버팅이 필요하다.
+
+만약 하나의 애그리거트에 매우 많은 중첩 객체가 존재한다면 어떻게될까?
+
+[##_Image|kage@Sb0OH/btrM9QqvZ0T/tEGyAhvIsVOhd4VoAoD1H0/img.png|CDM|1.3|{"originWidth":803,"originHeight":497,"style":"alignCenter"}_##]
+
+컨버팅을 하느라 엄청난 시간을 쏟게 될 것이다.
+
+내 경험상 이는 코드가 하드웨어로 가는 지름길인 **변경의 두려움** 이라는 매우 좋지 않은 시그널을 주더라.
+
+## 휴먼 에러
+
+위의 컨버팅 코드와 직결된 내용인데, 아래의 코드에서 문제점을 찾아보자.
+
+```java
+@Getter
+public class Order {
+    public static Order by(Long id, Long userId, List<Long> orderItems, Long totalPrice) {
+        return new Order(id, userId, orderItems, totalPrice, "");
+    }
+
+    private final Long id;
+    private final Long userId;
+    private List<Long> orderItems;
+    private Long totalPrice;
+    private final String address;
+
+    public Order(Long id, Long userId, List<Long> orderItems, Long totalPrice, String address) {
+        this.id = id;
+        this.userId = userId;
+        this.orderItems = orderItems;
+        this.totalPrice = totalPrice;
+        this.address = address;
+    }
+    // 생략
+}
+```
+
+위는 도메인 Order 이고 아래는 인프라스트럭처의 Order 이다.
+
+```java
+@Entity(name = "orders")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class SpringDataJpaOrderEntity {
+    @Id
+    private Long id;
+    private Long userId;
+    @ElementCollection
+    private List<Long> orderItems;
+    private Long totalPrice;
+}
+```
+
+문제점을 찾을 수 있는가?
+
+#### 문제는 Order 객체에 address 라는 필드가 추가되었지만 누군가의 실수로 인해서 Entity 에는 address 가 없다.
+
+이는 어쩌면 당연하겠지만 명시적으로 혹은 코드상에서 Domain 과 Infra 의 연결이 분리되었기 때문에 발생하는 문제이다.
+
+이를 컴파일 단에서 확인할 수 없으니 그만큼 안정성은 떨어질 수 있다.
+
+## JPA 사용시 Lazy Loading 불가
+
+역시 Converting 의 연장선이다.
+
+잘 알다싶이 Jpa 는 Lazy Loading 이라는 기술이 존재하고 간단히 이야기하자면 **실제 사용이 있을 때만 쿼리를 날리는 일종의 성능 전략**이다.
+
+하지만 컨버팅을 하는 과정에서 실제 참조가 이뤄지기 때문에 Lazy Loading 자체가 사라지게 된다.
+
+이를 해결하기 위해서는 이에 특화된 Proxy 를 직접 만들어서 사용해야 한다고도 하더라.
+
+# 결론
+
+결론을 이야기할 때가 되었다.
+
+운이 좋게도 참여한 프로젝트 중에서 도메인을 분리했던 프로젝트가 있고 분리하지 않았던 프로젝트가 있다.
+
+#### 도메인을 분리했던 프로젝트에서는 정말 도메인을 도메인답게 사용할 수 있더라
+
+처음 프로젝트 진행 기간중 3/4 을 fully 도메인에 집중하고 1/4 의 기간동안만 실제 구현에 대한 고민을 하고 코드를 쳐내려갔다.
+
+도메인을 개발할 때는 전혀 성능과 DB 테이블의 필드, 칼럼을 고려하지 않았다.
+
+단점을 보자면 인프라를 구현할 때 역시 convert 하는데 많은 시간을 소비했고, 여러 DB 의 제약 조건 (이를테면 낙관적 잠금으로 인한 Version 에 대한 처리) 때문에 너무나 비합리적인 코드도 존재하기도 했었다.
+
+하지만 실제 구현도 하드코드되어도 문제가 없었다. 성능이 좋지 않아도 문제가 없다.
+
+DIP 를 해뒀기 때문에 언제든지 변경할 수 있는 자신이 있기 때문이다.
+
+또한 Command Side 와 Query Side 의 분리가 있는 CQRS 도 크게 문제 없다. command 던 query 던 시작은 도메인이다
+
+#### 도메인을 분리하지 않았던 프로젝트에서는 빠른 속도감이 관건이었다.
+
+최범균님의 `도메인 주도 개발 시작하기: DDD 핵심 개념 정리부터 구현까지` 에서는 '실제로 DB 구현 기술이 바뀌는 일은 실무에서 거의 없다' 라고까지 표현한다.
+
+사실 최근에도 회사에서 DB 구현 기술이 바뀌는 경험을 했기에 위의 말에 100% 공감을 하지는 않지만 몇가지 구현 기술에 대한 어노테이션이 침투하지만 뭐 어떤가?
+
+우리는 어댑터라는 것을 알고 있고 멋진 다른 방법들도 무수히 많고 역시 언제나 답이 있을 것이다.
+
+구현 기술을 도메인에서 걷어내는 속도와 처음부터 분리시켜서 작업을 진행하는 것 사이에서 적절한 고민이 필요해 보인다.
+
+#### 그래서 무조건적인 Domain 과 구현 기술을 분리해야해! 분리하면 좋고 분리하지 않으면 안좋아 라는 이분법적인 사고는 좋지 않다.
+
+적절한 기술과 상황을 고려하자
