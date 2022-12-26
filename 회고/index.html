@@ -1,0 +1,66 @@
+<canvas id="snowfall" width="500" height="500"></canvas>
+
+<style>
+  #snowfall {
+    background: black;
+  }
+</style>
+
+<script>
+  // set up canvas
+  const canvas = document.getElementById("snowfall");
+  const ctx = canvas.getContext("2d");
+
+  // set up snowflakes
+  const flakes = [];
+  const numFlakes = 200;
+  const maxFlakeSize = 5;
+  const minFlakeSize = 1;
+  const maxSpeed = 2;
+  const minSpeed = 0.5;
+
+  // create snowflakes
+  for (let i = 0; i < numFlakes; i++) {
+    flakes.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * (maxFlakeSize - minFlakeSize) + minFlakeSize,
+      speed: Math.random() * (maxSpeed - minSpeed) + minSpeed,
+      alpha: Math.random()
+    });
+  }
+
+  // draw snowflakes
+  function drawSnowflakes() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    for (let i = 0; i < numFlakes; i++) {
+      const flake = flakes[i];
+      ctx.moveTo(flake.x, flake.y);
+      ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  }
+
+  // animate snowflakes
+  function animateSnowflakes() {
+    for (let i = 0; i < numFlakes; i++) {
+      const flake = flakes[i];
+      flake.y += flake.speed;
+      if (flake.y > canvas.height) {
+        flake.y = 0;
+      }
+    }
+  }
+
+  // update and draw snowflakes
+  function update() {
+    drawSnowflakes();
+    animateSnowflakes();
+    requestAnimationFrame(update);
+  }
+
+  // start animation
+  update();
+</script>
