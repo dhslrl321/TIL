@@ -1,0 +1,148 @@
+{
+  "main": {
+    "id": "767a0ca7965ec675",
+    "type": "split",
+    "children": [
+      {
+        "id": "f0303f13028f7c3b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8a007188ea9d157d",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5684a535f68ef42e",
+    "type": "split",
+    "children": [
+      {
+        "id": "d959d0cb5f6266bc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0bb85a3f7a11236c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "45c18e23930e4b26",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "65af8f96ec2f5bbe",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6ea9f4b2905923bf",
+    "type": "split",
+    "children": [
+      {
+        "id": "a100150dde61bd21",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e96eeda62b4153de",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "faec24baa28f7694",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "652edc263efba947",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "facc35c8373d839b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "8a007188ea9d157d",
+  "lastOpenFiles": [
+    "01.object-oriented-programming/specification pattern 를 이용한 확장성 있는 시스템 만들기.md",
+    "01.object-oriented-programming/repeat vs iterate.md",
+    "01.object-oriented-programming/context 란.md",
+    "세미나/NHN Forward.md"
+  ]
+}
