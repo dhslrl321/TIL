@@ -118,7 +118,7 @@ software cache 는 application layer 에서 동작하는 cache 를 생각하면 
 
 MySQL 에서 사용되는 [InnoDB buffer](http://www.asktheway.org/official-documents/mysql/refman-5.6-en.html-chapter/innodb-storage-engine.html) 나 복잡한 데이터 조합을 미리 만들어 저장하는 [materialized view](https://learn.microsoft.com/ko-kr/azure/architecture/patterns/materialized-view) 도 cache 에 속한다.
 
-# 왜 cache 가 효과적일까?
+## 왜 cache 가 효과적일까?
 
 왜 cache 가 효과적일까? 이쯤 되면 앞선 설명으로 cache 가 더 빠른 속도로 요청을 처리하는 것은 당연해 보일 것이다.
 
@@ -143,7 +143,7 @@ cache 를 사용하는 client 는 상황에 따라 다양하다.
 1. **cache hit**, cache 에 client 가 원하는 데이터가 존재해
 2. **cache miss**, cache 에 client 가 원하는 데이터가 존재하지 않아
 
-## cache hit
+### cache hit
 
 client 가 원하는 데이터가 cache memory 에 존재할 경우 cache hit 라고 한다
 
@@ -153,7 +153,7 @@ cache client 는 cache hit 시 해당 데이터를 그대로 반환하기 때문
 
 그래서 cache hit 가 많을 수록 전반적으로 시스템의 성능이 향상된다
 
-## cache miss
+### cache miss
 
 하지만 client 가 원하는 데이터가 cache 에 존재하지 않는 경우라면 이야기는 달라진다.
 
@@ -163,26 +163,83 @@ cache client 는 cache hit 시 해당 데이터를 그대로 반환하기 때문
 
 만약 cache miss 가 발생했다면 cache client 는 backing store 에 다시 요청을 통해 데이터를 조회하는 과정이 추가적으로 발생하고 성능 하락으로 이어지게 된다.
 
-## 만약 cache miss 가 발생하면?
+### cache ratio
 
-cache miss 가 발생한다면 어떤 상황이 벌어지게 될까?
+cache ratio 는 2가지가 존재한다.
 
-이 때, cache client 는 2가지를 고민해야한다
+1. cache hit ratio
+2. cache miss ratio
+
+cache hit ratio 와 cache miss ratio 는 각각에 대한 비율이다
+
+[##_Image|kage@cwM2k4/btsDBRkT8jG/5AzjY4khVTM7dVHW0ITn3K/img.png|CDM|1.3|{"originWidth":2407,"originHeight":253,"style":"alignCenter","width":1805,"height":190}_##]
+
+전체 요청(액세스)에 대비해서 얼마나 hit or miss 인지 나타내는 비율인데, 당연히 hit ratio 가 높아져야 cache 에 대한 성능 평가와 설계가 잘 되었다고 한다
+
+### cache miss 가 발생한다면 어떤 상황이 벌어지게 될까?
+
+cache miss 가 발생하면 cache client 는 2가지를 고민해야한다
 
 1. 추후를 대비해 이 데이터를 cache 에 적재해 놓을까?
 2. 만약 적재를 하려는데 cache 가 꽉 찼다면 어떤 데이터를 삭제해야하지?
 
-새로운 데이터를 cache 에 적재하려 하는데 cache 가 꽉 차있어서 다른 데이터를 방출해야 한다고 해보자.
+이 고민을 더 자세히 알아보자
 
-근데 이때 방출한 데이터가 cache 에서 자주 사용이 되었고 앞으로도 자주 사용이 될 데이터만 찾아서 방출해버린다면 cache 를 사용하는데 큰 효과가 없을 것이다
+---
 
-그래서 cache miss 시 cache 에 데이터를 적재 & 방출하는 방법에 대해서도 고민이 필요하고 이것이 바로 캐시 교체 전략이다.
+# 캐시 방출과 교체
+
+앞선 고민은 cache 를 사용할 때 한 번쯤 해봐야 하는 고민이다.
+
+이 고민 안에는 사실 2가지의 큰 개념이 숨어있는데, 그것이 바로 eviction 과 replacement 이다
+
+## 캐시 방출, cache eviction
+
+cache 는 특정한 형태의 저장소이다. 즉, 제한된 크기를 가지고 있기 때문에 언젠가는 데이터가 꽉 차게 된다.
+
+만약 새로운 데이터를 cache 에 적재하려 하는데 cache 가 꽉 차있다고 해보자
+
+그럼 당연히 cache 에 새로운 데이터를 수용할 수 있는 공간을 만들어야 할 것이다.
+
+이 때 cache 에 새로운 데이터를 추가하기 위해서는 cache 에 존재하는 특정 데이터를 **삭제라는 과정을 거쳐야 하고 이 것이 바로 cache eviction, 캐시 방출**이라고 한다
+
+## 캐시 교체, cache replacement
+
+캐시 교체는 앞선 **cache miss -> cache eviction -> load data to cache** 의 전체 프로세스를 의미한다
+
+결국 cache miss 가 발생하여 cache eviction 을 통해 공간을 만들고 새로운 데이터를 cache 에 적재하는 행위들을 통틀어서 **교체** 라고 하는 것이다
+
+이 캐시 교체는 cache 의 성능과 효율성에 있어서 아주 중요한 부분을 차지한다.
+
+### 에를 들어보자.
+
+만약 캐시가 꽉 차있어서 **임의로** 어떤 데이터를 evict 하였다.
+
+하지만 해당 데이터는 eviction 된지 얼마 안 있어 다시 교체되어 cache 에 저장되었다.
+
+하지만 또 캐시가 꽉 차서 해당 데이터를 evict 한다면 계속해서 cache miss 가 발생하게 될 것인데 그럼 cache miss ratio 가 올라가 결국 cache 의 성능이 매우 떨어지게 될 것이다
+
+그래서 cache miss 시 cache 에 데이터를 방출하는 방법에 대해 많은 고민이 필요하다
 
 # cache 교체 전략
 
-cache miss 가 발생했을 시, 새로 검색된 데이터를 다시 cache 에 적재하려 할 때, 이전에 존재했던 일부의 다른 캐시 항목이 제거가 된다.
+cache 를 교체할 때에는 전략이 필요하다
 
-이를 replacement 라고 하고 다양한 replacement 알고리즘이 존재한다
+앞선 예시처럼 cache 를 교체해야 하는데 임의이 데이터를 선택해서 교체했다고 가정해보자.
+
+그렇다면 최악의 상황에서 가장 많이 사용하는 cache 를 방출하게 되어 cache miss ratio 가 높아져 cache 를 사용하는데 큰 효과를 얻지 못하게 될 수 있다.
+
+그래서 cache 교체 전략을 잘 세운다면 cache hit ratio 를 높게 유지할 수 있는데, cache 교체 전략은 Operation System 에서 이야기하는 Page Fault 에 대한 handling 과 유사하게 처리된다.
+
+다양한 replacement algorith 이 존재하는데, 가장 대표적인 LRU 알고리즘에 대해서 알아보자
+
+요즘 사용하는 cache 는 LRU cache 가 가장 대표적이다
+
+## cache 교체 전략, LRU (Least Recently Used)
+
+LRU 알고리즘은 **가장 사용하지 않은, 오래된 데이터를 교체하는 전략**이다
+
+이 논리는 앞서 이야기한 **참조 지역성**의 특성 즉, 최근에 사용하지 않은 데이터는 미래에도 사용하지 않을 것이라는 idea 에서 시작되었다
 
 ---
 
