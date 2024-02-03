@@ -1,10 +1,10 @@
 캐시란 무엇인가 - 캐시에 대한 거의 모든 것
 
-이번에는 cache 에 대해서 알아볼 것이다.
+이번에는 **cache** 에 대해서 알아볼 것이다.
 
-cache 라고 한다면 computer science 에서 정말 다양한 분야에서 사용되고, 동일한 기능을 수행하지만 문맥에 따라서 다른 이해도가 필요하다.
+cache 라고 한다면 `computer science` 에서 정말 다양한 분야에서 사용되고, 동일한 기능을 수행하지만 **문맥에 따라서 다른 이해도**가 필요하다.
 
-나는 cache 에 대해서 web application layer 의 문맥에서 설명을 할 것이고, software cache 에 대한 설명을 주로 할 것이다.
+나는 cache 에 대해서 `web application layer` 의 문맥에서 설명을 할 것이고, `software cache` 에 대한 설명을 주로 할 것이다.
 
 hardware cache 와 더 low level 의 cache 를 원한다면 이 글은 적합하지 않을 수 있다.
 
@@ -14,7 +14,7 @@ hardware cache 와 더 low level 의 cache 를 원한다면 이 글은 적합하
 
 이번 글의 핵심을 요약하면 다음과 같다
 
-- **캐시란 무엇인가**
+- **1. 캐시란 무엇인가**
   - cache: 데이터를 저장하여 미래에 해당 데이터에 대한 요청을 더 빠르게 처리할 수 있도록 하는 hardware 혹은 software
   - cache 의 종류
     - h/w cache
@@ -22,20 +22,24 @@ hardware cache 와 더 low level 의 cache 를 원한다면 이 글은 적합하
 - **왜 cache 가 효과적일까?**
   - software 에서 프로세서의 특성인 참조 지역성을 구현한 것이 바로 캐시임
     - 참조 지역성: 프로세서가 짧은 시간 동안 동일한 메모리 위치에 특정 패턴을 가지고 반복적으로 액세스 하는 경향
-- **cache 성능과 cache 교체 전략**
-  - cache 성능
-    - cache hit & cache miss
-    - cache hit ratio
+- **cache hit 와 miss 그리고 ratio**
+  - cache hit: cache 에 조회하려는 값이 존재
+  - cache miss: cache 에 조회하려는 값이 부재
+  - cache hit ratio: hit 비율
+- **cache eviction 과 replacement**
+  - cache eviction
+    - 의도하지 않은 방출
+    - lack of memory 에 의해 발생
+    - 의도한 방출인 expiration 과는 구분됨
+  - cache replacement
+    - cache miss -> cache eviction -> load data to cache 프로세스
+- **cache 교체 전략**
   - cache 교체 정책
-    - LRU
-    - MRU
+    - `LRU` : 가장 사용하지 않은, 오래된 데이터를 교체하는 전략
+    - `MRU` : 가장 최근에 사용된 페이지를 교체하는 전략
     - 그 외의 알고리즘
-      - balady
+      - LFU
       - RR
-- **cache 성능 최적화**
-  - 성능 향상? LRU 도 포함됨
-  - multi level cache
-  - write buffer
 - **그럼 cache 는 언제 쓰는가?**
   - cache 는 비싼 리소스므로 비용 효율성을 높이려면 backing store 에 비해 작게 유지되어야 함
   - 자주 바뀌지 않는데 자주 사용되는 데이터일 경우 매우 유용함
@@ -44,29 +48,29 @@ hardware cache 와 더 low level 의 cache 를 원한다면 이 글은 적합하
 
 # 1. cache 란 무엇인가?
 
-cache 는 데이터를 저장하여 향후 데이터에 대한 요청을 더 빠르게 처리할 수 있도록 하는 h/w 혹은 s/w 이다.
+**cache 는 데이터를 저장하여 향후 데이터에 대한 요청을 더 빠르게 처리할 수 있도록 하는 h/w 혹은 s/w 이다.**
 
 cache 의 컨셉은 아주 간단하다. 그림으로 이해해보자.
 
-어떤 웹 애플리케이션이 있고 다음과 같이 요청을 처리하여 사용자가 응답을 받기까지 2,000ms 가 소요된다고 가정했을 때
+어떤 웹 애플리케이션이 있고 다음과 같이 요청을 처리하여 사용자가 응답을 받기까지 `2,000ms` 가 소요된다고 가정했을 때
 
 [##_Image|kage@bmtHZz/btsDnfsUQND/NsLcJC0ejP2aPqsQDOT0Uk/img.png|CDM|1.3|{"originWidth":1123,"originHeight":440,"style":"alignCenter","width":842,"height":330}_##]
 
-추후에도 이러한 요청이 올 것을 예측해, 연산의 결과나 응답을 미리 어떤 공간에 저장해놓는 것이다.
+추후에도 이러한 요청이 올 것을 **예측해**, 연산의 결과나 응답을 **미리** 어떤 공간에 **저장해놓는 것**이다.
 
 [##_Image|kage@GJ5Gi/btsDrgjizKK/cIAr2yBkiPKhtatKb11Dn1/img.png|CDM|1.3|{"originWidth":1123,"originHeight":837,"style":"alignCenter","width":782,"height":583}_##]
 
-그리고 이후 요청들에 대해서는 entries 를 조회하였을 때 존재하면 그 미리 저장된 결과를 바로 반환한다.
+어떤 공간에 저장된 데이터를 entry 라고 부르고 이후 요청들에 대해서는 entries 를 조회하였을 때 **존재하면** 미리 저장된 **결과를 바로 반환**한다.
 
 [##_Image|kage@7AX9J/btsDp8fgCZv/SzyrLkcD7kFDGa4fcrKXuK/img.png|CDM|1.3|{"originWidth":1123,"originHeight":837,"style":"alignCenter","width":842,"height":628}_##]
 
-만약 데이터가 entries 에 존재한다면 결과를 바로 반환할 것이고 그렇지 않다면 기존 요청과 같이 전체 플로우를 동일하게 진행하는 것이다
+만약 데이터가 entries 에 존재한다면 결과를 바로 반환할 것이지만, **그렇지 않다면 기존 요청과 같이 전체 플로우를 동일하게 진행하는 것이다**
 
 ### 캐시는 거창하지 않다.
 
-캐시는 꼭 어떠한 솔루션을 이용해야하 캐시를 쓰는 것일까? 그렇지 않다.
+캐시는 꼭 어떠한 기술(memcache)이나 툴 혹은 솔루션(redis)을 이용해야하 캐시를 쓴다고 할 수 있을까? **그렇지 않다.**
 
-단순히 코드레벨에서 db 결과값을 저장해놨다가 쓴다는 것 자체도 cache 라고 볼 수 있다
+단순히 코드레벨에서 **db 결과값을 변수(메모리)에 저장**해놨다가 요청이 오면 db 에 쿼리하지 않고 **저장된 값을 사용하는 것**도 cache 라고 볼 수 있다
 
 ```java
 public class FooService {
@@ -92,6 +96,8 @@ public class FooService {
 
 캐시는 **이전 계산의 결과**나 다른 곳에 **저장된 데이터의 복사본**을 특정 공간에 저장하여 재사용하는 것을 의미한다.
 
+결국 목적은 연산에 대한 overhead 를 줄이는 것이다
+
 - **이전 계산의 결과**: 동일한 매개변수라면 결과도 동일할 것이므로 이중 연산에 대한 overhead 를 줄여준다
 - **데이터의 복사본**: 물리적으로 떨어진 데이터를 조회할 때 발생하는 overhead 를 줄여준다
 
@@ -104,7 +110,7 @@ public class FooService {
 
 ### 캐시의 종류 - hardware cache
 
-hardware cache 는 operating system 과 computer architecture 에서 자주 언급되는 CPU cache 가 대표적이다.
+hardware cache 는 operating system 과 computer architecture 에서 자주 언급되는 **CPU cache** 가 대표적이다.
 
 [##_Image|kage@boTxJN/btsDnvCwU4G/41MwkWDtUzpFTuKi1lqT8K/img.png|CDM|1.3|{"originWidth":1568,"originHeight":1112,"style":"alignCenter","width":595,"height":422}_##]
 
@@ -126,7 +132,7 @@ MySQL 에서 사용되는 [InnoDB buffer](http://www.asktheway.org/official-docu
 
 cache 가 효과적인 이유는 computer science 에서 필연적으로 발생하는 **참조 지역성, Locality of Reference** 때문이다.
 
-### Locality of Reference, 참조 지역성 때문이다!
+### 이유는 Locality of Reference, 참조 지역성 때문이다!
 
 참조 지역성, Locality of Reference 은 **프로세서가 짧은 시간 동안 동일한 메모리 위치에 특정 패턴을 가지고 반복적으로 액세스 하는 경향**을 의미한다.
 
@@ -138,18 +144,20 @@ cache 가 효과적인 이유는 computer science 에서 필연적으로 발생�
 
 cache 를 사용하는 client 는 상황에 따라 다양하다.
 
-네트워크 캐시를 사용하는 브라우저가 될 수도, cache memory 를 사용하는 CPU 가 될 수도, global cache storage 를 사용하는 redis 가 될 수도 있다.
+네트워크 캐시를 사용하는 **브라우저**가 될 수도, cache memory 를 사용하는 **CPU** 가 될 수도, redis 와 같은 global cache storage 를 사용하는 web application 이 될 수도 있다.
 
-이러한 cache client 는 backing store 에 존재한다고 생각되는 데이터에 접근할 때 cache 를 조회하여 2가지 결론을 낸다.
+이러한 cache client 는 backing store 에 존재한다고 생각되는 데이터에 접근할 때 **cache 를 조회하여 2가지 결론**을 낸다.
 
 [##_Image|kage@bpFwan/btsDEjT1BrR/fNy9vlZeEDrpCAUyyhvD51/img.png|CDM|1.3|{"originWidth":987,"originHeight":595,"style":"alignCenter","width":566,"height":341}_##]
 
 1. **cache hit**, cache 에 client 가 원하는 데이터가 존재해
 2. **cache miss**, cache 에 client 가 원하는 데이터가 존재하지 않아
 
+모든 cache client 는 cache 에 대해 hit 하거나, miss 하게 된다
+
 ### 2-1. cache hit
 
-client 가 원하는 데이터가 cache memory 에 존재할 경우 cache hit 라고 한다
+client 가 원하는 데이터가 cache memory 에 **존재할 경우** cache hit 라고 한다
 
 [##_Image|kage@bPx4ag/btsDyDtEWZq/D0I90Bdu3hdXV9wMzOZFN1/img.png|CDM|1.3|{"originWidth":766,"originHeight":595,"style":"alignCenter","width":456,"height":354}_##]
 
@@ -159,13 +167,13 @@ cache client 는 cache hit 시 해당 데이터를 그대로 반환하기 때문
 
 ### 2-2. cache miss
 
-하지만 client 가 원하는 데이터가 cache 에 존재하지 않는 경우라면 이야기는 달라진다.
+하지만 client 가 원하는 데이터가 cache 에 **존재하지 않는 경우**라면 이야기는 달라진다.
 
 이를 cache miss 라고 한다
 
 [##_Image|kage@cT8yLv/btsDEiU7ABP/fZt43kPCkchYLIaD1kQSP1/img.png|CDM|1.3|{"originWidth":1123,"originHeight":595,"style":"alignCenter","width":738,"height":391}_##]
 
-만약 cache miss 가 발생했다면 cache client 는 backing store 에 다시 요청을 통해 데이터를 조회하는 과정이 추가적으로 발생하고 성능 하락으로 이어지게 된다.
+만약 cache miss 가 발생했다면 cache client 는 backing store 에 **다시 요청**을 통해 데이터를 조회하는 과정에 overhead 가 추가적으로 발생하고 **성능 하락**으로 이어지게 된다.
 
 ### 2-3. cache ratio
 
@@ -174,11 +182,11 @@ cache ratio 는 2가지가 존재한다.
 1. cache hit ratio
 2. cache miss ratio
 
-cache hit ratio 와 cache miss ratio 는 각각에 대한 비율이다
+`cache hit ratio` 와 `cache miss ratio` 는 각각 hit 냐 miss 냐 에 대한 비율이다
 
 [##_Image|kage@cwM2k4/btsDBRkT8jG/5AzjY4khVTM7dVHW0ITn3K/img.png|CDM|1.3|{"originWidth":2407,"originHeight":253,"style":"alignCenter","width":1805,"height":190}_##]
 
-전체 요청(액세스)에 대비해서 얼마나 hit or miss 인지 나타내는 비율인데, 당연히 hit ratio 가 높아져야 cache 에 대한 성능 평가와 설계가 잘 되었다고 한다
+전체 요청(access)에 대비해서 얼마나 hit or miss 인지 나타내는 비율인데, **당연히 hit ratio 가 높아져야** cache 에 대한 **성능 최적화와 설계**가 잘 되었다고 한다
 
 ### 그럼 cache miss 가 발생한다면 어떤 상황이 벌어지게 될까?
 
@@ -195,7 +203,7 @@ cache miss 가 발생하면 cache client 는 2가지를 고민해야한다
 
 앞선 고민은 cache 를 사용할 때 한 번쯤 해봐야 하는 고민이다.
 
-이 고민 안에는 사실 2가지의 큰 개념이 숨어있는데, 그것이 바로 eviction 과 replacement 이다
+이 고민 안에는 사실 2가지의 큰 개념이 숨어있는데, 그것이 바로 `eviction` 과 `replacement` 이다
 
 ## 3-1. 캐시 방출, cache eviction
 
@@ -211,7 +219,7 @@ cache 는 특정한 형태의 저장소이다. 즉, 제한된 크기를 가지�
 
 > cache 를 사용하다 보면 eviction 과 expiration 이라는 용어를 만날 수 있다. 이 둘은 명확히 구분되어야 하는데, eviction 은 명시적으로 의도하지 않은 방출의 행위라면 expiration 은 명시적으로 의도한 방출의 행우이다.
 
-Eviction 은 lack of memory 에 의해서 발생하는 passive 한 연산이다
+Eviction 은 `lack of memory` 에 의해서 발생하는 passive 한 연산이다
 
 **그래서 항상 cache 의 put 연산 이전에 완료되어야 한다**
 
@@ -223,7 +231,7 @@ Eviction 은 lack of memory 에 의해서 발생하는 passive 한 연산이다
 
 결국 cache miss 가 발생하여 cache eviction 을 통해 공간을 만들고 새로운 데이터를 cache 에 적재하는 행위들을 통틀어서 **교체** 라고 하는 것이다
 
-이 캐시 교체는 cache 의 성능과 효율성에 있어서 아주 중요한 부분을 차지한다.
+이 캐시 교체는 cache 의 **성능과 효율성**에 있어서 아주 **중요한 부분**을 차지한다.
 
 ### cache replacement 는 캐시의 성능과 직결된다
 
