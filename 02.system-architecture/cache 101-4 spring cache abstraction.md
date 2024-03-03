@@ -47,10 +47,11 @@ Todo Application 을 만드는 case study 를 통해 실제 사례까지 알아�
 - Case Study. Todo 를 만들어보며 배우는 Spring Cache
   - step 1. 애플리케이션 세팅 및 sample code 구현
     - cache config
-  - step 2. cacheable 을 통한 cache 조회
-  - step 3. cacheEvict 를 이용한 cache 초기화
-  - step 4. cachePut 을 이용한 cache 업데이트
-- cache 를 사용할 때 주의해야할 점
+  - step 2. `@Cacheable` 을 통한 cache 조회
+  - step 3. `@CacheEvict` 를 이용한 cache 초기화
+  - step 4. `@CachePut` 을 이용한 cache 업데이트
+  - step 5. `@Caching` 을 이용한 복합 cache 관리
+- Cache 더 잘 쓰기
   - cachePut 과 cacheEvict 를 같이 사용하는 경우
   - invalidation 누락과 stale data
 - cache expiration
@@ -191,7 +192,7 @@ Put 을 통해 하나하나 update 하기도 힘들고 할 수도 없을 때는 
 
 # Case Study. Todo 를 만들어보며 배우는 Spring Cache
 
-이제 실제로 Todo Application 을 만들어보면서 Spring Cache 를 한 번 느껴보자
+이제 실제로 간단한 Todo 를 등록하고 조회, 수정할 수 있는 Application 을 만들어보면서 Spring Cache 를 한 번 느껴보자
 
 내부적으로는 복잡할 수 있지만 Spring Cache 가 정말 추상화를 잘 해놓았기 때문에 정말 쉽게 사용할 수 있다
 
@@ -202,12 +203,123 @@ Put 을 통해 하나하나 update 하기도 힘들고 할 수도 없을 때는 
 - step 3. cacheEvict 를 이용한 cache 초기화
 - step 4. cachePut 을 이용한 cache 업데이트
 
-위의 코드와 테스트 환경을 위한 자세한 세팅 값 및 http req file 들은 [https://github.com/my-research/spring-cache](https://github.com/my-research/spring-cache) 에서 확인할 수 있다
+위의 코드와 테스트 환경을 위한 자세한 세팅 값 및 http req file 들은 [https://github.com/my-research/spring-cache](https://github.com/my-research/spring-cache) 에서 확인할 수 있다.
 
 ## step 1. Todo 애플리케이션 세팅 및 코드 구현
 
+우리가 만들어볼 TODO application 은 다음 4가지의 API 들을 제공하고 있다.
+
+[##_Image|kage@d9W5xT/btsFs2wmvOH/dO2qbuegcJrdV16A7qF3CK/img.png|CDM|1.3|{"originWidth":1844,"originHeight":1380,"style":"alignCenter"}_##]
+
+API 들은 성격에 따라서 command 와 query 로 분류할 수 있다.
+
+1. TODO 를 생성한다 (command)
+2. TODO 의 상태를 변경한다 (command)
+3. TODO 상세를 조회한다 (query)
+4. user 가 소유한 모든 TODO 를 조회한다 (query)
+
+우리는 이번 실습을 통해서 query 의 성능을 향상시키기 위하여, Spring Cache Abstraction 을 적용해보도록 할 것이다.
+
+빠르게 저 4개의 API 를 구현할 것인데 사실 핵심은 todo 를 구현하는 것이 아니므로 핵심 로직만 보여줄 것이다. 자세한 코드들은 앞서 이야기 했던 [git repository](https://github.com/my-research/spring-cache) 에서 확인할 수 있다.
+
+**먼저 todo 의 상태를 변경하는 command service 를 구현해보자**
+
+```kotlin
+// TODO 를 생성한다
+fun create(userId: Long, name: String): Todo {
+  val todo = Todo(
+    userId = userId,
+    name = name,
+  )
+  return repository.save(todo)
+}
+
+// TODO 의 상태를 변경한다
+fun transit(todoId: Long, status: String): Todo {
+
+  val todo = repository.findById(todoId).orElseThrow()
+  todo.transitTo(TodoStatus.valueOf(status))
+
+  return repository.save(todo)
+}
+```
+
+**그리고 todo 의 상태를 조회하는 query service 를 구현해보자.**
+
+여기서 눈여겨봐야 할 점은 repository 에 조회하는 로직에 캐시를 적용한 후 극적인 성능 향상을 체감하기 위해 의도적으로 Thread sleep 을 줬다는 점이다
+
+```kotlin
+// userId 에 해당하는 모든 TODO 를 조회한다
+fun findAllBy(userId: Long): List<Todo> {
+  SleepUtils.sleep()
+  return repository.findAllByUserId(userId).toList()
+}
+
+// TODO id 를 통해 상세를 조회한다
+fun findBy(id: Long): Todo {
+  SleepUtils.sleep()
+  return repository.findById(id).orElseThrow()
+}
+```
+
+이제 앞선 로직들을 http 를 통하여 호출할 수 있도록 간단한 Controller 만 구현해주면 실습 준비가 끝난다
+
 ## step 2. @Cacheable 을 이용한 cache 조회
+
+애플리케이션이 준비되었으니 실습을 시작해보자.
+
+우선 처음으로 todo 를 생성하고 조회할 것인데, 우리가 앞서 의도적인 latency 를 위하여 thread sleep 을 주었으므로 API 의 성능은 매우 낮을 것이다
+
+[##_Image|kage@no0Fw/btsFqaot3xI/vvEJUiUYNeHxiP7nNxMKJK/img.png|CDM|1.3|{"originWidth":1352,"originHeight":976,"style":"alignCenter","width":555,"height":401}_##]
+
+- 상황
+  - todo 생성 후 특정 user 에 존재하는 todos 조회
+  - thread sleep 때문에 너무 느림.
+- 해결
+  - cache 를 이용하여 연산의 결과를 cache entry 에 저장하여 제공
+  - cacheable 을 사용함
+- 결과
+  - cache 적용 후 응답이 빨라진 것을 확인할 수 있음
 
 ## step 3. @CacheEvict 를 이용한 cache 초기화
 
+- 상황
+  - 문제 발생
+  - todo 를 추가하면 findByUserId 를 하더라도 stale 데이터를 받게 됨
+- 해결
+  - todo 를 추가할 때, cache 를 invalidate 해주어야 함
+  - cacheEvict 를 이용하여 cache 에서 key 에 해당하는 cache 값을 없애줌
+- 결과
+  - cache 에서 key 에 해당하는 entry 가 제거되었으므로 다시 조회할 때는 오래 걸리지만 이후 부터는 연산이 빨라짐
+
 ## step 4. @CachePut 을 이용한 cache update
+
+- 상황
+  - todo 상태를 변경하고 싶음
+  - 문제 발생
+    - 앞선 해결책 처럼 todo 상태를 변경되어 cacheEvict 를 수행
+    - 하지만 조회할 때마다 cache miss 가 발생
+      - 성능 하락
+- 해결
+  - cachePut 을 이용하여 cache 에 직접 update 해줌
+- 결과
+  - update 를 하더라도 연산 결과가 빨라짐
+
+## step 5. @Caching 을 이용한 복합 캐시 관리
+
+- 상황
+  - userId cache 는 update 되지 않음
+  - cache evict 를 해야함
+- 해결
+  - todo 는 cachePut 을 해주기
+  - userId 는 cacheEvict 를 해주기
+    - param 으로 userId 를 못 받으니까 전체 엔트리를 지워버려야함
+  - cachePut 과 cacheEvict 를 함께 해줘야 함
+  - caching 을 이용하여 복합 캐시 설정
+
+# Cache 더 잘 쓰기
+
+- 상황
+  - cacheEvict 가 된 userid key 는 todo 가 호출될 때마다 cahce evict all entry 를 하기 때문에 miss 확률이 높아짐
+- 해결
+  - 3가지 방법 제시 후 cacheManager 호출하는 것으로 수정
