@@ -272,6 +272,22 @@ fun findBy(id: Long): Todo {
 
 [##_Image|kage@no0Fw/btsFqaot3xI/vvEJUiUYNeHxiP7nNxMKJK/img.png|CDM|1.3|{"originWidth":1352,"originHeight":976,"style":"alignCenter","width":555,"height":401}_##]
 
+해당 메서드에 캐시를 이용하여 메서드 호출 결과를 cache entry 에 저장하여 이후 연산에 대한 성능 향상을 기대할 수 있다.
+
+우리가 배웠던 `@Cacheable` 을 사용해서 성능의 차이를 비교해보자
+
+`@Cacheable` 를 사용하기 위해서는 cacheName 을 지정해주어야 한다.
+
+cacheName 을 지정해준다면 해당 메서드가 호출될 때 전달되는 인자의 값을 토대로 cache key 가 결정되고, return 되는 값이 해당 key 에 해당하는 value 가 된다.
+
+```kotlin
+@Cacheable(cacheNames = ["todosByUserId"])
+fun findAllBy(userId: Long): List<Todo> {
+  SleepUtils.sleep()
+  return repository.findAllByUserId(userId).toList()
+}
+```
+
 - 상황
   - todo 생성 후 특정 user 에 존재하는 todos 조회
   - thread sleep 때문에 너무 느림.
