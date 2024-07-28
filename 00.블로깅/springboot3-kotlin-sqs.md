@@ -1,11 +1,11 @@
-AWS SQS + Spring Boot 3 + kotlin 인프라 구축하기
+[##_Image|kage@VKIBp/btsIPSdQmpp/YqWX5EZkyEW38kWaVZTiKK/img.png|CDM|1.3|{"originWidth":1078,"originHeight":578,"style":"alignCenter","width":500,"height":268}_##]
 
 ### 관련 글
 
-- [AWS SQS + Spring Boot 3 + kotlin 연동하며 핵심 설정들에 대하여](#)
+- [AWS SQS + Spring Boot 3 + kotlin 인프라 구축하기](https://wonit.tistory.com/670)
 - [AWS SQS 를 이용한 DLQ 설정](#)
 - [message converter 를 이용한 sqs message serializer](#)
-- [dlq 에러 핸들링](#)
+- [AWS SQS 의 DLQ 처리 가이드](#)
 
 이번 글의 목표는 Spring Boot 과 kotlin 을 이용해서 SQS 를 연동하는 application 을 개발하는 것이다.
 
@@ -178,10 +178,30 @@ standard type 은 가장 simple 한 형태의 queue 이다. 일반적인 상황�
 
 FIFO 는 가장 달성하기 어렵다는 message delivery semantics 의 exactly once 를 표방한다.
 
-1. standard vs FIFO
-2. visibility timeout
-3. retention period
-4. maximum message size
+FIFO 형태의 queue 를 사용할 경우 가장 안정적이나 처리량에 대한 고민과 error handling 시 blocking 되는 다양한 이슈들을 대응해야 한다. (이는 다음 DLQ 에서 자세히 알아보자)
+
+### visibility timeoue 과 retention period
+
+메시지 보존 기간(Message Retention Period)과 가시성 타임아웃(Visibility Timeout) 이라고 부르는 속성은 중요한 속성이다.
+
+**메시지 보존 기간 (Message Retention Period)**
+
+처리되지 않은 메시지를 얼마나 SQS 에 보존할 것인가? 를 결정하는 속성이다.
+
+만약 여기에 명시된 시간 만큼 처리되지 않으면 자동으로 메시지를 큐에서 제거한다.
+
+**가시성 타임아웃 (Visibility Timeout)**
+
+이 속성은 중복 처리를 방지하기 위해서 사용되는 일종의 hold and wait 방식의 locking 이다.
+
+특정 consumer 에게 소비되었을 때 일정 시간 동안 다른 consumer 에게 보이지 않도록 하는 시간이고 해당 시간이 모두 소비되어야 다른 소비자가 이를 다시 점유할 수 있다.
+
+하지만 완전한 의미에서 locking 이나 atomic 을 보장하지는 않는다는 것을 명심하자.
+
+### DLQ 와 Redriving
+
+DLQ 를 통해 실패를 핸들링할 수 있다. 이와 관련된 속성들은 다음 시간에 배울 DLQ 에서 자세히 알아보자.
+
 5. message wait time
 6. redrive allow
 7. dead-letter-queue
