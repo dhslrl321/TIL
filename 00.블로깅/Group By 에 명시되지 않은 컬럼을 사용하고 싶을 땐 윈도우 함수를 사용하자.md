@@ -118,4 +118,10 @@ WHERE RN = 1;
 
 등등
 
+# 마치며
+
+window 함수는 group by 함수가 할 수 없는 그루핑 후 전체 테이블 조회가 가능하다.
+
+하지만
+
 [##_Image|kage@85DO1/btsKMCGrjoT/1KbHE19RmdVgnNJi44rO60/img.png|CDM|1.3|{"originWidth":1816,"originHeight":316,"style":"alignCenter","width":791,"height":138}_##]
